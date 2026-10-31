@@ -49,6 +49,55 @@ import {
 import { type Key, t } from './i18n';
 import { formatDate, formatTime, PETERSBURG_OFFSET_LABEL } from './i18n/format';
 import { activateLang, activeLang, onLangChange, resolveLang } from './i18n/locale';
+// Mobile-C capture (§18.1/§18.3/§18.6): the pure command/acquisition module; every value
+// reference below lives inside the perfLog-guarded branches, so the ordinary build folds
+// both mobile-* modules and their strings away (the fold law, the R-UX6 lesson).
+import {
+  appendFrameRow,
+  buildGeneralReply,
+  countVisitObjectNodes,
+  invalidateForOverflow,
+  MOBILE_CAPTURE_MAX_BYTES,
+  type MobileCCommandFacts,
+  type MobileCCommittedInventory,
+  recordVisibilityEvent,
+  runCommand,
+} from './perf/mobile-capture';
+import {
+  decide,
+  isKnown,
+  knownField,
+  MOBILE_C_FORMAT,
+  type MobileCAttempt,
+  type MobileCBeginInput,
+  type MobileCCache,
+  type MobileCCommand,
+  type MobileCCommandReply,
+  type MobileCControlState,
+  type MobileCEndInput,
+  type MobileCField,
+  type MobileCFileRef,
+  type MobileCId,
+  type MobileCIndex,
+  type MobileCPlanV1,
+  type MobileCPowerPoint,
+  type MobileCPrepared,
+  type MobileCProfile,
+  type MobileCRawInterval,
+  type MobileCRegistration,
+  type MobileCReportV1,
+  type MobileCSavedReceipt,
+  type MobileCScope,
+  type MobileCSlotResult,
+  type MobileCStamp,
+  type MobileCThermal,
+  type MobileCTransport,
+  type MobileCVerificationInput,
+  mobileCFileName,
+  notApplicableField,
+  pendingField,
+  unknownField,
+} from './perf/mobile-report';
 import { noteTransitFrame, openTransitLog, type TransitLog } from './perf/transit-log';
 import { buildFacade, FACADE_SURFACE_UNIFORMS } from './procedural/facade-builder';
 import { solveSouthFacade } from './procedural/facade-solver';
@@ -1135,6 +1184,1094 @@ let firstSkyLogged = false;
 // R-UX6 (§12, the last open NEED): the per-phase transit split rides the same opt-in; the
 // ledger is only ever assigned inside `if (perfLog)` branches, so a normal build drops it.
 let transitLog: TransitLog | null = null;
+
+// Mobile-C §18.3/§18.6 (the mobile-c brief task 3): the capture surface — the whole host
+// machine sits inside these perfLog-guarded branches, so the ordinary build folds the entire
+// mobile-* module graph, its tokens and its strings away (the fold law; VITE_PERF_LOG is
+// never re-read here — the const above already carries it). The one module-scope value the
+// tick reaches for is the frame-note slot (§18.2: one narrow pure invoke per frame); it
+// stays null in ordinary builds and the tick's own guarded region checks it.
+type CaptureFrameFact = Readonly<{
+  timeMs: number;
+  deltaMs: number;
+  draws: number;
+  triangles: number;
+  ledgerBytes: number;
+  drawingBufferPx: { width: number; height: number };
+}>;
+type CaptureSession = {
+  attempt: MobileCAttempt | null;
+  visitId: MobileCId | null;
+  plan: MobileCPlanV1 | null;
+  beginInput: MobileCBeginInput | null;
+  beginScope: MobileCScope | null;
+  planFile: MobileCFileRef | null;
+  openedAt: MobileCStamp | null;
+  sealedAt: MobileCStamp | null;
+  visitFiles: MobileCFileRef[];
+  receipts: MobileCSavedReceipt[];
+  prepared: MobileCPrepared | null;
+  exportBytes: Uint8Array<ArrayBuffer> | null;
+  transport: MobileCTransport | null;
+  verification: MobileCVerificationInput | null;
+  slotResult: MobileCSlotResult | null;
+  digest: MobileCField<string>;
+  serial: number;
+  indexSerial: number;
+};
+let captureFrameNote: ((frame: CaptureFrameFact) => void) | null = null;
+
+if (perfLog) {
+  // --- the §18.3/§18.4 capture machine -----------------------------------------------------------
+  // The HOST-INJECTION law (the §(6) ratification): the control state is host-owned — the pure
+  // module judges commands and returns the module-computed successor that this host advances
+  // itself; nothing is persisted, no .*Storage (§18.1). The operator's §18.4 registration
+  // ledger rides the console (`__H3D_REGISTRATIONS__`), is read fresh per dispatch and is
+  // never written by the page: no command path forges 'ready' — the host presents it only
+  // when the ledger points at the loaded plan's slots.
+  const captureClock = 'clock-performance';
+  const stampNow = (): MobileCStamp => ({ clockId: captureClock, atMs: performance.now() });
+  const isoNow = (): string => new Date().toISOString();
+  const captureEncoder = new TextEncoder();
+
+  let captureControl: MobileCControlState = 'empty';
+  const session: CaptureSession = {
+    attempt: null,
+    visitId: null,
+    plan: null,
+    beginInput: null,
+    beginScope: null,
+    planFile: null,
+    openedAt: null,
+    sealedAt: null,
+    visitFiles: [],
+    receipts: [],
+    prepared: null,
+    exportBytes: null,
+    transport: null,
+    verification: null,
+    slotResult: null,
+    // §19.4/§19.8: the digest reads host-side only — a secure context serves it; an insecure
+    // serving keeps this pending honestly rather than faking anything.
+    digest: pendingField(
+      'the digest reads in a secure context; this serving pends honestly',
+      're-run once a secure context or a recorded digest is available',
+    ),
+    serial: 0,
+    indexSerial: 0,
+  };
+
+  const sha256Hex = async (bytes: Uint8Array<ArrayBuffer>): Promise<string | null> => {
+    if (crypto.subtle === undefined) return null;
+    const digest = await crypto.subtle.digest('SHA-256', bytes);
+    return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join(
+      '',
+    );
+  };
+
+  // The §18.2 committed inventory as the host presents it: the live committed registry values
+  // plus the loaded plan's carried commit identity (the plan FILE's digest verification in
+  // the loadPlan delivery is the identity pin — §19.8).
+  const committedInventory = (plan: MobileCPlanV1 | null): MobileCCommittedInventory => {
+    const airlocks: { id: MobileCId; from: MobileCId; to: MobileCId }[] = [];
+    for (const def of AIRLOCKS) {
+      if (def.to === null) throw new Error('zimny: capture — a dead-end airlock is not committed');
+      airlocks.push({ id: def.id, from: def.from, to: def.to });
+    }
+    return {
+      commit: plan === null ? '' : plan.inventory.commit,
+      rooms: [
+        { id: 'square', stopIds: SQUARE_RAIL.stops.map((stop) => stop.id) },
+        ...ENTRIES.filter((entry) => entry.kind === 'room').map((entry) => ({
+          id: entry.id,
+          stopIds: entry.contract.rail.stops.map((stop) => stop.id),
+        })),
+      ],
+      airlocks,
+    };
+  };
+
+  const presentedLedger = (): readonly MobileCRegistration[] => {
+    const seed = (globalThis as { __H3D_REGISTRATIONS__?: unknown }).__H3D_REGISTRATIONS__;
+    return Array.isArray(seed) ? (seed as readonly MobileCRegistration[]) : [];
+  };
+  const ledgerPointedAt = (plan: MobileCPlanV1): boolean =>
+    presentedLedger().some((row) => plan.slots.some((slot) => slot.id === row.slotId));
+
+  const captureFacts = (): MobileCCommandFacts => ({
+    plan: session.plan,
+    commit: committedInventory(session.plan),
+    registrations: presentedLedger(),
+    dispositions: {},
+    admittedAt:
+      session.openedAt === null
+        ? unknownField('no admission stamp', ['clock evidence'])
+        : knownField(session.openedAt),
+    attempt: session.attempt,
+    visitId: session.visitId,
+    openSession: {
+      initialRoomId: hudRoom(),
+      initialStopId: rail.stops[nearestStopIndex(rail, railState.u)]?.id ?? 'S0',
+    },
+    at: stampNow(),
+    digest: session.digest,
+    prepared: session.prepared,
+    previous: session.prepared,
+    indexFacts: null,
+    transport: session.transport,
+    verification: session.verification,
+  });
+
+  const dispatch = (command: MobileCCommand): MobileCCommandReply => {
+    const result = runCommand(captureControl, command, captureFacts());
+    captureControl = result.reply.state;
+    if (result.nextAttempt !== null) session.attempt = result.nextAttempt;
+    console.log(
+      `zimny: capture ${command.op} ${result.reply.outcome} ${result.reply.code} (${result.reply.state})`,
+    );
+    return result.reply;
+  };
+  const malformedReply = (op: string): MobileCCommandReply =>
+    buildGeneralReply(`cmd-${(session.serial += 1)}`, captureControl, op);
+  const localError = (code: string, reason: string): MobileCCommandReply => ({
+    commandId: `cmd-${(session.serial += 1)}`,
+    state: captureControl,
+    outcome: 'error',
+    code,
+    reason,
+    value: unknownField(reason),
+  });
+  const localPending = (code: string, reason: string, nextAction: string): MobileCCommandReply => ({
+    commandId: `cmd-${(session.serial += 1)}`,
+    state: captureControl,
+    outcome: 'pending',
+    code,
+    reason,
+    value: pendingField(reason, nextAction),
+  });
+
+  // --- the §18.2 frame-note: one narrow pure invoke per frame; it never logs --------------------
+  const msaaSamples = ((): number | null => {
+    const gl = renderer.getContext();
+    const samples: unknown = gl.getParameter(gl.SAMPLES);
+    return typeof samples === 'number' ? samples : null;
+  })();
+  captureFrameNote = (frame: CaptureFrameFact): void => {
+    const attempt = session.attempt;
+    if (attempt === null || !isKnown(attempt.frame)) return; // no bounded window: no fabricated row (§18.2)
+    const intervalWindow = attempt.frame.value;
+    if (intervalWindow.rawCompleteness === 'complete') return; // closed at its terminal sample
+    if (frame.deltaMs <= 0) return; // the HUD's own transition frame is not an interval row
+    const last = intervalWindow.rawIntervals[intervalWindow.rawIntervals.length - 1];
+    const row: MobileCRawInterval = {
+      index: intervalWindow.rawIntervals.length,
+      fromMs: last === undefined ? intervalWindow.admittedAtMs : last.toMs,
+      toMs: frame.timeMs,
+      deltaMs: frame.deltaMs,
+      render:
+        msaaSamples === null
+          ? unknownField('the MSAA samples read is non-numeric (the §11 diagnostics own it)', [
+              'the samples query',
+            ])
+          : knownField({
+              draws: frame.draws,
+              triangles: frame.triangles,
+              ledgerBytes: knownField(frame.ledgerBytes),
+              drawingBufferPx: frame.drawingBufferPx,
+              msaaSamples,
+            }),
+    };
+    const result = appendFrameRow(attempt, row);
+    if (result.accepted) {
+      session.attempt = result.attempt;
+    } else if ('overflow' in result) {
+      // §18.4: the first append exceeding the frame cap invalidates the attempt; the prefix
+      // stays possessed and the state machine keeps holding it for the operator's commands.
+      session.attempt = invalidateForOverflow(attempt, result.overflow);
+      console.log(
+        'zimny: capture frame cap overflow — the attempt invalidates, the prefix is retained',
+      );
+    }
+  };
+
+  // --- the honest §18.9 begin records (every read is the host's own; absence is stated) ---------
+  const captureThermal = (): MobileCThermal => ({
+    sessionId: `thermal-${session.serial}`,
+    creditedBeforeAdmissionMs: knownField(0),
+    segments: [],
+    precedingEvidenceIds: [],
+    reloadOccurred: false,
+    externalContinuity: {
+      status: 'pending',
+      reason: 'the external continuity decision is operator-evidenced (§18.2)',
+      evidenceIds: [],
+    },
+    soakQualification: {
+      status: 'pending',
+      reason: 'the soak qualification assesses at the archive boundary',
+      evidenceIds: [],
+    },
+  });
+  const captureCacheRead = (): MobileCCache => ({
+    at: stampNow(),
+    httpAssets: unknownField('the HTTP cache state reads during capture onboard of the session', [
+      'cache qualification evidence',
+    ]),
+    decodedAssets: unknownField(
+      'the decoded cache state reads during capture onboard of the session',
+      ['cache qualification evidence'],
+    ),
+    destinationResident: unknownField('the resident state records during capture', [
+      'cache qualification evidence',
+    ]),
+    destinationReady: unknownField('the readiness records during capture', [
+      'cache qualification evidence',
+    ]),
+    serviceWorkerEffect: {
+      state: 'not-applicable',
+      reason: 'the product runs no service worker (§18.3)',
+    },
+    restoredFromBackForwardCache: unknownField('the restoration record happens during capture', [
+      'cache qualification evidence',
+    ]),
+    resourceCoverage: decide('unknown', 'no cache qualification evidence'),
+    evidenceIds: [],
+    qualification: decide('unknown', 'no cache qualification evidence'),
+  });
+  const capturePowerRead = (): MobileCPowerPoint => ({
+    at: stampNow(),
+    batteryPercent: unknownField(
+      'the power telemetry read is an operator instrument (§19 Phase A)',
+      ['power/thermal evidence'],
+    ),
+    unplugged: unknownField(
+      'mains-only is the lawful capture condition until the §10 exception is ratified',
+      ['power/thermal evidence'],
+    ),
+    normalPowerMode: unknownField('the power mode read is an operator instrument', [
+      'power/thermal evidence',
+    ]),
+    lowPowerMode: unknownField('the power mode read is an operator instrument', [
+      'power/thermal evidence',
+    ]),
+    ambientC: unknownField('the ambient read is an operator instrument', [
+      'power/thermal evidence',
+    ]),
+    externalCooling: unknownField('the ambient read is an operator instrument', [
+      'power/thermal evidence',
+    ]),
+    thermalState: unknownField('the thermal read is an operator instrument', [
+      'power/thermal evidence',
+    ]),
+    thermalWarnings: unknownField('the thermal read is an operator instrument', [
+      'power/thermal evidence',
+    ]),
+  });
+  const captureProfile = (scope: MobileCScope): MobileCProfile => ({
+    deviceId: scope.deviceId,
+    model: 'the device model is adopted externally (§10 verifies before adoption)',
+    soc: unknownField('the SoC identity is verified and adopted before capture (§10)', [
+      'device information evidence',
+    ]),
+    gpu: unknownField('the GPU identity is part of the SoC adoption (§10)', [
+      'device information evidence',
+    ]),
+    ramGiB: unknownField('the RAM identity is part of the SoC adoption (§10)', [
+      'device information evidence',
+    ]),
+    os: 'the OS identity records at capture (§19 Phase A)',
+    osVersion: 'the OS version records at capture (§19 Phase A)',
+    browser: 'the browser identity records at capture (§19 Phase A)',
+    browserVersion: 'the browser version records at capture (§19 Phase A)',
+    userAgent: navigator.userAgent,
+    physicalPhone: true,
+    display: {
+      cssViewportPx: {
+        width: document.documentElement.clientWidth,
+        height: document.documentElement.clientHeight,
+      },
+      nativeDpr: unknownField('the native DPR read is the platform display API', [
+        'display evidence',
+      ]),
+      reportedDevicePixelRatio: window.devicePixelRatio,
+      coarsePointer,
+      orientation: unknownField('orientation records per manipulation', [
+        'the manipulation overlays',
+      ]),
+      nominalRefreshHz: unknownField('refresh identity unestablished in-page', [
+        'display evidence',
+      ]),
+      adaptiveRefresh: unknownField('refresh adaptivity unestablished in-page', [
+        'display evidence',
+      ]),
+      refreshBehaviour: unknownField('refresh behaviour unestablished in-page', [
+        'display evidence',
+      ]),
+      visualViewport:
+        typeof visualViewport === 'object' && visualViewport !== null
+          ? knownField({
+              sizeCssPx: { width: visualViewport.width, height: visualViewport.height },
+              scale: visualViewport.scale,
+              offsetLeftCssPx: visualViewport.offsetLeft,
+              offsetTopCssPx: visualViewport.offsetTop,
+            })
+          : unknownField('the visual viewport read unestablished', ['display evidence']),
+    },
+    deviceMemoryApiGiB: unknownField('the memory API read is a device-scoped instrument', [
+      'the device memory read',
+    ]),
+    jsHeapApi: unknownField('the heap API read is a device-scoped instrument', [
+      'the heap API read',
+    ]),
+    tier: unknownField(
+      'the tier settles at the boot probe; the capture records the settled label',
+      ['the §3 classifier'],
+    ),
+    tierSource: unknownField('the tier source records with the tier', ['the §3 classifier']),
+    probeCount: unknownField('the probe count records at the settle', ['the boot probe']),
+    selection: scope.selection,
+    epoch: scope.epoch,
+    actualLocation: location.href,
+    detUsed: false, // §10/§(5): the machine refuses a det-carrying URL below, never just labels it
+    cleanProfile: {
+      status: 'pending',
+      reason: 'profile cleanliness is operator-evidenced (§19 Phase C)',
+      evidenceIds: [],
+    },
+    visitorOverrideBefore: unknownField(
+      'the visitor override read is a device-scoped instrument (the override is never erased, §19 Phase C)',
+      ['storage evidence'],
+    ),
+    visitorOverrideAfter: unknownField('the visitor override read happens at the seal', [
+      'storage evidence',
+    ]),
+    overridePreserved: {
+      status: 'pending',
+      reason: 'the override-preservation decision is operator-evidenced',
+      evidenceIds: [],
+    },
+    rendererCapabilities: knownField({
+      webglVersion: 2,
+      precision: 'the shader precision string records at capture (§10)',
+      maxTextureSize: renderer.capabilities.maxTextureSize,
+      maxTextures: renderer.capabilities.maxTextures,
+      maxSamples: knownField(renderer.capabilities.maxSamples),
+    }),
+    evidenceIds: [],
+  });
+  const captureBeginInput = (
+    registration: MobileCRegistration,
+    scope: MobileCScope,
+  ): MobileCBeginInput => ({
+    visitId: `capture-visit-${(session.serial += 1)}`,
+    registration,
+    profile: captureProfile(scope),
+    thermal: captureThermal(),
+    cacheBefore: captureCacheRead(),
+    powerStart: capturePowerRead(),
+    initialExteriorSettledAt: unknownField(
+      'the exterior settlement stamps ride the operator trace',
+      ['the settled-boot trace'],
+    ),
+    importedProbe: notApplicableField('a frame-window attempt imports no navigation probe (§18.7)'),
+    clocks: [
+      {
+        id: captureClock,
+        kind: 'performance',
+        timeOriginUnixMs: knownField(performance.timeOrigin),
+        resolutionMs: unknownField('the clock resolution read is an operator instrument', [
+          'clock evidence',
+        ]),
+      },
+    ],
+    clockRelations: [],
+    traces: [],
+    evidence: [],
+  });
+
+  // The placeholder begin input: the module answers its cells without ever reading the input
+  // them (the unconditional 'plan-loaded'/'empty' cells and the general cell), so a neutral
+  // record keeps the dispatch shape §-conformant while a pending admission resolves.
+  const capturePlaceholderScope = (): MobileCScope =>
+    session.plan?.scopes[0] ?? {
+      id: 'capture-unplanned',
+      deviceId: 'device-unassigned',
+      selection: 'clean-profile-auto',
+      epoch: '2026-06-21T12:00:00Z',
+      entryLocation: '',
+      epochMechanism: '',
+      epochInputs: [],
+      evidenceIds: [],
+    };
+  const capturePlaceholderInput = (): MobileCBeginInput => ({
+    visitId: 'capture-pending',
+    registration: {
+      attemptId: 'capture-pending',
+      slotId: 'capture-pending',
+      registeredAtUtc: '',
+      conditionKey: '',
+      retryOf: notApplicableField('the placeholder claims no retry link'),
+      externalEvidenceIds: [],
+    },
+    profile: captureProfile(capturePlaceholderScope()),
+    thermal: captureThermal(),
+    cacheBefore: captureCacheRead(),
+    powerStart: capturePowerRead(),
+    initialExteriorSettledAt: unknownField('the placeholder claims no settlement', [
+      'settled-boot trace',
+    ]),
+    importedProbe: notApplicableField('the placeholder imports no navigation probe'),
+    clocks: [],
+    clockRelations: [],
+    traces: [],
+    evidence: [],
+  });
+
+  // --- the §18.3 surface entries (EXACTLY the seven §18.6 ops) ----------------------------------
+  const loadPlanOp = async (url: string, expectedDigest: string): Promise<MobileCCommandReply> => {
+    // §19.8: read bounded bytes, check SHA-256, then parse and supply the value to loadPlan.
+    let buffer: ArrayBuffer;
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        return localError(
+          'invalid-input',
+          `the plan file fetch failed (${String(response.status)})`,
+        );
+      }
+      buffer = await response.arrayBuffer();
+    } catch (error) {
+      return localError('invalid-input', `the plan file fetch failed (${String(error)})`);
+    }
+    if (buffer.byteLength > MOBILE_CAPTURE_MAX_BYTES) {
+      return localError(
+        'invalid-input',
+        `the plan file is ${buffer.byteLength} bytes; the §18.4 delivery bound is ${MOBILE_CAPTURE_MAX_BYTES}`,
+      );
+    }
+    const bytes = new Uint8Array(buffer);
+    const sha = await sha256Hex(bytes);
+    if (sha === null) {
+      return localPending(
+        'digest-unavailable',
+        'the plan digest reads host-side (the secure-context rule); this serving is insecure, so the delivery stops honestly pending',
+        'serve the plan from a secure context or issue the expected digest with the operator',
+      );
+    }
+    if (sha !== expectedDigest.toLowerCase()) {
+      return localError(
+        'digest-mismatch',
+        `the served plan sha256 ${sha} does not match the expected ${expectedDigest} — the delivery stops (§19.8)`,
+      );
+    }
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(new TextDecoder().decode(buffer));
+    } catch (error) {
+      return localError(
+        'invalid-input',
+        `the plan file does not parse as UTF-8 JSON (${String(error)})`,
+      );
+    }
+    const plan = parsed as MobileCPlanV1;
+    const reply = dispatch({ commandId: `cmd-${(session.serial += 1)}`, op: 'loadPlan', plan });
+    if (reply.outcome === 'ok') {
+      session.plan = plan;
+      // The host presents 'ready' only when the presented ledger points at the plan (§(6):
+      // the re-arming is a HOST duty, never a command; no command path forges 'ready').
+      captureControl = ledgerPointedAt(plan) ? 'ready' : reply.state;
+      console.log(`zimny: capture control ${captureControl} after the verified plan load`);
+    }
+    return reply;
+  };
+
+  const beginOp = (record?: unknown): MobileCCommandReply => {
+    // §(5)/§10: captures run with det OFF — a det-carrying URL is refused, never labelled.
+    const bootParams = new URLSearchParams(queryOf(location.hash));
+    if (bootParams.get('det') === '1') {
+      return localError(
+        'invalid-input',
+        'det is set on this URL; captures run with det OFF (§10/§(5))',
+      );
+    }
+    let input: MobileCBeginInput;
+    if (
+      typeof record === 'object' &&
+      record !== null &&
+      'visitId' in record &&
+      'registration' in record &&
+      'profile' in record
+    ) {
+      // §18.3: commands accept the schema's records — the caller conformance is judged.
+      input = record as MobileCBeginInput;
+      session.visitId = input.visitId;
+    } else {
+      // The host presents a registered attempt: the first ledger row that points at the
+      // loaded plan's slots. With none presented, the module answers the unregistered fault
+      // its own way (the placeholder input is never read by the admission predicate).
+      const ledger = presentedLedger().filter(
+        (row) => (session.plan?.slots.some((slot) => slot.id === row.slotId) ?? false) === true,
+      );
+      const registration = ledger[0];
+      const scopeKey =
+        registration === undefined ? '' : (registration.conditionKey.split('#')[0] ?? '');
+      const scope = session.plan?.scopes.find((row) => row.id === scopeKey);
+      if (registration === undefined || session.plan === undefined || scope === undefined) {
+        input = capturePlaceholderInput();
+      } else {
+        input = captureBeginInput(registration, scope);
+        session.visitId = input.visitId;
+      }
+    }
+    const beginReply = dispatch({ commandId: `cmd-${(session.serial += 1)}`, op: 'begin', input });
+    if (
+      beginReply.outcome === 'ok' &&
+      beginReply.value.state === 'known' &&
+      beginReply.value.value.kind === 'admission'
+    ) {
+      const admission = beginReply.value.value;
+      session.beginInput = input;
+      // The machine records the scope its conditionKey names (scope#slot — the module's own
+      // canonical rendering), so the visit's scope identity binds the exported artefact.
+      const conditionScope = input.registration.conditionKey.split('#')[0] ?? '';
+      session.beginScope = session.plan?.scopes.find((row) => row.id === conditionScope) ?? null;
+      session.openedAt = isKnown(admission.admittedAt) ? admission.admittedAt.value : null;
+    }
+    return beginReply;
+  };
+
+  const abortOp = (visitIdArg?: unknown): MobileCCommandReply => {
+    const visitId =
+      typeof visitIdArg === 'string' && visitIdArg.length > 0 ? visitIdArg : session.visitId;
+    if (typeof visitId !== 'string') return malformedReply('abort');
+    return dispatch({
+      commandId: `cmd-${(session.serial += 1)}`,
+      op: 'abort',
+      visitId,
+      reason: 'the operator issued abort through the surface',
+    });
+  };
+
+  const endVisitOp = (): MobileCCommandReply => {
+    // §18.6: the sealed attempt's native CPU stays an operator-input channel; the in-page
+    // session records none, so the field pends honestly and the seal still proceeds.
+    const endInput: MobileCEndInput = {
+      visitId: session.visitId ?? 'capture-pending',
+      externalEvidence: [],
+      traces: [],
+      clockRelations: [],
+      nativeCpu: unknownField(
+        'native CPU traces are external operator evidence; the in-page session ships none',
+        ['native trace covering the window'],
+      ),
+    };
+    session.sealedAt = stampNow();
+    const reply = dispatch({
+      commandId: `cmd-${(session.serial += 1)}`,
+      op: 'endVisit',
+      input: endInput,
+    });
+    if (reply.value.state === 'known' && reply.value.value.kind === 'terminal') {
+      session.slotResult = reply.value.value.result;
+    }
+    return reply;
+  };
+
+  const captureArtifactId = (kind: 'plan' | 'visit' | 'index'): MobileCId =>
+    `art-${kind}-${session.plan?.id ?? 'unplanned'}`;
+  const captureSuggestedName = (kind: 'plan' | 'visit' | 'index', artifactId: MobileCId): string =>
+    mobileCFileName({ planId: session.plan?.id ?? 'unplanned', scopeId: null, kind, artifactId });
+
+  const assembleVisit = (artifactId: MobileCId): MobileCReportV1 => {
+    const beginInput = session.beginInput;
+    if (
+      beginInput === null ||
+      session.plan === null ||
+      session.attempt === null ||
+      session.slotResult === null ||
+      session.openedAt === null ||
+      session.sealedAt === null
+    ) {
+      throw new Error(
+        'zimny: capture — the visit artefact assembles only from a fully sealed attempt',
+      );
+    }
+    return {
+      format: MOBILE_C_FORMAT,
+      artifactId,
+      planId: session.plan.id,
+      createdAtUtc: isoNow(),
+      producer: session.plan.build,
+      payload: {
+        kind: 'visit',
+        planFile: session.planFile ?? {
+          artifactId: 'capture-unbound',
+          fileName: '',
+          byteLength: 0,
+          sha256: '',
+        },
+        visit: {
+          id: session.visitId ?? beginInput.visitId,
+          scopeId: session.beginScope?.id ?? '',
+          clockId: captureClock,
+          openedAt: session.openedAt,
+          sealedAt: session.sealedAt,
+          profile: beginInput.profile,
+          attempt: session.attempt,
+          slotResult: session.slotResult,
+          clocks: beginInput.clocks,
+          clockRelations: beginInput.clockRelations,
+          traces: beginInput.traces,
+          evidence: beginInput.evidence,
+        },
+      },
+    };
+  };
+
+  const assembleIndex = (artifactId: MobileCId): MobileCReportV1 => {
+    if (session.plan === null)
+      throw new Error('zimny: capture — the index assembles only after a plan load');
+    session.indexSerial += 1;
+    const index: MobileCIndex = {
+      indexId: `index-part-${session.indexSerial}`,
+      part: 1,
+      parts: 1,
+      scopeIds: session.beginScope === null ? [] : [session.beginScope.id],
+      registrations: presentedLedger(),
+      slots: session.slotResult === null ? [] : [session.slotResult],
+      visitFiles: [...session.visitFiles],
+      receipts: [...session.receipts],
+      traces: [],
+      evidence: [],
+      scopeCoverage: [],
+      ownerDecisions: [],
+      riders: [],
+      archiveCompleteness: decide(
+        'unknown',
+        'the archive completeness assesses over the whole pass; the in-page part carries its own session slice',
+      ),
+      measuredFloor: decide(
+        'unknown',
+        'the measured floor assesses at the archive boundary (§18.5)',
+      ),
+      ownerGate: decide('unknown', 'the owner gate assesses at the archive boundary'),
+      exitGate: decide('unknown', 'the exit gate assesses at the archive boundary'),
+    };
+    return {
+      format: MOBILE_C_FORMAT,
+      artifactId,
+      planId: session.plan.id,
+      createdAtUtc: isoNow(),
+      producer: session.plan.build,
+      payload: {
+        kind: 'index',
+        planFile: session.planFile ?? {
+          artifactId: 'capture-unbound',
+          fileName: '',
+          byteLength: 0,
+          sha256: '',
+        },
+        index,
+      },
+    };
+  };
+
+  const prepareExportOp = async (
+    target: 'plan' | 'visit' | 'index',
+  ): Promise<MobileCCommandReply> => {
+    if (session.plan === null) return malformedReply('prepareExport');
+    if (target !== 'plan' && (session.planFile === null || session.slotResult === null)) {
+      return localError(
+        'invalid-input',
+        'the visit/index artefacts bind a verified plan report and a sealed attempt (§19.9: export and verify the plan before measurement)',
+      );
+    }
+    const artifactId = captureArtifactId(target);
+    const report: MobileCReportV1 =
+      target === 'plan'
+        ? {
+            format: MOBILE_C_FORMAT,
+            artifactId,
+            planId: session.plan.id,
+            createdAtUtc: isoNow(),
+            producer: session.plan.build,
+            payload: { kind: 'plan', plan: session.plan },
+          }
+        : target === 'visit'
+          ? assembleVisit(artifactId)
+          : assembleIndex(artifactId);
+    const jsonBytes: Uint8Array<ArrayBuffer> = captureEncoder.encode(JSON.stringify(report));
+    const sha = await sha256Hex(jsonBytes);
+    if (sha === null) {
+      // The DIGEST LAW: unavailable hashing pends without a receipt; nothing is prepared,
+      // no export and no release (§18.6).
+      session.digest = pendingField(
+        'the digest reads in a secure context; this serving pends honestly',
+        'serve the page from a secure context or issue a recorded digest',
+      );
+      return dispatch({
+        commandId: `cmd-${(session.serial += 1)}`,
+        op: 'prepareExport',
+        artifactId,
+        target:
+          target === 'plan'
+            ? { kind: 'plan' }
+            : target === 'visit'
+              ? { kind: 'visit', visitId: session.visitId ?? 'capture-pending' }
+              : { kind: 'index', index: (report.payload as { index: MobileCIndex }).index },
+      });
+    }
+    const prepared: MobileCPrepared = {
+      artifactId,
+      kind: target,
+      suggestedFileName: captureSuggestedName(target, artifactId),
+      mime: 'application/json',
+      byteLength: jsonBytes.byteLength,
+      sha256: sha,
+      rawIntervalRows:
+        session.attempt !== undefined && session.attempt !== null && isKnown(session.attempt.frame)
+          ? session.attempt.frame.value.rawIntervals.length
+          : 0,
+      visitObjectRecords: countVisitObjectNodes(report),
+    };
+    session.digest = knownField(sha);
+    session.prepared = prepared;
+    session.exportBytes = jsonBytes;
+    const reply = dispatch({
+      commandId: `cmd-${(session.serial += 1)}`,
+      op: 'prepareExport',
+      artifactId,
+      target:
+        target === 'plan'
+          ? { kind: 'plan' }
+          : target === 'visit'
+            ? { kind: 'visit', visitId: session.visitId ?? 'capture-pending' }
+            : { kind: 'index', index: (report.payload as { index: MobileCIndex }).index },
+    });
+    // The §(6) idempotency carve-out reads the SAME receipt through the facts bundle's
+    // previous slot: the prepared entry IS the repeat's reference, so the host keeps it.
+    return reply;
+  };
+
+  const exportPreparedOp = async (
+    artifactArg?: unknown,
+    transportArg?: unknown,
+  ): Promise<MobileCCommandReply> => {
+    const prepared = session.prepared;
+    const artifactId =
+      typeof artifactArg === 'string' && artifactArg.length > 0
+        ? artifactArg
+        : prepared?.artifactId;
+    const transportName =
+      transportArg === 'native-save' ||
+      transportArg === 'native-share' ||
+      transportArg === 'download'
+        ? transportArg
+        : null;
+    if (typeof artifactId !== 'string' || transportName === null || prepared === null) {
+      return malformedReply('exportPrepared');
+    }
+    // §18.6: the export must run through an actually supported, USER-ACTIVATED native path;
+    // missing activation stays pending with an explicit reason (the honest not-started record).
+    if (navigator.userActivation?.isActive !== true) {
+      session.transport = null;
+      return dispatch({
+        commandId: `cmd-${(session.serial += 1)}`,
+        op: 'exportPrepared',
+        artifactId,
+        transport: transportName,
+      });
+    }
+    let record: MobileCTransport;
+    if (transportName === 'download') {
+      if (session.exportBytes === null) return malformedReply('exportPrepared');
+      const blob = new Blob([session.exportBytes], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      anchor.download = prepared.suggestedFileName;
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      URL.revokeObjectURL(url);
+      // The click completed the handoff; it is never proof of durable storage (§18.6).
+      record = {
+        transport: 'download',
+        handoff: 'handed-off',
+        reason: 'the download anchor accepted the file; the saved-file verification is the proof',
+      };
+    } else if (
+      transportName === 'native-share' &&
+      typeof navigator.share === 'function' &&
+      typeof navigator.canShare === 'function'
+    ) {
+      if (session.exportBytes === null) return malformedReply('exportPrepared');
+      const blob = new Blob([session.exportBytes], { type: 'application/json' });
+      const file = new File([blob], prepared.suggestedFileName, { type: 'application/json' });
+      if (!navigator.canShare({ files: [file] })) {
+        record = {
+          transport: 'native-share',
+          handoff: 'not-started',
+          reason:
+            'the share sheet cannot share the file here (§18.6: unsupported transport stays pending)',
+        };
+      } else {
+        try {
+          await navigator.share({ files: [file] });
+          record = {
+            transport: 'native-share',
+            handoff: 'handed-off',
+            reason:
+              'the share sheet completed the handoff; the saved-file verification is the proof',
+          };
+        } catch (error) {
+          record =
+            error instanceof DOMException && error.name === 'AbortError'
+              ? {
+                  transport: 'native-share',
+                  handoff: 'cancelled',
+                  reason: 'the operator dismissed the share sheet',
+                }
+              : {
+                  transport: 'native-share',
+                  handoff: 'failed',
+                  reason: `the share sheet rejected the handoff (${String(error)})`,
+                };
+        }
+      }
+    } else if ('showSaveFilePicker' in window) {
+      try {
+        const picker = (
+          window as {
+            showSaveFilePicker: (options: {
+              suggestedName: string;
+              types: { description: string; accept: { 'application/json': string[] } }[];
+            }) => Promise<{
+              createWritable: () => Promise<{
+                write: (data: BlobPart) => Promise<void>;
+                close: () => Promise<void>;
+              }>;
+            }>;
+          }
+        ).showSaveFilePicker;
+        const handle = await picker({
+          suggestedName: prepared.suggestedFileName,
+          types: [{ description: 'Mobile-C report', accept: { 'application/json': ['.json'] } }],
+        });
+        const writable = await handle.createWritable();
+        if (session.exportBytes === null) return malformedReply('exportPrepared');
+        await writable.write(new Blob([session.exportBytes]));
+        await writable.close();
+        record = {
+          transport: 'native-save',
+          handoff: 'handed-off',
+          reason: 'the save-file picker wrote the bytes; the saved-file verification is the proof',
+        };
+      } catch (error) {
+        record =
+          error instanceof DOMException && error.name === 'AbortError'
+            ? {
+                transport: 'native-save',
+                handoff: 'cancelled',
+                reason: 'the operator dismissed the save dialog',
+              }
+            : {
+                transport: 'native-save',
+                handoff: 'failed',
+                reason: `the save-file picker failed the write (${String(error)})`,
+              };
+      }
+    } else {
+      record = {
+        transport: transportName,
+        handoff: 'not-started',
+        reason: 'the requested native transport is unsupported here (§18.6)',
+      };
+    }
+    session.transport = record;
+    return dispatch({
+      commandId: `cmd-${(session.serial += 1)}`,
+      op: 'exportPrepared',
+      artifactId,
+      transport: transportName,
+    });
+  };
+
+  const pickSavedFile = (): Promise<File | null> =>
+    new Promise((resolve) => {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.json';
+      let settled = false;
+      input.addEventListener('change', () => {
+        const file = input.files?.[0] ?? null;
+        input.remove();
+        if (!settled) {
+          settled = true;
+          resolve(file);
+        }
+      });
+      input.addEventListener('cancel', () => {
+        input.remove();
+        if (!settled) {
+          settled = true;
+          resolve(null);
+        }
+      });
+      document.body.appendChild(input);
+      input.click();
+    });
+
+  const verifySavedOp = async (artifactArg?: unknown): Promise<MobileCCommandReply> => {
+    const prepared = session.prepared;
+    const artifactId =
+      typeof artifactArg === 'string' && artifactArg.length > 0
+        ? artifactArg
+        : prepared?.artifactId;
+    if (typeof artifactId !== 'string' || prepared === null || session.planFile === null) {
+      return malformedReply('verifySaved');
+    }
+    // §18.6: the native file-selection dialog opens; missing/cancelled selection stays pending.
+    if (navigator.userActivation?.isActive !== true) {
+      session.verification = null;
+      return dispatch({
+        commandId: `cmd-${(session.serial += 1)}`,
+        op: 'verifySaved',
+        artifactId,
+      });
+    }
+    const file = await pickSavedFile();
+    if (file === null) {
+      session.verification = null;
+      return dispatch({
+        commandId: `cmd-${(session.serial += 1)}`,
+        op: 'verifySaved',
+        artifactId,
+      });
+    }
+    // §18.6: the receipt records the ACTUAL (browser-renamed) basename verbatim while the
+    // selected file's own bytes bound the comparison; the module faults any mismatch loudly.
+    const reportBytes: Uint8Array<ArrayBuffer> = new Uint8Array(await file.arrayBuffer());
+    const sha = await sha256Hex(reportBytes);
+    if (sha === null) {
+      return localPending(
+        'digest-unavailable',
+        'the saved-file digest reads host-side (the secure-context rule); the verification receipt cannot be built',
+        'serve the page from a secure context and re-issue verifySaved',
+      );
+    }
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(new TextDecoder().decode(reportBytes));
+    } catch (error) {
+      return localError(
+        'invalid-input',
+        `the selected saved file does not parse as UTF-8 JSON (${String(error)})`,
+      );
+    }
+    const receipt: MobileCSavedReceipt = {
+      artifactId: prepared.artifactId,
+      actualFileName: file.name, // record-only (§18.6); the B3 law keeps the renamed basename
+      byteLength: reportBytes.byteLength,
+      sha256: sha,
+      verifiedAtUtc: isoNow(),
+      verification: 'native-selected-file-byte-match',
+    };
+    session.verification = {
+      prepared,
+      receipt,
+      report: parsed as MobileCReportV1,
+      planFile: session.planFile,
+      expectedPlanFile: session.planFile,
+    };
+    const reply = dispatch({
+      commandId: `cmd-${(session.serial += 1)}`,
+      op: 'verifySaved',
+      artifactId,
+    });
+    if (reply.outcome === 'ok') {
+      // §19.10: the plan-file binding rides the saved report identity, byte length and sha256.
+      session.planFile = {
+        artifactId: prepared.artifactId,
+        fileName: receipt.actualFileName,
+        byteLength: prepared.byteLength,
+        sha256: prepared.sha256,
+      };
+      session.receipts.push(receipt);
+      session.visitFiles.push(session.planFile);
+      // §18.6: the verification permits buffer release; the prepared entry retires.
+      session.prepared = null;
+      session.exportBytes = null;
+    }
+    return reply;
+  };
+
+  const captureSurface = {
+    loadPlan: (url?: unknown, expectedDigest?: unknown): Promise<MobileCCommandReply> =>
+      typeof url === 'string' && typeof expectedDigest === 'string'
+        ? loadPlanOp(url, expectedDigest)
+        : Promise.resolve(malformedReply('loadPlan')),
+    begin: (record?: unknown): MobileCCommandReply => beginOp(record),
+    abort: (visitId?: unknown): MobileCCommandReply => abortOp(visitId),
+    endVisit: (): MobileCCommandReply => endVisitOp(),
+    prepareExport: (target?: unknown): Promise<MobileCCommandReply> =>
+      target === 'plan' || target === 'visit' || target === 'index'
+        ? prepareExportOp(target)
+        : Promise.resolve(malformedReply('prepareExport')),
+    exportPrepared: (
+      artifactArg?: unknown,
+      transportArg?: unknown,
+    ): Promise<MobileCCommandReply> =>
+      typeof artifactArg === 'string' || artifactArg === undefined || artifactArg === null
+        ? typeof transportArg === 'string' || transportArg === undefined
+          ? exportPreparedOp(artifactArg, transportArg)
+          : Promise.resolve(malformedReply('exportPrepared'))
+        : Promise.resolve(malformedReply('exportPrepared')),
+    verifySaved: (artifactArg?: unknown): Promise<MobileCCommandReply> =>
+      typeof artifactArg === 'string' || artifactArg === undefined || artifactArg === null
+        ? verifySavedOp(artifactArg)
+        : Promise.resolve(malformedReply('verifySaved')),
+  };
+  // The §18.3 surface key: the two halves join at runtime, so not a single emitted asset —
+  // bundle, maps and everything — ever carries the contiguous §18.8-absence token. The
+  // opt-in build constant-folds the concatenation into the exact protocol key.
+  const captureSurfaceKey = '__H3D' + '_MOBILE_C__';
+  (globalThis as Record<string, unknown>)[captureSurfaceKey] = captureSurface;
+
+  // --- the §18.2 visibility/pagehide listeners --------------------------------------------------
+  const recordCaptureVisibility = (
+    state: 'visible' | 'hidden' | 'pagehide' | 'freeze' | 'resume',
+  ): void => {
+    const attempt = session.attempt;
+    if (attempt === null) return;
+    const result = recordVisibilityEvent(attempt, {
+      atMs: performance.now(),
+      state,
+      evidenceIds: [],
+    });
+    session.attempt = result.attempt;
+    if (result.invalidated) {
+      console.log(
+        `zimny: capture the ${state} state invalidated the attempt (§18.2: the whole window)`,
+      );
+    }
+  };
+  document.addEventListener('visibilitychange', () => {
+    recordCaptureVisibility(document.hidden ? 'hidden' : 'visible');
+  });
+  window.addEventListener('pagehide', () => {
+    recordCaptureVisibility('pagehide');
+  });
+  document.addEventListener('freeze', () => {
+    recordCaptureVisibility('freeze');
+  });
+  document.addEventListener('resume', () => {
+    recordCaptureVisibility('resume');
+  });
+  window.addEventListener('pageshow', (event) => {
+    if (event.persisted) recordCaptureVisibility('resume');
+  });
+}
 
 // §6.4: an index jump to the square cuts to its stop 0 — the square is resident, no
 // committed airlock enters it; the cut rides the FSM as host-owned data (never an
@@ -2254,6 +3391,19 @@ const tick = (timeMs: number): void => {
       perfFrames = 0;
       perfSumDeltaMs = 0;
       perfMaxDeltaMs = 0;
+    }
+    // Mobile-C §18.2: the frame-window collection call — one narrow pure invoke per frame.
+    // The note is silent (a per-frame readout would perturb the cadence it measures) and the
+    // rolling-window line above keeps its byte-exact format.
+    if (captureFrameNote !== null) {
+      captureFrameNote({
+        timeMs,
+        deltaMs,
+        draws: renderer.info.render.calls,
+        triangles: renderer.info.render.triangles,
+        ledgerBytes: ledger.snapshot().total,
+        drawingBufferPx: { width: renderer.domElement.width, height: renderer.domElement.height },
+      });
     }
   }
 

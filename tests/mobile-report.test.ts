@@ -1033,18 +1033,29 @@ describe('artefact identity, naming and verification', () => {
     ).toContain('plan-reference-mismatch');
   });
 
-  it('rejects an unrecognised verification method and a non-portable saved name', () => {
+  it('rejects a non-portable suggested name; a renamed receipt basename stays record-only', () => {
+    // §18.6: the receipt records the browser-renamed basename verbatim — it cannot reject a
+    // byte-exact verification (the ratified B3 fix); the grammar governs the suggested name.
+    const renamed: MobileCSavedReceipt = { ...receipt, actualFileName: 'my report (1).json' };
+    expect(verificationFaults({ ...verificationInput, receipt: renamed })).toStrictEqual([]);
+    expect(assessVerification({ ...verificationInput, receipt: renamed }).status).toBe('pass');
+    const faults = verificationFaults({
+      ...verificationInput,
+      prepared: { ...prepared, suggestedFileName: 'my report (1).json' },
+    });
+    expect(faults).toContain('file-name-not-portable');
     expect(
-      verificationFaults({
+      assessVerification({
         ...verificationInput,
-        receipt: { ...receipt, actualFileName: 'my report (1).json' },
-      }),
-    ).toContain('file-name-not-portable');
+        prepared: { ...prepared, suggestedFileName: 'my report (1).json' },
+      }).status,
+    ).toBe('fail');
   });
 
   it('reports every mismatch rather than the first', () => {
     const faults = verificationFaults({
       ...verificationInput,
+      prepared: { ...prepared, suggestedFileName: 'nope.json' },
       receipt: {
         ...receipt,
         byteLength: 1,

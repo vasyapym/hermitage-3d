@@ -1604,7 +1604,12 @@ export const verificationFaults = (
   ) {
     faults.push('plan-reference-mismatch');
   }
-  if (parseMobileCFileName(receipt.actualFileName) === null) {
+  // §18.6: «Use h3d-mobile-c_v1_….json; identifier components must be portable ASCII letters,
+  // digits, underscores or hyphens. Record browser-renamed basenames in receipts.» The
+  // portable grammar governs the SUGGESTED name the preparation returns; the receipt's
+  // actualFileName is record-only (the browser's renamed basename verbatim), so a browser
+  // suffix like «(1).json» cannot reject a byte-exact verification (ratified B3 fix).
+  if (parseMobileCFileName(prepared.suggestedFileName) === null) {
     faults.push('file-name-not-portable');
   }
   if (receipt.verification !== 'native-selected-file-byte-match') {
