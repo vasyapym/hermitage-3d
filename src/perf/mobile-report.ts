@@ -1476,8 +1476,10 @@ export const isMobileCFormat = (report: MobileCReportV1): boolean =>
 
 export const payloadKind = (payload: MobileCPayload): 'plan' | 'visit' | 'index' => payload.kind;
 
-/** Portable-ASCII segment: letters, digits, hyphen and dot only; no separators or spaces. */
-const PORTABLE_SEGMENT = /^[A-Za-z0-9.-]+$/;
+/** Portable-ASCII segment: §18.6 verbatim — letters, digits, underscores or hyphens; dots are
+ * NOT portable. (The C2-1 integration shipped a dot-in/underscore-out class here; corrected to
+ * the ratified letter class — an orchestrator correction, recorded in the round row.) */
+const PORTABLE_SEGMENT = /^[A-Za-z0-9_-]+$/;
 
 export const isPortableSegment = (segment: string): boolean =>
   segment.length > 0 && PORTABLE_SEGMENT.test(segment);
@@ -1503,26 +1505,29 @@ export const mobileCFileName = (parts: MobileCNameParts): string =>
     parts.artifactId,
   ].join('_') + '.json';
 
+/**
+ * The reverse parse over the §18.6 grammar. With underscores legal inside every component, a
+ * name can admit more than one valid kind split; this parser is a STRUCTURAL validator that
+ * resolves deterministically (the leftmost valid kind wins — the regex engine's first match),
+ * and identity checks always go through fileNameMatchesParts / verificationFaults, where the
+ * expected parts are known and the round-trip is exact.
+ */
+const FILE_NAME_PATTERN =
+  /^h3d-mobile-c_v1_([A-Za-z0-9_-]+)_([A-Za-z0-9_-]+)_(plan|visit|index)_([A-Za-z0-9_-]+)\.json$/;
+
 export const parseMobileCFileName = (fileName: string): MobileCNameParts | null => {
-  if (!fileName.endsWith('.json')) {
+  const match = FILE_NAME_PATTERN.exec(fileName);
+  if (match === null) {
     return null;
   }
-  const stem = fileName.slice(0, fileName.length - '.json'.length);
-  const segments = stem.split('_');
-  if (segments.length !== 6) {
-    return null;
-  }
-  const [prefix, version, planId, scope, kind, artifactId] = segments;
-  if (prefix !== 'h3d-mobile-c' || version !== 'v1') {
-    return null;
-  }
-  if (planId === undefined || scope === undefined || artifactId === undefined) {
-    return null;
-  }
-  if (kind !== 'plan' && kind !== 'visit' && kind !== 'index') {
+  const [whole, planId, scope, kind, artifactId] = match;
+  if (whole === undefined || planId === undefined || scope === undefined || kind === undefined || artifactId === undefined) {
     return null;
   }
   if (![planId, scope, artifactId].every(isPortableSegment)) {
+    return null;
+  }
+  if (kind !== 'plan' && kind !== 'visit' && kind !== 'index') {
     return null;
   }
   return { planId, scopeId: scope === 'all' ? null : scope, kind, artifactId };

@@ -59,6 +59,7 @@ import {
   nextControlState,
   notApplicableField,
   notApplicableIsGrounded,
+  fileNameMatchesParts,
   parseMobileCFileName,
   pendingField,
   preparationsAgree,
@@ -959,6 +960,24 @@ describe('artefact identity, naming and verification', () => {
       kind: 'index',
       artifactId: 'a1',
     });
+  });
+
+  it('accepts §18.6 identifiers with underscores and hyphens, round-tripping through the parts', () => {
+    const parts = {
+      planId: 'plan_1',
+      scopeId: 'scope-A',
+      kind: 'visit' as const,
+      artifactId: 'art_1',
+    };
+    const name = mobileCFileName(parts);
+    expect(name).toBe('h3d-mobile-c_v1_plan_1_scope-A_visit_art_1.json');
+    expect(parseMobileCFileName(name)).toStrictEqual(parts);
+    expect(fileNameMatchesParts(name, parts)).toBe(true);
+  });
+
+  it('rejects dots inside identifier components (§18.6 allows none)', () => {
+    expect(parseMobileCFileName('h3d-mobile-c_v1_plan.1_all_index_a1.json')).toBeNull();
+    expect(parseMobileCFileName('h3d-mobile-c_v1_plan1_all_index_a1(1).json')).toBeNull();
   });
 
   it('rejects non-portable or malformed names', () => {
