@@ -11,3 +11,4 @@ probes/
 *.blend2
 tools/fonts/.venv/
 .agent/
+__pycache__/
