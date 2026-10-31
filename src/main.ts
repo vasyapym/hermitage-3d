@@ -968,6 +968,14 @@ bindLangToggle((target) => {
 document.fonts.ready.then(() => {
   layoutTouchRail();
 });
+// The fonts.ready guarantee is weaker than it reads: it resolves while NO load is PENDING,
+// which at boot can precede the woff2 fetches entirely — the late face swap then moves the
+// title's text mass WITHOUT a resize to hear, and the rail's center froze on the
+// fallback-metric band (the Ubuntu-26 CI runner proved the fall twice over, −108.5 px in
+// RU geometry's scrub clearance, both retries deterministic). loadingdone/loadingerror own
+// the settle: every finished face batch re-runs the host layout with the true metrics.
+document.fonts.addEventListener('loadingdone', layoutTouchRail);
+document.fonts.addEventListener('loadingerror', layoutTouchRail);
 
 const UP_AXIS = new THREE.Vector3(0, 1, 0);
 const RIGHT_AXIS = new THREE.Vector3(1, 0, 0);
