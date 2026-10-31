@@ -1521,7 +1521,13 @@ export const parseMobileCFileName = (fileName: string): MobileCNameParts | null 
     return null;
   }
   const [whole, planId, scope, kind, artifactId] = match;
-  if (whole === undefined || planId === undefined || scope === undefined || kind === undefined || artifactId === undefined) {
+  if (
+    whole === undefined ||
+    planId === undefined ||
+    scope === undefined ||
+    kind === undefined ||
+    artifactId === undefined
+  ) {
     return null;
   }
   if (![planId, scope, artifactId].every(isPortableSegment)) {
