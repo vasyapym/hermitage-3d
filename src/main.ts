@@ -2309,7 +2309,7 @@ const beginTransitTo = (target: NodeHandle, cold = false): void => {
       portalFrom: SQUARE_CUT_PORTAL,
       portalTo: SQUARE_CUT_PORTAL,
       transit: 'cut',
-      holdMs: 600,
+      holdMs: 800,
     };
   }
   if (def === null) {
@@ -2658,7 +2658,6 @@ scrub.addEventListener('input', () => {
   pendingEpochMs = scrubEpoch(gesture.anchorMs, scrub.valueAsNumber);
 });
 scrub.addEventListener('change', commitGesture);
-scrub.addEventListener('dblclick', returnToNow);
 scrub.addEventListener('keydown', (event) => {
   if (event.key === 'PageUp' || event.key === 'PageDown') {
     event.preventDefault();
@@ -3327,10 +3326,13 @@ const tick = (timeMs: number): void => {
     syncTouchRail();
   }
 
-  // Caption overlay (§6.1/§8.4): one pure presentation call per frame, DOM writes only on
-  // change (the hud law). The dwell outranks: the dark card carries the destination's
-  // seed-stop caption + the room title while black (§4, DEC-017); the title empties with
-  // the arrive phase and the arrival title beat suppresses until settled.
+  // Caption overlay (§6.1/§8.4): one pure presentation call per frame; DOM updates on view
+  // changes or on the title's fade completion. The dwell outranks: the dark card carries
+  // the destination's seed-stop caption + the room title while black (§4, DEC-017);
+  // leaving the card clears the title VIEW, and the host keeps the outgoing glyphs
+  // through the 240 ms fade (an instant textContent clear cut the fade dead — the
+  // R-UX1 window read as «gone in 0.2 s»). The stop caption stays visually retired
+  // (R16.1); the arrival title beat suppresses until settled.
   const captionNext = presentCaption(captionView, {
     stops: captionStops,
     stopIndex: nearestStopIndex(rail, railState.u),
@@ -3351,11 +3353,28 @@ const tick = (timeMs: number): void => {
   }
   if (captionDiff.stopId) caption.dataset.stop = captionNext.stopId ?? '';
   if (captionDiff.title) {
-    captionTitle.textContent = captionNext.title;
-    captionTitle.dataset.visible = String(captionNext.title !== '');
-    // The e2e breadcrumb (the CI poll-cadence lesson): a staged room's card lives exactly
-    // holdMs — a poll can miss the whole window — the attr STICKS with the last shown title.
-    if (captionNext.title !== '') captionTitle.dataset.shown = captionNext.title;
+    const visible = captionNext.title !== '';
+    // The outgoing glyphs ride their 240 ms fade: the text clears on the transition's end
+    // (or cancel), never the frame the view cleared — an instant clear cut the fade dead
+    // and the R-UX1 window read as «gone in 0.2 s». The visibility read guards an
+    // interrupted fade: a re-shown title must never be cleared by its predecessor's end
+    // event. Reduced motion has no transition at all — the clear stays immediate.
+    captionTitle.ontransitionend = (event) => {
+      if (
+        event.target === captionTitle &&
+        event.propertyName === 'opacity' &&
+        captionTitle.dataset.visible === 'false' &&
+        getComputedStyle(captionTitle).opacity === '0'
+      ) {
+        captionTitle.textContent = '';
+      }
+    };
+    captionTitle.ontransitioncancel = captionTitle.ontransitionend;
+    if (visible || reducedMotion) captionTitle.textContent = captionNext.title;
+    captionTitle.dataset.visible = String(visible);
+    // The e2e breadcrumb (the CI poll-cadence lesson): the attr STICKS with the last
+    // shown title; holdMs is the card's minimum dwell, never an exact painted duration.
+    if (visible) captionTitle.dataset.shown = captionNext.title;
   }
   if (captionDiff.announcement) captionLive.textContent = captionNext.announcement;
   captionView = captionNext;

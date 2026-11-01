@@ -146,12 +146,18 @@ The transit beat, in order:
    visible pass. The B-RT dev quad is toneMapped:false — dev-only, not in the
    product path.
 2. **Blackout + title card**: at black, the caption region shows the destination's
-   room title (the words clicked on the door label) with the entry-stop caption
-   beneath, in the existing dwell slot. Minimum dwell ~250–400 ms [declared: the
-   cinema cut-to-black; the hold constant is repurposed as the minimum]. If data is
-   not ready the card holds — black with a room name is a title card, not a hang.
-   No spinner/percentage ever; the ">2 s on device" clause stays a fix-not-hide
-   item, attacked by prefetch.
+   room title (the words clicked on the door label); the entry-stop caption beneath
+   is visually retired since R16.1 (its accessible announcement remains). The card's
+   minimum dwell is 800 ms on every card, doorway or cut, including index jumps
+   [the 2026-11-01 owner reading-fix: the R-UX1 ~250–400 ms cut-to-black window
+   dismissed the title in ≈ 0.2 s]. This is the card WINDOW, not an 800 ms
+   full-opacity plateau: the 240 ms fade plays inside it, and on leaving the card
+   the title VIEW clears while the host retains the outgoing glyphs through that
+   fade — an instant text clear once cut the fade dead (the writer's hand-over law,
+   main.ts). Reduced motion removes both fades. If data is not ready the card holds
+   — black with a room name is a title card, not a hang. No spinner/percentage
+   ever; the ">2 s on device" clause stays a fix-not-hide item, attacked by
+   prefetch.
 3. **Swap at black**: applySwap / upload / compile / PMREM inside the black.
 4. **Arrival glide** (~900 ms; declared): the camera starts a few metres back toward
    the destination portal (inside its doorway) and glides into the entry stop while
@@ -426,11 +432,11 @@ of 3 runs unless stated.
 | Invitation · a calm roll leans and enters ~0.7 s; a flick never enters | observed + begin line | the healthy wheel-through's begin `lean` **0.325 m** at fire | pass |
 | Invitation · reduced motion: no lean, enter fires | the cut transit | begin `lean` 0.000 m; card 284 ms, total 317 ms | pass |
 | Approach · S1 day ≤ 15% below lum 10/255, the darkest band inside the arch | probe (Rec. 709 luma) | **13.20%** (was ~40% at R-UX3's ruling; 0.77% recorded there pre-R-UX5) · mean 63.92/255 · darkest band #8 of 10 (the floor band before the arch mouth), 39.37/255 | pass |
-| Threshold · warm card ≤ 0.5 s | the transit split | card **283–316 ms** / 300 nominal (at-begin 284 on the resident; data +117–151 ms on the HTTP-cached rooms) | pass |
+| Threshold · warm card | the transit split | card **800 ms nominal** on every card (the 2026-11-01 reading-fix; the previous rows: card **283–316 ms** / 300 nominal, at-begin 284 on the resident, data +117–151 ms on the HTTP-cached rooms — historical under the 300 ms law) | remeasure |
 | Threshold · the camera in motion except the black card; nothing frozen | the split's max @phase + long tasks | max @depart ≤ 18.9 ms, @arrive ≤ 18.9 ms (1–2 vsync frames); long tasks in the glides: **0** | pass |
 | Threshold · the card = title + caption, never a spinner | observed (the S-A cold card, 317–717 ms) | — | pass |
 | Threshold · cold deep-link first frame not worse than recorded | the split's `lit t` | gallery **736 / 947 / 1180 ms** (median 947), jordan **939 / 1014 / 1053** (median 1014) unthrottled; @10 Mbps + 40 ms: **1844** (gallery) / **2539** (jordan) — r19's row read 1,713–1,867 unthrottled and 1,869/2,860 @10 Mbps under the 1,500 ms hold law (today 300) | pass |
-| Threshold · reduced motion: two cuts, title readable | the cut transit | depart skipped · arrive skipped; card 284.1/300 | pass |
+| Threshold · reduced motion: two cuts, title readable | the cut transit | depart skipped · arrive skipped; card **800 ms nominal** (the 2026-11-01 reading-fix; the previous row: card 284.1/300 — historical under the 300 ms law) | remeasure |
 | Threshold · det stop captures unchanged | goldens | 26/26 | pass |
 | Threshold · the hash updates at the first lit frame | observed | the write lands on the EXIT frame: the same frame under 'cut'; ≈ +900 ms after `lit t` under 'doorway' — the §9 wording vs the R-UX1 completion law: an owner wording call (open item) | recorded |
 | Corridor light · G1 day ≤ 60% below 10/255; sconces the brightest | probe + the R-UX4 fence | **32.03%** (mean 19.47/255); sconces-remain-brightest 100% ×3 states (the R-UX4 unit fence) | pass |
@@ -461,7 +467,8 @@ after a 1.0/0.5/2.0 s pause FIRES the door with the lean **0.008 / 0.057 / 0.000
 - **D2 — The throat's far light:** warm lamp glow. Rec: warm (foreshadows the
   corridor's lamps; light-is-the-feature). Default: warm.
 - **D3 — The title card:** room title on the black threshold for human transits,
-  min dwell ~300 ms. Rec: yes (the only indication that is also a museum object: a
+  min dwell 800 ms (the 2026-11-01 owner reading-fix over the R-UX1 ~300 ms; §4).
+  Rec: yes (the only indication that is also a museum object: a
   room label). Default: yes.
 - **D4 — Prefetch:** neighbour fetch + staggered transcode at arrival-settle
   (bytes ahead of need; ≈ 10 MB RAM worst case). Rec: yes — the budget law calls

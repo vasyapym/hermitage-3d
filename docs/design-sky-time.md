@@ -456,15 +456,15 @@ Clamp the requested offset to ±1,440 minutes before multiplication, round the r
 - Coalesce pointer updates: retain only the newest request, calculate at most one sample per animation frame, and drop stale requests. No queued backlog.
 - Preview does not write the URL. It does not generate environment maps or restart arrival.
 - On release/keyboard commit, enter fixed time and use `history.replaceState` once to write canonical absolute `at`, preserving det and unrelated parameters. Apply state locally because replaceState does not dispatch hashchange.
-- Arrow keys step one minute; PageUp/PageDown step one hour; Home/End select the gesture bounds. Escape cancels. A focused-control `N` action returns to now, with an accessible instruction for that action. A pointer double-click may expose the same reset without adding permanent chrome.
+- Arrow keys step one minute; PageUp/PageDown step one hour; Home/End select the gesture bounds. Escape cancels. A focused-control `N` action returns to now, with an accessible instruction for that action. Pointer double-clicks on the scrub do not reset time; pointer return-to-now uses the season menu's «Сейчас» / "Now" option [the 2026-11-01 owner reading-fix: a pointer double-click that is just two hour commits must never invoke the reset — the former «may expose» affordance retired].
 - Cancel, pointercancel, or focus loss restores the pre-gesture mode. A restored live mode samples current now, not the old anchor.
 - An external URL navigation cancels the gesture and takes precedence. Hiding the document also cancels an incomplete gesture.
 
 ### The season transaction (R11; design-season-chooser.md §3, DEC-034)
 
-- The season `<select>` in the clock row is a view of the committed time state: live reads «now», fixed reads the local meteorological season of the instant. It is re-derived after every commit and on every hashchange re-parse; it is never written during scrub preview, and it lives outside this module's parser — the URL carries only the resulting canonical `at=`.
+- The season listbox in the clock row is a view of the committed time state: live reads «now», fixed reads the local meteorological season of the instant. It is re-derived after every commit and on every hashchange re-parse; it is never written during scrub preview, and it lives outside this module's parser — the URL carries only the resulting canonical `at=`.
 - Choosing a season commits `seasonInstant(...)` — the season's anchor day in the scene instant's local civil year at the scene instant's local time of day — through the same transaction as the scrub: enter fixed time (det preserved), apply locally, one `history.replaceState` writing canonical `at=` with unrelated keys preserved, no history entry, no preview phase. Choosing «now» is the return-to-now law verbatim.
-- An in-progress scrub gesture is cancelled by a season change (the external-action clause). A resolved instant outside the supported epoch bounds is refused: state unchanged, the select re-synced, one console diagnostic — validation, not a clamp.
+- An in-progress scrub gesture is cancelled by a season change (the external-action clause). A resolved instant outside the supported epoch bounds is refused: state unchanged, the menu re-synced, one console diagnostic — validation, not a clamp.
 - A later gesture may establish a new ±24-hour window. This is a per-gesture clamp, not a permanent prohibition on exploring other dates.
 
 The fixed UTC+03:00 policy means every local scrub day is exactly 24 hours; no DST discontinuity exists in this product’s time model.

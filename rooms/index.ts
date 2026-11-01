@@ -4,9 +4,9 @@
  * + public/assets/<id>/ + one line here; never a change under src/engine/ or src/world/
  * (DEC-013; AGENTS.md rule 8). Contracts are static data; modules load behind their thunks
  * (lazy chunks). Portal boxes are true coordinates (§2.4); holdMs is the threshold card's
- * MINIMUM DWELL (DEC-017 rewritten: the hold constant repurposed, design-walkthrough-ux.md
- * §4 — ~300 ms is the cinema cut-to-black; the landing's 600 stays until DEC-025 retargets
- * it); the landing airlock's far portal stays declared until the phase-3 position portals.
+ * MINIMUM DWELL — 800 ms on every card, doorway or cut (the 2026-11-01 owner reading-fix:
+ * the R-UX1 ~300 ms cinema cut-to-black window dismissed the title in ≈ 0.2 s, and the
+ * former 600 ms cuts joined the same window; design-walkthrough-ux.md §4).
  * Verified against the rail at r18: the keyboard walk observed every airlock firing through
  * its portal box, forward and backward.
  */
@@ -23,7 +23,7 @@ export const AIRLOCKS: readonly AirlockDef[] = [
     portalFrom: { min: [-3, 0, 86.5], max: [3, 6, 88.5] },
     portalTo: { min: [-3, 0, 85.5], max: [3, 3.6, 87.5] },
     transit: 'doorway',
-    holdMs: 300,
+    holdMs: 800,
   },
   {
     id: 'gallery-airlock',
@@ -35,7 +35,7 @@ export const AIRLOCKS: readonly AirlockDef[] = [
     // the visit. Declared by the specialist, orchestrator-owned data, framed by capture.
     portalTo: { min: [66.2, 0, -64.6], max: [68.2, 3.4, -62.6] },
     transit: 'doorway',
-    holdMs: 300,
+    holdMs: 800,
   },
   {
     id: 'landing-airlock',
@@ -47,7 +47,7 @@ export const AIRLOCKS: readonly AirlockDef[] = [
     portalFrom: { min: [81, 10, -80], max: [84, 13.5, -77] },
     portalTo: { min: [85.25, 10, -39], max: [87.25, 13, -37] },
     transit: 'cut',
-    holdMs: 600,
+    holdMs: 800,
   },
 ];
 
