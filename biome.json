@@ -8,6 +8,7 @@
       "!public",
       "!tools/bake-logs",
       "!tools/gallery/layout.json",
+      "!tools/gallery/atlas.lock.json",
       "!tests/fixtures"
     ]
   },

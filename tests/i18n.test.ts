@@ -246,8 +246,10 @@ describe('literals fence', () => {
     'at least one window row is required',
     'duplicate section id',
     'declared axes must total more than zero',
+    // biome-ignore lint/suspicious/noTemplateCurlyInString: verbatim pin of raw source text (template holes are literal bytes), not an interpolation
     '${axes} declared axes over', // the pitch-audit prose parts
     '${formatNumber(', // number+unit cells: "N m" (format law, not keys)
+    // biome-ignore lint/suspicious/noTemplateCurlyInString: verbatim pin of raw source text (template holes are literal bytes), not an interpolation
     '${section.declaredAxes} (±1)', // the axes cell: "N (±1)" (format law, not keys)
     'pitch of ',
     '(±',

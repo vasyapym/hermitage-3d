@@ -1377,24 +1377,32 @@ if (perfLog) {
     );
     return result.reply;
   };
-  const malformedReply = (op: string): MobileCCommandReply =>
-    buildGeneralReply(`cmd-${(session.serial += 1)}`, captureControl, op);
-  const localError = (code: string, reason: string): MobileCCommandReply => ({
-    commandId: `cmd-${(session.serial += 1)}`,
-    state: captureControl,
-    outcome: 'error',
-    code,
-    reason,
-    value: unknownField(reason),
-  });
-  const localPending = (code: string, reason: string, nextAction: string): MobileCCommandReply => ({
-    commandId: `cmd-${(session.serial += 1)}`,
-    state: captureControl,
-    outcome: 'pending',
-    code,
-    reason,
-    value: pendingField(reason, nextAction),
-  });
+  const malformedReply = (op: string): MobileCCommandReply => {
+    session.serial += 1;
+    return buildGeneralReply(`cmd-${session.serial}`, captureControl, op);
+  };
+  const localError = (code: string, reason: string): MobileCCommandReply => {
+    session.serial += 1;
+    return {
+      commandId: `cmd-${session.serial}`,
+      state: captureControl,
+      outcome: 'error',
+      code,
+      reason,
+      value: unknownField(reason),
+    };
+  };
+  const localPending = (code: string, reason: string, nextAction: string): MobileCCommandReply => {
+    session.serial += 1;
+    return {
+      commandId: `cmd-${session.serial}`,
+      state: captureControl,
+      outcome: 'pending',
+      code,
+      reason,
+      value: pendingField(reason, nextAction),
+    };
+  };
 
   // --- the §18.2 frame-note: one narrow pure invoke per frame; it never logs --------------------
   const msaaSamples = ((): number | null => {
@@ -1608,32 +1616,37 @@ if (perfLog) {
   const captureBeginInput = (
     registration: MobileCRegistration,
     scope: MobileCScope,
-  ): MobileCBeginInput => ({
-    visitId: `capture-visit-${(session.serial += 1)}`,
-    registration,
-    profile: captureProfile(scope),
-    thermal: captureThermal(),
-    cacheBefore: captureCacheRead(),
-    powerStart: capturePowerRead(),
-    initialExteriorSettledAt: unknownField(
-      'the exterior settlement stamps ride the operator trace',
-      ['the settled-boot trace'],
-    ),
-    importedProbe: notApplicableField('a frame-window attempt imports no navigation probe (§18.7)'),
-    clocks: [
-      {
-        id: captureClock,
-        kind: 'performance',
-        timeOriginUnixMs: knownField(performance.timeOrigin),
-        resolutionMs: unknownField('the clock resolution read is an operator instrument', [
-          'clock evidence',
-        ]),
-      },
-    ],
-    clockRelations: [],
-    traces: [],
-    evidence: [],
-  });
+  ): MobileCBeginInput => {
+    session.serial += 1;
+    return {
+      visitId: `capture-visit-${session.serial}`,
+      registration,
+      profile: captureProfile(scope),
+      thermal: captureThermal(),
+      cacheBefore: captureCacheRead(),
+      powerStart: capturePowerRead(),
+      initialExteriorSettledAt: unknownField(
+        'the exterior settlement stamps ride the operator trace',
+        ['the settled-boot trace'],
+      ),
+      importedProbe: notApplicableField(
+        'a frame-window attempt imports no navigation probe (§18.7)',
+      ),
+      clocks: [
+        {
+          id: captureClock,
+          kind: 'performance',
+          timeOriginUnixMs: knownField(performance.timeOrigin),
+          resolutionMs: unknownField('the clock resolution read is an operator instrument', [
+            'clock evidence',
+          ]),
+        },
+      ],
+      clockRelations: [],
+      traces: [],
+      evidence: [],
+    };
+  };
 
   // The placeholder begin input: the module answers its cells without ever reading the input
   // them (the unconditional 'plan-loaded'/'empty' cells and the general cell), so a neutral
@@ -1720,7 +1733,8 @@ if (perfLog) {
       );
     }
     const plan = parsed as MobileCPlanV1;
-    const reply = dispatch({ commandId: `cmd-${(session.serial += 1)}`, op: 'loadPlan', plan });
+    session.serial += 1;
+    const reply = dispatch({ commandId: `cmd-${session.serial}`, op: 'loadPlan', plan });
     if (reply.outcome === 'ok') {
       session.plan = plan;
       // The host presents 'ready' only when the presented ledger points at the plan (§(6):
@@ -1769,7 +1783,8 @@ if (perfLog) {
         session.visitId = input.visitId;
       }
     }
-    const beginReply = dispatch({ commandId: `cmd-${(session.serial += 1)}`, op: 'begin', input });
+    session.serial += 1;
+    const beginReply = dispatch({ commandId: `cmd-${session.serial}`, op: 'begin', input });
     if (
       beginReply.outcome === 'ok' &&
       beginReply.value.state === 'known' &&
@@ -1790,8 +1805,9 @@ if (perfLog) {
     const visitId =
       typeof visitIdArg === 'string' && visitIdArg.length > 0 ? visitIdArg : session.visitId;
     if (typeof visitId !== 'string') return malformedReply('abort');
+    session.serial += 1;
     return dispatch({
-      commandId: `cmd-${(session.serial += 1)}`,
+      commandId: `cmd-${session.serial}`,
       op: 'abort',
       visitId,
       reason: 'the operator issued abort through the surface',
@@ -1812,8 +1828,9 @@ if (perfLog) {
       ),
     };
     session.sealedAt = stampNow();
+    session.serial += 1;
     const reply = dispatch({
-      commandId: `cmd-${(session.serial += 1)}`,
+      commandId: `cmd-${session.serial}`,
       op: 'endVisit',
       input: endInput,
     });
@@ -1955,8 +1972,9 @@ if (perfLog) {
         'the digest reads in a secure context; this serving pends honestly',
         'serve the page from a secure context or issue a recorded digest',
       );
+      session.serial += 1;
       return dispatch({
-        commandId: `cmd-${(session.serial += 1)}`,
+        commandId: `cmd-${session.serial}`,
         op: 'prepareExport',
         artifactId,
         target:
@@ -1983,8 +2001,9 @@ if (perfLog) {
     session.digest = knownField(sha);
     session.prepared = prepared;
     session.exportBytes = jsonBytes;
+    session.serial += 1;
     const reply = dispatch({
-      commandId: `cmd-${(session.serial += 1)}`,
+      commandId: `cmd-${session.serial}`,
       op: 'prepareExport',
       artifactId,
       target:
@@ -2021,8 +2040,9 @@ if (perfLog) {
     // missing activation stays pending with an explicit reason (the honest not-started record).
     if (navigator.userActivation?.isActive !== true) {
       session.transport = null;
+      session.serial += 1;
       return dispatch({
-        commandId: `cmd-${(session.serial += 1)}`,
+        commandId: `cmd-${session.serial}`,
         op: 'exportPrepared',
         artifactId,
         transport: transportName,
@@ -2135,8 +2155,9 @@ if (perfLog) {
       };
     }
     session.transport = record;
+    session.serial += 1;
     return dispatch({
-      commandId: `cmd-${(session.serial += 1)}`,
+      commandId: `cmd-${session.serial}`,
       op: 'exportPrepared',
       artifactId,
       transport: transportName,
@@ -2180,8 +2201,9 @@ if (perfLog) {
     // §18.6: the native file-selection dialog opens; missing/cancelled selection stays pending.
     if (navigator.userActivation?.isActive !== true) {
       session.verification = null;
+      session.serial += 1;
       return dispatch({
-        commandId: `cmd-${(session.serial += 1)}`,
+        commandId: `cmd-${session.serial}`,
         op: 'verifySaved',
         artifactId,
       });
@@ -2189,8 +2211,9 @@ if (perfLog) {
     const file = await pickSavedFile();
     if (file === null) {
       session.verification = null;
+      session.serial += 1;
       return dispatch({
-        commandId: `cmd-${(session.serial += 1)}`,
+        commandId: `cmd-${session.serial}`,
         op: 'verifySaved',
         artifactId,
       });
@@ -2230,8 +2253,9 @@ if (perfLog) {
       planFile: session.planFile,
       expectedPlanFile: session.planFile,
     };
+    session.serial += 1;
     const reply = dispatch({
-      commandId: `cmd-${(session.serial += 1)}`,
+      commandId: `cmd-${session.serial}`,
       op: 'verifySaved',
       artifactId,
     });

@@ -1496,14 +1496,14 @@ export type MobileCNameParts = {
  * the literal `all`.
  */
 export const mobileCFileName = (parts: MobileCNameParts): string =>
-  [
+  `${[
     'h3d-mobile-c',
     'v1',
     parts.planId,
     parts.scopeId === null ? 'all' : parts.scopeId,
     parts.kind,
     parts.artifactId,
-  ].join('_') + '.json';
+  ].join('_')}.json`;
 
 /**
  * The reverse parse over the §18.6 grammar. With underscores legal inside every component, a
