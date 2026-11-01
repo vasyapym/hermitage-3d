@@ -14,11 +14,13 @@
  * it needs a knot wherever the slope breaks — J1b (top of flight 1) and J3 (top of flight 2)
  * exist for that reason; J0 and J2 stand 0.5 m before their first risers.
  *
- * Subjects: J0 and J1 share the window light over the mezzanine (the locked climb); J1b and
- * J2 share the flight-2 sconce on the window wall (the turn is anticipated, then walked
- * locked); J2b takes the upper-tier window over the landing; J3 and J4 share the modelled
- * east-wall portal (the landing is a locked dolly toward it). No consecutive gaze swings
- * more than ~58°. Every value is declared and framed by capture at integration.
+ * Subjects: J0 and J1 share the window light over the mezzanine (the locked climb); J1b keeps
+ * the flight-2 sconce on the window wall (the turn is anticipated); J2 is RE-AUTHORED (R18-ux
+ * D4) to FLIGHT2_TOP so press 3's gaze holds the end of the stairs, 2nd floor — the old
+ * shared sconce made the held gaze pitch at the wall instead of up the flight; J2b takes the
+ * upper-tier window over the landing; J3 and J4 share the modelled east-wall portal (the
+ * landing is a locked dolly toward it). No consecutive gaze swings more than ~58°. Every
+ * value is declared and framed by capture at integration.
  */
 import type { RoomContract, Vec3 } from '../../src/world/registry';
 
@@ -26,6 +28,10 @@ import type { RoomContract, Vec3 } from '../../src/world/registry';
 const MEZZ_LIGHT: Vec3 = [69.2, 7.5, -84];
 /** Flight 2's middle sconce (x 75.1, datum 7.67 + 1.8), just off the north wall. */
 const FLIGHT2_SCONCE: Vec3 = [75.1, 9.5, -85.5];
+/** R18-ux D4: flight 2's top (x 82.0, the landing slab's eye height datum 10 + 1.7), 2 m past
+ * the top nose (x 80), on flight 2's band centre line — press 3's gaze ends at the end of the
+ * stairs, 2nd floor, not at the window wall. */
+const FLIGHT2_TOP: Vec3 = [82.0, 11.7, -83.6];
 /** Upper-tier window, bay 5 (centre x 84.85, sill 13 head 16.5), on the wall face z −86. */
 const UPPER_WINDOW: Vec3 = [84.85, 14.75, -86];
 /** The gilt portal on the east wall: centred z −74, head y 16; aimed below the head. */
@@ -63,9 +69,12 @@ export const contract: RoomContract = {
       },
       {
         // The real mezzanine turn, on the lane 0.5 m before flight 2's first riser (x 69.12).
+        // R18-ux D4: the subject re-authors from the shared sconce to FLIGHT2_TOP — press 3
+        // (J1b→J2) ends looking up flight 2 toward the second floor, not at the wall; the look
+        // rows stay unchanged (pitchUp 35 ≥ the new base gaze's ≈20.5°).
         id: 'J2',
         position: [68.6, 6.7, -83.3],
-        subject: FLIGHT2_SCONCE,
+        subject: FLIGHT2_TOP,
         look: { yaw: 35, pitchUp: 35, pitchDown: 25 },
         caption: 'caption.j2',
       },

@@ -6,16 +6,29 @@
  * Source of truth for every stair constant: tools/bpy/jordan.py (flight_datum); for the
  * corridor's walkable boxes: tools/bpy/rastrelli-gallery.py. The numbers are restated, not
  * derived.
+ *
+ * R18-ux pinned swing metric (D4/D5): the stop-gaze swing rows measure the 3D angle between
+ * the stops' committed gaze DIRECTIONS (the same angleDeg the head law and the §9 movement
+ * gate use — the fence gaze never depends on a glide). Yaw-only variants are recorded in the
+ * row comments where they differ; the restated §8 figures quote the yaw-quotient rounding
+ * (1812's M0→M1 «0°» = 0.48° 3D here).
  */
 import { describe, expect, it } from 'vitest';
+import { contract as contract1812 } from '../rooms/1812/contract';
 import { contract as jordanContract } from '../rooms/jordan/contract';
 import { contract as galleryContract } from '../rooms/rastrelli-gallery/contract';
 import { restingAt, samplePose, samplePosition, stopParameter } from '../src/camera/rail';
-import { SQUARE_RAIL } from '../src/camera/square-rail';
+import {
+  SQUARE_RAIL,
+  SQUARE_S0_GAZE,
+  SQUARE_S1_GAZE,
+  SQUARE_SH_GAZE,
+} from '../src/camera/square-rail';
 import type { Rail, Vec3 } from '../src/world/registry';
 
 const GALLERY: Rail = galleryContract.rail;
 const JORDAN: Rail = jordanContract.rail;
+const GALLERY_1812 = contract1812;
 
 const EYE = 1.7;
 const EYE_TOLERANCE = 0.3; // §9: 1.7 ± 0.3 over the surface under the eye
@@ -202,7 +215,30 @@ describe('gallery stops (R-UX5 §7: the junction)', () => {
     const i = GALLERY.stops.findIndex((s) => s.id === 'G1');
     expect(gazeDirection(GALLERY, stopParameter(GALLERY, i))).toEqual([1, 0, 0]);
   });
+  it('carries the R18-ux D3 corner flag and the passage mouth as Gj’s approach', () => {
+    const gj = GALLERY.stops.find((s) => s.id === 'Gj');
+    if (!gj) throw new Error('Gj missing');
+    expect(gj.corner).toBe(true);
+    expect(gj.approach).toEqual([4.4, 1.7, 73]);
+  });
+  it('keeps the approach on the committed gaze ray: aim(approach) equals aim(subject) ≤ 1e-6', () => {
+    // C3 pin (B.5): from Gj the mouth [4.4,1.7,73] and EAST_DOOR [43.5,1.7,73] lie on one ray,
+    // so the Forward approach's frame agrees with the committed fence at the stop.
+    const i = GALLERY.stops.findIndex((s) => s.id === 'Gj');
+    const gj = GALLERY.stops[i];
+    if (!gj || gj.approach === undefined || gj.subject === null) throw new Error('Gj data');
+    const a = gazeDirection(GALLERY, stopParameter(GALLERY, i));
+    // The fence direction from Gj toward EAST_DOOR vs the approach ray.
+    expect(angleDeg(a, directionTo(gj, gj.approach))).toBeLessThanOrEqual(1e-6);
+  });
 });
+
+function directionTo(stop: { readonly position: Vec3 }, to: Vec3): [number, number, number] {
+  const [px, py, pz] = xyz(stop.position);
+  const [tx, ty, tz] = xyz(to);
+  const len = Math.hypot(tx - px, ty - py, tz - pz);
+  return [(tx - px) / len, (ty - py) / len, (tz - pz) / len];
+}
 
 describe('the gaze law over the committed rails (R-UX5 §8, design §9)', () => {
   for (const [name, rail] of [
@@ -225,4 +261,95 @@ describe('the gaze law over the committed rails (R-UX5 §8, design §9)', () => 
       });
     });
   }
+});
+
+// R18-ux D4/D5 stop-gaze swing rows (the §8 stop tables), on the pinned 3D metric above.
+// The fixtures quote yaw-quotient roundings («0°», «≈52°»); the 3D restatements are the rows.
+const stopGaze = (rail: Rail, id: string): [number, number, number] => {
+  const i = rail.stops.findIndex((s) => s.id === id);
+  if (i < 0) throw new Error(`rail has no stop ${id}`);
+  return gazeDirection(rail, stopParameter(rail, i));
+};
+const swingRows = (
+  rail: Rail,
+  id0: string,
+  id1: string,
+  expected: number,
+): Array<[string, number, number]> => [
+  [`${id0}→${id1}`, angleDeg(stopGaze(rail, id0), stopGaze(rail, id1)), expected],
+];
+
+describe('square stop-gaze swings (R18-ux D1: the halfway rhythm)', () => {
+  it('carries the three collinear stops; Sh holds the gate pavilion on the arch plane', () => {
+    expect(SQUARE_RAIL.stops.map((s) => s.id)).toEqual(['S0', 'Sh', 'S1']);
+    const sh = SQUARE_RAIL.stops[1];
+    if (!sh) throw new Error('Sh missing');
+    expect(sh.position).toEqual([0, 1.7, 177]);
+    expect(sh.subject).toEqual(SQUARE_SH_GAZE);
+    expect(SQUARE_SH_GAZE).toEqual([0, 8.5, 87]);
+    expect(sh.look).toEqual({ yaw: 30, pitchUp: 25, pitchDown: 20 });
+    // The restated fences: S0 and S1 untouched.
+    expect(SQUARE_RAIL.stops[0]?.position).toEqual([0, 1.7, 230]);
+    expect(SQUARE_RAIL.stops[0]?.subject).toEqual(SQUARE_S0_GAZE);
+    expect(SQUARE_RAIL.stops[2]?.position).toEqual([0, 1.7, 124]);
+    expect(SQUARE_RAIL.stops[2]?.subject).toEqual(SQUARE_S1_GAZE);
+  });
+  for (const [n, measured, expected] of [
+    ...swingRows(SQUARE_RAIL, 'S0', 'Sh', 2.0),
+    ...swingRows(SQUARE_RAIL, 'Sh', 'S1', 4.4),
+  ]) {
+    it(`${n}: swing ≈ ${expected}° (3D ${measured.toFixed(2)}°) stays under the head law`, () => {
+      expect(measured, n).toBeCloseTo(expected, 1);
+    });
+  }
+});
+
+describe('jordan stop-gaze swings (R18-ux D4: FLIGHT2_TOP)', () => {
+  it('authors J2 to flight 2’s top (press 3 ends at the end of the stairs, 2nd floor)', () => {
+    const j2 = JORDAN.stops.find((s) => s.id === 'J2');
+    if (!j2 || j2.subject === null) throw new Error('J2 missing');
+    expect(j2.subject).toEqual([82.0, 11.7, -83.6]);
+    // P1 B.23: the new base gaze is ≈20.5° up; J2's pitchUp 35 ≥ 20 holds.
+    const pose = samplePose(JORDAN, restingAt(stopParameter(JORDAN, JORDAN.stops.indexOf(j2))));
+    const [px, py, pz] = xyz(pose.position);
+    const [tx, ty, tz] = xyz(pose.target);
+    expect((Math.atan2(ty - py, Math.hypot(tx - px, tz - pz)) * 180) / Math.PI).toBeCloseTo(
+      20.46,
+      1,
+    );
+  });
+  for (const [n, measured, expected] of [
+    ...swingRows(JORDAN, 'J1b', 'J2', 36.6), // the §8 quote «≈36.8°»; the 3D measure 36.60°
+    ...swingRows(JORDAN, 'J2', 'J2b', 14.2), // the §8 quote «≈14.4°»; the 3D measure 14.22°
+  ]) {
+    it(`${n}: swing ≈ ${expected}° stays under the ~58° head law`, () => {
+      expect(measured, n).toBeCloseTo(expected, 1);
+    });
+  }
+});
+
+describe('1812 stop-gaze swings (R18-ux D5: the axial dolly)', () => {
+  it('walks M0 → M4 with the five-stop count unchanged', () => {
+    expect(GALLERY_1812.rail.stops.map((s) => s.id)).toEqual(['M0', 'M1', 'M2', 'M3', 'M4']);
+  });
+  for (const [n, measured, expected] of [
+    ...swingRows(GALLERY_1812.rail, 'M0', 'M1', 0.5), // the §8 quote «0°» — the 3D 0.48°
+    ...swingRows(GALLERY_1812.rail, 'M1', 'M2', 0.9),
+    ...swingRows(GALLERY_1812.rail, 'M2', 'M3', 3.1),
+    ...swingRows(GALLERY_1812.rail, 'M3', 'M4', 51.3), // the §8 quote «≈52°»
+  ]) {
+    it(`${n}: swing ≈ ${expected}° within one glide`, () => {
+      expect(measured, n).toBeCloseTo(expected, 1);
+    });
+  }
+  it('the axial run rides x = 86.25 (±1e-9) on segments 0–2 (the corner run decouples M4)', () => {
+    for (const segment of [0, 1, 2]) {
+      const u0 = stopParameter(GALLERY_1812.rail, segment);
+      const u1 = stopParameter(GALLERY_1812.rail, segment + 1);
+      for (let k = 0; k <= 256; k++) {
+        const u = u0 + (u1 - u0) * (k / 256);
+        expect(samplePosition(GALLERY_1812.rail, u)[0], `segment ${segment}`).toBeCloseTo(86.25, 9);
+      }
+    }
+  });
 });

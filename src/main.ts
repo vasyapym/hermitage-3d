@@ -157,6 +157,7 @@ import {
   TOUCH_RAIL_CLEARANCE_PX,
   TOUCH_RAIL_GAP_PX,
   TOUCH_RAIL_INSET_PX,
+  touchRailCenter,
   touchRailVisible,
 } from './ui/touch-rail';
 import {
@@ -352,40 +353,55 @@ syncSeasonSelect();
 // --- The touch rail's layout (design-mobile-tier.md §4) --------------------------------------
 // Host-owned, called ONLY on layout changes (first settle, fonts.ready, the resize
 // listener, the language swap) — never in the frame loop. The width fact rides the SAME
-// boot-read coarsePointer + a fresh clientWidth per layout change; clearance/inset are
+// boot-read coarsePointer + a fresh clientWidth per layout change; the free band and the
+// pair's centre line (TOUCH_RAIL_BAND_FRACTION from its top, R18-ux verdict 1 + D6) are
 // measured here and only here. Insufficient space warns loudly and NEVER hides the rail.
 const layoutTouchRail = (): void => {
-  for (const [name, value] of [
+  const vars = [
     ['--touch-min-inline', TOUCH_BUTTON_MIN_INLINE_PX],
     ['--touch-min-block', TOUCH_BUTTON_MIN_BLOCK_PX],
     ['--touch-gap', TOUCH_RAIL_GAP_PX],
     ['--touch-inset', TOUCH_RAIL_INSET_PX],
-  ] as const) {
+  ] as const;
+  for (const [name, value] of vars) {
     touchRail.style.setProperty(name, `${value}px`);
-  }
+  } // the four --touch-* vars, unchanged
   const visible = touchRailVisible({
     coarsePointer,
     widthCssPx: document.documentElement.clientWidth,
   });
   touchRail.dataset.visible = String(visible);
   if (!visible) return;
-  const top = title.getBoundingClientRect().bottom + TOUCH_RAIL_CLEARANCE_PX;
-  const blocks = [chromeRow, scrub].filter((e) => e.getClientRects().length > 0);
-  const bottom =
-    Math.min(...blocks.map((e) => e.getBoundingClientRect().top)) - TOUCH_RAIL_CLEARANCE_PX;
-  touchRail.style.setProperty('--touch-center', `${(top + bottom) / 2}px`);
-  const rect = touchRail.getBoundingClientRect();
-  if (
-    !Number.isFinite(bottom) ||
-    bottom - top < rect.height ||
-    rect.right > document.documentElement.clientWidth
-  ) {
-    console.warn('zimny: touch-rail layout gate failed', {
-      top,
-      bottom,
-      height: rect.height,
-      right: rect.right,
-    });
+  // R18-ux verdict 1 + D6 (design-mobile-tier §4): the free band is the vertical interval,
+  // free in BOTH button columns, from the chrome above (the wordmark block, plus any chrome
+  // reaching the right column) plus CLEARANCE to the chrome below (the clock/scrub blocks,
+  // the notes link) minus CLEARANCE. The pair's centre line sits at TOUCH_RAIL_BAND_FRACTION
+  // of the band from its top, clamped so the box fits; too-short bands centre and warn.
+  // Horizontal geometry does not depend on top: read the button columns first.
+  const back = touchBack.getBoundingClientRect();
+  const fwd = touchForward.getBoundingClientRect();
+  const inColumns = (r: DOMRect) =>
+    (r.left < back.right && r.right > back.left) || (r.left < fwd.right && r.right > fwd.left);
+  const langToggle = document.querySelector('#lang-toggle');
+  const ceiling: readonly Element[] = langToggle === null ? [title] : [title, langToggle];
+  const above = ceiling.map((e) => e.getBoundingClientRect()).filter(inColumns);
+  const below = [chromeRow, scrub, notesLink]
+    .filter((e) => e.getClientRects().length > 0)
+    .map((e) => e.getBoundingClientRect())
+    .filter(inColumns);
+  const bandTop = Math.max(0, ...above.map((r) => r.bottom)) + TOUCH_RAIL_CLEARANCE_PX;
+  const bandBottom =
+    Math.min(document.documentElement.clientHeight, ...below.map((r) => r.top)) -
+    TOUCH_RAIL_CLEARANCE_PX;
+  const { center, fits } = touchRailCenter(
+    bandTop,
+    bandBottom,
+    touchRail.getBoundingClientRect().height,
+  );
+  touchRail.style.setProperty('--touch-center', `${center}px`);
+  if (!fits) console.warn('zimny: touch-rail band shorter than the group');
+  if (back.right + TOUCH_RAIL_GAP_PX > fwd.left) {
+    console.warn('zimny: touch-rail buttons collide');
   }
 };
 

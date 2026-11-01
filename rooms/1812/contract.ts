@@ -16,6 +16,13 @@
  *   the monarch end wall; M1 at the west wall's block ≥ 2.2 m off the face; M2 at the middle
  *   lantern (7 m ahead, 4.9 m up = the 35° look-up); M3 at the H3 super-block; M4 at the
  *   closed St George's doors on the east wall. Framed by capture at integration.
+ *
+ * R18-ux D5: the gallery is one axial dolly. M0–M3 stand on AXIS_X; M0–M2 hold AXIS_FAR (a
+ * locked dolly: the gaze marches down the axis), M3 reads the monarch wall from z 0, and M4
+ * (the committed door stop) is reached from M3 as a corner run — the only off-axis step,
+ * straight to the doors. The west block and the lantern are drag rewards in the look rows
+ * (M1 yaw 60, M2 pitchUp 55), not base subjects: a subject beside its stop makes the held
+ * gaze sweep in the last metres, which read as jumpy.
  */
 import type { RoomContract, Vec3 } from '../../src/world/registry';
 
@@ -25,10 +32,13 @@ const AXIS_X = 86.25;
 
 /** M0: the long view down the axis to the monarch end wall (z +15). */
 const AXIS_FAR: Vec3 = [AXIS_X, FLOOR_Y + 3.0, 14.9];
-/** M1: the west wall's block; the eye at x 84.3 stands 2.3 m off the wall face (≥ 2.2 m, §6.1). */
-const WEST_BLOCK: Vec3 = [82.0, FLOOR_Y + 2.2, -25.0];
-/** M2: the middle lantern (z −5.5): 7 m ahead, 4.9 m up = the 35° look-up (§6.1). */
-const LANTERN: Vec3 = [AXIS_X, EYE + 4.9, -5.5];
+/** M1: the west wall's block — kept as an EXPORTED landmark and the M1 look-row drag reward
+ * (R18-ux D5), not a subject: a subject beside its stop makes the held gaze sweep in the last
+ * metres. */
+export const WEST_BLOCK: Vec3 = [82.0, FLOOR_Y + 2.2, -25.0];
+/** M2: the middle lantern (z −5.5): 7 m ahead, 4.9 m up = the 35° look-up (§6.1) — kept as an
+ * EXPORTED landmark and the M2 look-row drag reward (R18-ux D5), not a subject. */
+export const LANTERN: Vec3 = [AXIS_X, EYE + 4.9, -5.5];
 /** M3: the H3 super-block on the end wall (z +15). */
 const MONARCHS: Vec3 = [AXIS_X, FLOOR_Y + 3.2, 14.9];
 /** M4: the closed St George's doors on the east wall (x 90.5), the bay nearest the monarch end. */
@@ -48,24 +58,29 @@ export const contract: RoomContract = {
         caption: 'caption.m0',
       },
       {
+        // R18-ux D5: on the axis; the west block became a drag reward (yaw 60 frames it left).
         id: 'M1',
-        position: [84.3, EYE, -25.0],
-        subject: WEST_BLOCK,
-        look: { yaw: 25, pitchUp: 20, pitchDown: 20 },
+        position: [AXIS_X, EYE, -25.0],
+        subject: AXIS_FAR,
+        look: { yaw: 60, pitchUp: 25, pitchDown: 15 },
         caption: 'caption.m1',
       },
       {
+        // R18-ux D5: the lantern became the drag reward (pitchUp 55 keeps it as the look-up).
         id: 'M2',
         position: [AXIS_X, EYE, -12.5],
-        subject: LANTERN,
+        subject: AXIS_FAR,
         look: { yaw: 40, pitchUp: 55, pitchDown: 0 },
         caption: 'caption.m2',
       },
       {
+        // R18-ux D5: z 9→0, so the monarch wall reads at 14.9 m; flagged corner — M4 is
+        // reached from M3 across a corner run (the only off-axis step, straight to the doors).
         id: 'M3',
-        position: [AXIS_X, EYE, 9.0],
+        position: [AXIS_X, EYE, 0],
         subject: MONARCHS,
-        look: { yaw: 20, pitchUp: 15, pitchDown: 15 },
+        look: { yaw: 25, pitchUp: 20, pitchDown: 10 },
+        corner: true,
         caption: 'caption.m3',
       },
       {

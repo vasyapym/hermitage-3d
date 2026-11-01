@@ -18,7 +18,16 @@ import type { RoomContract, Vec3 } from '../../src/world/registry';
 const EAST_DOOR: Vec3 = [43.5, 1.7, 73];
 /** The junction as seen from G0: Gj's spot, 0.7 m over the eye so the vault leads the frame. */
 const JUNCTION: Vec3 = [1.6, 2.4, 73];
+/** R18-ux D3: the passage mouth's opening centre at eye height — Gj's Forward approach point. */
+export const GALLERY_MOUTH: Vec3 = [4.4, 1.7, 73];
 
+/**
+ * R18-ux D3: Gj is a corner stop — the path G0→Gj is the passage chord and Gj→G1→G2 the
+ * gallery axis z 73, so the second Forward is direct. Gj's approach point is the mouth
+ * centre: the first Forward holds the opening through the arch instead of the door behind
+ * the passage wall; from Gj the mouth and the door lie on one ray, so the stop pose is
+ * unchanged.
+ */
 export const contract: RoomContract = {
   id: 'rastrelli-gallery',
   title: 'data.titleGallery',
@@ -37,10 +46,14 @@ export const contract: RoomContract = {
       {
         // The junction knot (§7): on the passage axis where it meets the gallery's centreline
         // z 73. The path turns here; the mouth (x 4..4.8, z 70..76) is 2.4 m east.
+        // R18-ux D3: corner stop (the passage chord into the gallery axis) + the mouth centre
+        // as the Forward approach point (verdict-2 consequence).
         id: 'Gj',
         position: [1.6, 1.7, 73],
         subject: EAST_DOOR,
         look: { yaw: 30, pitchUp: 15, pitchDown: 15 },
+        corner: true, // R18-ux D3
+        approach: GALLERY_MOUTH, // R18-ux D3 (verdict-2 consequence)
         caption: 'caption.gj',
       },
       {

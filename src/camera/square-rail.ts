@@ -5,16 +5,18 @@
  * is a resident without a contract, so its stop data lives here; ids follow the design's naming.
  *
  * The square's gaze is authored, not the room pose law: S0 — level with the boot camera, up at
- * the cornice line — is what the noon and white-night goldens pin; S1 (R-UX3, D7) stands back so
- * the gate pavilion composes as architecture and gazes at a point just inside the arch mouth at
- * about two-thirds of the opening's height — the throat's axis. Since R-UX5 both are the stops'
- * SUBJECTS (registry Stop.subject): samplePose reads them from the data, the host feeds nothing.
- * Between S0 and S1 the target point sweeps in world space from the cornice to the arch mouth.
+ * the cornice line — is what the noon and white-night goldens pin. The square has three stops
+ * (R18-ux D1). S0 faces the facade. Sh (R18-ux D1) stands halfway (z 177), so the first Forward
+ * comes closer without arriving. S1 (R-UX3, D7) stands back so the gate pavilion composes as
+ * architecture. Under the glide look law, each glide holds its destination's subject: S0→Sh
+ * holds the gate pavilion on the arch plane, Sh→S1 holds the arch mouth.
  */
 import type { Rail, Vec3 } from '../world/registry';
 
 /** The authored S0 subject (§6.1 «exists today»): the boot pose the goldens pin. */
 export const SQUARE_S0_GAZE: Vec3 = [0, 11, 0];
+/** The authored Sh subject (R18-ux D1): the gate pavilion on the arch plane, halfway. */
+export const SQUARE_SH_GAZE: Vec3 = [0, 8.5, 87];
 /** The authored S1 subject (R-UX3): inside the mouth (z 93.5), ≈ ⅔ of the 9.55 m opening.
  * From S1 this is 8.7° up: the frame's top edge meets the facade near y 24 (entablature in). */
 export const SQUARE_S1_GAZE: Vec3 = [0, 6.6, 92];
@@ -27,6 +29,16 @@ export const SQUARE_RAIL = {
       subject: SQUARE_S0_GAZE,
       look: { yaw: 35, pitchUp: 35, pitchDown: 35 },
       caption: 'caption.s0',
+    },
+    {
+      // R18-ux D1: halfway (z 177), so the first Forward comes closer without arriving. All
+      // three stops and all three subjects lie on x = 0 (every collision collinear). The look
+      // rows are checked at capture for set edges.
+      id: 'Sh',
+      position: [0, 1.7, 177],
+      subject: SQUARE_SH_GAZE,
+      look: { yaw: 30, pitchUp: 25, pitchDown: 20 },
+      caption: 'caption.s1', // the arch beat; no Sh caption was authored this round
     },
     {
       id: 'S1',

@@ -23,6 +23,25 @@ describe('touch rail', () => {
     ]).toEqual([72, 44, 8, 24, 16, 767.98]);
   });
 
+  it('pins the R18-ux D6 band fraction (0.75 measured from the band top)', () => {
+    expect(law.TOUCH_RAIL_BAND_FRACTION).toBe(0.75);
+  });
+
+  it('places the centre line at the band fraction when the box fits (ideal-inside)', () => {
+    // A 744-px band, a 44-px box: ideal = 0 + 0.75 × 744 = 558 — inside [22, 722].
+    expect(law.touchRailCenter(0, 744, 44)).toEqual({ center: 558, fits: true });
+  });
+
+  it('clamps so the box stays inside the band (clamp-at-bottom)', () => {
+    // A 60-px band, a 44-px box: ideal 45 exceeds hi 38 → the clamp's centre line.
+    expect(law.touchRailCenter(0, 60, 44)).toEqual({ center: 38, fits: true });
+  });
+
+  it('centres in the band and reports fits=false on a misfit (warn, never hide)', () => {
+    // A 40-px band, a 44-px box: lo 22 > hi 18 → the band's middle, fits=false.
+    expect(law.touchRailCenter(0, 40, 44)).toEqual({ center: 20, fits: false });
+  });
+
   it('exhausts coarse/narrow visibility combinations, including the boundary', () => {
     for (const coarsePointer of [false, true]) {
       for (const widthCssPx of [0, 320, 767, law.TOUCH_RAIL_MAX_WIDTH_PX, 768, 844]) {
