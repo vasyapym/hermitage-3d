@@ -29,8 +29,8 @@ const MEZZ_LIGHT: Vec3 = [69.2, 7.5, -84];
 /** Flight 2's middle sconce (x 75.1, datum 7.67 + 1.8), just off the north wall. */
 const FLIGHT2_SCONCE: Vec3 = [75.1, 9.5, -85.5];
 /** R18-ux D4: flight 2's top (x 82.0, the landing slab's eye height datum 10 + 1.7), 2 m past
- * the top nose (x 80), on flight 2's band centre line — press 3's gaze ends at the end of the
- * stairs, 2nd floor, not at the window wall. */
+ * the top nose (x 80), on flight 2's band centre line. R19-ux C retains this committed target:
+ * local press 3 from J0 lands here at J2; route-global press counts name different stops. */
 const FLIGHT2_TOP: Vec3 = [82.0, 11.7, -83.6];
 /** Upper-tier window, bay 5 (centre x 84.85, sill 13 head 16.5), on the wall face z −86. */
 const UPPER_WINDOW: Vec3 = [84.85, 14.75, -86];
@@ -69,9 +69,9 @@ export const contract: RoomContract = {
       },
       {
         // The real mezzanine turn, on the lane 0.5 m before flight 2's first riser (x 69.12).
-        // R18-ux D4: the subject re-authors from the shared sconce to FLIGHT2_TOP — press 3
-        // (J1b→J2) ends looking up flight 2 toward the second floor, not at the wall; the look
-        // rows stay unchanged (pitchUp 35 ≥ the new base gaze's ≈20.5°).
+        // R18-ux D4, retained by R19-ux C: local press 3 (J1b→J2) lands on FLIGHT2_TOP.
+        // The base gaze is ≈20.5° up; user pitch/yaw limits are offsets around that gaze,
+        // not absolute bounds on it. Retained manual offsets can change the final framing.
         id: 'J2',
         position: [68.6, 6.7, -83.3],
         subject: FLIGHT2_TOP,
@@ -80,6 +80,7 @@ export const contract: RoomContract = {
       },
       {
         // Mid flight 2: run 5.38 → datum 7.40 → eye 9.10.
+        // R19-ux C retains the authored window composition here (local press 4 from J0).
         id: 'J2b',
         position: [74.5, 9.1, -83.3],
         subject: UPPER_WINDOW,

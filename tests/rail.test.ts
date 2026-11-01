@@ -189,12 +189,15 @@ describe('the departure turn (R18-ux verdict 2)', () => {
     expect(pose.target).toEqual(A);
   });
   it('departure continuity: the gaze at u = k + ε turns within O(ε) of the committed gaze', () => {
+    // R19-ux C: re-derived by measurement — the frozen-source law's residual is first order
+    // in ε (no longer second-order flat): measured 0.00115° at ε = 1e-6, gap/ε ≈ 1151°/unit,
+    // bound 0.0013.
     const atStop = samplePose(STAIR, restingAt(1 / 3));
     const just = samplePose(STAIR, restingAt(1 / 3 + 1e-6));
     expect(
       angleDeg(unitDir(just.target, just.position), unitDir(atStop.target, atStop.position)),
       'O(ε) at the departure',
-    ).toBeLessThan(1e-3);
+    ).toBeLessThan(0.0013);
   });
   it('arrival exactness: the run lands on the destination stop’s committed object', () => {
     // The destination's held target IS the stop's committed target (continuous with the
@@ -204,13 +207,17 @@ describe('the departure turn (R18-ux verdict 2)', () => {
     const pose = samplePose(STAIR, done);
     expect(pose.target).toEqual(STAIR.stops[2]?.position);
   });
-  it('the turn completes by the widened span (θ = 90° on Back Gj→G0: span 0.36)', () => {
-    // The gallery's G0 holds JUNCTION — from Gj that aim is straight up, so the Back
-    // departure turn widens to 0.18 × 2 = 0.36 of the segment (B.16) and is done by then.
+  it('Back Gj→G0 turns from the fence at Gj; the hold lands only at G0 (near-field)', () => {
+    // R19-ux C near-field: JUNCTION's ray sweeps 82.39° under the nominal 0.4 span, so this
+    // pair's turn spans the whole segment. The old «capped at 0.4» row asserted the hold from
+    // s = 0.401 — superseded: there the gaze is still mid-turn (measured bearing 33.28° =
+    // the arc·s law 82.98°·0.401), and the hold is exact only at the destination stop.
     const just = samplePose(GALLERY, back(GALLERY, stopParameter(GALLERY, 1)));
-    expect(just.target).toEqual(GALLERY.stops[1]?.subject); // the fence at Gj
-    const settled = samplePose(GALLERY, back(GALLERY, stopParameter(GALLERY, 1) - 0.361 / 3));
-    expect(settled.target).toEqual(GALLERY.stops[0]?.subject); // JUNCTION, held
+    expect(just.target).toBe(GALLERY.stops[1]?.subject);
+    const mid = samplePose(GALLERY, back(GALLERY, stopParameter(GALLERY, 1) - 0.401 / 3));
+    expect(mid.target).not.toBe(GALLERY.stops[0]?.subject); // still mid-turn at the old cap spot
+    const g0 = samplePose(GALLERY, back(GALLERY, 0));
+    expect(g0.target).toBe(GALLERY.stops[0]?.subject);
   });
   it('a mid-glide reversal re-anchors and keeps the per-16ms gaze change ≤ 3° (the step world)', () => {
     // The widest committed turn (θ = 90° at the widened span 0.36 ≈ 1034 ms of 2800) peaks
@@ -233,51 +240,79 @@ describe('the departure turn (R18-ux verdict 2)', () => {
     expect(state.glide).toBeNull();
     expect(state.u).toBe(0); // the reversal lands at a
   });
-  it('a scroll glide spanning several stops gives its own bound (the fast wheel world)', () => {
-    // The 640-ms scroll law moves the u 4.4× faster than a step, so the per-frame aim rate
-    // bound sits higher: the G0→Gj approach's turn-into-the-gallery tail reads 5.2°/frame
-    // at the worst (measured; the design-intended mouth pivot, C3-CONT). A gaze JUMP —
-    // a stale anchor, a pass-through discontinuity — would read ≫ 6°. Measured worst 5.20°.
+  it('bounds the 544-ms scroll approach and retains the corner barrier', () => {
     let state = scroll(GALLERY, restingAt(0), 20_000, false);
     expect(state.glide?.kind).toBe('scroll');
+    expect(state.glide?.durationMs).toBe(544);
     expect(state.glide?.to).toBe(stopParameter(GALLERY, 1)); // the corner barrier clamps at Gj
-    let guard = 0;
-    let prevPose = samplePose(GALLERY, state);
-    while (state.glide !== null && guard++ < 2000) {
+    expect(state.heading).toBe(1);
+    let previous = samplePose(GALLERY, state);
+    let worst = 0;
+    for (let frame = 0; frame < 34; frame++) {
       state = advance(GALLERY, state, 16);
       const pose = samplePose(GALLERY, state);
-      expect(aimStepDeg(prevPose, pose), `frame ${guard}`).toBeLessThanOrEqual(6);
-      prevPose = pose;
+      const ax = previous.target[0] - previous.position[0];
+      const ay = previous.target[1] - previous.position[1];
+      const az = previous.target[2] - previous.position[2];
+      const bx = pose.target[0] - pose.position[0];
+      const by = pose.target[1] - pose.position[1];
+      const bz = pose.target[2] - pose.position[2];
+      const cosine =
+        (ax * bx + ay * by + az * bz) / (Math.hypot(ax, ay, az) * Math.hypot(bx, by, bz));
+      const degrees = (Math.acos(Math.min(1, Math.max(-1, cosine))) * 180) / Math.PI;
+      expect(Number.isFinite(degrees)).toBe(true);
+      worst = Math.max(worst, degrees);
+      previous = pose;
     }
-    expect(state.u).toBeCloseTo(stopParameter(GALLERY, 1), 9);
+    expect(worst).toBeLessThanOrEqual(6.3);
+    expect(state.glide).toBeNull();
+    expect(state.u).toBe(stopParameter(GALLERY, 1));
   });
-  it('the aim-rate worst case is the corrected ≈10° transient (not 16°), settling ≈3.1°', () => {
-    // B.16: on Back Gj→G0 the blended pitch peaks ≈10.05° near a quarter of the segment and
-    // settles to 3.06° at G0 — the old «up to about 16°» is superseded (FIXUPS 2).
+  it('near-field Back Gj→G0 has no transient: pitch climbs monotonically to 3.06°', () => {
+    // R19-ux C near-field; supersedes B.16's ≈10.05° (FIXUPS 2) and the round's measured 17.39°.
+    // JUNCTION's ray sweeps 82.39° under the nominal 0.4 span, so the turn spans the segment
+    // with the distance fraction s as its weight: pitch = s·atan(0.7 / 13.098s) — 0.089° at
+    // s = 0.001, 2.615° at s = 0.07 (the old peak's spot), 3.0505° at s = 0.5, 3.0591° at G0.
     const u0 = stopParameter(GALLERY, 1);
-    let peak = 0;
-    let held = true;
-    for (let i = 1; i <= 1000; i++) {
-      const pose = samplePose(GALLERY, back(GALLERY, u0 - (i / 1000) * u0));
+    const pitchDeg = (pose: ReturnType<typeof samplePose>): number => {
       const [px, py, pz] = [pose.position[0] ?? 0, pose.position[1] ?? 0, pose.position[2] ?? 0];
       const [tx, ty, tz] = [pose.target[0] ?? 0, pose.target[1] ?? 0, pose.target[2] ?? 0];
-      const p = (Math.atan2(ty - py, Math.hypot(tx - px, tz - pz)) * 180) / Math.PI;
-      peak = Math.max(peak, p);
-      if (p > 10.5) held = false;
+      return (Math.atan2(ty - py, Math.hypot(tx - px, tz - pz)) * 180) / Math.PI;
+    };
+    const settle = pitchDeg(samplePose(GALLERY, restingAt(0)));
+    const pitches: number[] = [];
+    for (let i = 1; i <= 1000; i++) {
+      pitches.push(pitchDeg(samplePose(GALLERY, back(GALLERY, u0 - (i / 1000) * u0))));
     }
-    expect(held, 'the transient stays at the corrected level').toBe(true);
-    expect(peak).toBeGreaterThanOrEqual(9.5);
-    const g0 = samplePose(GALLERY, restingAt(0));
-    const [px, py, pz] = [g0.position[0] ?? 0, g0.position[1] ?? 0, g0.position[2] ?? 0];
-    const [tx, ty, tz] = [g0.target[0] ?? 0, g0.target[1] ?? 0, g0.target[2] ?? 0];
-    expect((Math.atan2(ty - py, Math.hypot(tx - px, tz - pz)) * 180) / Math.PI).toBeCloseTo(
-      3.06,
-      1,
-    );
+    const dips = pitches.filter((p, i) => i > 0 && p < (pitches[i - 1] ?? p) - 1e-6).length;
+    const peak = Math.max(...pitches);
+    expect(dips, 'the pitch never turns back down on the way to the settle').toBe(0);
+    expect(peak, 'no sample rises above the settle').toBeLessThanOrEqual(settle + 1e-6);
+    expect(pitches[0] ?? Number.NaN).toBeLessThan(0.1);
+    expect(pitches[69] ?? Number.NaN).toBeCloseTo(2.615, 2);
+    expect(pitches[499] ?? Number.NaN).toBeCloseTo(3.0505, 3);
+    expect(settle).toBeCloseTo(3.0591, 3);
+  });
+
+  it('near-field Back Gj→G0 spans the whole glide: half of the 83° pan at mid-segment', () => {
+    // Gj→EAST_DOOR is +x; along the straight mouth the live ray to JUNCTION keeps Gj−G0's
+    // bearing, 82.98° off +x, so the gaze bearing is 82.98°·s: 33.19° at s = 0.4 (where the
+    // capped turn used to land on JUNCTION) and 41.49° at s = 0.5; 82.98° only once at G0.
+    const u0 = stopParameter(GALLERY, 1);
+    const bearingDeg = (pose: ReturnType<typeof samplePose>): number => {
+      const hx = (pose.target[0] ?? 0) - (pose.position[0] ?? 0);
+      const hz = (pose.target[2] ?? 0) - (pose.position[2] ?? 0);
+      return (Math.atan2(Math.abs(hz), hx) * 180) / Math.PI;
+    };
+    expect(bearingDeg(samplePose(GALLERY, back(GALLERY, u0 * 0.6)))).toBeCloseTo(33.19, 1);
+    expect(bearingDeg(samplePose(GALLERY, back(GALLERY, u0 * 0.5)))).toBeCloseTo(41.49, 1);
+    expect(bearingDeg(samplePose(GALLERY, restingAt(0)))).toBeCloseTo(82.98, 1);
   });
   it('a vertical destination aim at departure yields no NaN and the committed gaze', () => {
-    // FIXUPS 2's pin: a destination aim straight above the camera never produces NaN (the
-    // no-NaN pin), and at k → u0 exactly the pose IS the committed one (the t=0 fence).
+    // FIXUPS 2's pin, R19-ux C: re-derived by measurement — a destination aim straight above
+    // the camera never produces NaN (the no-NaN pin), and at k = u0 + ε the gaze stays within
+    // O(ε) of the committed one: the frozen-source law's first-order start turns w ≈ 1.6e-5
+    // of the 140° source↔destination arc at ε = 1e-6 (measured 0.00224°, bound 0.0025).
     const UP: Rail = { stops: [stop('a', [0, 1.7, 0]), aimed('b', [0, 1.7, -6], [0, 6.7, 0])] };
     expect(samplePose(UP, restingAt(0)).target).toEqual(UP.stops[1]?.position); // the fence
     const pose = samplePose(UP, restingAt(1e-6)); // inside the blend, w ≈ 0
@@ -286,7 +321,7 @@ describe('the departure turn (R18-ux verdict 2)', () => {
     expect(
       angleDeg(unitDir(pose.target, p), unitDir(UP.stops[1]?.position ?? p, p)),
       'the committed gaze direction at w ≈ 0',
-    ).toBeLessThan(1e-4);
+    ).toBeLessThan(0.0025);
   });
   it('the seed sets the entry direction (backward entry = −1)', () => {
     expect(seedState(STAIR, { stop: 'd', cam: null }).state.heading).toBe(-1);
@@ -298,11 +333,15 @@ describe('the departure turn (R18-ux verdict 2)', () => {
 });
 
 describe('look limits', () => {
-  it('move from the origin’s rows to the destination’s over the departure turn', () => {
-    const mid = sampleLimits(STAIR, restingAt(0.5));
-    expect(mid.yaw).toBeCloseTo(60); // the destination c's rows (the hold after the turn)
-    const early = sampleLimits(STAIR, restingAt(1e-4));
-    expect(early.yaw).toBeLessThan(30.1); // the origin's rows at the turn's start
+  it('moves limits with turn phase, then holds the destination rows', () => {
+    const started = stepStop(GALLERY, restingAt(0), 1, false).state;
+    const halfway = advance(GALLERY, started, STEP_GLIDE_MS * 0.2);
+    const limits = sampleLimits(GALLERY, halfway);
+    expect(limits.yaw).toBeCloseTo(25, 7);
+    expect(limits.pitchUp).toBe(15);
+    expect(limits.pitchDown).toBe(15);
+    const held = advance(GALLERY, started, STEP_GLIDE_MS * 0.4);
+    expect(sampleLimits(GALLERY, held)).toEqual({ yaw: 30, pitchUp: 15, pitchDown: 15 });
   });
   it('clamp drag offsets', () => {
     // r21: drag accumulates the clamped TARGET; the rendered look eases in advance().
@@ -366,8 +405,13 @@ describe('advance and reduced motion', () => {
       expect(() => advance(STAIR, restingAt(0), d)).toThrow(RangeError);
     }
   });
-  it('settles exactly on the target once the duration elapses', () => {
-    const done = advance(STAIR, stepStop(STAIR, restingAt(0), 1, false).state, STEP_GLIDE_MS);
+  it('settles exactly after the R19-ux 2380-ms step duration', () => {
+    expect(STEP_GLIDE_MS).toBe(2380);
+    const started = stepStop(STAIR, restingAt(0), 1, false).state;
+    expect(started.glide?.durationMs).toBe(2380);
+    const before = advance(STAIR, started, 2379);
+    expect(before.glide).not.toBeNull();
+    const done = advance(STAIR, before, 1);
     expect(done.glide).toBeNull();
     expect(done.u).toBe(stopParameter(STAIR, 1));
   });
@@ -472,8 +516,15 @@ describe('corner runs and the approach field (R18-ux D3)', () => {
     }
   });
   it('a Forward glide into a stop with approach holds the approach point', () => {
-    const pose = samplePose(GALLERY, restingAt(0.1)); // mid G0→Gj, past the turn
+    // R19-ux C: re-derived from the turnFrame law for this pair — θ(JUNCTION → GALLERY_MOUTH
+    // at the G0 anchor) = 12.071° ≤ 45°, so the span does not widen: TURN_SPAN_T 0.31744
+    // (k units; u 0.10581). R18's probe u = 0.1 (k 0.3) sat inside it, mid-turn; the hold
+    // turns exact only past the span. Counter-asserts the sharper new-law pin: just before
+    // the span ends the pose is not yet held.
+    const pose = samplePose(GALLERY, restingAt(0.108)); // k 0.324, past the span
     expect(pose.target).toEqual([4.4, 1.7, 73]);
+    const turning = samplePose(GALLERY, restingAt(0.105)); // k 0.315, inside the span
+    expect(turning.target).not.toEqual([4.4, 1.7, 73]);
   });
   it('a Back glide into the approach stop (and its own pose) keeps the subject', () => {
     const pose = samplePose(GALLERY, back(GALLERY, stopParameter(GALLERY, 1) + 0.05));

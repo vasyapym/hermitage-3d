@@ -626,12 +626,19 @@ body {
   }
 }
 
-/* Mobile-B (design-mobile-tier.md §4): the touch rail — the separate navigation surface.
-   Position host-owned from JS (layoutTouchRail sets --touch-center); the inset is the
-   larger of the law's 24 px and the applicable safe-area inset via max(). Absence is
-   display:none (the #season-list[hidden] precedent: out of layout, focus and the a11y
-   tree); the geometry is reserved while busy. Insufficient space warns loudly in the
-   repo's zimny: convention and never hides navigation (§4's failed layout gate). */
+/* Mobile-B (design-mobile-tier.md §4, R19-ux A + A.1): the touch rail — the separate navigation
+   surface, a pair of ARROWS standing one stack gap above the corner stack's tallest door
+   state: «←» flush with the left inset, «→» flush with the right (the notes link's own glyph —
+   one chrome vocabulary, nothing drawn). Position host-owned from JS (layoutTouchRail sets
+   --touch-center from the stack's stable facts — its bottom edge, its members' boxes, the door
+   prompt's reserved three-line band — never its content-sized top, so no door label rises into
+   the pair); the inset is the larger of the law's 24 px and the applicable safe-area inset via
+   max(). Absence is display:none (the #season-list[hidden] precedent: out of layout, focus
+   and the a11y tree); the geometry is reserved while busy. While the black card's room title
+   shows (#caption-title data-visible) the arrows yield by opacity only — the title surfaces in
+   their band and they return as it fades («arrows replace them»); the box never moves. A slot
+   that runs into the chrome above, or a door label past its band, warns loudly in the repo's
+   zimny: convention and never hides navigation (§4's failed layout gate). */
 #touch-rail {
   position: fixed;
   display: flex;
@@ -642,22 +649,61 @@ body {
   top: var(--touch-center);
   transform: translateY(-50%);
   pointer-events: none;
+  opacity: 1;
+  transition: opacity 240ms ease;
+}
+body:has(#caption-title[data-visible="true"]) #touch-rail {
+  opacity: 0;
 }
 #touch-rail[data-visible="false"],
 #scene-recovery[hidden] {
   display: none;
 }
+
+/* The arrow face: the box keeps the 72×44 minima; the glyph sits at the box's OUTER edge so
+   «←» shares the wordmark/notes-link margin and «→» shares «Залы»'s right edge — the hit area
+   grows inward. The title card's ink (.85, the caption-title register) makes the pair read as
+   controls over the scene; a dead direction (aria-disabled) drops to a faint register;
+   hover/focus rise to ink. No underline — an underlined arrow is a typographic error; the
+   focus ring is the keyboard signal. */
 #touch-rail button {
   min-inline-size: var(--touch-min-inline);
   min-block-size: var(--touch-min-block);
+  display: inline-flex;
+  align-items: center;
   pointer-events: auto;
+  appearance: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 28px;
+  line-height: 1;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.85);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+  user-select: none;
 }
-/* The chrome face: #lang-toggle's register (§2.2 sans 500 chrome-size, +0.02em, the
-   faint-white .55) with the #edge-prompt button reset (appearance/margin/padding/border,
-   no box, no background panel) and its caption text shadow over the scene; hover/focus
-   rise to ink + underline (the ink-and-underline law). No numeric face values copied —
-   the sources are cited and the type scale stays the shared tokens. */
-#touch-rail button,
+#touch-back {
+  justify-content: flex-start;
+}
+#touch-forward {
+  justify-content: flex-end;
+}
+#touch-rail button[aria-disabled="true"] {
+  color: rgba(255, 255, 255, 0.35);
+  cursor: default;
+}
+#touch-rail button:hover,
+#touch-rail button:focus-visible {
+  color: #fff;
+}
+
+/* The recovery face keeps the word register: #lang-toggle's §2.2 sans 500 chrome-size,
+   +0.02em, the faint-white .55 with the #edge-prompt button reset and the caption text
+   shadow; hover/focus rise to ink + underline (the ink-and-underline law). */
 #scene-reload {
   appearance: none;
   margin: 0;
@@ -673,12 +719,15 @@ body {
   text-decoration: none;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
 }
-#touch-rail button:hover,
-#touch-rail button:focus-visible,
 #scene-reload:hover,
 #scene-reload:focus-visible {
   color: #fff;
   text-decoration: underline;
+}
+@media (prefers-reduced-motion: reduce) {
+  #touch-rail {
+    transition: none;
+  }
 }
 /* Mobile-B §7: the recovery face — fixed, centered, the page background (the html/body
    #000), above the canvas and the overlays (z-index 1; #controls keeps the toggle

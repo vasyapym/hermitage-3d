@@ -157,7 +157,9 @@ import {
   TOUCH_RAIL_CLEARANCE_PX,
   TOUCH_RAIL_GAP_PX,
   TOUCH_RAIL_INSET_PX,
+  TOUCH_RAIL_PROMPT_LINES,
   touchRailCenter,
+  touchRailSlotBottom,
   touchRailVisible,
 } from './ui/touch-rail';
 import {
@@ -312,8 +314,8 @@ const bindChrome = (): void => {
   indexHeading.textContent = t('index.title'); // the dialog's aria-labelledby heading
   travelHint.textContent = t(coarsePointer ? 'chrome.travelHintTouch' : 'chrome.travelHint');
   touchRail.setAttribute('aria-label', t('chrome.touchRailLabel'));
-  touchBack.textContent = t('chrome.touchRailBack');
-  touchForward.textContent = t('chrome.touchRailForward');
+  touchBack.setAttribute('aria-label', t('chrome.touchRailBack')); // R19-ux A: glyph face, word name
+  touchForward.setAttribute('aria-label', t('chrome.touchRailForward'));
   sceneReload.textContent = t('chrome.sceneReload');
   seasonMenu.closeIfOpen(); // R16: a language swap closes the menu; the next open relabels
   seasonLabel.textContent = t('chrome.seasonLabel');
@@ -353,9 +355,10 @@ syncSeasonSelect();
 // --- The touch rail's layout (design-mobile-tier.md §4) --------------------------------------
 // Host-owned, called ONLY on layout changes (first settle, fonts.ready, the resize
 // listener, the language swap) — never in the frame loop. The width fact rides the SAME
-// boot-read coarsePointer + a fresh clientWidth per layout change; the free band and the
-// pair's centre line (TOUCH_RAIL_BAND_FRACTION from its top, R18-ux verdict 1 + D6) are
-// measured here and only here. Insufficient space warns loudly and NEVER hides the rail.
+// boot-read coarsePointer + a fresh clientWidth per layout change; the slot the pair stands
+// on (R19-ux A.1: the corner stack's stable facts, never its content-sized top) and the
+// ceiling above it are measured here and only here.
+// Insufficient space warns loudly and NEVER hides or moves the rail.
 const layoutTouchRail = (): void => {
   const vars = [
     ['--touch-min-inline', TOUCH_BUTTON_MIN_INLINE_PX],
@@ -372,11 +375,13 @@ const layoutTouchRail = (): void => {
   });
   touchRail.dataset.visible = String(visible);
   if (!visible) return;
-  // R18-ux verdict 1 + D6 (design-mobile-tier §4): the free band is the vertical interval,
-  // free in BOTH button columns, from the chrome above (the wordmark block, plus any chrome
-  // reaching the right column) plus CLEARANCE to the chrome below (the clock/scrub blocks,
-  // the notes link) minus CLEARANCE. The pair's centre line sits at TOUCH_RAIL_BAND_FRACTION
-  // of the band from its top, clamped so the box fits; too-short bands centre and warn.
+  // R19-ux A.1 (design-mobile-tier §4): the pair's box stands one stack gap above the highest
+  // top any corner-stack member but the entry title can reach (touchRailSlotBottom): in-flow
+  // members count up from the stack's bottom edge, the door prompt at its reserved band of
+  // TOUCH_RAIL_PROMPT_LINES lines; fixed members (≥768 the hint and prompt lines) at their own
+  // tops when they share a button column. The ceiling is the chrome above either button column
+  // (the wordmark block, plus any chrome reaching the right column) plus CLEARANCE; a slot that
+  // runs into it warns.
   // Horizontal geometry does not depend on top: read the button columns first.
   const back = touchBack.getBoundingClientRect();
   const fwd = touchForward.getBoundingClientRect();
@@ -385,21 +390,46 @@ const layoutTouchRail = (): void => {
   const langToggle = document.querySelector('#lang-toggle');
   const ceiling: readonly Element[] = langToggle === null ? [title] : [title, langToggle];
   const above = ceiling.map((e) => e.getBoundingClientRect()).filter(inColumns);
-  const below = [chromeRow, scrub, notesLink]
-    .filter((e) => e.getClientRects().length > 0)
-    .map((e) => e.getBoundingClientRect())
-    .filter(inColumns);
   const bandTop = Math.max(0, ...above.map((r) => r.bottom)) + TOUCH_RAIL_CLEARANCE_PX;
-  const bandBottom =
-    Math.min(document.documentElement.clientHeight, ...below.map((r) => r.top)) -
-    TOUCH_RAIL_CLEARANCE_PX;
+  const stack = document.querySelector('#corner-stack');
+  const captionTitle = document.querySelector('#caption-title');
+  const doorPrompt = document.querySelector('#edge-prompt');
+  if (stack === null || captionTitle === null || doorPrompt === null) {
+    throw new Error('zimny: corner stack missing');
+  }
+  const gap = Number.parseFloat(getComputedStyle(stack).rowGap) || 0;
+  const inFlow: Array<{ height: number; reserve: number }> = [];
+  const outOfFlowTops: number[] = [];
+  for (const member of Array.from(stack.children)) {
+    if (member === captionTitle || member.getClientRects().length === 0) continue;
+    const style = getComputedStyle(member);
+    const box = member.getBoundingClientRect();
+    if (style.position === 'fixed' || style.position === 'absolute') {
+      if (inColumns(box)) outOfFlowTops.push(box.top);
+      continue;
+    }
+    let reserve = 0;
+    if (member === doorPrompt) {
+      const line = Number.parseFloat(style.lineHeight);
+      if (!Number.isFinite(line)) throw new Error('zimny: door prompt line box unreadable');
+      reserve = TOUCH_RAIL_PROMPT_LINES * line;
+    }
+    inFlow.push({ height: box.height, reserve });
+  }
+  const { slotBottom, overflow } = touchRailSlotBottom({
+    stackBottom: stack.getBoundingClientRect().bottom,
+    gap,
+    inFlow,
+    outOfFlowTops,
+  });
   const { center, fits } = touchRailCenter(
     bandTop,
-    bandBottom,
+    slotBottom,
     touchRail.getBoundingClientRect().height,
   );
   touchRail.style.setProperty('--touch-center', `${center}px`);
-  if (!fits) console.warn('zimny: touch-rail band shorter than the group');
+  if (!fits) console.warn('zimny: touch-rail slot runs into the chrome above');
+  if (overflow) console.warn('zimny: the door prompt outgrows its reserved band');
   if (back.right + TOUCH_RAIL_GAP_PX > fwd.left) {
     console.warn('zimny: touch-rail buttons collide');
   }

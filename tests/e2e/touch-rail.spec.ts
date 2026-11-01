@@ -10,7 +10,9 @@ import {
   TOUCH_RAIL_GAP_PX as GAP,
   TOUCH_BUTTON_MIN_BLOCK_PX as H,
   TOUCH_RAIL_INSET_PX as INSET,
+  TOUCH_RAIL_PROMPT_LINES as LINES,
   touchRailCenter,
+  touchRailSlotBottom,
   TOUCH_BUTTON_MIN_INLINE_PX as W,
 } from '../../src/ui/touch-rail';
 
@@ -89,9 +91,33 @@ async function rawTap(p: Page, d: number): Promise<void> {
   await p.touchscreen.tap(b.x + b.width / 2, b.y + b.height / 2);
 }
 
+// R19-ux A.1: at a settled far end the door prompt shows UNDER the arrows — the hit at the
+// Forward button's centre is the button itself and the prompt's box starts ≥ one stack gap
+// below the pair (the seven rows' interception, pinned where it bit).
+async function promptClear(p: Page): Promise<void> {
+  const facts = await p.evaluate(() => {
+    const fwd = document.querySelector('#touch-forward');
+    const prompt = document.querySelector('#edge-prompt');
+    const stack = document.querySelector('#corner-stack');
+    if (fwd === null || prompt === null || stack === null) return null;
+    const f = fwd.getBoundingClientRect();
+    const hit = document.elementFromPoint(f.x + f.width / 2, f.y + f.height / 2);
+    return {
+      hit: hit?.id ?? '',
+      clearance: prompt.getBoundingClientRect().top - f.bottom,
+      gap: Number.parseFloat(getComputedStyle(stack).rowGap) || 0,
+    };
+  });
+  if (facts === null) throw new Error('the rail or the corner stack is missing');
+  expect(facts.hit).toBe('touch-forward');
+  expect(facts.clearance).toBeGreaterThanOrEqual(facts.gap - 0.5);
+}
 async function step(p: Page, d: number) {
   const before = await position(p);
   await expect(button(p, d)).toHaveAttribute('aria-disabled', 'false');
+  if (d > 0 && (await p.locator('#edge-prompt').getAttribute('data-visible')) === 'true') {
+    await promptClear(p);
+  }
   await button(p, d).tap();
   await expect.poll(() => position(p), { timeout: 45_000 }).not.toEqual(before);
   await roomReady(p);
@@ -472,18 +498,31 @@ for (const lang of ['ru', 'en']) {
               const inColumn = (r: DOMRect): boolean =>
                 (r.left < a.right && r.right > a.left) || (r.left < b.right && r.right > b.left);
               const above: Array<{ id: string; bottom: number; top: number }> = [];
-              const below: Array<{ id: string; top: number }> = [];
               for (const id of ['#title', '#lang-toggle']) {
                 const r = rects(id);
                 if (r !== null && inColumn(r)) above.push({ id, bottom: r.bottom, top: r.top });
               }
-              for (const id of ['#chrome-row', '#scrub', '#notes-link']) {
-                const r = rects(id);
-                if (r !== null && inColumn(r)) below.push({ id, top: r.top });
-              }
               const bandTop = Math.max(0, ...above.map((r) => r.bottom)) + 16;
-              const bandBottom =
-                Math.min(document.documentElement.clientHeight, ...below.map((r) => r.top)) - 16;
+              const stack = document.querySelector('#corner-stack');
+              const titleEl = document.querySelector('#caption-title');
+              if (stack === null || titleEl === null) return null;
+              // Every displayed stack member but the entry title, in the flow or fixed (≥768).
+              const members = Array.from(stack.children)
+                .filter((el) => el !== titleEl && el.getClientRects().length > 0)
+                .map((el) => {
+                  const r = el.getBoundingClientRect();
+                  const style = getComputedStyle(el);
+                  return {
+                    id: el.id,
+                    fixed: style.position === 'fixed' || style.position === 'absolute',
+                    inColumn: inColumn(r),
+                    top: r.top,
+                    height: r.height,
+                    line: Number.parseFloat(style.lineHeight),
+                  };
+                });
+              const stackBottom = stack.getBoundingClientRect().bottom;
+              const gap = Number.parseFloat(getComputedStyle(stack).rowGap) || 0;
               return {
                 a: { x: a.x, y: a.y, width: a.width, height: a.height },
                 b: { x: b.x, y: b.y, width: b.width, height: b.height },
@@ -498,9 +537,10 @@ for (const lang of ['ru', 'en']) {
                   getComputedStyle(railEl).getPropertyValue('--touch-center').replace('px', ''),
                 ),
                 above,
-                below,
                 bandTop,
-                bandBottom,
+                stackBottom,
+                gap,
+                members,
               };
             });
             if (probe === null) throw new Error('the rail geometry did not read');
@@ -522,24 +562,56 @@ for (const lang of ['ru', 'en']) {
             expect(
               Math.abs(probe.clientWidth - probe.b.x - probe.b.width - INSET),
             ).toBeLessThanOrEqual(0.5);
-            // Row 4: the centre line equals touchRailCenter(bandTop, bandBottom, height).
-            const expected = touchRailCenter(probe.bandTop, probe.bandBottom, probe.rail.height);
+            // Row 4 (R19-ux A.1): the box stands on the reserved slot — its bottom edge at
+            // touchRailSlotBottom over the live stack facts (±1), the door prompt counted at
+            // LINES of its line box; the centre line = touchRailCenter(bandTop, slot, height).
+            const slot = touchRailSlotBottom({
+              stackBottom: probe.stackBottom,
+              gap: probe.gap,
+              inFlow: probe.members
+                .filter((m) => !m.fixed)
+                .map((m) => ({
+                  height: m.height,
+                  reserve: m.id === 'edge-prompt' ? LINES * m.line : 0,
+                })),
+              outOfFlowTops: probe.members.filter((m) => m.fixed && m.inColumn).map((m) => m.top),
+            });
+            expect(slot.overflow).toBe(false);
+            const expected = touchRailCenter(probe.bandTop, slot.slotBottom, probe.rail.height);
+            expect(expected.fits).toBe(true);
             expect(Math.abs(probe.centerVar - expected.center)).toBeLessThanOrEqual(1);
-            // Row 5: clearance ≥ 16 px to every chrome block in either column.
+            const railBottom = probe.a.y + probe.a.height;
+            expect(Math.abs(railBottom - slot.slotBottom)).toBeLessThanOrEqual(1);
+            // Row 5: clearance ≥ 16 px to the chrome above in either column; below, every
+            // displayed stack member but the title (in the flow, or fixed in a column) starts
+            // ≥ one stack gap under the box, and in the flow the band between the box and
+            // «Залы» still holds LINES door-prompt lines plus its two gaps.
             for (const block of probe.above) {
               expect(
                 probe.a.y - block.bottom,
                 `${block.id} above clearance`,
               ).toBeGreaterThanOrEqual(CLEAR - 0.5);
             }
-            for (const block of probe.below) {
-              expect(
-                block.top - (probe.a.y + probe.a.height),
-                `${block.id} below clearance`,
-              ).toBeGreaterThanOrEqual(CLEAR - 0.5);
+            for (const m of probe.members.filter((x) => !x.fixed || x.inColumn)) {
+              expect(m.top - railBottom, `${m.id} below clearance`).toBeGreaterThanOrEqual(
+                probe.gap - 0.5,
+              );
             }
-            expect(probe.centerVar).toBeLessThanOrEqual(probe.bandBottom);
-            expect(probe.centerVar).toBeGreaterThan(probe.bandTop - probe.rail.height);
+            const base = probe.members.find((m) => m.id === 'index-open' && !m.fixed);
+            const door = probe.members.find((m) => m.id === 'edge-prompt' && !m.fixed);
+            if (base !== undefined && door !== undefined) {
+              const band = base.top - probe.gap - LINES * door.line;
+              expect(band - railBottom, 'reserved door band').toBeGreaterThanOrEqual(
+                probe.gap - 0.5,
+              );
+            }
+            // The face (R19-ux A): glyph arrows, the words as accessible names.
+            await expect(button(p, -1)).toHaveText('←');
+            await expect(button(p, 1)).toHaveText('→');
+            await expect(button(p, -1)).toHaveAttribute(
+              'aria-label',
+              lang === 'ru' ? 'Назад' : 'Back',
+            );
             // Row 6: elementFromPoint at the group's centre returns the canvas — the group's
             // own box passes pointer input through (the verdict-1 layout law).
             expect(

@@ -29,10 +29,14 @@ export const NO_LOOK = { yaw: 0, pitch: 0 } satisfies LookOffset;
 /**
  * Declared tuning target. Degrees of look a drag spanning the full viewport height traverses.
  * 35 was calibrated to the §6.1 yaw limit (a half-height drag covered about half of it); the
- * r26.1 owner report («looking around via click and moving mouse is a bit fast — around 15%
- * slower») lowers it to 30: a half-height drag now covers ~43% of the yaw limit.
+ * r26.1 owner report («… a bit fast — around 15% slower») lowered it to 30; the R19-ux report
+ * («manual looking around ~10% faster — it reads slower than the automatic look») raises it
+ * to 33 for every pointer kind (TOUCH_SPAN_FACTOR unchanged: the phone runs 37.95°/height).
+ * The automatic family (rail.ts: the destination turn during travel) uses a segment law,
+ * not a per-pixel one; no fixed angular-rate equivalence follows from a swipe duration.
+ * This changes manual gain only: its damping and the existing look limits stay unchanged.
  */
-export const DRAG_SPAN_DEG = 30;
+export const DRAG_SPAN_DEG = 33;
 /**
  * Declared tuning target. Damping time constant: 63% of the remaining offset closes per TAU and
  * the ease is visually settled after ~5 TAU. Shorter is snappier, longer floatier (80–200 ms).

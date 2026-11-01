@@ -99,6 +99,11 @@ describe('sensitivity', () => {
       );
     }
   });
+  it('pins the R19-ux span: 33° per viewport height, touch 1.15× hotter', () => {
+    expect(DRAG_SPAN_DEG).toBe(33);
+    expect(dragDegPerPx(744, 'mouse')).toBeCloseTo(33 / 744, 12);
+    expect(dragDegPerPx(744, 'touch')).toBeCloseTo((33 * 1.15) / 744, 12);
+  });
   it('is isotropic and accumulates onto the given target', () => {
     const k = dragDegPerPx(800, 'mouse');
     const diagonal = dragLook(NO_LOOK, 120, 120, 800, 'mouse');
