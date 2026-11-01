@@ -21,7 +21,9 @@ const READABLE_MIN_MS = 700;
 const watchTitle = (): void => {
   let readableFrom: number | null = null;
   let retained = false;
+  let done = false;
   const sample = (now: number): void => {
+    if (done) return;
     const title = document.getElementById('caption-title');
     const hasText = (title?.textContent ?? '') !== '';
     const opacity = title === null ? 1 : Number(getComputedStyle(title).opacity);
@@ -30,15 +32,25 @@ const watchTitle = (): void => {
     } else {
       if (title?.dataset.visible === 'false') retained ||= hasText && opacity > 0;
       if (!hasText || opacity < 0.5) {
+        done = true; // the single-writer guard: the first ender wins (the interval's twin)
         const root = document.documentElement;
         root.dataset.titleReadableMs = String(Math.round(now - readableFrom));
         root.dataset.titleFadeRetained = String(retained);
+        clearInterval(ticker);
         return; // window measured; the sampler stands down
       }
     }
     requestAnimationFrame(sample);
   };
   requestAnimationFrame(sample);
+  // The R73-class guard: on some runners the trace screencast stalls GL readbacks and
+  // starves rAF for seconds — an ~800-ms window then closes faster than the sampler's
+  // frames ever hear (run 41362175165: the arrival settled, the title cleared, the
+  // sampler never wrote). The interval hears the same state on the same clock; the
+  // report stays single-writer.
+  const ticker = setInterval(() => {
+    sample(performance.now());
+  }, 250);
 };
 
 const expectCardWindow = async (page: Page): Promise<void> => {
