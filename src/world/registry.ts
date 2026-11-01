@@ -44,6 +44,18 @@ export type Stop = Readonly<{
   look: Readonly<{ yaw: number; pitchUp: number; pitchDown: number }>;
   /** The caption's i18n key; the host resolves it to text at the dictionary boundary. */
   caption: CaptionKey;
+  /**
+   * R18-ux D3 (verdict-2 consequence): a corner flag splits the position spline into runs at
+   * this stop, so the knot inherits no tangent from across the turn. Absent or false: the rail
+   * is one run and samples bit-identically to before.
+   */
+  corner?: boolean;
+  /**
+   * R18-ux D3 (verdict-2 consequence): an optional look target held by a FORWARD glide INTO
+   * this stop, lying on its committed gaze ray (Gj's passage mouth). Back glides into it and
+   * its own committed pose keep the subject.
+   */
+  approach?: Vec3;
 }>;
 export type Rail = Readonly<{ stops: readonly Stop[] }>;
 export type AirlockTransit = 'doorway' | 'cut';

@@ -77,6 +77,8 @@ chrome stays nearly absent; two text lines change; no icons, no spinner.
      diagonally — the pull that the owner named «random flying». The gaze law
      (stop i → stop i+1's position, shortest arc) compounds it: gaze chases the
      camera's own future positions across two near-reversals per climb.
+     RESOLVED (R18-ux verdict 2): the gaze no longer follows positions. It holds the
+     destination's subject, so the climb's near-reversals no longer reach the look.
 8. **G2 faces away from the door it stands at** (the pose law's «last stop looks
    back»): the corridor's east-door stop gazes into the gallery behind it, not at
    the door the visitor must push through (verified in rail.ts committedTarget).
@@ -218,6 +220,44 @@ The transit beat, in order:
   still frames the passage's east wall band at G0 and looks back west at G2 — the G0 arrival
   and the east door's faced view remain R-UX5's authored gazes (?cam= is a rail-u parameter
   and cannot face the door).
+- **RG-D1 (2026-11-01, the details program's iteration 1 — the lamps' light; PARALLEL: integrated
+  on branch `rg-d1-light` while another session's round was in flight — the full e2e/golden
+  suite and the captures run at merge).** The owner's verdict «too dark, especially in autumn
+  and winter; evenings and nights are pitch dark; there should be more light» is the owner call
+  the R-UX4 record asked for (the band rule sat at its ceiling). The season chooser (committed
+  after the R-UX4 measurements) places every autumn/winter evening at sun ≤ −8° = pure
+  `nightChandeliers`, held at eff 0.55. The R-UX4 band rule (~1.5× between states, eff ceiling
+  0.6, g(night) < g(day)) is RETIRED for this room. The fixture-free look law: the lamp field
+  is published at GALLERY_LAMP_SCALE = 8 × the rig's emission in ALL THREE states by compose
+  (night = 8·L; dusk = the dusk rig's sky + 1·L, plus 7·L; day = the day rig's sun, plus 8·L),
+  encoded at the manifest white point 0.8, the room carries ONE gain (2) → eff 1.6 in every
+  state; night ≤ dusk ≤ day holds per texel by construction (the states differ by the sky/sun
+  term alone; design §1.4's «differ little» re-affirmed). No geometry change, no re-bake, no
+  new fixture (DEC-026's rejection respected — the light LEVEL is the confirmed gap; the
+  fixture FORM is not yet sourced). INTEGRATION CORRECTIONS of the relay reply (both verified
+  against the staged night EXR): (1) «wp = k/10 keeps the clipped texel set fixed» is not so —
+  the atlas clip point moves to wall L ≥ 0.1 (13.29 → 15.86 % of texels measured; the
+  acceptance gate «clipped share outside the sconce mask ≤ 3 %» covers the delta); (2) the
+  paired law «wp = k/10, retune k» is a no-op family — any (k, k/10) pair encodes the same
+  atlas (encode = clamp((k/wp)·L)); the encoded quantity is C = k/wp (first setting 10), and
+  the retune knob is C (raise k with wp held 0.8). Light budget: atlas night mean 0.2324 →
+  0.3221; the rendered product grew ≈ ×4.03 LINEAR (0.3221 × 1.6 vs 0.2324 × 0.55) — AgX
+  compresses heavily, the capture band arbitrates. Acceptance gates at G1 (probe-frame, 255
+  scale): night mean in 40..70; pixels below 10/255 at night ≤ 10 %; clipped (code 255)
+  atlas share outside the sconce mask ≤ 3 %; «sconces remain the brightest» in all three
+  states (shade emission 6.0 vs the walls' clip max 1.0 × eff 1.6); no visible vault banding
+  at eff 1.6. Retune: outside the band raise/lower C; banding remedy: smaller C with a finer
+  toe, never the eff ceiling. Declared residuals: the dusk probe ktx2 is NOT rescaled
+  (specular from the probe lags the lamp field until a re-bake; the plaster/stone finishes
+  are rough — minor); the day state reads lamp-dominated until the courtyard-side windows
+  exist (the daylight term's shortfall is the windows gap, not a regression; §1.4's declared
+  behaviour). Real-room facts (iteration-2 evidence): LOOKUP-SUPPORTED (web summaries,
+  unsourced): the real gallery is vaulted with large windows along the courtyard side — in
+  tension with design §2.2's «windows | none visible». Fixture form unknown; next evidence:
+  an axial photograph toward the Jordan Staircase (day and evening) and a courtyard-wall
+  view; the owner's own screenshot with clock/season settles the «total black» reading
+  alongside the merge-time pre-change capture at the det night time (expect ≈ 12/255 —
+  designed darkness, not a decode failure).
 
 ## 6. The stair arrival (reply §2.5, adopted + geometry)
 
@@ -248,12 +288,31 @@ The transit beat, in order:
 
 Verdict: the rail stays; free roam stays rejected; the two defect laws are fixed
 inside the promise.
-- **Gaze law**: every stop may carry an authored SUBJECT (a world-space point);
-  between stops the TARGET POINT interpolates in world space (smootherstep over the
-  segment), not the angles. Consecutive stops sharing a subject lock on it — a dolly
-  with a subject. The angle-blend default stays as fallback (nothing unauthored
-  changes; the square's SQUARE_GAZE was the precedent, now generalised). «Last stop
-  looks back» survives only where an authored subject does not replace it.
+- **Gaze law (R18-ux, verdict 2: the glide look law)**: every stop carries an authored
+  SUBJECT (a world-space point). Its committed pose looks at it. A subjectless stop keeps
+  the committed default target as its committed object: the next stop, or for the last
+  stop, the previous one. During a glide the look HOLDS THE DESTINATION stop's target for
+  the whole travel. The destination is the stop the glide is heading toward in the current
+  segment, Forward or Back. The camera tracks that target from its current spline
+  position. The only transition is the DEPARTURE TURN. Over the first TURN_SPAN_T of
+  segment-t (widened to TURN_SPAN_T × θ/TURN_REF_DEG for turns above TURN_REF_DEG, capped
+  at TURN_SPAN_MAX_T, never past the destination), the gaze turns by shortest arc (yaw
+  shortest arc, pitch linear, smootherstep-weighted) from the origin's target to the
+  destination's. After the turn the destination target is held exactly. The bounding-stop
+  angle blend and the world-space target sweep are retired for the look axis; position is
+  untouched and stays on the spline. Consecutive stops sharing a subject remain a locked
+  dolly, with a null turn. A glide reversed mid-segment re-anchors the turn at the look in
+  force at the reversal; a scroll glide passing a stop starts that stop's departure turn
+  from its committed pose; so neither jumps the gaze. At stops the pose is bit-identical
+  to the committed pose (the golden fence). A stop may declare an APPROACH point on its
+  committed gaze ray; a Forward glide into it holds the approach point instead of the
+  subject. Back glides into it and its own committed pose keep the subject.
+- **Corner stops (R18-ux D3)**: a stop may be flagged `corner`. The position spline is
+  evaluated per RUN — the stop list split after each corner stop — so a corner knot
+  inherits no tangent from across the turn. Each run uses the committed spline and end
+  rule unchanged; a rail with no corner flag is one run and samples bit-identically to
+  before. A scroll glide never crosses a corner stop: its target clamps there and the
+  next delta starts a new glide from the corner. Step glides are unaffected.
 - **Corner stops**: the path turns only at stops. Corridor: the junction stop (§7).
   Stairs: a stop on the REAL mezzanine turn — near (67.5, 6.7, −81.7) between the
   flights [declared] — the switchback becomes two right-angle turns on the mezzanine
@@ -269,8 +328,14 @@ inside the promise.
   landing approach → subject: the ceiling painterly / landing light; J4 landing
   survey → subject: back across the well. Corridor: G0 → lit junction; Gj → east
   door's light (locked with G1); G2 → the door's light.
-- Look limits: raise pitchUp where the subject is above (declared per stop).
-  Speed laws untouched. Look limits re-clamp unchanged.
+- Look limits (R18-ux, verdict 2): during a glide the limits read from the destination
+  stop. They move from the origin's rows (or the rows in force at a reversal) to the
+  destination's over the same departure turn, then hold the destination's. Raise pitchUp
+  where the subject is above (declared per stop). Re-clamp unchanged.
+- Reduced motion (R18-ux, verdict 2): glides become cuts stop→stop; a cut lands on the
+  destination's committed pose. There is no departure turn.
+- Speed laws (R18-ux D2): step glides 2800 ms, scroll glides 640 ms, both smootherstep;
+  reduced motion cuts unchanged.
 - Touches: the committed gaze law (owner D6), the Stop type gains an optional
   authored-gaze field (src/world/registry.ts — a type extension; DEC-013
   unaffected), stop counts (new stop ids + captions in both languages — the RU
@@ -280,6 +345,35 @@ inside the promise.
   re-composed (S1, G0, G1-day, J0 + any newly composed views).
 - D8 (the reply's fork): scroll travel stays CONTINUOUS (not stop-stepped) — with
   authored subjects the between-frames stop being random; control is part of the visit.
+- The military gallery of 1812 stop table (R18-ux D5; positions in the committed
+  frame; EYE 11.65):
+
+  | Stop | Position | Subject | Look {yaw, up/down} | Change |
+  |---|---|---|---|---|
+  | M0 | [86.25, 11.65, −38] | AXIS_FAR | {30, +25/−10} | none |
+  | M1 | [86.25, 11.65, −25] | AXIS_FAR | {60, +25/−15} | x 84.3→86.25 (on axis); subject WEST_BLOCK→AXIS_FAR; yaw 25→60 so a drag-left frames the west portrait block |
+  | M2 | [86.25, 11.65, −12.5] | AXIS_FAR | {40, +55/−0} | subject LANTERN→AXIS_FAR; rows unchanged — pitchUp 55 keeps the 35° lantern as the drag's reward |
+  | M3 | [86.25, 11.65, 0] | MONARCHS | {25, +20/−10} | z 9→0; flagged `corner` |
+  | M4 | [88.5, 11.65, 13] | ST_GEORGE_DOORS | {20, +10/−10} | none |
+
+  The rail becomes one axial dolly: run M0..M3 is axial (x = 86.25 to float rounding); run
+  M3→M4 is the chord (2.25, 0, 13), 9.8° off axis, straight to the door stop. Segments
+  13 / 12.5 / 12.5 / 13.2 m — an even rhythm at the fixed 2800 ms (the committed 21.5 m
+  then 4.6 m pair would swing between 7.7 and 1.6 m/s average). Gaze under verdict 2:
+  presses 1–2 are a locked dolly (null turns; pitch 1.5°→2.8° down the axis). Press 3
+  holds MONARCHS: θ at M2 ≈ 0.4°, pitch rising 3.2°→5.9° — a calm tilt toward the end
+  wall. Press 4 holds the doors: θ at M3 ≈ 17° (yaw 0→16°, pitch 5.9°→1.3°), span 0.18;
+  the aim then converges from 16° to 52° as the door nears (≈25° at 4 m, ≈40° at 1 m
+  remaining, ≈20–35°/s at the easing tail) — reads as walking to a door, not a swerve.
+  Back glides face forward while backing away (AXIS_FAR / MONARCHS), consistent along the
+  whole gallery. WEST_BLOCK and LANTERN stay exported landmarks (the capture checklist
+  and the look-row comments), no longer subjects; M0 and M4 are untouched, so any goldens
+  there hold. Capture-day uncertainties: (1) M3 reads the monarch wall from 14.9 m — if
+  it composes too far, slide M3 to z 4..6 (one number; the corner keeps the path
+  straight); (2) M1's yaw 60 is the widest look row in the building — confirm the west
+  portrait block fills the frame without showing the set edge; (3) the door geometry —
+  ST_GEORGE_DOORS at x 90.4 sits at the end wall's east end, so M4 views it ≈52° off its
+  normal.
 
 ## 9. Felt-experience acceptance criteria (the reviewer script; reply §4 verbatim)
 

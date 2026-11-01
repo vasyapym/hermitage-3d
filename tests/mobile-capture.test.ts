@@ -147,7 +147,7 @@ const buildPlan = (): MobileCPlanV1 => {
     })),
     evidenceIds: [],
   };
-  const itineraries: MobileCItinerary[] = ROOM_IDS.map((roomId) => {
+  const itineraries: MobileCItinerary[] = ['square', ...ROOM_IDS].map((roomId) => {
     const room = committed.rooms.find((row) => row.id === roomId);
     return {
       id: `it-${roomId}`,
@@ -191,7 +191,9 @@ const buildPlan = (): MobileCPlanV1 => {
   const slots: MobileCSlot[] = [];
   const thirds = THIRDS.map((third) => ({ ...third }));
   for (const scope of scopes) {
-    for (const roomId of ROOM_IDS) {
+    // R18-ux D1 (the §18.2 amendment, owner-ratified 2026-11-01): the square gains its own
+    // room scenario and its three slot rows per scope (the resident is never the sentinel).
+    for (const roomId of ['square', ...ROOM_IDS]) {
       const scenarioId = `sc-room-${scope.id}-${roomId}`;
       const sentinel = roomId === SENTINEL_ROOM;
       scenarios.push({

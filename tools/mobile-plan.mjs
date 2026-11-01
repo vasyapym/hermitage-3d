@@ -289,23 +289,34 @@ const generatePlan = () => {
     ),
   );
 
-  const itineraries = roomEntries.map((entry) => ({
-    id: `it-${entry.id}`,
-    roomId: entry.id,
-    stopIdsInOrder: entry.contract.rail.stops.map((stop) => stop.id),
-    legality: {
-      status: 'pending',
-      reason:
-        'the §18.2 legal intra-room stepping order derives from the room committed rail stop order; the registry does not model intra-room legs (the derivations are flagged, §19.7)',
-      evidenceIds: [],
-    },
-  }));
+  // R18-ux D1 (the §18.2 amendment, owner-ratified 2026-11-01): the square — the resident —
+  // carries its OWN legal itinerary S0→Sh→S1 in the plan, first of the room rows.
+  const planRooms = ['square', ...roomIds];
+  const itineraries = planRooms.map((nodeId) => {
+    const stops =
+      nodeId === 'square'
+        ? SQUARE_RAIL.stops
+        : roomEntries.find((entry) => entry.id === nodeId)?.contract.rail.stops;
+    if (stops === undefined) throw new Error(`mobile-plan: unknown itinerary node ${nodeId}`);
+    return {
+      id: `it-${nodeId}`,
+      roomId: nodeId,
+      stopIdsInOrder: stops.map((stop) => stop.id),
+      legality: {
+        status: 'pending',
+        reason:
+          'the §18.2 legal intra-room stepping order derives from the room committed rail stop order; the registry does not model intra-room legs (the derivations are flagged, §19.7)',
+        evidenceIds: [],
+      },
+    };
+  });
 
   const sentinelRoom = roomIds[0];
   const scenarios = [];
   const slots = [];
   for (const scope of scopes) {
-    for (const roomId of roomIds) {
+    for (const nodeId of planRooms) {
+      const roomId = nodeId;
       const scenarioId = `sc-room-${scope.id}-${roomId}`;
       const sentinel = roomId === sentinelRoom;
       scenarios.push({

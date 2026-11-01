@@ -10,6 +10,7 @@ import {
   TOUCH_RAIL_GAP_PX as GAP,
   TOUCH_BUTTON_MIN_BLOCK_PX as H,
   TOUCH_RAIL_INSET_PX as INSET,
+  touchRailCenter,
   TOUCH_BUTTON_MIN_INLINE_PX as W,
 } from '../../src/ui/touch-rail';
 
@@ -19,7 +20,8 @@ const CHAIN = ['square', 'rastrelli-gallery', 'jordan', 'military-gallery'] as c
 // 'J1b'/'J2b' trail a letter, so the walk assertions read this map instead of a regex.
 const STOPS: Record<string, number> = {
   S0: 0,
-  S1: 1,
+  Sh: 1, // R18-ux D1: the halfway stop (the §8 stop table)
+  S1: 2,
   G0: 0,
   Gj: 1,
   G1: 2,
@@ -401,7 +403,7 @@ test('context loss', async ({ browser, baseURL }) =>
   }));
 
 for (const lang of ['ru', 'en']) {
-  test(`${lang.toUpperCase()} geometry`, async ({ browser, baseURL }) => {
+  test(`${lang.toUpperCase()} geometry (R18-ux verdict 1 + D6)`, async ({ browser, baseURL }) => {
     // Before the loop, not inside a body: the test spans TWO contexts (touch + mouse) ×
     // six viewports of bounding-box reads, and both boots can sit out a storm spike — the
     // battery's RU row died at the 90-s default while the second context was still
@@ -440,41 +442,171 @@ for (const lang of ['ru', 'en']) {
             const rail = p.locator('#touch-rail');
             const visible = hasTouch || width === 767;
             await expect(rail).toHaveAttribute('data-visible', String(visible));
-            await expect(hud).toHaveAttribute('data-tier-source', source!);
-            await expect(hud).toHaveAttribute('data-probe-count', probes!);
-            if (!visible) {
-              await expect(rail).toBeHidden();
-              expect(await rail.boundingBox()).toBeNull();
-              continue;
-            }
+            await expect(hud).toHaveAttribute('data-tier-source', source);
+            await expect(hud).toHaveAttribute('data-probe-count', probes);
             await expect(button(p, -1)).toHaveAttribute('aria-disabled', 'true');
             await expect(button(p, 1)).toHaveAttribute('aria-disabled', 'false');
-            const r = await rail.boundingBox();
-            const a = await button(p, -1).boundingBox();
-            const b = await button(p, 1).boundingBox();
-            if (r === null || a === null || b === null) throw new Error('the rail is not rendered');
-            for (const box of [a, b]) {
+            if (!visible) {
+              // Row 8 (R18-ux verdict 1): data-visible="false" removes the group from the
+              // a11y tree — display:none is out of layout, focus and the tree.
+              await expect(rail).toBeHidden();
+              expect(await rail.boundingBox()).toBeNull();
+              expect(await rail.evaluate((el) => getComputedStyle(el).display)).toBe('none');
+              expect(await rail.evaluate((el) => el.checkVisibility())).toBe(false);
+              continue;
+            }
+            await frames(p);
+            const probe = await p.evaluate(() => {
+              const rects = (id: string): DOMRect | null => {
+                const el = document.querySelector(id);
+                if (el === null) return null;
+                return el.getClientRects().length === 0 ? null : el.getBoundingClientRect();
+              };
+              const backBtn = document.querySelector('#touch-back');
+              const fwdBtn = document.querySelector('#touch-forward');
+              const railEl = document.querySelector('#touch-rail');
+              if (backBtn === null || fwdBtn === null || railEl === null) return null;
+              const a = backBtn.getBoundingClientRect();
+              const b = fwdBtn.getBoundingClientRect();
+              const railRect = railEl.getBoundingClientRect();
+              const inColumn = (r: DOMRect): boolean =>
+                (r.left < a.right && r.right > a.left) || (r.left < b.right && r.right > b.left);
+              const above: Array<{ id: string; bottom: number; top: number }> = [];
+              const below: Array<{ id: string; top: number }> = [];
+              for (const id of ['#title', '#lang-toggle']) {
+                const r = rects(id);
+                if (r !== null && inColumn(r)) above.push({ id, bottom: r.bottom, top: r.top });
+              }
+              for (const id of ['#chrome-row', '#scrub', '#notes-link']) {
+                const r = rects(id);
+                if (r !== null && inColumn(r)) below.push({ id, top: r.top });
+              }
+              const bandTop = Math.max(0, ...above.map((r) => r.bottom)) + 16;
+              const bandBottom =
+                Math.min(document.documentElement.clientHeight, ...below.map((r) => r.top)) - 16;
+              return {
+                a: { x: a.x, y: a.y, width: a.width, height: a.height },
+                b: { x: b.x, y: b.y, width: b.width, height: b.height },
+                rail: {
+                  x: railRect.x,
+                  right: railRect.x + railRect.width,
+                  height: railRect.height,
+                },
+                clientWidth: document.documentElement.clientWidth,
+                clientHeight: document.documentElement.clientHeight,
+                centerVar: Number(
+                  getComputedStyle(railEl).getPropertyValue('--touch-center').replace('px', ''),
+                ),
+                above,
+                below,
+                bandTop,
+                bandBottom,
+              };
+            });
+            if (probe === null) throw new Error('the rail geometry did not read');
+            // The §4 box laws (unchanged): the two buttons carry the 72/44 minima; the
+            // 8-px TOUCH_RAIL_GAP_PX is now the MINIMUM gap (verdict 1's space-between
+            // pair spreads the buttons to the two insets).
+            for (const box of [probe.a, probe.b]) {
               expect(box.width).toBeGreaterThanOrEqual(W);
               expect(box.height).toBeGreaterThanOrEqual(H);
             }
-            expect(Math.abs(b.x - a.x - a.width - GAP)).toBeLessThanOrEqual(0.5);
-            expect(r.x).toBeGreaterThanOrEqual(INSET);
-            const title = await p.locator('#title').boundingBox();
-            if (title === null) throw new Error('#title is not rendered');
-            expect(r.y - title.y - title.height).toBeGreaterThanOrEqual(CLEAR - 0.5);
-            for (const id of ['#chrome-row', '#scrub']) {
-              const box = await p.locator(id).boundingBox();
-              if (box) expect(box.y - r.y - r.height).toBeGreaterThanOrEqual(CLEAR - 0.5);
-            }
-            expect(r.x + r.width).toBeLessThanOrEqual(width);
+            expect(probe.b.x - probe.a.x - probe.a.width).toBeGreaterThanOrEqual(GAP - 0.5);
+            // Row 1: the two buttons share one top (±0.5 px).
+            expect(Math.abs(probe.a.y - probe.b.y)).toBeLessThanOrEqual(0.5);
+            // Row 2: back.left = max(24, safe-area-left) (±0.5) — the env() insets resolve
+            // to 0 without viewport-fit=cover (§4's law note), so 24 exactly.
+            expect(probe.a.x).toBeGreaterThanOrEqual(INSET - 0.5);
+            expect(Math.abs(probe.rail.x - INSET)).toBeLessThanOrEqual(0.5);
+            // Row 3: clientWidth − fwd.right = max(24, safe-area-right) (±0.5).
             expect(
-              await p.evaluate(() => document.documentElement.scrollWidth),
-            ).toBeLessThanOrEqual(width);
+              Math.abs(probe.clientWidth - probe.b.x - probe.b.width - INSET),
+            ).toBeLessThanOrEqual(0.5);
+            // Row 4: the centre line equals touchRailCenter(bandTop, bandBottom, height).
+            const expected = touchRailCenter(probe.bandTop, probe.bandBottom, probe.rail.height);
+            expect(Math.abs(probe.centerVar - expected.center)).toBeLessThanOrEqual(1);
+            // Row 5: clearance ≥ 16 px to every chrome block in either column.
+            for (const block of probe.above) {
+              expect(
+                probe.a.y - block.bottom,
+                `${block.id} above clearance`,
+              ).toBeGreaterThanOrEqual(CLEAR - 0.5);
+            }
+            for (const block of probe.below) {
+              expect(
+                block.top - (probe.a.y + probe.a.height),
+                `${block.id} below clearance`,
+              ).toBeGreaterThanOrEqual(CLEAR - 0.5);
+            }
+            expect(probe.centerVar).toBeLessThanOrEqual(probe.bandBottom);
+            expect(probe.centerVar).toBeGreaterThan(probe.bandTop - probe.rail.height);
+            // Row 6: elementFromPoint at the group's centre returns the canvas — the group's
+            // own box passes pointer input through (the verdict-1 layout law).
+            expect(
+              await p.evaluate(() => {
+                const el = document.querySelector('#touch-rail');
+                if (el === null) return null;
+                const r = el.getBoundingClientRect();
+                const hit = document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2);
+                return hit?.id ?? '';
+              }),
+            ).toBe('scene');
+            // Row 7: tab order is Back then Forward.
+            await button(p, -1).focus();
+            await p.keyboard.press('Tab');
+            await expect(button(p, 1)).toBeFocused();
           }
         },
         { hasTouch },
         lang,
       );
     }
+  });
+}
+
+// Row 9 (R18-ux verdict 1 + D2): while busy, the geometry doesn't change. The glide needs
+// motion, so this rides its own no-preference contexts at the phone size.
+for (const lang of ['ru', 'en']) {
+  test(`R18-ux ${lang.toUpperCase()} busy reserved geometry`, async ({ browser, baseURL }) => {
+    test.setTimeout(240_000);
+    await run(
+      browser,
+      baseURL,
+      async (p) => {
+        const read = async () => {
+          const rail = p.locator('#touch-rail');
+          const a = await button(p, -1).boundingBox();
+          const b = await button(p, 1).boundingBox();
+          const r = await rail.boundingBox();
+          if (a === null || b === null || r === null) throw new Error('the rail is not rendered');
+          return {
+            ax: a.x,
+            ay: a.y,
+            aw: a.width,
+            bx: b.x,
+            by: b.y,
+            rx: r.x,
+            ry: r.y,
+            rw: r.width,
+            rh: r.height,
+          };
+        };
+        const before = await read();
+        await rawTap(p, 1);
+        // Mid-glide (the 2800-ms step still running): the box is where it was.
+        await p.waitForTimeout(600);
+        const mid = await read();
+        for (const key of ['ax', 'ay', 'aw', 'bx', 'by', 'rx', 'ry', 'rw', 'rh'] as const) {
+          expect(Math.abs(mid[key] - before[key]), `${key} mid-glide`).toBeLessThanOrEqual(0.5);
+        }
+        await roomReady(p);
+        const after = await read();
+        for (const key of ['ax', 'ay', 'aw', 'bx', 'by', 'rx', 'ry', 'rw', 'rh'] as const) {
+          expect(Math.abs(after[key] - before[key]), `${key} after`).toBeLessThanOrEqual(0.5);
+        }
+      },
+      { reducedMotion: 'no-preference' },
+      lang,
+    );
   });
 }

@@ -84,7 +84,7 @@ Ship a visible, two-button touch rail; retain one-finger dragging exclusively fo
 Use T0 as the conservative automatic choice when a coarse pointer is available, or reported
 memory is below 4 GiB. Do not expose those boots to the T2 probe first. This is a
 capability-based safety policy, not a claim that touch implies a slow GPU. «Works» means
-native-phone access to all 18 stops, both directions through all three room connections,
+native-phone access to all 19 stops, both directions through all three room connections,
 working look/time/season/language/index controls, and usable recovery states. «Floor met»
 additionally requires the physical-device evidence in §§9–10. Neither a small viewport, a
 T0 HUD label, an owner's appearance verdict, nor SwiftShader establishes it. Certification
@@ -134,25 +134,41 @@ sky-only rAF median is not a measurement of room GPU cost. Calibration remains p
 HUD-only selection-source/probe-count diagnostics; never invent a median for a skipped
 probe.
 
-## §4 Touch rail surface — amendment R17-B
+## §4 Touch rail surface — amendment R17-B (rewritten by R18-ux verdict 1 + D6)
 
-Add one separate navigation group, `#touch-rail`, with native Back and Forward buttons. Show
-it when any coarse pointer is available OR viewport width is at most 767.98 CSS px.
-Visibility is independent of quality; a narrow mouse window gets controls, not forced T0.
-When absent, the group is absent from layout, focus order and the accessibility tree. Place
-its horizontal pair on the left, centered in the free vertical band between the
-wordmark/clock/scrub block and the notes link. It is not a corner-stack member or clock row.
+«Add one separate navigation group, `#touch-rail`, with native Back and Forward buttons. Show
+it when any coarse pointer is available OR viewport width is at most 767.98 CSS px. Visibility
+is independent of quality; a narrow mouse window gets controls, not forced T0. When absent,
+the group is absent from layout, focus order and the accessibility tree. The group spans the
+viewport's inline extent between two insets: its left edge uses the larger of
+TOUCH_RAIL_INSET_PX and the left safe-area inset, its right edge the larger of
+TOUCH_RAIL_INSET_PX and the right safe-area inset. Back sits at the group's left edge (its
+place before R18-ux) and Forward at its right edge (justify-content: space-between),
+mirror-symmetric about the viewport's vertical centre line. DOM, focus and reading order stay
+Back → Forward. The group's own box passes pointer input through (pointer-events: none); only
+the buttons take it, so canvas gestures between them stay free. The pair's shared centre line
+sits at TOUCH_RAIL_BAND_FRACTION of the free vertical band, measured from the band's top: a
+quarter of the band below its midpoint, out of the view's centre where it blocked the view.
+It is clamped so the group's box stays inside the band. The free band is the vertical
+interval, free in both button columns, from the lowest bottom edge of the chrome above (the
+wordmark block, plus any chrome reaching the right column) plus TOUCH_RAIL_CLEARANCE_PX, to
+the highest top edge of the chrome below (the clock/scrub blocks, the notes link) minus
+TOUCH_RAIL_CLEARANCE_PX. It is not a corner-stack member or clock row. Constants defined
+here, in CSS px unless stated: TOUCH_BUTTON_MIN_INLINE_PX = 72; TOUCH_BUTTON_MIN_BLOCK_PX =
+44; TOUCH_RAIL_GAP_PX = 8 (the minimum gap between the two buttons); TOUCH_RAIL_INSET_PX =
+24 (both edges); TOUCH_RAIL_CLEARANCE_PX = 16; TOUCH_RAIL_MAX_WIDTH_PX = 767.98;
+TOUCH_RAIL_BAND_FRACTION = 0.75 (unitless). Measure layout only on layout changes, not in
+the render loop. Insufficient space is a failed layout gate, not permission to hide
+essential navigation. Insufficient space means either the band is shorter than the group, or
+the two buttons stand closer than TOUCH_RAIL_GAP_PX. A too-short band centres the pair in
+the band; both insufficient-space cases warn. Use the existing chrome typeface, size and
+focus treatment: visible words, no boxes, background panel, progress text or revived
+caption. Reserve the group's geometry while busy. These new 44-px targets do not resolve or
+retune the parked global 24-px accessibility item. Do not move existing chrome or add
+`viewport-fit=cover` to accommodate this addition.»
 
-Constants defined here, in CSS px:
-`TOUCH_BUTTON_MIN_INLINE_PX = 72; TOUCH_BUTTON_MIN_BLOCK_PX = 44; TOUCH_RAIL_GAP_PX = 8;
-TOUCH_RAIL_INSET_PX = 24; TOUCH_RAIL_CLEARANCE_PX = 16; TOUCH_RAIL_MAX_WIDTH_PX = 767.98`.
-Use the larger of the left inset and the applicable safe-area inset. Maintain clearance from
-both existing blocks; measure layout only on layout changes, not in the render loop.
-Insufficient space is a failed layout gate, not permission to hide essential navigation. Use
-the existing chrome typeface, size and focus treatment: visible words, no boxes, background
-panel, progress text or revived caption. Reserve the group's geometry while busy. These new
-44-px targets do not resolve or retune the parked global 24-px accessibility item. Do not
-move existing chrome or add `viewport-fit=cover` to accommodate this addition.
+Without `viewport-fit=cover`, the env() insets resolve to 0, so both edges sit at 24 px in
+practice. The max() stays in for law symmetry.
 
 ## §5 Travel and pointer laws
 
@@ -175,7 +191,8 @@ button gate above is stricter. If the owner prefers one admission law everywhere
 design accepts that amendment without changes elsewhere.
 
 Canvas drag remains look-only. Preserve 30°, touch ×1.15 and τ=100 ms; preserve mouse/pen
-sensitivity, 1,400-ms steps, 320-ms scroll glides and the 1,200-px wheel segment budget.
+sensitivity, 2,800-ms steps (R18-ux D2, «around 50% slower» = half the speed) and 640-ms
+scroll glides, and the 1,200-px wheel segment budget.
 Wheel-edge's 650/120/420 thresholds and existing keyboard travel are not retuned. Track
 client coordinates, never `movementX/Y` (the r21 lesson). Admit one primary contact; mouse
 starts require its primary button (new: today's pointerdown checks none — §0.1-6). A second
@@ -292,7 +309,7 @@ cache state. Capture clean-profile auto and explicit `q=t0`. Do not use `det`; d
 a visitor override. Pin the existing summer epoch `2026-06-21T12:00:00Z` (15:00 Petersburg
 local), **winter day `2026-01-15T10:00:00Z`** (§0.1-2 — the committed README anchor,
 13:00 local) and winter night `2026-01-15T18:00:00Z` (21:00 local). For each room and epoch
-collect three 60-second windows including resting, looking and stepping. Cover all 18 stops
+collect three 60-second windows including resting, looking and stepping. Cover all 19 stops
 and both directions of every airlock; record transition windows separately, including cold
 room entries. Include landscape, browser-bar changes and resume. At least one capture per
 scenario follows `MOBILE_SOAK_MS = 1,200,000` (20 minutes) of active touring. Keep every
@@ -557,7 +574,9 @@ amendment.
   itinerary. Every repeat contains all three activities; these are not three separate scenario
   populations. Actual activity and accepted stop changes are recorded, not inferred from elapsed
   time.
-- The union of observed stops must cover all 18 stops for each device × selection × epoch. A room
+- The union of observed stops must cover all 19 stops for each device × selection × epoch. The
+  square (the resident, R18-ux D1) carries its own legal itinerary S0→Sh→S1 and contributes its
+  three stops to the union. A room
   without a legal intra-room stepping itinerary is an unresolved matrix requirement, not permission
   to count a rejected step or an airlock as an intra-room step.
 - Each directed airlock has repeat 1 with a demonstrably unprepared destination and cold destination
@@ -1170,7 +1189,7 @@ telemetry labelled zero, or timestamps aligned by guesswork; affected gates rema
     actual buffer dimensions and AA samples.
 
 **Phase D verification — see:** three required repeats per room/directed edge, three first-exterior
-probes, designated post-soak evidence, all 18 stops in the scope’s observed stop union and both
+probes, designated post-soak evidence, all 19 stops in the scope’s observed stop union and both
 directions of every inventory airlock.
 
 **Failure looks like:** missing thirds/stops, warmed “cold” destinations, a valid-looking

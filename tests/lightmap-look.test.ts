@@ -29,6 +29,11 @@ describe('INTERIOR_LOOK_GAIN', () => {
       WHITE_POINT.day * row.day,
     );
   });
+  it('rastrelli-gallery carries one gain for all states (RG-D1: ordering by construction)', () => {
+    const g = INTERIOR_LOOK_GAIN['rastrelli-gallery'];
+    expect(g.dusk).toBe(g.day);
+    expect(g.nightChandeliers).toBe(g.day);
+  });
   it('every state entry is a finite positive number', () => {
     for (const room of INTERIOR_ROOMS) {
       const row = INTERIOR_LOOK_GAIN[room];

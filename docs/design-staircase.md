@@ -246,10 +246,13 @@ Rail: Catmull-Rom through stop positions with two helper points per flight for t
 > **r18a adjudication (binding).** Path: centripetal Catmull-Rom (α = ½) through the stop
 > positions with end phantoms only — mid-segment turn helpers are rejected: centripetal
 > parameterisation is cusp-free from the stop data alone and the frozen contracts carry no
-> numbers to justify extras (the helper law above is superseded). Default gaze = the committed
-> pose law (look at the next stop; the last stop looks back), the bounding stops' yaw/pitch
-> blended between stops by the §8 smootherstep, yaw by shortest arc — at stops the pose is
-> bit-identical, which keeps the eight goldens green un-rebaselined. The square's S0 keeps its
+> numbers to justify extras (the helper law above is superseded). Gaze = the glide look
+> law of walkthrough-ux §8 (R18-ux verdict 2). During a glide the look holds the
+> destination stop's subject after one departure turn. The bounding stops' yaw/pitch
+> blend is retired for the look axis only; the position path is this section's spline. At
+> stops the pose is bit-identical, which keeps the eight goldens green un-rebaselined.
+> Only stops whose authored data an R18-ux D-item changes re-baseline, under that item.
+> The square's S0 keeps its
 > authored gaze (the goldens' cornice framing) and S1 gazes into the arch: a per-stop gaze
 > override lives with the square data, S1's target host-resolved to the gallery entry stop.
 > Seed precedence on node entry: `?stop=` (known id) > `?cam=` (clamped) > entry; a backward

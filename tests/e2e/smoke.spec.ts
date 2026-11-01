@@ -205,8 +205,10 @@ test('wheel walk: the boundary prompt and the sustained wheel enter both airlock
     }, events);
     await page.waitForTimeout(events * 45 + 120);
   };
-  // The square's one segment into S1's clamp; the glide settles and the prompt appears.
-  await wheel(16);
+  // The square's two segments into S1's clamp (R18-ux D1: S0→Sh→S1); the glide settles at
+  // the far end and the prompt appears. 32 events = 2560 px ≥ the 2400-px road
+  // (SCROLL_PX_PER_SEGMENT 1200) with the settle margin.
+  await wheel(32);
   await expect(edgePrompt).toHaveAttribute('data-visible', 'true', { timeout: 30_000 });
   // The label names the room through the door (§2/D1): verb + ' · ' + the room's NAME.
   await expect(edgePrompt).toHaveText('Enter · Rastrelli Gallery', { timeout: 30_000 });
@@ -269,8 +271,9 @@ test('wheel walk: the boundary prompt and the sustained wheel enter both airlock
 test('keyboard walk: every stop reachable, reduced-motion cuts', async ({ page }) => {
   test.slow(); // same data-bound dwell per transit, on top of the instant reduced-motion cuts
   // The R3 walk crosses TWO extra airlocks (the 1812 cut and its reverse) and walks 34 landings:
-  // every room entry is a full mount behind the card — 10 minutes is the honest data-bound budget.
-  test.setTimeout(600_000);
+  // every room entry is a full mount behind the card. ~8 min is the honest data-bound budget on a
+  // healthy box; the r73 stall-storm class realized 10.3 m, so 900 s keeps ×1.4 headroom.
+  test.setTimeout(900_000); // the walk spans ~34 legs; a stall-storm run reaches 10.2 m against the r73 600-s cap — 900 s keeps ×1.4 headroom (the index-dialog precedent's class)
   await page.emulateMedia({ reducedMotion: 'reduce' });
   const hud = await bootDeterministic(page, `${AT}&det=1&hud=1&lang=en`);
   // One accepted press per landing. The keydown handler drops any press while the arrival is
@@ -295,6 +298,7 @@ test('keyboard walk: every stop reachable, reduced-motion cuts', async ({ page }
   // R-UX5 §7/§8 stop authoring: Gj, J1b, J2b new; J2, J3 re-authored).
   const BEATS: Readonly<Record<string, string>> = {
     S0: 'the facade and the hour',
+    Sh: 'the arch opens', // R18-ux D1: Sh rides the arch beat (the committed caption.s1 reuse)
     S1: 'the arch opens',
     G0: 'dark; the square behind',
     Gj: 'The turn east: pilaster after pilaster, forty metres to the far door.',
@@ -374,9 +378,23 @@ test('keyboard walk: every stop reachable, reduced-motion cuts', async ({ page }
     await expect(caption).toHaveAttribute('data-stop', stop, { timeout: 60_000 });
     await expect(caption).toHaveText(beat, { timeout: 60_000 });
   };
-  // Forward: S0 → S1, the arch-portal boundary, G0 → Gj → G2, the gallery-airlock boundary,
-  // J0 → J1b → J2b → J4 — every stop of the phase observed landed.
-  for (const stop of ['S1', 'G0', 'Gj', 'G1', 'G2', 'J0', 'J1', 'J1b', 'J2', 'J2b', 'J3', 'J4']) {
+  // Forward: S0 → Sh → S1 (R18-ux D1's halfway leg), the arch-portal boundary, G0 → Gj → G2,
+  // the gallery-airlock boundary, J0 → J1b → J2b → J4 — every stop of the phase observed landed.
+  for (const stop of [
+    'Sh',
+    'S1',
+    'G0',
+    'Gj',
+    'G1',
+    'G2',
+    'J0',
+    'J1',
+    'J1b',
+    'J2',
+    'J2b',
+    'J3',
+    'J4',
+  ]) {
     await walkTo(stop);
   }
   // The live region names the stop (§1.2) and tracks the walk's landings.
@@ -421,6 +439,7 @@ test('keyboard walk: every stop reachable, reduced-motion cuts', async ({ page }
     'Gj',
     'G0',
     'S1',
+    'Sh', // R18-ux D1: the backward square walk passes the halfway stop home
     'S0',
   ]) {
     await walkTo(stop, 'ArrowLeft');

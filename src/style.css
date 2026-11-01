@@ -636,9 +636,12 @@ body {
   position: fixed;
   display: flex;
   gap: var(--touch-gap);
+  justify-content: space-between;
   left: max(var(--touch-inset), env(safe-area-inset-left, 0px));
+  right: max(var(--touch-inset), env(safe-area-inset-right, 0px));
   top: var(--touch-center);
   transform: translateY(-50%);
+  pointer-events: none;
 }
 #touch-rail[data-visible="false"],
 #scene-recovery[hidden] {
@@ -647,6 +650,7 @@ body {
 #touch-rail button {
   min-inline-size: var(--touch-min-inline);
   min-block-size: var(--touch-min-block);
+  pointer-events: auto;
 }
 /* The chrome face: #lang-toggle's register (§2.2 sans 500 chrome-size, +0.02em, the
    faint-white .55) with the #edge-prompt button reset (appearance/margin/padding/border,
