@@ -218,6 +218,44 @@ The transit beat, in order:
   still frames the passage's east wall band at G0 and looks back west at G2 — the G0 arrival
   and the east door's faced view remain R-UX5's authored gazes (?cam= is a rail-u parameter
   and cannot face the door).
+- **RG-D1 (2026-11-01, the details program's iteration 1 — the lamps' light; PARALLEL: integrated
+  on branch `rg-d1-light` while another session's round was in flight — the full e2e/golden
+  suite and the captures run at merge).** The owner's verdict «too dark, especially in autumn
+  and winter; evenings and nights are pitch dark; there should be more light» is the owner call
+  the R-UX4 record asked for (the band rule sat at its ceiling). The season chooser (committed
+  after the R-UX4 measurements) places every autumn/winter evening at sun ≤ −8° = pure
+  `nightChandeliers`, held at eff 0.55. The R-UX4 band rule (~1.5× between states, eff ceiling
+  0.6, g(night) < g(day)) is RETIRED for this room. The fixture-free look law: the lamp field
+  is published at GALLERY_LAMP_SCALE = 8 × the rig's emission in ALL THREE states by compose
+  (night = 8·L; dusk = the dusk rig's sky + 1·L, plus 7·L; day = the day rig's sun, plus 8·L),
+  encoded at the manifest white point 0.8, the room carries ONE gain (2) → eff 1.6 in every
+  state; night ≤ dusk ≤ day holds per texel by construction (the states differ by the sky/sun
+  term alone; design §1.4's «differ little» re-affirmed). No geometry change, no re-bake, no
+  new fixture (DEC-026's rejection respected — the light LEVEL is the confirmed gap; the
+  fixture FORM is not yet sourced). INTEGRATION CORRECTIONS of the relay reply (both verified
+  against the staged night EXR): (1) «wp = k/10 keeps the clipped texel set fixed» is not so —
+  the atlas clip point moves to wall L ≥ 0.1 (13.29 → 15.86 % of texels measured; the
+  acceptance gate «clipped share outside the sconce mask ≤ 3 %» covers the delta); (2) the
+  paired law «wp = k/10, retune k» is a no-op family — any (k, k/10) pair encodes the same
+  atlas (encode = clamp((k/wp)·L)); the encoded quantity is C = k/wp (first setting 10), and
+  the retune knob is C (raise k with wp held 0.8). Light budget: atlas night mean 0.2324 →
+  0.3221; the rendered product grew ≈ ×4.03 LINEAR (0.3221 × 1.6 vs 0.2324 × 0.55) — AgX
+  compresses heavily, the capture band arbitrates. Acceptance gates at G1 (probe-frame, 255
+  scale): night mean in 40..70; pixels below 10/255 at night ≤ 10 %; clipped (code 255)
+  atlas share outside the sconce mask ≤ 3 %; «sconces remain the brightest» in all three
+  states (shade emission 6.0 vs the walls' clip max 1.0 × eff 1.6); no visible vault banding
+  at eff 1.6. Retune: outside the band raise/lower C; banding remedy: smaller C with a finer
+  toe, never the eff ceiling. Declared residuals: the dusk probe ktx2 is NOT rescaled
+  (specular from the probe lags the lamp field until a re-bake; the plaster/stone finishes
+  are rough — minor); the day state reads lamp-dominated until the courtyard-side windows
+  exist (the daylight term's shortfall is the windows gap, not a regression; §1.4's declared
+  behaviour). Real-room facts (iteration-2 evidence): LOOKUP-SUPPORTED (web summaries,
+  unsourced): the real gallery is vaulted with large windows along the courtyard side — in
+  tension with design §2.2's «windows | none visible». Fixture form unknown; next evidence:
+  an axial photograph toward the Jordan Staircase (day and evening) and a courtyard-wall
+  view; the owner's own screenshot with clock/season settles the «total black» reading
+  alongside the merge-time pre-change capture at the det night time (expect ≈ 12/255 —
+  designed darkness, not a decode failure).
 
 ## 6. The stair arrival (reply §2.5, adopted + geometry)
 
