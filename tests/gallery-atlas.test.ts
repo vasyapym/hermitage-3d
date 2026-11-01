@@ -26,7 +26,6 @@ import {
   GUTTER_RGB,
   hash32,
   isFamilyLicense,
-  LICENSE_STEMS,
   MIP_LEVELS,
   MISSING_SLOT,
   mockTiles,
@@ -477,7 +476,11 @@ describe('ATTRIBUTIONS block (§6.5; skipped until the real lock exists)', () =>
       .replace(/^\n/, '')
       .replace(/\n$/, '');
     expect(block).toBe(attribBlock(lock, roster));
-    expect(block.split('\n')).toHaveLength(Object.keys(lock?.entries ?? {}).length + 1); // + header
+    // §6.5 wraps long attribution lines with a two-space continuation, so the physical line
+    // count exceeds the entry count; unwrap FIRST, then the count is header + one per entry.
+    expect(block.split('\n').filter((l) => !l.startsWith('  ')).length).toBe(
+      Object.keys(lock?.entries ?? {}).length + 1,
+    ); // + header
   });
 });
 

@@ -116,7 +116,6 @@ const UA = 'zimny-gallery-import/2 (atlas-v2; contact: the repo owner)';
  * The pace constants are env-overridable for the burst-ban hypothesis tests (default law: the
  * numbers below). */
 const FETCH_PAUSE_MS = Number(process.env.H3D_FETCH_PAUSE_MS ?? 1500);
-const FETCH_BATCH = Number(process.env.H3D_FETCH_BATCH ?? 2);
 const FETCH_TIMEOUT_MS = 30_000;
 const RATE_WAIT_MAX_MS = 120_000;
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -464,7 +463,8 @@ async function downloadOne(key, title, preloaded) {
   const normTitle = preloaded.keyOf(title.startsWith('File:') ? title : `File:${title}`);
   const info = preloaded.infoByTitle.get(normTitle) ?? preloaded.infoByTitle.get(title);
   if (info === undefined) throw new ImportSkip(`${key}: no imageinfo for ${title} — bad title?`);
-  const license = preloaded.licenseByTitle.get(normTitle) ?? preloaded.licenseByTitle.get(title) ?? null;
+  const license =
+    preloaded.licenseByTitle.get(normTitle) ?? preloaded.licenseByTitle.get(title) ?? null;
   const legal = license !== null && license !== undefined && isFamilyLicense(license.toLowerCase());
   if (!legal) {
     throw new ImportSkip(
