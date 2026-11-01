@@ -20,7 +20,7 @@ import type { RoomLedger, StateId } from '../src/world/registry';
 const JORDAN = { day: 0.1, dusk: 0.1, nightChandeliers: 3.0 } as const;
 // The committed gallery record (R-UX4): all three states encode at the shared white point 0.2
 // (public/assets/rastrelli-gallery/manifest.json is the source of truth this fixture mirrors).
-const GALLERY = { day: 0.2, dusk: 0.2, nightChandeliers: 0.2 } as const;
+const GALLERY = { day: 0.8, dusk: 0.8, nightChandeliers: 0.8 } as const;
 // R4 Block 2: WHITE_POINT_1812 — with the committed 3/3/2 gains, eff = 0.75 / 0.45 / 0.6.
 // The Military Gallery's manifest intensity record as committed (R4's fixed tree).
 const MILITARY = { day: 1.5, dusk: 0.15, nightChandeliers: 0.3 } as const;
@@ -33,16 +33,11 @@ describe('effectiveIntensities', () => {
     expect(eff.dusk).toBeCloseTo(0.3, PRECISION);
     expect(eff.nightChandeliers).toBeCloseTo(3.0, PRECISION);
   });
-  it('rastrelli-gallery: shared white point × gains 3/3/2.75', () => {
+  it('rastrelli-gallery: white point 0.8 × one gain 2 (RG-D1 adopted law)', () => {
     const eff = effectiveIntensities('rastrelli-gallery', GALLERY);
-    expect(eff.day).toBeCloseTo(0.6, PRECISION);
-    expect(eff.dusk).toBeCloseTo(0.6, PRECISION);
-    expect(eff.nightChandeliers).toBeCloseTo(0.55, PRECISION);
-  });
-  it('R-UX4 ceiling law: gallery max eff = the dusk value, and night < day per texel', () => {
-    const eff = effectiveIntensities('rastrelli-gallery', GALLERY);
-    expect(eff.dusk).toBe(Math.max(eff.day, eff.dusk, eff.nightChandeliers));
-    expect(eff.nightChandeliers).toBeLessThan(eff.day);
+    expect(eff.day).toBeCloseTo(1.6, PRECISION);
+    expect(eff.dusk).toBeCloseTo(1.6, PRECISION);
+    expect(eff.nightChandeliers).toBeCloseTo(1.6, PRECISION);
   });
   it('returns a fresh record covering exactly the three states', () => {
     const eff = effectiveIntensities('jordan', JORDAN);
