@@ -1,0 +1,32 @@
+# The atlas-v2 fetch relay: a MANUAL window-harvest job, not part of CI validation (the
+# standing CI runs typecheck/lint/test/build/budget only and never fetches). Each dispatch
+# spins an ephemeral runner — a FRESH egress IP — which runs the exact offline fetcher the
+# maintainers run locally (same resume/pacing laws), then uploads .cache/gallery-sources as
+# a run-numbered artifact. The orchestrator merges every artifact into the local cache
+# (key-by-key), because runners start with an empty cache each time.
+name: gallery-fetch-relay
+on:
+  workflow_dispatch:
+
+jobs:
+  fetch-relay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: atlas-v2
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - uses: pnpm/action-setup@v4
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Fetch the pending sources onto this runner's egress
+        run: pnpm gallery:fetch || true
+      - name: Upload the source cache as an artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: gallery-sources-${{ github.run_number }}
+          path: .cache/gallery-sources
+          if-no-files-found: error
