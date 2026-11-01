@@ -134,7 +134,7 @@ sky-only rAF median is not a measurement of room GPU cost. Calibration remains p
 HUD-only selection-source/probe-count diagnostics; never invent a median for a skipped
 probe.
 
-## §4 Touch rail surface — amendment R17-B (rewritten by R18-ux verdict 1 + D6)
+## §4 Touch rail surface — amendment R17-B (rewritten by R18-ux verdict 1 + D6; placement and face re-ruled by R19-ux A; the slot re-ruled by R19-ux A.1)
 
 «Add one separate navigation group, `#touch-rail`, with native Back and Forward buttons. Show
 it when any coarse pointer is available OR viewport width is at most 767.98 CSS px. Visibility
@@ -146,29 +146,47 @@ TOUCH_RAIL_INSET_PX and the right safe-area inset. Back sits at the group's left
 place before R18-ux) and Forward at its right edge (justify-content: space-between),
 mirror-symmetric about the viewport's vertical centre line. DOM, focus and reading order stay
 Back → Forward. The group's own box passes pointer input through (pointer-events: none); only
-the buttons take it, so canvas gestures between them stay free. The pair's shared centre line
-sits at TOUCH_RAIL_BAND_FRACTION of the free vertical band, measured from the band's top: a
-quarter of the band below its midpoint, out of the view's centre where it blocked the view.
-It is clamped so the group's box stays inside the band. The free band is the vertical
-interval, free in both button columns, from the lowest bottom edge of the chrome above (the
-wordmark block, plus any chrome reaching the right column) plus TOUCH_RAIL_CLEARANCE_PX, to
-the highest top edge of the chrome below (the clock/scrub blocks, the notes link) minus
-TOUCH_RAIL_CLEARANCE_PX. It is not a corner-stack member or clock row. Constants defined
+the buttons take it, so canvas gestures between them stay free. The pair's box stands one
+corner-stack gap above the highest top edge any stack member except the entry title can
+reach, read from the stack's stable facts, never from its content-sized top: in-flow
+members stack up from the stack's bottom edge, each at the larger of its box and its
+reserve — the door prompt reserves TOUCH_RAIL_PROMPT_LINES of its own line box, so no door
+label rises into the pair; out-of-flow members sharing a button column (≥768 the fixed
+hint and prompt lines) count at their own tops. The arrows thus stand where the entry
+title stands over the stack's tallest door state, directly above the door label's band;
+while the title is visible they yield by opacity alone and return as it fades. The box
+never moves. The ceiling is the lowest
+bottom edge of the chrome above either button column (the wordmark block, plus any chrome
+reaching the right column) plus TOUCH_RAIL_CLEARANCE_PX. It is not a corner-stack member or
+clock row. Constants defined
 here, in CSS px unless stated: TOUCH_BUTTON_MIN_INLINE_PX = 72; TOUCH_BUTTON_MIN_BLOCK_PX =
 44; TOUCH_RAIL_GAP_PX = 8 (the minimum gap between the two buttons); TOUCH_RAIL_INSET_PX =
 24 (both edges); TOUCH_RAIL_CLEARANCE_PX = 16; TOUCH_RAIL_MAX_WIDTH_PX = 767.98;
-TOUCH_RAIL_BAND_FRACTION = 0.75 (unitless). Measure layout only on layout changes, not in
+TOUCH_RAIL_PROMPT_LINES = 3 (the door prompt's reserved band, in its own lines);
+Measure layout only on layout changes, not in
 the render loop. Insufficient space is a failed layout gate, not permission to hide
-essential navigation. Insufficient space means either the band is shorter than the group, or
-the two buttons stand closer than TOUCH_RAIL_GAP_PX. A too-short band centres the pair in
-the band; both insufficient-space cases warn. Use the existing chrome typeface, size and
-focus treatment: visible words, no boxes, background panel, progress text or revived
-caption. Reserve the group's geometry while busy. These new 44-px targets do not resolve or
+essential navigation. Insufficient space means either the box on its slot runs into the
+ceiling, or the two buttons stand closer than TOUCH_RAIL_GAP_PX; both cases warn, neither
+moves the pair. A door label that outgrows its reserved band warns as well, and the layout
+that measures it stands the pair above the label. Face: two arrow glyphs — «←» for Back
+flush with the left inset, «→» for
+Forward flush with the right (the notes link's own glyph; nothing drawn) — in the chrome
+typeface at 28 px, the title card's ink (.85), a faint register for a dead direction
+(aria-disabled), ink on hover/focus, no underline; the accessible names stay the words
+(chrome.touchRailBack/Forward as aria-label). No boxes, background panel, progress text or
+revived caption. Reserve the group's geometry while busy. These new 44-px targets do not
+resolve or
 retune the parked global 24-px accessibility item. Do not move existing chrome or add
 `viewport-fit=cover` to accommodate this addition.»
 
 Without `viewport-fit=cover`, the env() insets resolve to 0, so both edges sit at 24 px in
 practice. The max() stays in for law symmetry.
+R19-ux A.1 note: the band, not the current label, is the slot. The corner stack is
+bottom-anchored and content-sized and the door label is empty at entry stops (R-UX2), so a
+slot read off the stack's top goes stale the moment a far-end label wraps — the R19-ux A
+interception. Three reserved lines cover the longest label at the 320-px floor; a shorter
+label (two lines at 360, one in landscape) leaves the difference empty above it, and the
+entry title surfaces one gap above the label's current box — at or below the pair's line.
 
 ## §5 Travel and pointer laws
 

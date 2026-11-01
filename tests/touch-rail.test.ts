@@ -20,26 +20,49 @@ describe('touch rail', () => {
       law.TOUCH_RAIL_INSET_PX,
       law.TOUCH_RAIL_CLEARANCE_PX,
       law.TOUCH_RAIL_MAX_WIDTH_PX,
-    ]).toEqual([72, 44, 8, 24, 16, 767.98]);
+      law.TOUCH_RAIL_PROMPT_LINES,
+    ]).toEqual([72, 44, 8, 24, 16, 767.98, 3]);
   });
 
-  it('pins the R18-ux D6 band fraction (0.75 measured from the band top)', () => {
-    expect(law.TOUCH_RAIL_BAND_FRACTION).toBe(0.75);
+  it('stands the box one stack gap above the reserved door band, whatever the label', () => {
+    // 360×744: the stack's bottom edge 704, «Залы» 21, the 8-px stack gap, 18-px prompt lines.
+    for (const label of [0, 18, 36, 54]) {
+      expect(
+        law.touchRailSlotBottom({
+          stackBottom: 704,
+          gap: 8,
+          inFlow: [
+            { height: label, reserve: 54 },
+            { height: 21, reserve: 0 },
+          ],
+          outOfFlowTops: [],
+        }),
+      ).toEqual({ slotBottom: 613, overflow: false });
+    }
+    expect(law.touchRailCenter(99, 613, 44)).toEqual({ center: 591, fits: true });
   });
-
-  it('places the centre line at the band fraction when the box fits (ideal-inside)', () => {
-    // A 744-px band, a 44-px box: ideal = 0 + 0.75 × 744 = 558 — inside [22, 722].
-    expect(law.touchRailCenter(0, 744, 44)).toEqual({ center: 558, fits: true });
+  it('clears out-of-flow members in a column at their own tops (≥768: the hint line)', () => {
+    // 844×390: «Залы» in the flow over the bottom edge 350; the fixed hint/prompt lines 303/348.
+    const inFlow = [{ height: 21, reserve: 0 }];
+    const at = (outOfFlowTops: number[]) =>
+      law.touchRailSlotBottom({ stackBottom: 350, gap: 8, inFlow, outOfFlowTops });
+    expect(at([])).toEqual({ slotBottom: 321, overflow: false });
+    expect(at([303, 348])).toEqual({ slotBottom: 295, overflow: false });
   });
-
-  it('clamps so the box stays inside the band (clamp-at-bottom)', () => {
-    // A 60-px band, a 44-px box: ideal 45 exceeds hi 38 → the clamp's centre line.
-    expect(law.touchRailCenter(0, 60, 44)).toEqual({ center: 38, fits: true });
-  });
-
-  it('centres in the band and reports fits=false on a misfit (warn, never hide)', () => {
-    // A 40-px band, a 44-px box: lo 22 > hi 18 → the band's middle, fits=false.
-    expect(law.touchRailCenter(0, 40, 44)).toEqual({ center: 20, fits: false });
+  it('a label past its band flags overflow and clears it; a misfit warns, never moves', () => {
+    expect(
+      law.touchRailSlotBottom({
+        stackBottom: 704,
+        gap: 8,
+        inFlow: [
+          { height: 72, reserve: 54 },
+          { height: 21, reserve: 0 },
+        ],
+        outOfFlowTops: [],
+      }),
+    ).toEqual({ slotBottom: 595, overflow: true });
+    expect(law.touchRailCenter(569, 613, 44)).toEqual({ center: 591, fits: true });
+    expect(law.touchRailCenter(570, 613, 44)).toEqual({ center: 591, fits: false });
   });
 
   it('exhausts coarse/narrow visibility combinations, including the boundary', () => {

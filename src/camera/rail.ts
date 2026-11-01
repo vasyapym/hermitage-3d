@@ -19,18 +19,26 @@
  *   world-space point) looks at it; a stop without one looks at stop i + 1, the last looks back
  *   at i − 1. At t = 0 / t = 1 the target IS the committed object, so never-dragged stop poses
  *   stay bit-identical to the data (the golden fence).
- * - Gaze between stops (R18-ux verdict 2, the glide look law): during a glide the look HOLDS
- *   THE DESTINATION stop's target (its subject, its pose-law point, or its Forward `approach`
- *   point); position stays on the spline. The only transition is the DEPARTURE TURN: over the
- *   first TURN_SPAN_T of the segment (widened to TURN_SPAN_T · θ/TURN_REF_DEG above the
- *   reference angle, capped at TURN_SPAN_MAX_T, never past the destination) the gaze turns by
- *   shortest arc (yaw shortest arc, pitch linear) from the origin's target to the
- *   destination's, smootherstep-weighted; after the turn the destination target is held
- *   exactly. A glide reversed mid-segment re-anchors the turn at the look in force at the
- *   reversal; a scroll glide passing a stop starts that stop's departure turn from its
- *   committed pose — neither jumps the gaze.
- * - Look limits blend linearly between the bounding stops; user offsets are re-clamped on every
- *   transition. Offsets are degrees: yaw > 0 turns right, pitch > 0 looks up.
+ * - Gaze between stops (R19-ux C): one departure turn, then the destination's exact target
+ *   (its subject, pose-law point, or Forward approach). The turn's source DIRECTION is frozen
+ *   at departure; its destination aim tracks the held point from the current spline position.
+ *   Equal source/destination points instead remain a locked dolly for the whole segment.
+ *   Yaw takes the shortest arc and pitch blends linearly with the same weight.
+ *   TURN_SPAN_T is segment distance: 0.31744 is smootherstep(0.4). The distance span widens
+ *   by θ/TURN_REF_DEG above the reference angle, caps at TURN_SPAN_MAX_T and never passes
+ *   the destination. Inverse smootherstep maps distance/remaining-segment to a phase;
+ *   smootherstep of phase/end-phase shapes the turn without nesting the travel acceleration.
+ *   For a settled adjacent step up to 45°, the turn occupies its first 40% of elapsed time. A
+ *   near-field held point — its own ray turns by TURN_REF_DEG or more between the anchor eye and
+ *   that nominal span's end — is exempt: its turn spans the whole remaining segment with the
+ *   distance fraction as its weight, so its parallax enters only in proportion to the distance
+ *   covered.
+ *   Partial scrolls and retargets use this same geometric law, not a separate wall clock.
+ *   Reversals re-anchor at the current base gaze; pass-through stops begin from their
+ *   committed poses. Stops retain their exact committed targets and position objects.
+ * - Look limits use the same turn-phase weight from departure rows to destination rows, then
+ *   hold the destination's. User offsets are re-clamped on every transition, not reset.
+ *   Offsets are degrees: yaw > 0 turns right, pitch > 0 looks up.
  * - Motion: a glide is (from, to, durationMs, elapsedMs) eased by smootherstep; advance() is
  *   pure, takes a finite non-negative deltaMs and throws RangeError otherwise. A key step in
  *   flight retargets from the current u; a scroll in flight extends the scroll glide's `to`.
@@ -97,16 +105,15 @@ export type SeedInput = Readonly<{ stop: string | null; cam: number | null }>;
 export type SeedSource = 'stop' | 'cam' | 'entry';
 export type SeedResult = Readonly<{ state: RailState; source: SeedSource }>;
 
-export const STEP_GLIDE_MS = 2800; // R18-ux D2: half the speed for button/arrow presses
-export const SCROLL_GLIDE_MS = 640; // R18-ux D2: half the speed of an isolated scroll delta
+export const STEP_GLIDE_MS = 2380; // R19-ux B: 15% less time for button/arrow presses
+export const SCROLL_GLIDE_MS = 544; // R19-ux B: the same time reduction for isolated scrolls
 /** Declared tuning target (the r26.1 owner report: «scrolling in is too fast — around 25%
  * slower»): wheel pixels per rail segment. 900 → 1200 = the same gesture travels 75% of the
  * distance it used to. */
 export const SCROLL_PX_PER_SEGMENT = 1200;
-/** R18-ux verdict 2's departure-turn law: the turn occupies the first TURN_SPAN_T of the
- * segment for turns up to TURN_REF_DEG, widens by θ/TURN_REF_DEG above it, caps at
- * TURN_SPAN_MAX_T and never past the destination. */
-export const TURN_SPAN_T = 0.18,
+/** R19-ux C: base distance span = smootherstep(0.4), so a settled adjacent step turns over
+ * its first 40% of elapsed time. The angular widening and distance cap use the header law. */
+export const TURN_SPAN_T = 0.31744,
   TURN_REF_DEG = 45,
   TURN_SPAN_MAX_T = 0.4;
 
@@ -129,6 +136,20 @@ const smootherstep = (x: number): number => {
   const t = clamp(x, 0, 1);
   return t * t * t * (t * (t * 6 - 15) + 10);
 };
+/** Bounded monotone inverse; endpoint guards preserve exact holds and avoid a zero divisor. */
+const inverseSmootherstep = (value: number): number => {
+  const x = clamp(value, 0, 1);
+  if (x === 0 || x === 1) return x;
+  let lo = 0;
+  let hi = 1;
+  for (let i = 0; i < 32; i++) {
+    const mid = (lo + hi) / 2;
+    if (smootherstep(mid) < x) lo = mid;
+    else hi = mid;
+  }
+  return (lo + hi) / 2;
+};
+
 const wrapArc = (d: number): number => {
   const r = d % TAU;
   if (r > Math.PI) return r - TAU;
@@ -220,9 +241,16 @@ type TurnFrame = Readonly<{
   D: Vec3;
   w: number;
 }>;
-/** The departure-turn frame at k (the stop-index coordinate): the aims blend from the anchor's
- * target to the destination's held target over the widened span; w = 0 at the origin aim and
- * 1 at the hold. The span guard (w = 1 when span = 0) covers the anchor-at-destination case. */
+/** The departure-turn frame at k: the header's phase law supplies the common gaze/limits
+ * weight. At or beyond the distance span the hold is exact; no inverse is evaluated there. */
+function heldSweepDeg(rail: Rail, held: Vec3, from: Vec3, kEnd: number): number {
+  const to = samplePosition(rail, kEnd / (stopCount(rail) - 1));
+  return angleDeg(
+    [from[0] - held[0], from[1] - held[1], from[2] - held[2]],
+    [to[0] - held[0], to[1] - held[1], to[2] - held[2]],
+  );
+}
+
 function turnFrame(rail: Rail, k: number, heading: Heading, anchor: LookAnchor | null): TurnFrame {
   const i = Math.floor(k);
   const dest = heading > 0 ? i + 1 : i;
@@ -241,11 +269,22 @@ function turnFrame(rail: Rail, k: number, heading: Heading, anchor: LookAnchor |
     [a.point[0] - pA[0], a.point[1] - pA[1], a.point[2] - pA[2]],
     [D[0] - pA[0], D[1] - pA[1], D[2] - pA[2]],
   );
-  const span = Math.min(
-    Math.abs(dest - a.u0),
+  const remaining = Math.abs(dest - a.u0);
+  const nominal = Math.min(
+    remaining,
     Math.min(TURN_SPAN_MAX_T, TURN_SPAN_T * Math.max(1, theta / TURN_REF_DEG)),
   );
-  const w = span > 0 ? smootherstep(Math.abs(k - a.u0) / span) : 1; // PART-1 CORRECTION: guard
+  const kEnd = a.u0 + Math.sign(dest - a.u0) * nominal;
+  const nearField = nominal > 0 && heldSweepDeg(rail, D, pA, kEnd) >= TURN_REF_DEG;
+  const traveled = Math.abs(k - a.u0);
+  let w = 1;
+  if (nearField) {
+    w = Math.min(1, traveled / remaining);
+  } else if (nominal > 0 && traveled < nominal) {
+    const phase = inverseSmootherstep(traveled / remaining);
+    const endPhase = inverseSmootherstep(nominal / remaining);
+    w = smootherstep(phase / endPhase);
+  }
   return { a, dest, D, w };
 }
 
@@ -360,14 +399,17 @@ export function samplePose(rail: Rail, state: RailState): Pose {
   if (t === 0) return { position, target: committedTarget(rail, i), limits, look };
   if (t === 1) return { position, target: committedTarget(rail, i + 1), limits, look };
   const frame = turnFrame(rail, kOf(rail, state.u), state.heading, state.anchor);
-  if (frame.w === 1) return { position, target: frame.D, limits, look }; // the hold: destination target exactly
-  // The departure turn: shortest arc between the LIVE aims (from the current position), pitch
-  // linear, smootherstep-weighted; the target reconstructs on the blended ray at the
-  // destination's reach, so w = 1 lands exactly on the held target.
+  if (frame.w === 1 || dist(frame.a.point, frame.D) === 0) {
+    return { position, target: frame.D, limits, look };
+  }
+
+  // Freeze the departure direction, not a departing landmark's live parallax. A reversal's
+  // synthetic target gives the same direction at its anchor position, preserving continuity.
+  const origin = samplePosition(rail, frame.a.u0 / (stopCount(rail) - 1));
   const a = yawPitch([
-    frame.a.point[0] - position[0],
-    frame.a.point[1] - position[1],
-    frame.a.point[2] - position[2],
+    frame.a.point[0] - origin[0],
+    frame.a.point[1] - origin[1],
+    frame.a.point[2] - origin[2],
   ]);
   const d = yawPitch([
     frame.D[0] - position[0],

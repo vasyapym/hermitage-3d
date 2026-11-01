@@ -5,23 +5,42 @@ export const TOUCH_RAIL_GAP_PX = 8;
 export const TOUCH_RAIL_INSET_PX = 24;
 export const TOUCH_RAIL_CLEARANCE_PX = 16;
 export const TOUCH_RAIL_MAX_WIDTH_PX = 767.98;
-/** R18-ux D6: the pair's centre line sits at this fraction of the free band measured from
- * the band's top — a quarter of the band below its midpoint. */
-export const TOUCH_RAIL_BAND_FRACTION = 0.75;
 
-/** R18-ux D6: the centre line at BAND_FRACTION of the free band from its top, clamped so the
- * box fits; a misfit (a band shorter than the box) centres in the band and reports
- * fits=false — warn, never hide. */
+export const TOUCH_RAIL_PROMPT_LINES = 3;
+
+/** R19-ux A.1: the line the pair's box stands on — one stack gap above the highest top any
+ * corner-stack member but the entry title can reach. In-flow members stack up from the stack's
+ * bottom edge, each at the larger of its box and its reserve (the door prompt reserves
+ * TOUCH_RAIL_PROMPT_LINES of its line box, so no door label rises into the pair); out-of-flow
+ * members sharing a button column count at their own tops. overflow=true when a member
+ * outgrows its reserve: the slot clears it at that layout and the host warns. */
+export function touchRailSlotBottom(
+  f: Readonly<{
+    stackBottom: number;
+    gap: number;
+    inFlow: ReadonlyArray<Readonly<{ height: number; reserve: number }>>;
+    outOfFlowTops: ReadonlyArray<number>;
+  }>,
+): { slotBottom: number; overflow: boolean } {
+  let top = f.stackBottom;
+  let overflow = false;
+  for (const member of f.inFlow) {
+    top -= Math.max(member.height, member.reserve) + f.gap;
+    if (member.reserve > 0 && member.height > member.reserve) overflow = true;
+  }
+  return { slotBottom: Math.min(top, ...f.outOfFlowTops.map((t) => t - f.gap)), overflow };
+}
+
+/** The pair's box stands on slotBottom (touchRailSlotBottom): its bottom edge there. The slot
+ * is the law: the centre never clamps or moves. fits=false when the box would run into the
+ * chrome above (bandTop already carries the clearance) — warn, never hide. */
 export function touchRailCenter(
   bandTop: number,
-  bandBottom: number,
+  slotBottom: number,
   height: number,
 ): { center: number; fits: boolean } {
-  const lo = bandTop + height / 2;
-  const hi = bandBottom - height / 2;
-  if (hi < lo) return { center: (bandTop + bandBottom) / 2, fits: false };
-  const ideal = bandTop + TOUCH_RAIL_BAND_FRACTION * (bandBottom - bandTop);
-  return { center: Math.min(hi, Math.max(lo, ideal)), fits: true };
+  const center = slotBottom - height / 2;
+  return { center, fits: center - height / 2 >= bandTop };
 }
 
 export function touchRailVisible(

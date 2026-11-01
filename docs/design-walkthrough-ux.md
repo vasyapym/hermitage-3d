@@ -294,25 +294,29 @@ The transit beat, in order:
 
 Verdict: the rail stays; free roam stays rejected; the two defect laws are fixed
 inside the promise.
-- **Gaze law (R18-ux, verdict 2: the glide look law)**: every stop carries an authored
-  SUBJECT (a world-space point). Its committed pose looks at it. A subjectless stop keeps
-  the committed default target as its committed object: the next stop, or for the last
-  stop, the previous one. During a glide the look HOLDS THE DESTINATION stop's target for
-  the whole travel. The destination is the stop the glide is heading toward in the current
-  segment, Forward or Back. The camera tracks that target from its current spline
-  position. The only transition is the DEPARTURE TURN. Over the first TURN_SPAN_T of
-  segment-t (widened to TURN_SPAN_T × θ/TURN_REF_DEG for turns above TURN_REF_DEG, capped
-  at TURN_SPAN_MAX_T, never past the destination), the gaze turns by shortest arc (yaw
-  shortest arc, pitch linear, smootherstep-weighted) from the origin's target to the
-  destination's. After the turn the destination target is held exactly. The bounding-stop
-  angle blend and the world-space target sweep are retired for the look axis; position is
-  untouched and stays on the spline. Consecutive stops sharing a subject remain a locked
-  dolly, with a null turn. A glide reversed mid-segment re-anchors the turn at the look in
-  force at the reversal; a scroll glide passing a stop starts that stop's departure turn
-  from its committed pose; so neither jumps the gaze. At stops the pose is bit-identical
-  to the committed pose (the golden fence). A stop may declare an APPROACH point on its
-  committed gaze ray; a Forward glide into it holds the approach point instead of the
-  subject. Back glides into it and its own committed pose keep the subject.
+- **Gaze law (R19-ux C)**: authored SUBJECTS and the subjectless next/back fallback remain
+  unchanged. A segment makes one DEPARTURE TURN, then holds its destination's target exactly.
+  The source direction is frozen at the departure position; the destination aim tracks its
+  target from the current spline position. Equal source and destination points instead remain
+  a locked dolly throughout. Yaw takes the shortest arc; pitch blends linearly with the same
+  weight. TURN_SPAN_T is 0.31744 of segment distance: smootherstep(0.4). Widen
+  that distance span by θ/TURN_REF_DEG above 45°, cap at TURN_SPAN_MAX_T = 0.4, and never pass
+  the destination. Map traveled/remaining-segment distance and span/remaining-segment distance
+  through inverse smootherstep; smootherstep of their phase ratio is the turn weight. A
+  settled adjacent step up to 45° therefore turns over its first 40% of elapsed time (952 ms
+  at the R19-ux speed), not over 31.744% of elapsed time. A near-field held point — its own
+  ray turns by TURN_REF_DEG or more between the anchor eye and that nominal span's end — is
+  exempt: its turn spans the whole remaining segment with the distance fraction as its
+  weight, so its parallax enters only in proportion to the distance covered. Partial
+  scrolls and retargets use the same geometric law; this is not a separate turn timer or an
+  absolute angular-speed cap.
+  Reversals re-anchor at the current base gaze; pass-through stops start their next turn from
+  their committed poses. Position stays on the unchanged spline. Stop poses remain
+  bit-identical. A Forward glide into an APPROACH stop uses its approach point; Back and the
+  stop itself use its subject. The approach and subject must remain on the same committed
+  gaze ray. Measured on Back Gj→G0 (JUNCTION 0.7 m over Gj, sweep 82.4°): the pitch rises
+  monotonically from 0° to its 3.06° settle; the 83° pan peaks ≈65°/s at STEP_GLIDE_MS 2380
+  (≈286°/s at SCROLL_GLIDE_MS 544).
 - **Corner stops (R18-ux D3)**: a stop may be flagged `corner`. The position spline is
   evaluated per RUN — the stop list split after each corner stop — so a corner knot
   inherits no tangent from across the turn. Each run uses the committed spline and end
@@ -327,21 +331,20 @@ inside the promise.
   + 1.7 (the build script's `flight_datum()` is the source of truth);
   flight-1 stops sit on the west band (x 66..67.6), flight-2 stops on the north
   band (z −84.4..−82.8); the landing survey stop sits on the slab (x ≥ 80).
-- Sketch of the authored set (all within capture framing at implementation):
-  J0 foot of flight 1 → subject: north window light over the mezz; J1 mid-flight-1
-  (same subject, locked climb); J2 mezz turn → subject: flight 2's foot / window
-  wall; J2b mid-flight-2 → subject: upper landing / ceiling; J3 upper flight or
-  landing approach → subject: the ceiling painterly / landing light; J4 landing
-  survey → subject: back across the well. Corridor: G0 → lit junction; Gj → east
-  door's light (locked with G1); G2 → the door's light.
-- Look limits (R18-ux, verdict 2): during a glide the limits read from the destination
-  stop. They move from the origin's rows (or the rows in force at a reversal) to the
-  destination's over the same departure turn, then hold the destination's. Raise pitchUp
-  where the subject is above (declared per stop). Re-clamp unchanged.
+- Committed authored set, retained by R19-ux C: J0/J1 → MEZZ_LIGHT (locked climb);
+  J1b → FLIGHT2_SCONCE; J2 → FLIGHT2_TOP; J2b → UPPER_WINDOW; J3/J4 → EAST_PORTAL
+  (locked approach). Local presses from J0 land at J1, J1b, J2, J2b, J3, J4. The sconce
+  and window are intentional subjects, not random samples. Corridor: G0 → JUNCTION;
+  Gj/G1/G2 → EAST_DOOR, with GALLERY_MOUTH as Gj's Forward approach.
+- Look limits (R19-ux C): the same turn-phase weight blends departure rows (or the rows at
+  a reversal) into destination rows, then holds them. Limits are manual offsets around the
+  base gaze. Existing offsets are re-clamped, never silently reset; zero-offset stop poses
+  and the stop inventory remain unchanged.
 - Reduced motion (R18-ux, verdict 2): glides become cuts stop→stop; a cut lands on the
   destination's committed pose. There is no departure turn.
-- Speed laws (R18-ux D2): step glides 2800 ms, scroll glides 640 ms, both smootherstep;
-  reduced motion cuts unchanged.
+- Speed laws (R19-ux B): step glides 2380 ms, scroll glides 544 ms, both retaining smootherstep
+  position easing: 15% less elapsed time in each family. Wheel distance, reduced-motion cuts,
+  the touch no-glide admission and the threshold-beat timing are unchanged.
 - Touches: the committed gaze law (owner D6), the Stop type gains an optional
   authored-gaze field (src/world/registry.ts — a type extension; DEC-013
   unaffected), stop counts (new stop ids + captions in both languages — the RU
@@ -364,13 +367,13 @@ inside the promise.
 
   The rail becomes one axial dolly: run M0..M3 is axial (x = 86.25 to float rounding); run
   M3→M4 is the chord (2.25, 0, 13), 9.8° off axis, straight to the door stop. Segments
-  13 / 12.5 / 12.5 / 13.2 m — an even rhythm at the fixed 2800 ms (the committed 21.5 m
-  then 4.6 m pair would swing between 7.7 and 1.6 m/s average). Gaze under verdict 2:
-  presses 1–2 are a locked dolly (null turns; pitch 1.5°→2.8° down the axis). Press 3
-  holds MONARCHS: θ at M2 ≈ 0.4°, pitch rising 3.2°→5.9° — a calm tilt toward the end
-  wall. Press 4 holds the doors: θ at M3 ≈ 17° (yaw 0→16°, pitch 5.9°→1.3°), span 0.18;
-  the aim then converges from 16° to 52° as the door nears (≈25° at 4 m, ≈40° at 1 m
-  remaining, ≈20–35°/s at the easing tail) — reads as walking to a door, not a swerve.
+  13 / 12.5 / 12.5 / 13.2 m — an even rhythm at the R19-ux 2380 ms (approximately 5.5 / 5.3 /
+  5.3 / 5.5 m/s average). Presses 1–2 remain a locked dolly. Press 3 turns toward MONARCHS;
+  press 4 turns toward the doors, then holds that point as it approaches. These small
+  departure turns use the 0.31744 distance span and the 40%-elapsed-time phase law. The
+  door's near-field parallax still contributes angular motion after the turn; the previous
+  timing's measured/estimated rates are not current rate guarantees and must not be carried
+  forward as evidence.
   Back glides face forward while backing away (AXIS_FAR / MONARCHS), consistent along the
   whole gallery. WEST_BLOCK and LANTERN stay exported landmarks (the capture checklist
   and the look-row comments), no longer subjects; M0 and M4 are untouched, so any goldens
