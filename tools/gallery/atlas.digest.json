@@ -1,8 +1,13 @@
 {
-  "salt": "hermitage-3d/military-gallery-1812/portrait-atlas/v1",
-  "width": 2048,
-  "height": 2048,
-  "rgbaSha256": "7a9e03d46c908625f3d4ff0eb142816287efebef32b2f8b003958e3b231d85d9",
-  "pngSha256": "ddc67c103b760ceb2991075eb627db7263c9ba60cf3951a4081721e5ae40c8d7",
-  "pngBytes": 12585988
+  "artifact": {
+    "bytes": 806185,
+    "sha256": "5b99b7fe2a464e1aad7ee0091f3544f3e1db72f907a1fe4da8de22f4e17c2b1c"
+  },
+  "composed": null,
+  "law": 2,
+  "mock": {
+    "pngBytes": 28316852,
+    "pngSha256": "39c45062c42592e1dc1a5fd5408486f3735258e96746792fab6e5c7b38093d2e",
+    "rgbaSha256": "4ff3502898a8883e6c0a5833b23830aea0b0e2cbde769c2b683fcf243fa6ddc3"
+  }
 }

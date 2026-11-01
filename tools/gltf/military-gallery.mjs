@@ -29,10 +29,11 @@ export const ROOM = {
   budget: {
     trianglesMax: 60_000,
     drawsMax: 19,
-    // R4: raised 1_000_000 -> 1_200_000 after the owner's ruling: the cap was a
-    // pre-light plan estimate; the lit room measures 1,131,373 B of ktx2 (the
-    // jordan-class sharp-light content 219-264 K per 2048 lm + the atlas 419 K).
-    textureBytesMax: 1_200_000,
+    // Raised 1_000_000 -> 1_200_000 after the owner's ruling (R4): the cap was a pre-light
+    // plan estimate; the lit room measured 1,131,373 B of ktx2. Raised again 1_200_000 ->
+    // 2_650_000 for atlas v2 (the 3072² portrait atlas, ≤ 1.9 M fence + the measured
+    // 712,391 B of the other ktx2): third figure, atlas v2, owner ruling 2026-11-01.
+    textureBytesMax: 2_650_000,
     payloadBytesMax: 4_000_000,
   },
   // R4's bake filled the row: the three states at the arch/kit split (DEC-027; the kit's

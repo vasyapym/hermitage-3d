@@ -1,0 +1,3115 @@
+{
+  "frames": [
+    {
+      "artist": "Franz Krüger",
+      "key": "ge-7804",
+      "kind": "monarch",
+      "rank": 0,
+      "slot": "portal",
+      "title": "Александр I",
+      "year": 1837
+    },
+    {
+      "artist": "Peter Krafft",
+      "key": "ge-7805",
+      "kind": "monarch",
+      "rank": 1,
+      "slot": "westAlly",
+      "title": "Франц I",
+      "year": 1832
+    },
+    {
+      "artist": "Franz Krüger",
+      "key": "ge-7806",
+      "kind": "monarch",
+      "rank": 2,
+      "slot": "eastAlly",
+      "title": "Фридрих Вильгельм III",
+      "year": 1830
+    },
+    {
+      "col": 0,
+      "key": "ge-7894",
+      "kind": "painted",
+      "rank": 0,
+      "row": 0,
+      "sitter": "В. В. Орлов-Денисов",
+      "wall": "west"
+    },
+    {
+      "col": 1,
+      "key": "ge-8038",
+      "kind": "painted",
+      "rank": 1,
+      "row": 0,
+      "sitter": "Ф. А. Луков",
+      "wall": "west"
+    },
+    {
+      "col": 2,
+      "key": "ge-7842",
+      "kind": "painted",
+      "rank": 2,
+      "row": 0,
+      "sitter": "П. М. Капцевич",
+      "wall": "west"
+    },
+    {
+      "col": 3,
+      "key": "ge-7841",
+      "kind": "painted",
+      "rank": 3,
+      "row": 0,
+      "sitter": "Н. А. Тучков 1-й",
+      "wall": "west"
+    },
+    {
+      "col": 4,
+      "key": "ge-7907",
+      "kind": "painted",
+      "rank": 4,
+      "row": 0,
+      "sitter": "А. И. Чернышёв",
+      "wall": "west"
+    },
+    {
+      "col": 5,
+      "key": "ge-7833",
+      "kind": "painted",
+      "rank": 5,
+      "row": 0,
+      "sitter": "П. А. Толстой",
+      "wall": "west"
+    },
+    {
+      "col": 6,
+      "key": "ge-7837",
+      "kind": "painted",
+      "rank": 6,
+      "row": 0,
+      "sitter": "А. Д. Балашов",
+      "wall": "west"
+    },
+    {
+      "col": 7,
+      "key": "ge-7908",
+      "kind": "painted",
+      "rank": 7,
+      "row": 0,
+      "sitter": "Н. Г. Репнин-Волконский",
+      "wall": "west"
+    },
+    {
+      "col": 8,
+      "key": "ge-7895",
+      "kind": "painted",
+      "rank": 8,
+      "row": 0,
+      "sitter": "С. Н. Ланской",
+      "wall": "west"
+    },
+    {
+      "col": 9,
+      "key": "ge-7817",
+      "kind": "painted",
+      "rank": 9,
+      "row": 0,
+      "sitter": "Л. Л. Беннигсен",
+      "wall": "west"
+    },
+    {
+      "col": 10,
+      "key": "ge-7828",
+      "kind": "painted",
+      "rank": 10,
+      "row": 0,
+      "sitter": "Ф. В. Остен-Сакен",
+      "wall": "west"
+    },
+    {
+      "col": 11,
+      "key": "ge-7820",
+      "kind": "painted",
+      "rank": 11,
+      "row": 0,
+      "sitter": "П. Х. Витгенштейн",
+      "wall": "west"
+    },
+    {
+      "col": 12,
+      "key": "ge-7819",
+      "kind": "painted",
+      "rank": 12,
+      "row": 0,
+      "sitter": "М. А. Милорадович",
+      "wall": "west"
+    },
+    {
+      "col": 13,
+      "key": "ge-7882",
+      "kind": "painted",
+      "rank": 13,
+      "row": 0,
+      "sitter": "П. М. Волконский",
+      "wall": "west"
+    },
+    {
+      "col": 14,
+      "key": "ge-7814",
+      "kind": "painted",
+      "rank": 14,
+      "row": 0,
+      "sitter": "М. И. Платов",
+      "wall": "west"
+    },
+    {
+      "col": 15,
+      "key": "ge-7893",
+      "kind": "painted",
+      "rank": 15,
+      "row": 0,
+      "sitter": "А. П. Ожаровский",
+      "wall": "west"
+    },
+    {
+      "col": 16,
+      "key": "ge-7881",
+      "kind": "painted",
+      "rank": 16,
+      "row": 0,
+      "sitter": "В. С. Трубецкой",
+      "wall": "west"
+    },
+    {
+      "col": 17,
+      "key": "ge-7880",
+      "kind": "painted",
+      "rank": 17,
+      "row": 0,
+      "sitter": "И. В. Васильчиков 1-й",
+      "wall": "west"
+    },
+    {
+      "col": 18,
+      "key": "ge-7887",
+      "kind": "painted",
+      "rank": 18,
+      "row": 0,
+      "sitter": "П. Н. Чоглоков",
+      "wall": "west"
+    },
+    {
+      "col": 19,
+      "key": "ge-8091",
+      "kind": "painted",
+      "rank": 19,
+      "row": 0,
+      "sitter": "А. А. Закревский",
+      "wall": "west"
+    },
+    {
+      "col": 20,
+      "key": "ge-7872",
+      "kind": "painted",
+      "rank": 20,
+      "row": 0,
+      "sitter": "П. А. Строганов",
+      "wall": "west"
+    },
+    {
+      "col": 21,
+      "key": "ge-7871",
+      "kind": "painted",
+      "rank": 21,
+      "row": 0,
+      "sitter": "Е. И. Чаплиц",
+      "wall": "west"
+    },
+    {
+      "col": 22,
+      "key": "ge-7875",
+      "kind": "painted",
+      "rank": 22,
+      "row": 0,
+      "sitter": "П. В. Голенищев-Кутузов",
+      "wall": "west"
+    },
+    {
+      "col": 23,
+      "key": "ge-7869",
+      "kind": "painted",
+      "rank": 23,
+      "row": 0,
+      "sitter": "Э. Ф. Сен-При",
+      "wall": "west"
+    },
+    {
+      "col": 24,
+      "key": "ge-7968",
+      "kind": "painted",
+      "rank": 24,
+      "row": 0,
+      "sitter": "А. Х. Бенкендорф",
+      "wall": "west"
+    },
+    {
+      "col": 25,
+      "key": "ge-7860",
+      "kind": "painted",
+      "rank": 25,
+      "row": 0,
+      "sitter": "К. О. Ламберт",
+      "wall": "west"
+    },
+    {
+      "col": 26,
+      "key": "ge-7859",
+      "kind": "painted",
+      "rank": 26,
+      "row": 0,
+      "sitter": "И. Т. Сазонов 1-й",
+      "wall": "west"
+    },
+    {
+      "col": 27,
+      "key": "ge-7858",
+      "kind": "painted",
+      "rank": 27,
+      "row": 0,
+      "sitter": "Г. М. Берг 1-й",
+      "wall": "west"
+    },
+    {
+      "col": 28,
+      "key": "ge-7857",
+      "kind": "painted",
+      "rank": 28,
+      "row": 0,
+      "sitter": "Л. М. Яшвиль",
+      "wall": "west"
+    },
+    {
+      "col": 29,
+      "key": "ge-7856",
+      "kind": "painted",
+      "rank": 29,
+      "row": 0,
+      "sitter": "П. П. Пален 1-й",
+      "wall": "west"
+    },
+    {
+      "col": 30,
+      "key": "ge-8106",
+      "kind": "painted",
+      "rank": 30,
+      "row": 0,
+      "sitter": "И. Н. Дурново",
+      "wall": "west"
+    },
+    {
+      "col": 31,
+      "key": "ge-7879",
+      "kind": "painted",
+      "rank": 31,
+      "row": 0,
+      "sitter": "И. И. Дибич",
+      "wall": "west"
+    },
+    {
+      "col": 32,
+      "key": "ge-7878",
+      "kind": "painted",
+      "rank": 32,
+      "row": 0,
+      "sitter": "И. Л. Шаховской",
+      "wall": "west"
+    },
+    {
+      "col": 0,
+      "key": "ge-8041",
+      "kind": "painted",
+      "rank": 33,
+      "row": 1,
+      "sitter": "Д. Д. Курута",
+      "wall": "west"
+    },
+    {
+      "col": 1,
+      "key": "ge-8016",
+      "kind": "painted",
+      "rank": 34,
+      "row": 1,
+      "sitter": "П. И. Мерлин",
+      "wall": "west"
+    },
+    {
+      "col": 2,
+      "key": "ge-7909",
+      "kind": "painted",
+      "rank": 35,
+      "row": 1,
+      "sitter": "П. П. Пален 2-й",
+      "wall": "west"
+    },
+    {
+      "col": 3,
+      "key": "ge-8043",
+      "kind": "painted",
+      "rank": 36,
+      "row": 1,
+      "sitter": "Г. П. Веселитский",
+      "wall": "west"
+    },
+    {
+      "col": 4,
+      "key": "ge-8044",
+      "kind": "painted",
+      "rank": 37,
+      "row": 1,
+      "sitter": "И. О. Сухозанет",
+      "wall": "west"
+    },
+    {
+      "col": 5,
+      "key": "ge-7899",
+      "kind": "painted",
+      "rank": 38,
+      "row": 1,
+      "sitter": "Г. И. Лисаневич 1-й",
+      "wall": "west"
+    },
+    {
+      "col": 6,
+      "key": "ge-8099",
+      "kind": "painted",
+      "rank": 39,
+      "row": 1,
+      "sitter": "А. Н. Рылеев 2-й",
+      "wall": "west"
+    },
+    {
+      "col": 7,
+      "key": "ge-7897",
+      "kind": "painted",
+      "rank": 40,
+      "row": 1,
+      "sitter": "Леопольд Саксен-Кобургский",
+      "wall": "west"
+    },
+    {
+      "col": 8,
+      "key": "ge-8028",
+      "kind": "painted",
+      "rank": 41,
+      "row": 1,
+      "sitter": "И. С. Леонтьев",
+      "wall": "west"
+    },
+    {
+      "col": 9,
+      "key": "ge-7847",
+      "kind": "painted",
+      "rank": 42,
+      "row": 1,
+      "sitter": "К. И. Опперман",
+      "wall": "west"
+    },
+    {
+      "col": 10,
+      "key": "ge-8076",
+      "kind": "painted",
+      "rank": 43,
+      "row": 1,
+      "sitter": "К. В. Будберг",
+      "wall": "west"
+    },
+    {
+      "col": 11,
+      "key": "ge-8042",
+      "kind": "painted",
+      "rank": 44,
+      "row": 1,
+      "sitter": "Ф. В. Тейль ванСераскеркен",
+      "wall": "west"
+    },
+    {
+      "col": 12,
+      "key": "ge-7845",
+      "kind": "painted",
+      "rank": 45,
+      "row": 1,
+      "sitter": "Ф. Ф. Левиз",
+      "wall": "west"
+    },
+    {
+      "col": 13,
+      "key": "ge-7813",
+      "kind": "painted",
+      "rank": 46,
+      "row": 1,
+      "sitter": "А. А. Аракчеев",
+      "wall": "west"
+    },
+    {
+      "col": 14,
+      "key": "ge-8081",
+      "kind": "painted",
+      "rank": 47,
+      "row": 1,
+      "sitter": "А. Ф. Мишо",
+      "wall": "west"
+    },
+    {
+      "col": 15,
+      "key": "ge-7831",
+      "kind": "painted",
+      "rank": 48,
+      "row": 1,
+      "sitter": "Евгений Вюртембергский",
+      "wall": "west"
+    },
+    {
+      "col": 16,
+      "key": "ge-7947",
+      "kind": "painted",
+      "rank": 49,
+      "row": 1,
+      "sitter": "И. В. Мантейфель",
+      "wall": "west"
+    },
+    {
+      "col": 17,
+      "key": "ge-7946",
+      "kind": "painted",
+      "rank": 50,
+      "row": 1,
+      "sitter": "К. Ф. Левенштерн",
+      "wall": "west"
+    },
+    {
+      "col": 18,
+      "key": "ge-7945",
+      "kind": "painted",
+      "rank": 51,
+      "row": 1,
+      "sitter": "А. И. Кутайсов",
+      "wall": "west"
+    },
+    {
+      "col": 19,
+      "key": "ge-8136",
+      "kind": "painted",
+      "rank": 52,
+      "row": 1,
+      "sitter": "К. Ф. Багговут",
+      "wall": "west"
+    },
+    {
+      "col": 20,
+      "key": "ge-7937",
+      "kind": "painted",
+      "rank": 53,
+      "row": 1,
+      "sitter": "А. П. Мелиссино",
+      "wall": "west"
+    },
+    {
+      "col": 21,
+      "key": "ge-7840",
+      "kind": "painted",
+      "rank": 54,
+      "row": 1,
+      "sitter": "Ф. Ф. Эртель",
+      "wall": "west"
+    },
+    {
+      "col": 22,
+      "key": "ge-7935",
+      "kind": "painted",
+      "rank": 55,
+      "row": 1,
+      "sitter": "П. А. Тучков 3-й",
+      "wall": "west"
+    },
+    {
+      "col": 23,
+      "key": "ge-8115",
+      "kind": "painted",
+      "rank": 56,
+      "row": 1,
+      "sitter": "А. В. Розен 2-й",
+      "wall": "west"
+    },
+    {
+      "col": 24,
+      "key": "ge-8134",
+      "kind": "painted",
+      "rank": 57,
+      "row": 1,
+      "sitter": "П. П. Сухтелен 2-й",
+      "wall": "west"
+    },
+    {
+      "col": 25,
+      "key": "ge-8063",
+      "kind": "painted",
+      "rank": 58,
+      "row": 1,
+      "sitter": "Б. В. Полуектов",
+      "wall": "west"
+    },
+    {
+      "col": 26,
+      "key": "ge-7925",
+      "kind": "painted",
+      "rank": 59,
+      "row": 1,
+      "sitter": "И. Д. Иловайский 4-й",
+      "wall": "west"
+    },
+    {
+      "col": 27,
+      "key": "ge-8128",
+      "kind": "painted",
+      "rank": 60,
+      "row": 1,
+      "sitter": "Л. А. Нарышкин",
+      "wall": "west"
+    },
+    {
+      "col": 28,
+      "key": "ge-7923",
+      "kind": "painted",
+      "rank": 61,
+      "row": 1,
+      "sitter": "М. С. Вистицкий",
+      "wall": "west"
+    },
+    {
+      "col": 29,
+      "key": "ge-7927",
+      "kind": "painted",
+      "rank": 62,
+      "row": 1,
+      "sitter": "С. Я. Репнинский 1-й",
+      "wall": "west"
+    },
+    {
+      "col": 30,
+      "key": "ge-8067",
+      "kind": "painted",
+      "rank": 63,
+      "row": 1,
+      "sitter": "П. И. Каблуков 1-й",
+      "wall": "west"
+    },
+    {
+      "col": 31,
+      "key": "ge-7920",
+      "kind": "painted",
+      "rank": 64,
+      "row": 1,
+      "sitter": "С. Г. Гангеблов",
+      "wall": "west"
+    },
+    {
+      "col": 32,
+      "key": "ge-7980",
+      "kind": "painted",
+      "rank": 65,
+      "row": 1,
+      "sitter": "Е. К. Сиверс 3-й",
+      "wall": "west"
+    },
+    {
+      "col": 0,
+      "key": "ge-7975",
+      "kind": "painted",
+      "rank": 66,
+      "row": 2,
+      "sitter": "М. Н. Рылеев 1-й",
+      "wall": "west"
+    },
+    {
+      "col": 1,
+      "key": "ge-7974",
+      "kind": "painted",
+      "rank": 67,
+      "row": 2,
+      "sitter": "Е. Е. Удом 2-й",
+      "wall": "west"
+    },
+    {
+      "col": 2,
+      "key": "ge-7973",
+      "kind": "painted",
+      "rank": 68,
+      "row": 2,
+      "sitter": "П. П. Турчанинов 1-й",
+      "wall": "west"
+    },
+    {
+      "col": 3,
+      "key": "ge-7972",
+      "kind": "painted",
+      "rank": 69,
+      "row": 2,
+      "sitter": "А. П. Великопольский",
+      "wall": "west"
+    },
+    {
+      "col": 4,
+      "key": "ge-7971",
+      "kind": "painted",
+      "rank": 70,
+      "row": 2,
+      "sitter": "С. Ф. Желтухин 1-й",
+      "wall": "west"
+    },
+    {
+      "col": 5,
+      "key": "ge-7970",
+      "kind": "painted",
+      "rank": 71,
+      "row": 2,
+      "sitter": "А. И. Цвиленев",
+      "wall": "west"
+    },
+    {
+      "col": 6,
+      "key": "ge-8098",
+      "kind": "painted",
+      "rank": 72,
+      "row": 2,
+      "sitter": "В. В. Ешин",
+      "wall": "west"
+    },
+    {
+      "col": 7,
+      "key": "ge-7963",
+      "kind": "painted",
+      "rank": 73,
+      "row": 2,
+      "sitter": "П. Я. Корнилов",
+      "wall": "west"
+    },
+    {
+      "col": 8,
+      "key": "ge-7977",
+      "kind": "painted",
+      "rank": 74,
+      "row": 2,
+      "sitter": "А. И. Грессер",
+      "wall": "west"
+    },
+    {
+      "col": 9,
+      "key": "ge-8025",
+      "kind": "painted",
+      "rank": 75,
+      "row": 2,
+      "sitter": "П. А. Чичерин 2-й",
+      "wall": "west"
+    },
+    {
+      "col": 10,
+      "key": "ge-7960",
+      "kind": "painted",
+      "rank": 76,
+      "row": 2,
+      "sitter": "Е. И. Оленин",
+      "wall": "west"
+    },
+    {
+      "col": 11,
+      "key": "ge-7959",
+      "kind": "painted",
+      "rank": 77,
+      "row": 2,
+      "sitter": "И. А. Вельяминов",
+      "wall": "west"
+    },
+    {
+      "col": 12,
+      "key": "ge-7958",
+      "kind": "painted",
+      "rank": 78,
+      "row": 2,
+      "sitter": "П. И. Ивелич",
+      "wall": "west"
+    },
+    {
+      "col": 13,
+      "key": "ge-8015",
+      "kind": "painted",
+      "rank": 79,
+      "row": 2,
+      "sitter": "А. В. Воейков",
+      "wall": "west"
+    },
+    {
+      "col": 14,
+      "key": "ge-7949",
+      "kind": "painted",
+      "rank": 80,
+      "row": 2,
+      "sitter": "А. И. Талызин 2-й",
+      "wall": "west"
+    },
+    {
+      "col": 15,
+      "key": "ge-7948",
+      "kind": "painted",
+      "rank": 81,
+      "row": 2,
+      "sitter": "И. И. Алексеев 1-й",
+      "wall": "west"
+    },
+    {
+      "col": 16,
+      "key": "ge-8013",
+      "kind": "painted",
+      "rank": 82,
+      "row": 2,
+      "sitter": "П. С. Кайсаров",
+      "wall": "west"
+    },
+    {
+      "col": 17,
+      "key": "ge-8012",
+      "kind": "painted",
+      "rank": 83,
+      "row": 2,
+      "sitter": "Е. Я. Савоини",
+      "wall": "west"
+    },
+    {
+      "col": 18,
+      "key": "ge-8011",
+      "kind": "painted",
+      "rank": 84,
+      "row": 2,
+      "sitter": "Ф. В. Дризен",
+      "wall": "west"
+    },
+    {
+      "col": 19,
+      "key": "ge-7864",
+      "kind": "painted",
+      "rank": 85,
+      "row": 2,
+      "sitter": "Г. В. Розен 1-й",
+      "wall": "west"
+    },
+    {
+      "col": 20,
+      "key": "ge-8004",
+      "kind": "painted",
+      "rank": 86,
+      "row": 2,
+      "sitter": "Е. М. Пиллар",
+      "wall": "west"
+    },
+    {
+      "col": 21,
+      "key": "ge-8003",
+      "kind": "painted",
+      "rank": 87,
+      "row": 2,
+      "sitter": "И. Ф. Удом 1-й",
+      "wall": "west"
+    },
+    {
+      "col": 22,
+      "key": "ge-8002",
+      "kind": "painted",
+      "rank": 88,
+      "row": 2,
+      "sitter": "К. И. Бистром 1-й",
+      "wall": "west"
+    },
+    {
+      "col": 23,
+      "key": "ge-8001",
+      "kind": "painted",
+      "rank": 89,
+      "row": 2,
+      "sitter": "М. И. Карпенко",
+      "wall": "west"
+    },
+    {
+      "col": 24,
+      "key": "ge-8000",
+      "kind": "painted",
+      "rank": 90,
+      "row": 2,
+      "sitter": "М. Е. Храповицкий",
+      "wall": "west"
+    },
+    {
+      "col": 25,
+      "key": "ge-7999",
+      "kind": "painted",
+      "rank": 91,
+      "row": 2,
+      "sitter": "Н. В. Вуич",
+      "wall": "west"
+    },
+    {
+      "col": 26,
+      "key": "ge-7998",
+      "kind": "painted",
+      "rank": 92,
+      "row": 2,
+      "sitter": "Д. П. Ляпунов",
+      "wall": "west"
+    },
+    {
+      "col": 27,
+      "key": "ge-7990",
+      "kind": "painted",
+      "rank": 93,
+      "row": 2,
+      "sitter": "А. Я. Княжнин 1-й",
+      "wall": "west"
+    },
+    {
+      "col": 28,
+      "key": "ge-7989",
+      "kind": "painted",
+      "rank": 94,
+      "row": 2,
+      "sitter": "А. С. Глебов",
+      "wall": "west"
+    },
+    {
+      "col": 29,
+      "key": "ge-7988",
+      "kind": "painted",
+      "rank": 95,
+      "row": 2,
+      "sitter": "М. Ф. Ставицкий",
+      "wall": "west"
+    },
+    {
+      "col": 30,
+      "key": "ge-7987",
+      "kind": "painted",
+      "rank": 96,
+      "row": 2,
+      "sitter": "Ф. Ф. Розен 3-й",
+      "wall": "west"
+    },
+    {
+      "col": 31,
+      "key": "ge-7986",
+      "kind": "painted",
+      "rank": 97,
+      "row": 2,
+      "sitter": "Ф. Г. Гогель",
+      "wall": "west"
+    },
+    {
+      "col": 32,
+      "key": "ge-7985",
+      "kind": "painted",
+      "rank": 98,
+      "row": 2,
+      "sitter": "В. П. Мезенцев 1-й",
+      "wall": "west"
+    },
+    {
+      "col": 0,
+      "key": "ge-7911",
+      "kind": "painted",
+      "rank": 99,
+      "row": 3,
+      "sitter": "О. Ф. Кнорринг 3-й",
+      "wall": "west"
+    },
+    {
+      "col": 1,
+      "key": "ge-8040",
+      "kind": "painted",
+      "rank": 100,
+      "row": 3,
+      "sitter": "М. И. Пален 3-й",
+      "wall": "west"
+    },
+    {
+      "col": 2,
+      "key": "silk-karataev",
+      "kind": "silk",
+      "rank": 101,
+      "row": 3,
+      "sitter": "В. И. Каратаев",
+      "wall": "west"
+    },
+    {
+      "col": 3,
+      "key": "ge-7836",
+      "kind": "painted",
+      "rank": 102,
+      "row": 3,
+      "sitter": "Е. И. Марков 1-й",
+      "wall": "west"
+    },
+    {
+      "col": 4,
+      "key": "ge-7896",
+      "kind": "painted",
+      "rank": 103,
+      "row": 3,
+      "sitter": "А. Я. Рудзевич",
+      "wall": "west"
+    },
+    {
+      "col": 5,
+      "key": "ge-8037",
+      "kind": "painted",
+      "rank": 104,
+      "row": 3,
+      "sitter": "Я. Е. Гине",
+      "wall": "west"
+    },
+    {
+      "col": 6,
+      "key": "ge-8036",
+      "kind": "painted",
+      "rank": 105,
+      "row": 3,
+      "sitter": "А. Я. Паттон",
+      "wall": "west"
+    },
+    {
+      "col": 7,
+      "key": "ge-7904",
+      "kind": "painted",
+      "rank": 106,
+      "row": 3,
+      "sitter": "Г. Г. Энгельгардт",
+      "wall": "west"
+    },
+    {
+      "col": 8,
+      "key": "ge-8027",
+      "kind": "painted",
+      "rank": 107,
+      "row": 3,
+      "sitter": "С. Н. Ушаков 2-й",
+      "wall": "west"
+    },
+    {
+      "col": 9,
+      "key": "ge-8026",
+      "kind": "painted",
+      "rank": 108,
+      "row": 3,
+      "sitter": "А. И. Гудович",
+      "wall": "west"
+    },
+    {
+      "col": 10,
+      "key": "ge-7906",
+      "kind": "painted",
+      "rank": 109,
+      "row": 3,
+      "sitter": "Е. Е. Гампер",
+      "wall": "west"
+    },
+    {
+      "col": 11,
+      "key": "ge-8024",
+      "kind": "painted",
+      "rank": 110,
+      "row": 3,
+      "sitter": "Н. Д. Олсуфьев 3-й",
+      "wall": "west"
+    },
+    {
+      "col": 12,
+      "key": "ge-8023",
+      "kind": "painted",
+      "rank": 111,
+      "row": 3,
+      "sitter": "Р. Е. Ренни",
+      "wall": "west"
+    },
+    {
+      "col": 13,
+      "key": "ge-8022",
+      "kind": "painted",
+      "rank": 112,
+      "row": 3,
+      "sitter": "К. Б. Кнорринг",
+      "wall": "west"
+    },
+    {
+      "col": 14,
+      "key": "ge-7890",
+      "kind": "painted",
+      "rank": 113,
+      "row": 3,
+      "sitter": "Д. И. Пышницкий",
+      "wall": "west"
+    },
+    {
+      "col": 15,
+      "key": "ge-8014",
+      "kind": "painted",
+      "rank": 114,
+      "row": 3,
+      "sitter": "В. Д. Иловайский 12-й",
+      "wall": "west"
+    },
+    {
+      "col": 16,
+      "key": "silk-davydov-e",
+      "kind": "silk",
+      "rank": 115,
+      "row": 3,
+      "sitter": "Е. В. Давыдов",
+      "wall": "west"
+    },
+    {
+      "col": 17,
+      "key": "ge-8075",
+      "kind": "painted",
+      "rank": 116,
+      "row": 3,
+      "sitter": "И. А. Набоков",
+      "wall": "west"
+    },
+    {
+      "col": 18,
+      "key": "ge-8074",
+      "kind": "painted",
+      "rank": 117,
+      "row": 3,
+      "sitter": "Б. Х. Рихтер",
+      "wall": "west"
+    },
+    {
+      "col": 19,
+      "key": "ge-7969",
+      "kind": "painted",
+      "rank": 118,
+      "row": 3,
+      "sitter": "К. Ф. Ольдекоп",
+      "wall": "west"
+    },
+    {
+      "col": 20,
+      "key": "silk-potapov",
+      "kind": "silk",
+      "rank": 119,
+      "row": 3,
+      "sitter": "А. Н. Потапов",
+      "wall": "west"
+    },
+    {
+      "col": 21,
+      "key": "ge-8065",
+      "kind": "painted",
+      "rank": 120,
+      "row": 3,
+      "sitter": "А. И. Юшков",
+      "wall": "west"
+    },
+    {
+      "col": 22,
+      "key": "ge-7921",
+      "kind": "painted",
+      "rank": 121,
+      "row": 3,
+      "sitter": "П. М. Колюбакин",
+      "wall": "west"
+    },
+    {
+      "col": 23,
+      "key": "ge-8066",
+      "kind": "painted",
+      "rank": 122,
+      "row": 3,
+      "sitter": "И. З. Ершов",
+      "wall": "west"
+    },
+    {
+      "col": 24,
+      "key": "ge-8064",
+      "kind": "painted",
+      "rank": 123,
+      "row": 3,
+      "sitter": "Н. М. Свечин",
+      "wall": "west"
+    },
+    {
+      "col": 25,
+      "key": "ge-7932",
+      "kind": "painted",
+      "rank": 124,
+      "row": 3,
+      "sitter": "В. С. Рахманов",
+      "wall": "west"
+    },
+    {
+      "col": 26,
+      "key": "ge-8062",
+      "kind": "painted",
+      "rank": 125,
+      "row": 3,
+      "sitter": "И. Т. Козлянинов",
+      "wall": "west"
+    },
+    {
+      "col": 27,
+      "key": "ge-8061",
+      "kind": "painted",
+      "rank": 126,
+      "row": 3,
+      "sitter": "А. П. Теслев",
+      "wall": "west"
+    },
+    {
+      "col": 28,
+      "key": "silk-davydov-n",
+      "kind": "silk",
+      "rank": 127,
+      "row": 3,
+      "sitter": "Н. В. Давыдов",
+      "wall": "west"
+    },
+    {
+      "col": 29,
+      "key": "ge-8054",
+      "kind": "painted",
+      "rank": 128,
+      "row": 3,
+      "sitter": "Э. Филипстальский",
+      "wall": "west"
+    },
+    {
+      "col": 30,
+      "key": "ge-8053",
+      "kind": "painted",
+      "rank": 129,
+      "row": 3,
+      "sitter": "К. О. Поццо-ди-Борго",
+      "wall": "west"
+    },
+    {
+      "col": 31,
+      "key": "ge-8052",
+      "kind": "painted",
+      "rank": 130,
+      "row": 3,
+      "sitter": "Г. А. Луковкин",
+      "wall": "west"
+    },
+    {
+      "col": 32,
+      "key": "ge-8051",
+      "kind": "painted",
+      "rank": 131,
+      "row": 3,
+      "sitter": "Р. И. Багратион",
+      "wall": "west"
+    },
+    {
+      "col": 0,
+      "key": "ge-8103",
+      "kind": "painted",
+      "rank": 132,
+      "row": 4,
+      "sitter": "Б. Я. Княжнин 2-й",
+      "wall": "west"
+    },
+    {
+      "col": 1,
+      "key": "ge-8068",
+      "kind": "painted",
+      "rank": 133,
+      "row": 4,
+      "sitter": "А. А. Засс 1-й",
+      "wall": "west"
+    },
+    {
+      "col": 2,
+      "key": "ge-8101",
+      "kind": "painted",
+      "rank": 134,
+      "row": 4,
+      "sitter": "С. С. Потоцкий",
+      "wall": "west"
+    },
+    {
+      "col": 3,
+      "key": "ge-7891",
+      "kind": "painted",
+      "rank": 135,
+      "row": 4,
+      "sitter": "М. Д. Балк",
+      "wall": "west"
+    },
+    {
+      "col": 4,
+      "key": "ge-7898",
+      "kind": "painted",
+      "rank": 136,
+      "row": 4,
+      "sitter": "А. А. Карпов 2-й",
+      "wall": "west"
+    },
+    {
+      "col": 5,
+      "key": "ge-7964",
+      "kind": "painted",
+      "rank": 137,
+      "row": 4,
+      "sitter": "Т. И. Збиевский",
+      "wall": "west"
+    },
+    {
+      "col": 6,
+      "key": "ge-8090",
+      "kind": "painted",
+      "rank": 138,
+      "row": 4,
+      "sitter": "И. Е. Трощинский",
+      "wall": "west"
+    },
+    {
+      "col": 7,
+      "key": "ge-8089",
+      "kind": "painted",
+      "rank": 139,
+      "row": 4,
+      "sitter": "П. Н. Ушаков 1-й",
+      "wall": "west"
+    },
+    {
+      "col": 8,
+      "key": "ge-8088",
+      "kind": "painted",
+      "rank": 140,
+      "row": 4,
+      "sitter": "В. Н. Шеншин",
+      "wall": "west"
+    },
+    {
+      "col": 9,
+      "key": "ge-8087",
+      "kind": "painted",
+      "rank": 141,
+      "row": 4,
+      "sitter": "Г. А. Шостаков",
+      "wall": "west"
+    },
+    {
+      "col": 10,
+      "key": "ge-7827",
+      "kind": "painted",
+      "rank": 142,
+      "row": 4,
+      "sitter": "З. Д. Олсуфьев 1-й",
+      "wall": "west"
+    },
+    {
+      "col": 11,
+      "key": "ge-8085",
+      "kind": "painted",
+      "rank": 143,
+      "row": 4,
+      "sitter": "А. А. Протасов",
+      "wall": "west"
+    },
+    {
+      "col": 12,
+      "key": "ge-8084",
+      "kind": "painted",
+      "rank": 144,
+      "row": 4,
+      "sitter": "М. Ф. Влодек",
+      "wall": "west"
+    },
+    {
+      "col": 13,
+      "key": "ge-7834",
+      "kind": "painted",
+      "rank": 145,
+      "row": 4,
+      "sitter": "И. Н. Эссен",
+      "wall": "west"
+    },
+    {
+      "col": 14,
+      "key": "ge-8135",
+      "kind": "painted",
+      "rank": 146,
+      "row": 4,
+      "sitter": "К. Г. Сталь 1-й",
+      "wall": "west"
+    },
+    {
+      "col": 15,
+      "key": "ge-7933",
+      "kind": "painted",
+      "rank": 147,
+      "row": 4,
+      "sitter": "Ф. В. Назимов",
+      "wall": "west"
+    },
+    {
+      "col": 16,
+      "key": "ge-8131",
+      "kind": "painted",
+      "rank": 148,
+      "row": 4,
+      "sitter": "И. А. Аргамаков 2-й",
+      "wall": "west"
+    },
+    {
+      "col": 17,
+      "key": "ge-7938",
+      "kind": "painted",
+      "rank": 149,
+      "row": 4,
+      "sitter": "Ф. А. Линдфорс",
+      "wall": "west"
+    },
+    {
+      "col": 18,
+      "key": "ge-8129",
+      "kind": "painted",
+      "rank": 150,
+      "row": 4,
+      "sitter": "А. А. Ефимович",
+      "wall": "west"
+    },
+    {
+      "col": 19,
+      "key": "ge-7924",
+      "kind": "painted",
+      "rank": 151,
+      "row": 4,
+      "sitter": "А. А. Скалон",
+      "wall": "west"
+    },
+    {
+      "col": 20,
+      "key": "ge-8127",
+      "kind": "painted",
+      "rank": 152,
+      "row": 4,
+      "sitter": "Н. Д. Мякинин",
+      "wall": "west"
+    },
+    {
+      "col": 21,
+      "key": "ge-8005",
+      "kind": "painted",
+      "rank": 153,
+      "row": 4,
+      "sitter": "П. П. Загряжский",
+      "wall": "west"
+    },
+    {
+      "col": 22,
+      "key": "ge-8125",
+      "kind": "painted",
+      "rank": 154,
+      "row": 4,
+      "sitter": "В. Д. Рыков",
+      "wall": "west"
+    },
+    {
+      "col": 23,
+      "key": "silk-guryev",
+      "kind": "silk",
+      "rank": 155,
+      "row": 4,
+      "sitter": "А. И. Гурьев",
+      "wall": "west"
+    },
+    {
+      "col": 24,
+      "key": "ge-8117",
+      "kind": "painted",
+      "rank": 156,
+      "row": 4,
+      "sitter": "Н. И. Селявин",
+      "wall": "west"
+    },
+    {
+      "col": 25,
+      "key": "ge-8116",
+      "kind": "painted",
+      "rank": 157,
+      "row": 4,
+      "sitter": "Д. Л. Игнатьев",
+      "wall": "west"
+    },
+    {
+      "col": 26,
+      "key": "ge-7934",
+      "kind": "painted",
+      "rank": 158,
+      "row": 4,
+      "sitter": "М. М. Окулов",
+      "wall": "west"
+    },
+    {
+      "col": 27,
+      "key": "ge-8114",
+      "kind": "painted",
+      "rank": 159,
+      "row": 4,
+      "sitter": "А. К. Ридингер",
+      "wall": "west"
+    },
+    {
+      "col": 28,
+      "key": "ge-8113",
+      "kind": "painted",
+      "rank": 160,
+      "row": 4,
+      "sitter": "К. Ф. Клодт",
+      "wall": "west"
+    },
+    {
+      "col": 29,
+      "key": "ge-8112",
+      "kind": "painted",
+      "rank": 161,
+      "row": 4,
+      "sitter": "Ф. В. Зварыкин",
+      "wall": "west"
+    },
+    {
+      "col": 30,
+      "key": "ge-8104",
+      "kind": "painted",
+      "rank": 162,
+      "row": 4,
+      "sitter": "М. И. Понсет",
+      "wall": "west"
+    },
+    {
+      "col": 31,
+      "key": "ge-7912",
+      "kind": "painted",
+      "rank": 163,
+      "row": 4,
+      "sitter": "В. Т. Денисов",
+      "wall": "west"
+    },
+    {
+      "col": 32,
+      "key": "ge-8050",
+      "kind": "painted",
+      "rank": 164,
+      "row": 4,
+      "sitter": "И. М. Вадбольский",
+      "wall": "west"
+    },
+    {
+      "col": 0,
+      "key": "ge-7844",
+      "kind": "painted",
+      "rank": 165,
+      "row": 0,
+      "sitter": "П. П. Коновницын",
+      "wall": "east"
+    },
+    {
+      "col": 1,
+      "key": "ge-7822",
+      "kind": "painted",
+      "rank": 166,
+      "row": 0,
+      "sitter": "Н. Н. Раевский",
+      "wall": "east"
+    },
+    {
+      "col": 2,
+      "key": "ge-7848",
+      "kind": "painted",
+      "rank": 167,
+      "row": 0,
+      "sitter": "Д. Д. Шепелев",
+      "wall": "east"
+    },
+    {
+      "col": 3,
+      "key": "ge-7855",
+      "kind": "painted",
+      "rank": 168,
+      "row": 0,
+      "sitter": "И. В. Сабанеев",
+      "wall": "east"
+    },
+    {
+      "col": 4,
+      "key": "ge-7850",
+      "kind": "painted",
+      "rank": 169,
+      "row": 0,
+      "sitter": "М. С. Воронцов",
+      "wall": "east"
+    },
+    {
+      "col": 5,
+      "key": "ge-7821",
+      "kind": "painted",
+      "rank": 170,
+      "row": 0,
+      "sitter": "А. Ф. Ланжерон",
+      "wall": "east"
+    },
+    {
+      "col": 6,
+      "key": "ge-8120",
+      "kind": "painted",
+      "rank": 171,
+      "row": 0,
+      "sitter": "В. И. Каблуков 2-й",
+      "wall": "east"
+    },
+    {
+      "col": 7,
+      "key": "ge-8057",
+      "kind": "painted",
+      "rank": 172,
+      "row": 0,
+      "sitter": "Ф. Н. Посников",
+      "wall": "east"
+    },
+    {
+      "col": 8,
+      "key": "ge-8121",
+      "kind": "painted",
+      "rank": 173,
+      "row": 0,
+      "sitter": "А. С. Шульгин",
+      "wall": "east"
+    },
+    {
+      "col": 9,
+      "key": "ge-7854",
+      "kind": "painted",
+      "rank": 174,
+      "row": 0,
+      "sitter": "А. Г. Щербатов 1-й",
+      "wall": "east"
+    },
+    {
+      "col": 10,
+      "key": "ge-8071",
+      "kind": "painted",
+      "rank": 175,
+      "row": 0,
+      "sitter": "Д. А. Левин",
+      "wall": "east"
+    },
+    {
+      "col": 11,
+      "key": "ge-7862",
+      "kind": "painted",
+      "rank": 176,
+      "row": 0,
+      "sitter": "И. К. Орурк",
+      "wall": "east"
+    },
+    {
+      "col": 12,
+      "key": "ge-7863",
+      "kind": "painted",
+      "rank": 177,
+      "row": 0,
+      "sitter": "Н. И. Депрерадович",
+      "wall": "east"
+    },
+    {
+      "col": 13,
+      "key": "ge-8010",
+      "kind": "painted",
+      "rank": 178,
+      "row": 0,
+      "sitter": "П. Ф. Желтухин 2-й",
+      "wall": "east"
+    },
+    {
+      "col": 14,
+      "key": "ge-8069",
+      "kind": "painted",
+      "rank": 179,
+      "row": 0,
+      "sitter": "Д. А. Делянов",
+      "wall": "east"
+    },
+    {
+      "col": 15,
+      "key": "ge-7866",
+      "kind": "painted",
+      "rank": 180,
+      "row": 0,
+      "sitter": "Г. В. Жомини",
+      "wall": "east"
+    },
+    {
+      "col": 16,
+      "key": "ge-7867",
+      "kind": "painted",
+      "rank": 181,
+      "row": 0,
+      "sitter": "И. А. Ливен",
+      "wall": "east"
+    },
+    {
+      "col": 17,
+      "key": "ge-7870",
+      "kind": "painted",
+      "rank": 182,
+      "row": 0,
+      "sitter": "А. Н. Бахметев 3-й",
+      "wall": "east"
+    },
+    {
+      "col": 18,
+      "key": "ge-7839",
+      "kind": "painted",
+      "rank": 183,
+      "row": 0,
+      "sitter": "Ф. О. Паулуччи",
+      "wall": "east"
+    },
+    {
+      "col": 19,
+      "key": "ge-8009",
+      "kind": "painted",
+      "rank": 184,
+      "row": 0,
+      "sitter": "Д. В. Васильчиков 2-й",
+      "wall": "east"
+    },
+    {
+      "col": 20,
+      "key": "ge-7812",
+      "kind": "painted",
+      "rank": 185,
+      "row": 0,
+      "sitter": "Александр Вюртембергский",
+      "wall": "east"
+    },
+    {
+      "col": 21,
+      "key": "ge-7811",
+      "kind": "painted",
+      "rank": 186,
+      "row": 0,
+      "sitter": "П. К. Сухтелен 1-й",
+      "wall": "east"
+    },
+    {
+      "col": 22,
+      "key": "ge-7885",
+      "kind": "painted",
+      "rank": 187,
+      "row": 0,
+      "sitter": "Н. М. Бороздин",
+      "wall": "east"
+    },
+    {
+      "col": 23,
+      "key": "ge-7832",
+      "kind": "painted",
+      "rank": 188,
+      "row": 0,
+      "sitter": "Д. В. Голицын",
+      "wall": "east"
+    },
+    {
+      "col": 24,
+      "key": "ge-7888",
+      "kind": "painted",
+      "rank": 189,
+      "row": 0,
+      "sitter": "И. Ф. Паскевич",
+      "wall": "east"
+    },
+    {
+      "col": 25,
+      "key": "ge-7892",
+      "kind": "painted",
+      "rank": 190,
+      "row": 0,
+      "sitter": "Г. А. Эммануэль",
+      "wall": "east"
+    },
+    {
+      "col": 26,
+      "key": "ge-8020",
+      "kind": "painted",
+      "rank": 191,
+      "row": 0,
+      "sitter": "В. В. Левашов",
+      "wall": "east"
+    },
+    {
+      "col": 27,
+      "key": "ge-7824",
+      "kind": "painted",
+      "rank": 192,
+      "row": 0,
+      "sitter": "А. И. Горчаков 2-й",
+      "wall": "east"
+    },
+    {
+      "col": 28,
+      "key": "ge-8102",
+      "kind": "painted",
+      "rank": 193,
+      "row": 0,
+      "sitter": "Д. В. Шуханов",
+      "wall": "east"
+    },
+    {
+      "col": 29,
+      "key": "ge-8019",
+      "kind": "painted",
+      "rank": 194,
+      "row": 0,
+      "sitter": "Д. М. Юзефович",
+      "wall": "east"
+    },
+    {
+      "col": 30,
+      "key": "ge-8139",
+      "kind": "painted",
+      "rank": 195,
+      "row": 0,
+      "sitter": "А. Л. Воинов",
+      "wall": "east"
+    },
+    {
+      "col": 31,
+      "key": "ge-7835",
+      "kind": "painted",
+      "rank": 196,
+      "row": 0,
+      "sitter": "Ф. Ф. Штейнгель",
+      "wall": "east"
+    },
+    {
+      "col": 32,
+      "key": "ge-8039",
+      "kind": "painted",
+      "rank": 197,
+      "row": 0,
+      "sitter": "Д. М. Мордвинов",
+      "wall": "east"
+    },
+    {
+      "col": 0,
+      "key": "ge-7843",
+      "kind": "painted",
+      "rank": 198,
+      "row": 1,
+      "sitter": "А. И. Остерман-Толстой",
+      "wall": "east"
+    },
+    {
+      "col": 1,
+      "key": "ge-7874",
+      "kind": "painted",
+      "rank": 199,
+      "row": 1,
+      "sitter": "Д. П. Неверовский",
+      "wall": "east"
+    },
+    {
+      "col": 2,
+      "key": "ge-7936",
+      "kind": "painted",
+      "rank": 200,
+      "row": 1,
+      "sitter": "И. Н. Инзов",
+      "wall": "east"
+    },
+    {
+      "col": 3,
+      "key": "ge-8119",
+      "kind": "painted",
+      "rank": 201,
+      "row": 1,
+      "sitter": "Ф. В. Сазонов 2-й",
+      "wall": "east"
+    },
+    {
+      "col": 4,
+      "key": "ge-7916",
+      "kind": "painted",
+      "rank": 202,
+      "row": 1,
+      "sitter": "С. Д. Панчулидзев 2-й",
+      "wall": "east"
+    },
+    {
+      "col": 5,
+      "key": "ge-7983",
+      "kind": "painted",
+      "rank": 203,
+      "row": 1,
+      "sitter": "И. О. Витт",
+      "wall": "east"
+    },
+    {
+      "col": 6,
+      "key": "ge-7917",
+      "kind": "painted",
+      "rank": 204,
+      "row": 1,
+      "sitter": "Б. М. Берг 2-й",
+      "wall": "east"
+    },
+    {
+      "col": 7,
+      "key": "ge-8047",
+      "kind": "painted",
+      "rank": 205,
+      "row": 1,
+      "sitter": "Ф. Е. Книпер",
+      "wall": "east"
+    },
+    {
+      "col": 8,
+      "key": "ge-8108",
+      "kind": "painted",
+      "rank": 206,
+      "row": 1,
+      "sitter": "А. И. Бартоломей",
+      "wall": "east"
+    },
+    {
+      "col": 9,
+      "key": "ge-7978",
+      "kind": "painted",
+      "rank": 207,
+      "row": 1,
+      "sitter": "П. П. Шрейдер",
+      "wall": "east"
+    },
+    {
+      "col": 10,
+      "key": "ge-8058",
+      "kind": "painted",
+      "rank": 208,
+      "row": 1,
+      "sitter": "П. И. Балабин",
+      "wall": "east"
+    },
+    {
+      "col": 11,
+      "key": "ge-7995",
+      "kind": "painted",
+      "rank": 209,
+      "row": 1,
+      "sitter": "Е. Ф. Керн",
+      "wall": "east"
+    },
+    {
+      "col": 12,
+      "key": "ge-7929",
+      "kind": "painted",
+      "rank": 210,
+      "row": 1,
+      "sitter": "А. С. Чаликов",
+      "wall": "east"
+    },
+    {
+      "col": 13,
+      "key": "ge-7930",
+      "kind": "painted",
+      "rank": 211,
+      "row": 1,
+      "sitter": "П. Е. Бенардос",
+      "wall": "east"
+    },
+    {
+      "col": 14,
+      "key": "ge-8123",
+      "kind": "painted",
+      "rank": 212,
+      "row": 1,
+      "sitter": "А. И. Альбрехт",
+      "wall": "east"
+    },
+    {
+      "col": 15,
+      "key": "ge-8034",
+      "kind": "painted",
+      "rank": 213,
+      "row": 1,
+      "sitter": "К. М. Полторацкий",
+      "wall": "east"
+    },
+    {
+      "col": 16,
+      "key": "ge-7939",
+      "kind": "painted",
+      "rank": 214,
+      "row": 1,
+      "sitter": "Л. А. Денисьев",
+      "wall": "east"
+    },
+    {
+      "col": 17,
+      "key": "ge-7940",
+      "kind": "painted",
+      "rank": 215,
+      "row": 1,
+      "sitter": "Ф. И. Талызин 1-й",
+      "wall": "east"
+    },
+    {
+      "col": 18,
+      "key": "ge-8059",
+      "kind": "painted",
+      "rank": 216,
+      "row": 1,
+      "sitter": "Ф. И. Мосолов",
+      "wall": "east"
+    },
+    {
+      "col": 19,
+      "key": "ge-7877",
+      "kind": "painted",
+      "rank": 217,
+      "row": 1,
+      "sitter": "И. М. Дука",
+      "wall": "east"
+    },
+    {
+      "col": 20,
+      "key": "ge-8138",
+      "kind": "painted",
+      "rank": 218,
+      "row": 1,
+      "sitter": "Ф. Ф. Довре",
+      "wall": "east"
+    },
+    {
+      "col": 21,
+      "key": "ge-8035",
+      "kind": "painted",
+      "rank": 219,
+      "row": 1,
+      "sitter": "П. А. Козен",
+      "wall": "east"
+    },
+    {
+      "col": 22,
+      "key": "ge-7903",
+      "kind": "painted",
+      "rank": 220,
+      "row": 1,
+      "sitter": "Д. П. Резвой",
+      "wall": "east"
+    },
+    {
+      "col": 23,
+      "key": "ge-8086",
+      "kind": "painted",
+      "rank": 221,
+      "row": 1,
+      "sitter": "С. С. Андреевский",
+      "wall": "east"
+    },
+    {
+      "col": 24,
+      "key": "ge-7868",
+      "kind": "painted",
+      "rank": 222,
+      "row": 1,
+      "sitter": "Ф. К. Корф",
+      "wall": "east"
+    },
+    {
+      "col": 25,
+      "key": "ge-8133",
+      "kind": "painted",
+      "rank": 223,
+      "row": 1,
+      "sitter": "К. Х. Бенкендорф",
+      "wall": "east"
+    },
+    {
+      "col": 26,
+      "key": "ge-7889",
+      "kind": "painted",
+      "rank": 224,
+      "row": 1,
+      "sitter": "К. Ф. Толь",
+      "wall": "east"
+    },
+    {
+      "col": 27,
+      "key": "ge-7950",
+      "kind": "painted",
+      "rank": 225,
+      "row": 1,
+      "sitter": "В. Д. Лаптев",
+      "wall": "east"
+    },
+    {
+      "col": 28,
+      "key": "ge-8100",
+      "kind": "painted",
+      "rank": 226,
+      "row": 1,
+      "sitter": "Е. Ф. Сталь 2-й",
+      "wall": "east"
+    },
+    {
+      "col": 29,
+      "key": "ge-8073",
+      "kind": "painted",
+      "rank": 227,
+      "row": 1,
+      "sitter": "М. И. Мезенцев 2-й",
+      "wall": "east"
+    },
+    {
+      "col": 30,
+      "key": "ge-7849",
+      "kind": "painted",
+      "rank": 228,
+      "row": 1,
+      "sitter": "К. К. Сиверс 1-й",
+      "wall": "east"
+    },
+    {
+      "col": 31,
+      "key": "ge-7901",
+      "kind": "painted",
+      "rank": 229,
+      "row": 1,
+      "sitter": "А. В. Иловайский 3-й",
+      "wall": "east"
+    },
+    {
+      "col": 32,
+      "key": "ge-7902",
+      "kind": "painted",
+      "rank": 230,
+      "row": 1,
+      "sitter": "А. Ф. Щербатов",
+      "wall": "east"
+    },
+    {
+      "col": 0,
+      "key": "ge-8094",
+      "kind": "painted",
+      "rank": 231,
+      "row": 2,
+      "sitter": "В. Г. Мадатов",
+      "wall": "east"
+    },
+    {
+      "col": 1,
+      "key": "ge-7951",
+      "kind": "painted",
+      "rank": 232,
+      "row": 2,
+      "sitter": "Д. Е. Кутейников",
+      "wall": "east"
+    },
+    {
+      "col": 2,
+      "key": "ge-7852",
+      "kind": "painted",
+      "rank": 233,
+      "row": 2,
+      "sitter": "Л. Вальмоден",
+      "wall": "east"
+    },
+    {
+      "col": 3,
+      "key": "ge-7979",
+      "kind": "painted",
+      "rank": 234,
+      "row": 2,
+      "sitter": "Д. В. Лялин",
+      "wall": "east"
+    },
+    {
+      "col": 4,
+      "key": "ge-7919",
+      "kind": "painted",
+      "rank": 235,
+      "row": 2,
+      "sitter": "П. Г. Лихачёв",
+      "wall": "east"
+    },
+    {
+      "col": 5,
+      "key": "ge-7981",
+      "kind": "painted",
+      "rank": 236,
+      "row": 2,
+      "sitter": "А. И. Бистром 2-й",
+      "wall": "east"
+    },
+    {
+      "col": 6,
+      "key": "ge-7982",
+      "kind": "painted",
+      "rank": 237,
+      "row": 2,
+      "sitter": "В. И. Гарпе",
+      "wall": "east"
+    },
+    {
+      "col": 7,
+      "key": "ge-7915",
+      "kind": "painted",
+      "rank": 238,
+      "row": 2,
+      "sitter": "А. А. Бибиков",
+      "wall": "east"
+    },
+    {
+      "col": 8,
+      "key": "ge-7991",
+      "kind": "painted",
+      "rank": 239,
+      "row": 2,
+      "sitter": "А. Т. Маслов",
+      "wall": "east"
+    },
+    {
+      "col": 9,
+      "key": "ge-7992",
+      "kind": "painted",
+      "rank": 240,
+      "row": 2,
+      "sitter": "Ф. В. Ридигер",
+      "wall": "east"
+    },
+    {
+      "col": 10,
+      "key": "ge-7993",
+      "kind": "painted",
+      "rank": 241,
+      "row": 2,
+      "sitter": "И. Л. Поль",
+      "wall": "east"
+    },
+    {
+      "col": 11,
+      "key": "ge-7994",
+      "kind": "painted",
+      "rank": 242,
+      "row": 2,
+      "sitter": "Г. Д. Иловайский 9-й",
+      "wall": "east"
+    },
+    {
+      "col": 12,
+      "key": "ge-8079",
+      "kind": "painted",
+      "rank": 243,
+      "row": 2,
+      "sitter": "О. В. Иловайский 10-й",
+      "wall": "east"
+    },
+    {
+      "col": 13,
+      "key": "ge-7996",
+      "kind": "painted",
+      "rank": 244,
+      "row": 2,
+      "sitter": "П. А. Кикин",
+      "wall": "east"
+    },
+    {
+      "col": 14,
+      "key": "ge-7997",
+      "kind": "painted",
+      "rank": 245,
+      "row": 2,
+      "sitter": "И. Ф. Чернозубов",
+      "wall": "east"
+    },
+    {
+      "col": 15,
+      "key": "ge-8126",
+      "kind": "painted",
+      "rank": 246,
+      "row": 2,
+      "sitter": "Н. С. Сулима",
+      "wall": "east"
+    },
+    {
+      "col": 16,
+      "key": "silk-ivanov",
+      "kind": "silk",
+      "rank": 247,
+      "row": 2,
+      "sitter": "И. Д. Иванов",
+      "wall": "east"
+    },
+    {
+      "col": 17,
+      "key": "ge-8006",
+      "kind": "painted",
+      "rank": 248,
+      "row": 2,
+      "sitter": "М. Ф. Наумов",
+      "wall": "east"
+    },
+    {
+      "col": 18,
+      "key": "ge-8007",
+      "kind": "painted",
+      "rank": 249,
+      "row": 2,
+      "sitter": "Е. Е. Штаден",
+      "wall": "east"
+    },
+    {
+      "col": 19,
+      "key": "ge-7942",
+      "kind": "painted",
+      "rank": 250,
+      "row": 2,
+      "sitter": "В. Г. Костенецкий",
+      "wall": "east"
+    },
+    {
+      "col": 20,
+      "key": "ge-7943",
+      "kind": "painted",
+      "rank": 251,
+      "row": 2,
+      "sitter": "П. А. Филисов",
+      "wall": "east"
+    },
+    {
+      "col": 21,
+      "key": "ge-8078",
+      "kind": "painted",
+      "rank": 252,
+      "row": 2,
+      "sitter": "Н. Г. Щербатов 2-й",
+      "wall": "east"
+    },
+    {
+      "col": 22,
+      "key": "ge-7826",
+      "kind": "painted",
+      "rank": 253,
+      "row": 2,
+      "sitter": "Х. И. Трузсон",
+      "wall": "east"
+    },
+    {
+      "col": 23,
+      "key": "ge-7952",
+      "kind": "painted",
+      "rank": 254,
+      "row": 2,
+      "sitter": "Н. В. Дехтерев",
+      "wall": "east"
+    },
+    {
+      "col": 24,
+      "key": "ge-7953",
+      "kind": "painted",
+      "rank": 255,
+      "row": 2,
+      "sitter": "А. А. Башилов",
+      "wall": "east"
+    },
+    {
+      "col": 25,
+      "key": "ge-7954",
+      "kind": "painted",
+      "rank": 256,
+      "row": 2,
+      "sitter": "Н. Н. Хованский",
+      "wall": "east"
+    },
+    {
+      "col": 26,
+      "key": "ge-8031",
+      "kind": "painted",
+      "rank": 257,
+      "row": 2,
+      "sitter": "М. К. Крыжановский",
+      "wall": "east"
+    },
+    {
+      "col": 27,
+      "key": "ge-7956",
+      "kind": "painted",
+      "rank": 258,
+      "row": 2,
+      "sitter": "А. П. Урусов",
+      "wall": "east"
+    },
+    {
+      "col": 28,
+      "key": "ge-7957",
+      "kind": "painted",
+      "rank": 259,
+      "row": 2,
+      "sitter": "А. Н. Бердяев",
+      "wall": "east"
+    },
+    {
+      "col": 29,
+      "key": "ge-8096",
+      "kind": "painted",
+      "rank": 260,
+      "row": 2,
+      "sitter": "Е. А. Головин",
+      "wall": "east"
+    },
+    {
+      "col": 30,
+      "key": "ge-7966",
+      "kind": "painted",
+      "rank": 261,
+      "row": 2,
+      "sitter": "А. Ю. Гамен",
+      "wall": "east"
+    },
+    {
+      "col": 31,
+      "key": "ge-7830",
+      "kind": "painted",
+      "rank": 262,
+      "row": 2,
+      "sitter": "Ф. Ф. Винцингероде",
+      "wall": "east"
+    },
+    {
+      "col": 32,
+      "key": "ge-7967",
+      "kind": "painted",
+      "rank": 263,
+      "row": 2,
+      "sitter": "А. С. Уманец",
+      "wall": "east"
+    },
+    {
+      "col": 0,
+      "key": "ge-7838",
+      "kind": "painted",
+      "rank": 264,
+      "row": 3,
+      "sitter": "С. Г. Волконский",
+      "wall": "east"
+    },
+    {
+      "col": 1,
+      "key": "ge-7873",
+      "kind": "painted",
+      "rank": 265,
+      "row": 3,
+      "sitter": "И. С. Дорохов",
+      "wall": "east"
+    },
+    {
+      "col": 2,
+      "key": "silk-aleksopol",
+      "kind": "silk",
+      "rank": 266,
+      "row": 3,
+      "sitter": "Ф. П. Алексополь",
+      "wall": "east"
+    },
+    {
+      "col": 3,
+      "key": "ge-8045",
+      "kind": "painted",
+      "rank": 267,
+      "row": 3,
+      "sitter": "А. П. Турчанинов 2-й",
+      "wall": "east"
+    },
+    {
+      "col": 4,
+      "key": "ge-8046",
+      "kind": "painted",
+      "rank": 268,
+      "row": 3,
+      "sitter": "А. Э. Пейкер",
+      "wall": "east"
+    },
+    {
+      "col": 5,
+      "key": "ge-7918",
+      "kind": "painted",
+      "rank": 269,
+      "row": 3,
+      "sitter": "Н. А. Чичерин 1-й",
+      "wall": "east"
+    },
+    {
+      "col": 6,
+      "key": "ge-8048",
+      "kind": "painted",
+      "rank": 270,
+      "row": 3,
+      "sitter": "И. Б. Ререн",
+      "wall": "east"
+    },
+    {
+      "col": 7,
+      "key": "ge-8055",
+      "kind": "painted",
+      "rank": 271,
+      "row": 3,
+      "sitter": "М. Л. Трескин",
+      "wall": "east"
+    },
+    {
+      "col": 8,
+      "key": "ge-8056",
+      "kind": "painted",
+      "rank": 272,
+      "row": 3,
+      "sitter": "И. К. Соколовский",
+      "wall": "east"
+    },
+    {
+      "col": 9,
+      "key": "ge-7926",
+      "kind": "painted",
+      "rank": 273,
+      "row": 3,
+      "sitter": "С. В. Дятков",
+      "wall": "east"
+    },
+    {
+      "col": 10,
+      "key": "ge-7922",
+      "kind": "painted",
+      "rank": 274,
+      "row": 3,
+      "sitter": "С. Я. Репнинский 2-й",
+      "wall": "east"
+    },
+    {
+      "col": 11,
+      "key": "silk-naniy",
+      "kind": "silk",
+      "rank": 275,
+      "row": 3,
+      "sitter": "Ф. П. Наний",
+      "wall": "east"
+    },
+    {
+      "col": 12,
+      "key": "ge-7941",
+      "kind": "painted",
+      "rank": 276,
+      "row": 3,
+      "sitter": "О. И. Бухгольц",
+      "wall": "east"
+    },
+    {
+      "col": 13,
+      "key": "ge-8060",
+      "kind": "painted",
+      "rank": 277,
+      "row": 3,
+      "sitter": "М. М. Волков",
+      "wall": "east"
+    },
+    {
+      "col": 14,
+      "key": "ge-7825",
+      "kind": "painted",
+      "rank": 278,
+      "row": 3,
+      "sitter": "А. П. Засс 2-й",
+      "wall": "east"
+    },
+    {
+      "col": 15,
+      "key": "ge-7865",
+      "kind": "painted",
+      "rank": 279,
+      "row": 3,
+      "sitter": "И. Е. Шевич",
+      "wall": "east"
+    },
+    {
+      "col": 16,
+      "key": "ge-8070",
+      "kind": "painted",
+      "rank": 280,
+      "row": 3,
+      "sitter": "И. В. Аргамаков 1-й",
+      "wall": "east"
+    },
+    {
+      "col": 17,
+      "key": "silk-zhevakhov",
+      "kind": "silk",
+      "rank": 281,
+      "row": 3,
+      "sitter": "С. Э. Жевахов",
+      "wall": "east"
+    },
+    {
+      "col": 18,
+      "key": "ge-7861",
+      "kind": "painted",
+      "rank": 282,
+      "row": 3,
+      "sitter": "Е. И. Меллер-Закомельский",
+      "wall": "east"
+    },
+    {
+      "col": 19,
+      "key": "ge-8008",
+      "kind": "painted",
+      "rank": 283,
+      "row": 3,
+      "sitter": "С. Х. Ставраков",
+      "wall": "east"
+    },
+    {
+      "col": 20,
+      "key": "ge-7928",
+      "kind": "painted",
+      "rank": 284,
+      "row": 3,
+      "sitter": "И. П. Россий",
+      "wall": "east"
+    },
+    {
+      "col": 21,
+      "key": "ge-7883",
+      "kind": "painted",
+      "rank": 285,
+      "row": 3,
+      "sitter": "И. Д. Панчулидзев 1-й",
+      "wall": "east"
+    },
+    {
+      "col": 22,
+      "key": "ge-8017",
+      "kind": "painted",
+      "rank": 286,
+      "row": 3,
+      "sitter": "А. П. Никитин",
+      "wall": "east"
+    },
+    {
+      "col": 23,
+      "key": "ge-8018",
+      "kind": "painted",
+      "rank": 287,
+      "row": 3,
+      "sitter": "М. А. Арсеньев",
+      "wall": "east"
+    },
+    {
+      "col": 24,
+      "key": "ge-7886",
+      "kind": "painted",
+      "rank": 288,
+      "row": 3,
+      "sitter": "Б. Б. Гельфрейх",
+      "wall": "east"
+    },
+    {
+      "col": 25,
+      "key": "ge-7823",
+      "kind": "painted",
+      "rank": 289,
+      "row": 3,
+      "sitter": "П. К. Эссен 3-й",
+      "wall": "east"
+    },
+    {
+      "col": 26,
+      "key": "ge-8137",
+      "kind": "painted",
+      "rank": 290,
+      "row": 3,
+      "sitter": "Н. Д. Кудашев",
+      "wall": "east"
+    },
+    {
+      "col": 27,
+      "key": "ge-8021",
+      "kind": "painted",
+      "rank": 291,
+      "row": 3,
+      "sitter": "И. С. Жевахов",
+      "wall": "east"
+    },
+    {
+      "col": 28,
+      "key": "ge-8029",
+      "kind": "painted",
+      "rank": 292,
+      "row": 3,
+      "sitter": "А. С. Жемчужников",
+      "wall": "east"
+    },
+    {
+      "col": 29,
+      "key": "ge-8030",
+      "kind": "painted",
+      "rank": 293,
+      "row": 3,
+      "sitter": "А. А. Писарев",
+      "wall": "east"
+    },
+    {
+      "col": 30,
+      "key": "ge-7955",
+      "kind": "painted",
+      "rank": 294,
+      "row": 3,
+      "sitter": "Ф. И. Сандерс",
+      "wall": "east"
+    },
+    {
+      "col": 31,
+      "key": "ge-8032",
+      "kind": "painted",
+      "rank": 295,
+      "row": 3,
+      "sitter": "П. И. Нейдгардт",
+      "wall": "east"
+    },
+    {
+      "col": 32,
+      "key": "ge-8033",
+      "kind": "painted",
+      "rank": 296,
+      "row": 3,
+      "sitter": "Н. В. Васильчиков 3-й",
+      "wall": "east"
+    },
+    {
+      "col": 0,
+      "key": "ge-8097",
+      "kind": "painted",
+      "rank": 297,
+      "row": 4,
+      "sitter": "Т. Д. Греков",
+      "wall": "east"
+    },
+    {
+      "col": 1,
+      "key": "ge-8105",
+      "kind": "painted",
+      "rank": 298,
+      "row": 4,
+      "sitter": "П. В. Денисьев",
+      "wall": "east"
+    },
+    {
+      "col": 2,
+      "key": "silk-balla",
+      "kind": "silk",
+      "rank": 299,
+      "row": 4,
+      "sitter": "А. И. Балла",
+      "wall": "east"
+    },
+    {
+      "col": 3,
+      "key": "ge-8107",
+      "kind": "painted",
+      "rank": 300,
+      "row": 4,
+      "sitter": "А. И. Красовский",
+      "wall": "east"
+    },
+    {
+      "col": 4,
+      "key": "silk-vsevolozhsky",
+      "kind": "silk",
+      "rank": 301,
+      "row": 4,
+      "sitter": "А. М. Всеволожский",
+      "wall": "east"
+    },
+    {
+      "col": 5,
+      "key": "ge-8109",
+      "kind": "painted",
+      "rank": 302,
+      "row": 4,
+      "sitter": "А. И. Марков 2-й",
+      "wall": "east"
+    },
+    {
+      "col": 6,
+      "key": "ge-8110",
+      "kind": "painted",
+      "rank": 303,
+      "row": 4,
+      "sitter": "М. Н. Мацнев",
+      "wall": "east"
+    },
+    {
+      "col": 7,
+      "key": "ge-8111",
+      "kind": "painted",
+      "rank": 304,
+      "row": 4,
+      "sitter": "Г. Х. Шеле",
+      "wall": "east"
+    },
+    {
+      "col": 8,
+      "key": "ge-8118",
+      "kind": "painted",
+      "rank": 305,
+      "row": 4,
+      "sitter": "А. В. Богдановский",
+      "wall": "east"
+    },
+    {
+      "col": 9,
+      "key": "ge-7851",
+      "kind": "painted",
+      "rank": 306,
+      "row": 4,
+      "sitter": "Н. В. Иловайский 5-й",
+      "wall": "east"
+    },
+    {
+      "col": 10,
+      "key": "ge-7853",
+      "kind": "painted",
+      "rank": 307,
+      "row": 4,
+      "sitter": "К. Ф. Казачковский",
+      "wall": "east"
+    },
+    {
+      "col": 11,
+      "key": "ge-7914",
+      "kind": "painted",
+      "rank": 308,
+      "row": 4,
+      "sitter": "И. А. Хрущов",
+      "wall": "east"
+    },
+    {
+      "col": 12,
+      "key": "ge-8049",
+      "kind": "painted",
+      "rank": 309,
+      "row": 4,
+      "sitter": "И. Г. Гейденрейх",
+      "wall": "east"
+    },
+    {
+      "col": 13,
+      "key": "ge-7931",
+      "kind": "painted",
+      "rank": 310,
+      "row": 4,
+      "sitter": "И. И. Палицын",
+      "wall": "east"
+    },
+    {
+      "col": 14,
+      "key": "ge-8124",
+      "kind": "painted",
+      "rank": 311,
+      "row": 4,
+      "sitter": "О. Ф. Долон",
+      "wall": "east"
+    },
+    {
+      "col": 15,
+      "key": "ge-8132",
+      "kind": "painted",
+      "rank": 312,
+      "row": 4,
+      "sitter": "Е. А. Ахте",
+      "wall": "east"
+    },
+    {
+      "col": 16,
+      "key": "silk-lavrov",
+      "kind": "silk",
+      "rank": 313,
+      "row": 4,
+      "sitter": "Н. И. Лавров",
+      "wall": "east"
+    },
+    {
+      "col": 17,
+      "key": "ge-8072",
+      "kind": "painted",
+      "rank": 314,
+      "row": 4,
+      "sitter": "А. П. Кутузов",
+      "wall": "east"
+    },
+    {
+      "col": 18,
+      "key": "ge-8077",
+      "kind": "painted",
+      "rank": 315,
+      "row": 4,
+      "sitter": "А. С. Кологривов",
+      "wall": "east"
+    },
+    {
+      "col": 19,
+      "key": "ge-7944",
+      "kind": "painted",
+      "rank": 316,
+      "row": 4,
+      "sitter": "А. Б. Фок",
+      "wall": "east"
+    },
+    {
+      "col": 20,
+      "key": "ge-7884",
+      "kind": "painted",
+      "rank": 317,
+      "row": 4,
+      "sitter": "Н. В. Кретов",
+      "wall": "east"
+    },
+    {
+      "col": 21,
+      "key": "ge-8080",
+      "kind": "painted",
+      "rank": 318,
+      "row": 4,
+      "sitter": "И. Н. Галатте",
+      "wall": "east"
+    },
+    {
+      "col": 22,
+      "key": "ge-7910",
+      "kind": "painted",
+      "rank": 319,
+      "row": 4,
+      "sitter": "Е. И. Властов",
+      "wall": "east"
+    },
+    {
+      "col": 23,
+      "key": "ge-8082",
+      "kind": "painted",
+      "rank": 320,
+      "row": 4,
+      "sitter": "Н. Ф. Емельянов",
+      "wall": "east"
+    },
+    {
+      "col": 24,
+      "key": "ge-8083",
+      "kind": "painted",
+      "rank": 321,
+      "row": 4,
+      "sitter": "М. И. Дамас",
+      "wall": "east"
+    },
+    {
+      "col": 25,
+      "key": "ge-7900",
+      "kind": "painted",
+      "rank": 322,
+      "row": 4,
+      "sitter": "Л. О. Рот",
+      "wall": "east"
+    },
+    {
+      "col": 26,
+      "key": "silk-yurkovsky",
+      "kind": "silk",
+      "rank": 323,
+      "row": 4,
+      "sitter": "А. А. Юрковский",
+      "wall": "east"
+    },
+    {
+      "col": 27,
+      "key": "ge-8093",
+      "kind": "painted",
+      "rank": 324,
+      "row": 4,
+      "sitter": "Н. М. Сипягин",
+      "wall": "east"
+    },
+    {
+      "col": 28,
+      "key": "ge-7905",
+      "kind": "painted",
+      "rank": 325,
+      "row": 4,
+      "sitter": "К. М. Герцдорф",
+      "wall": "east"
+    },
+    {
+      "col": 29,
+      "key": "ge-8095",
+      "kind": "painted",
+      "rank": 326,
+      "row": 4,
+      "sitter": "В. П. Оболенский",
+      "wall": "east"
+    },
+    {
+      "col": 30,
+      "key": "ge-7965",
+      "kind": "painted",
+      "rank": 327,
+      "row": 4,
+      "sitter": "М. А. Шкапский",
+      "wall": "east"
+    },
+    {
+      "col": 31,
+      "key": "ge-7962",
+      "kind": "painted",
+      "rank": 328,
+      "row": 4,
+      "sitter": "Я. П. Кульнев",
+      "wall": "east"
+    },
+    {
+      "col": 32,
+      "key": "ge-7961",
+      "kind": "painted",
+      "rank": 329,
+      "row": 4,
+      "sitter": "А. А. Тучков 4-й",
+      "wall": "east"
+    },
+    {
+      "artist": "George Dawe",
+      "col": 0,
+      "key": "ge-7808",
+      "kind": "painted",
+      "rank": 330,
+      "row": 0,
+      "sitter": "Кутузов, Михаил Илларионович",
+      "wall": "north"
+    },
+    {
+      "artist": "George Dawe",
+      "col": 1,
+      "key": "ge-7809",
+      "kind": "painted",
+      "rank": 331,
+      "row": 0,
+      "sitter": "Барклай де Толли, Михаил Богданович",
+      "wall": "north"
+    }
+  ],
+  "law": "military-gallery-1812/roster/v2",
+  "omitRule": "row-tail-painted",
+  "omitted": [
+    {
+      "key": "ge-7815",
+      "realCol": 34,
+      "realRow": 2,
+      "realWall": "east",
+      "sitter": "Д. С. Дохтуров"
+    },
+    {
+      "key": "ge-7816",
+      "realCol": 36,
+      "realRow": 0,
+      "realWall": "west",
+      "sitter": "А. П. Тормасов"
+    },
+    {
+      "key": "ge-7818",
+      "realCol": 36,
+      "realRow": 0,
+      "realWall": "east",
+      "sitter": "П. И. Багратион"
+    },
+    {
+      "key": "ge-7829",
+      "realCol": 36,
+      "realRow": 2,
+      "realWall": "east",
+      "sitter": "Ф. П. Уваров"
+    },
+    {
+      "key": "ge-7846",
+      "realCol": 34,
+      "realRow": 0,
+      "realWall": "west",
+      "sitter": "П. А. Шувалов"
+    },
+    {
+      "key": "ge-7876",
+      "realCol": 34,
+      "realRow": 0,
+      "realWall": "east",
+      "sitter": "А. П. Ермолов"
+    },
+    {
+      "key": "ge-7913",
+      "realCol": 34,
+      "realRow": 1,
+      "realWall": "west",
+      "sitter": "Н. Ф. Титов"
+    },
+    {
+      "key": "ge-7976",
+      "realCol": 36,
+      "realRow": 1,
+      "realWall": "west",
+      "sitter": "Я. А. Потёмкин"
+    },
+    {
+      "key": "ge-7984",
+      "realCol": 34,
+      "realRow": 2,
+      "realWall": "west",
+      "sitter": "К. А. Крейц"
+    },
+    {
+      "key": "ge-8092",
+      "realCol": 34,
+      "realRow": 1,
+      "realWall": "east",
+      "sitter": "А. Н. Сеславин"
+    },
+    {
+      "key": "ge-8122",
+      "realCol": 36,
+      "realRow": 2,
+      "realWall": "west",
+      "sitter": "С. А. Хилков"
+    },
+    {
+      "key": "ge-8130",
+      "realCol": 36,
+      "realRow": 1,
+      "realWall": "east",
+      "sitter": "Д. В. Давыдов 2-й"
+    }
+  ],
+  "orientation": {
+    "realWallA": "west",
+    "realWallB": "east",
+    "row0": "lowest",
+    "walk": "north->south"
+  }
+}

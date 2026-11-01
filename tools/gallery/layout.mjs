@@ -48,14 +48,16 @@ export const NORTH_DOOR_CENTRE_X = (WEST_WALL_X + EAST_WALL_X) / 2;
 export const FLANK_OFFSET_X = 1.45;
 export const FLANK_CANVAS_Y = 2.3;
 
-/* §3.4 — the portrait atlas. */
-export const ATLAS_SIZE_PX = 2048;
+/* §3.4 — the portrait atlas. v2 (design-gallery-atlas-v2.md §3.1): every geometric
+ * constant is v1 × 1.5 at the 3072² container — same 21×17 grid, same slot law, nothing
+ * moves cells; the UV inset grows 5 px → 7 px (gutter 3 + inset 4). */
+export const ATLAS_SIZE_PX = 3072;
 export const ATLAS_COLUMNS = 21;
 export const ATLAS_ROWS = 17;
-export const SLOT_W_PX = 96;
-export const SLOT_H_PX = 120;
-export const ATLAS_GUTTER_PX = 2;
-export const ATLAS_INSET_PX = 3;
+export const SLOT_W_PX = 144;
+export const SLOT_H_PX = 180;
+export const ATLAS_GUTTER_PX = 3;
+export const ATLAS_INSET_PX = 4;
 export const SUPER_BLOCK_SLOTS = 2;
 export const SUPER_BLOCK_COUNT = 3;
 export const MISSING_SLOT = 356;

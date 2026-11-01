@@ -31,3 +31,9 @@ Rule: every source gets exactly one line here. No line, no use.
 - Studio Matrx, "Winter Palace Architecture" — quadrangle ~210 × 175 m, ~22 m to the cornice: https://www.studiomatrx.org/architecture-canon/winter-palace
 - BravoPlanner, "Winter Palace reference" — footprint 210 × 175 m, SE/SW risalits protrude beyond the main facade line: https://bravoplanner.ru/en/vizy-i-pasporta/dopolnitelnaya-informaciya-o-zimnem-dvorce-istoriya-zimnego/
 - [Климат Санкт-Петербурга](https://ru.wikipedia.org/wiki/%D0%9A%D0%BB%D0%B8%D0%BC%D0%B0%D1%82_%D0%A1%D0%B0%D0%BD%D0%BA%D1%82-%D0%9F%D0%B5%D1%82%D0%B5%D1%80%D0%B1%D1%83%D1%80%D0%B3%D0%B0) — the snow-cover climatology behind the season law: first snow ~early November, stable cover 110–145 days (early December–late March), melt ~mid-April.
+
+## 1812 canvases (atlas v2)
+
+<!-- gallery-atlas:begin -->
+Military Gallery atlas v2 — source scans are not committed; see tools/gallery/atlas.lock.json
+<!-- gallery-atlas:end -->

@@ -319,4 +319,7 @@ export const ru = {
   'data.siblingNoteMillionnaya':
     'В сторону Миллионной улицы; массивные корпуса (visit-petersburg).',
   'data.siblingNoteCentralPavilion': 'Центральный павильон (принято).',
+  'credits.gallery1812.canvases':
+    'Холсты: репродукции портретов Военной галереи (Джордж Доу и мастерская, 1819–1828; ' +
+    'Крюгер; Крафт) из общественного достояния, Викисклад.',
 } satisfies Dictionary;

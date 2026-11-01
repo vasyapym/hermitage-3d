@@ -303,4 +303,7 @@ export const en = {
   'data.siblingNoteMirrorRun': 'Mirror run (declared).',
   'data.siblingNoteMillionnaya': 'Toward Millionnaya Street; massive flanks (visit-petersburg).',
   'data.siblingNoteCentralPavilion': 'Central pavilion (declared).',
+  'credits.gallery1812.canvases':
+    'Canvases: public-domain reproductions of the Military Gallery portraits (George Dawe and ' +
+    'studio, 1819–1828; Kruger; Krafft), via Wikimedia Commons.',
 } satisfies Dictionary;

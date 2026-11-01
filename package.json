@@ -2,7 +2,7 @@
   "name": "zimny",
   "private": true,
   "type": "module",
-  "description": "Zimny — a stylized 3D recreation of the Winter Palace (Hermitage, Saint Petersburg) in the browser.",
+  "description": "Zimny \u2014 a stylized 3D recreation of the Winter Palace (Hermitage, Saint Petersburg) in the browser.",
   "engines": {
     "node": ">=20"
   },
@@ -24,8 +24,16 @@
     "asset:manifest": "node tools/asset.mjs manifest",
     "asset:basis": "node tools/asset.mjs basis",
     "asset:gallery-layout": "node tools/gallery/layout.mjs",
-    "asset:gallery-atlas": "node tools/gallery/atlas.mjs",
-    "asset": "node tools/asset.mjs all"
+    "asset": "node tools/asset.mjs all",
+    "gallery:transcribe": "node tools/gallery/import.mjs transcribe",
+    "gallery:fetch": "node tools/gallery/import.mjs fetch",
+    "gallery:lock": "node tools/gallery/import.mjs lock",
+    "gallery:compose": "node tools/gallery/import.mjs compose",
+    "gallery:encode": "node tools/gallery/import.mjs encode",
+    "gallery:verify": "node tools/gallery/import.mjs verify",
+    "gallery:attrib": "node tools/gallery/import.mjs attrib",
+    "gallery:report": "node tools/gallery/import.mjs report",
+    "gallery:all": "node tools/gallery/import.mjs all"
   },
   "dependencies": {
     "three": "0.186.1"
@@ -44,6 +52,7 @@
     "subset-font": "^2.9.0",
     "typescript": "7.0.2",
     "vite": "8.3.4",
-    "vitest": "5.0.4"
+    "vitest": "5.0.4",
+    "jpeg-js": "0.4.4"
   }
 }

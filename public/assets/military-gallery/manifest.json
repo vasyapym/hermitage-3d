@@ -40,7 +40,7 @@
     {
       "path": "military-gallery.glb",
       "bytes": 867276,
-      "sha256": "e38bf92d8f75f2288b13367465eb476b63afd6db836ac9b5d756c220b073a77a",
+      "sha256": "e710b0e72a2f6c256a67bbca7370a73daede61d384e96738c033df6b7a5f1470",
       "kind": "glb"
     },
     {
@@ -57,8 +57,8 @@
     },
     {
       "path": "tex/military-gallery-portraits.ktx2",
-      "bytes": 418982,
-      "sha256": "3b53033f21cb01eb926d8e430a7fa64f631fcf63354e34f51dae3b143fbe1db7",
+      "bytes": 806185,
+      "sha256": "5b99b7fe2a464e1aad7ee0091f3544f3e1db72f907a1fe4da8de22f4e17c2b1c",
       "kind": "ktx2"
     }
   ],
@@ -4211,7 +4211,7 @@
   "budget": {
     "trianglesMax": 60000,
     "drawsMax": 19,
-    "textureBytesMax": 1200000,
+    "textureBytesMax": 2650000,
     "payloadBytesMax": 4000000
   },
   "toolchain": {

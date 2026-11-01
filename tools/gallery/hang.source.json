@@ -1,0 +1,3154 @@
+{
+  "source": "ru.wikipedia «Военная галерея», ревизия 154665124 (получена 2026-11-01 через MediaWiki API). Использованы ОБЕ схемы: «Схема местоположения картин» (156 кадров) + «Развеска — 2» (186 кадров) — каждая покрывает лишь половину развески, вместе = 342 кадра.",
+  "wallNaming": "Схемы называют стены «Левая сторона» (здесь wall A) и «Правая сторона» (wall B). Col 0 у обеих стен — торец с выходом в Георгиевский зал (у которого дизайн размещает пару Кутузов–Барклай): у «Левой стороны» это нижняя часть схемы 1 (подпись «Выход в Георгиевский зал»), у «Правой стороны» — верхняя часть схемы 2 (её список начинается от того же торца). Col 36 — торец с выходом в Гербовый зал у обеих стен.",
+  "rowConvention": "row 0 = lowest row",
+  "colConvention": "col 0 counted from the end where the Kutuzov–Barclay door is",
+  "halfLengths": [
+    {
+      "wall": "A",
+      "row": 0,
+      "col": 0,
+      "kind": "painted",
+      "sitter": "В. В. Орлов-Денисов",
+      "ge": "ГЭ-7894",
+      "commonsTitle": "File:Orlov-Denisov.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 1,
+      "col": 0,
+      "kind": "painted",
+      "sitter": "Д. Д. Курута",
+      "ge": "ГЭ-8041",
+      "commonsTitle": "File:Kuruta Dmitry Dmitrievich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 2,
+      "col": 0,
+      "kind": "painted",
+      "sitter": "М. Н. Рылеев 1-й",
+      "ge": "ГЭ-7975",
+      "commonsTitle": "File:Ryleev 1 Mikhail Nikolaevich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 3,
+      "col": 0,
+      "kind": "painted",
+      "sitter": "О. Ф. Кнорринг 3-й",
+      "ge": "ГЭ-7911",
+      "commonsTitle": "File:Knorring 3 Otto Fyodorovich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 0,
+      "col": 2,
+      "kind": "painted",
+      "sitter": "Ф. А. Луков",
+      "ge": "ГЭ-8038",
+      "commonsTitle": "File:Lukov Fydor Alexeevich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 1,
+      "col": 2,
+      "kind": "painted",
+      "sitter": "П. И. Мерлин",
+      "ge": "ГЭ-8016",
+      "commonsTitle": "File:Merlin Pavel Ivanovich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 2,
+      "col": 2,
+      "kind": "painted",
+      "sitter": "Е. Е. Удом 2-й",
+      "ge": "ГЭ-7974",
+      "commonsTitle": "File:Udom 2 Evstafy Evstafyevich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 3,
+      "col": 2,
+      "kind": "painted",
+      "sitter": "М. И. Пален 3-й",
+      "ge": "ГЭ-8040",
+      "commonsTitle": "File:Magnus Freiherr von der Pahlen.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 0,
+      "col": 3,
+      "kind": "painted",
+      "sitter": "П. М. Капцевич",
+      "ge": "ГЭ-7842",
+      "commonsTitle": "File:Kaptzevich Petr.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 1,
+      "col": 3,
+      "kind": "painted",
+      "sitter": "П. П. Пален 2-й",
+      "ge": "ГЭ-7909",
+      "commonsTitle": "File:Paul Carl Ernst Wilhelm Philipp Graf von der Pahlen.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 2,
+      "col": 3,
+      "kind": "painted",
+      "sitter": "П. П. Турчанинов 1-й",
+      "ge": "ГЭ-7973",
+      "commonsTitle": "File:Turchaninov 1 Pavel Petrovich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 3,
+      "col": 3,
+      "kind": "silk",
+      "sitter": "В. И. Каратаев",
+      "ge": null,
+      "commonsTitle": null
+    },
+    {
+      "wall": "A",
+      "row": 4,
+      "col": 3,
+      "kind": "painted",
+      "sitter": "Б. Я. Княжнин 2-й",
+      "ge": "ГЭ-8103",
+      "commonsTitle": "File:Knyazhnin 2 Boris Yakovlevich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 0,
+      "col": 4,
+      "kind": "painted",
+      "sitter": "Н. А. Тучков 1-й",
+      "ge": "ГЭ-7841",
+      "commonsTitle": "File:Tuchkov 1 N A.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 1,
+      "col": 4,
+      "kind": "painted",
+      "sitter": "Г. П. Веселитский",
+      "ge": "ГЭ-8043",
+      "commonsTitle": "File:Veselitsky Gavriil Petrovich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 2,
+      "col": 4,
+      "kind": "painted",
+      "sitter": "А. П. Великопольский",
+      "ge": "ГЭ-7972",
+      "commonsTitle": "File:Velikopolsky Anton Pertrovich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 3,
+      "col": 4,
+      "kind": "painted",
+      "sitter": "Е. И. Марков 1-й",
+      "ge": "ГЭ-7836",
+      "commonsTitle": "File:Markov 1 Evgeny Ivanovich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 4,
+      "col": 4,
+      "kind": "painted",
+      "sitter": "А. А. Засс 1-й",
+      "ge": "ГЭ-8068",
+      "commonsTitle": "File:Zass 1 Andrey Andreevich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 0,
+      "col": 5,
+      "kind": "painted",
+      "sitter": "А. И. Чернышёв",
+      "ge": "ГЭ-7907",
+      "commonsTitle": "File:Chernyshov Alexander.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 1,
+      "col": 5,
+      "kind": "painted",
+      "sitter": "И. О. Сухозанет",
+      "ge": "ГЭ-8044",
+      "commonsTitle": "File:Suhozanet Ivan Onufrievich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 2,
+      "col": 5,
+      "kind": "painted",
+      "sitter": "С. Ф. Желтухин 1-й",
+      "ge": "ГЭ-7971",
+      "commonsTitle": "File:Zheltukhin 1 Sergey Fyodorovich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 3,
+      "col": 5,
+      "kind": "painted",
+      "sitter": "А. Я. Рудзевич",
+      "ge": "ГЭ-7896",
+      "commonsTitle": "File:Rudzevich Alexandr Yakovlevich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 4,
+      "col": 5,
+      "kind": "painted",
+      "sitter": "С. С. Потоцкий",
+      "ge": "ГЭ-8101",
+      "commonsTitle": "File:Pototsky Stanislaw Stanislawovich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 0,
+      "col": 6,
+      "kind": "painted",
+      "sitter": "П. А. Толстой",
+      "ge": "ГЭ-7833",
+      "commonsTitle": "File:Pyotr Aleksandrovich Tolstoy.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 1,
+      "col": 6,
+      "kind": "painted",
+      "sitter": "Г. И. Лисаневич 1-й",
+      "ge": "ГЭ-7899",
+      "commonsTitle": "File:Lysanevich 1 Grigory Ivanovich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 2,
+      "col": 6,
+      "kind": "painted",
+      "sitter": "А. И. Цвиленев",
+      "ge": "ГЭ-7970",
+      "commonsTitle": "File:Tsvilenyov Alexandr Ivanovich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 3,
+      "col": 6,
+      "kind": "painted",
+      "sitter": "Я. Е. Гине",
+      "ge": "ГЭ-8037",
+      "commonsTitle": "File:Gine Yakov Yegorovich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 4,
+      "col": 6,
+      "kind": "painted",
+      "sitter": "М. Д. Балк",
+      "ge": "ГЭ-7891",
+      "commonsTitle": "File:Balk Michail Dmitrievich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 0,
+      "col": 7,
+      "kind": "painted",
+      "sitter": "А. Д. Балашов",
+      "ge": "ГЭ-7837",
+      "commonsTitle": "File:Alexander Balashov.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 1,
+      "col": 7,
+      "kind": "painted",
+      "sitter": "А. Н. Рылеев 2-й",
+      "ge": "ГЭ-8099",
+      "commonsTitle": "File:Ryleev 2 Alexandr Nikolaevich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 2,
+      "col": 7,
+      "kind": "painted",
+      "sitter": "В. В. Ешин",
+      "ge": "ГЭ-8098",
+      "commonsTitle": "File:Eshin Vasily Vasilyevich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 3,
+      "col": 7,
+      "kind": "painted",
+      "sitter": "А. Я. Паттон",
+      "ge": "ГЭ-8036",
+      "commonsTitle": "File:Patton Alexandr Yakovlevich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 4,
+      "col": 7,
+      "kind": "painted",
+      "sitter": "А. А. Карпов 2-й",
+      "ge": "ГЭ-7898",
+      "commonsTitle": "File:Karpov 2 Akim Akimovich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 0,
+      "col": 8,
+      "kind": "painted",
+      "sitter": "Н. Г. Репнин-Волконский",
+      "ge": "ГЭ-7908",
+      "commonsTitle": "File:Repnin-Volkonsky Nikolay Grigorievich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 1,
+      "col": 8,
+      "kind": "painted",
+      "sitter": "Леопольд Саксен-Кобургский",
+      "ge": "ГЭ-7897",
+      "commonsTitle": "File:Saksen-Koburg Leopold-2a.jpeg"
+    },
+    {
+      "wall": "A",
+      "row": 2,
+      "col": 8,
+      "kind": "painted",
+      "sitter": "П. Я. Корнилов",
+      "ge": "ГЭ-7963",
+      "commonsTitle": "File:Kornilov Pyotr Yakovlevich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 3,
+      "col": 8,
+      "kind": "painted",
+      "sitter": "Г. Г. Энгельгардт",
+      "ge": "ГЭ-7904",
+      "commonsTitle": "File:EngelgartGG.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 4,
+      "col": 8,
+      "kind": "painted",
+      "sitter": "Т. И. Збиевский",
+      "ge": "ГЭ-7964",
+      "commonsTitle": "File:Zbievsky Timofey Ivanovich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 0,
+      "col": 9,
+      "kind": "painted",
+      "sitter": "С. Н. Ланской",
+      "ge": "ГЭ-7895",
+      "commonsTitle": "File:Lanskoy S N.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 1,
+      "col": 9,
+      "kind": "painted",
+      "sitter": "И. С. Леонтьев",
+      "ge": "ГЭ-8028",
+      "commonsTitle": "File:Leontyev Ivan Sergeevich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 2,
+      "col": 9,
+      "kind": "painted",
+      "sitter": "А. И. Грессер",
+      "ge": "ГЭ-7977",
+      "commonsTitle": "File:Gresser Alexandr Ivanovich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 3,
+      "col": 9,
+      "kind": "painted",
+      "sitter": "С. Н. Ушаков 2-й",
+      "ge": "ГЭ-8027",
+      "commonsTitle": "File:Ushakov 2 Sergey Nikolaevich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 4,
+      "col": 9,
+      "kind": "painted",
+      "sitter": "И. Е. Трощинский",
+      "ge": "ГЭ-8090",
+      "commonsTitle": "File:Troschinsky Ivan Efimovich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 0,
+      "col": 10,
+      "kind": "painted",
+      "sitter": "Л. Л. Беннигсен",
+      "ge": "ГЭ-7817",
+      "commonsTitle": "File:Bennigsen.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 1,
+      "col": 10,
+      "kind": "painted",
+      "sitter": "К. И. Опперман",
+      "ge": "ГЭ-7847",
+      "commonsTitle": "File:Karl Opperman (1766–1831).jpg"
+    },
+    {
+      "wall": "A",
+      "row": 2,
+      "col": 10,
+      "kind": "painted",
+      "sitter": "П. А. Чичерин 2-й",
+      "ge": "ГЭ-8025",
+      "commonsTitle": "File:Chicherin 2 Pyotr Alexandrovich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 3,
+      "col": 10,
+      "kind": "painted",
+      "sitter": "А. И. Гудович",
+      "ge": "ГЭ-8026",
+      "commonsTitle": "File:Gudovich Andrey Ivanovich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 4,
+      "col": 10,
+      "kind": "painted",
+      "sitter": "П. Н. Ушаков 1-й",
+      "ge": "ГЭ-8089",
+      "commonsTitle": "File:Ushakov 1 Pavel Nikolaevich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 0,
+      "col": 11,
+      "kind": "painted",
+      "sitter": "Ф. В. Остен-Сакен",
+      "ge": "ГЭ-7828",
+      "commonsTitle": "File:Fabian Wilhelm von Osten-Sacken.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 1,
+      "col": 11,
+      "kind": "painted",
+      "sitter": "К. В. Будберг",
+      "ge": "ГЭ-8076",
+      "commonsTitle": "File:Budberg Carl Vasilyevich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 2,
+      "col": 11,
+      "kind": "painted",
+      "sitter": "Е. И. Оленин",
+      "ge": "ГЭ-7960",
+      "commonsTitle": "File:Olenin Evgeny Ivanovich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 3,
+      "col": 11,
+      "kind": "painted",
+      "sitter": "Е. Е. Гампер",
+      "ge": "ГЭ-7906",
+      "commonsTitle": "File:Gamper Yermolay Yermolayevich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 4,
+      "col": 11,
+      "kind": "painted",
+      "sitter": "В. Н. Шеншин",
+      "ge": "ГЭ-8088",
+      "commonsTitle": "File:Shenshin Vasily Nikanorovich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 0,
+      "col": 12,
+      "kind": "painted",
+      "sitter": "П. Х. Витгенштейн",
+      "ge": "ГЭ-7820",
+      "commonsTitle": "File:Pjotr-christianowitsch-wittgenstein.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 1,
+      "col": 12,
+      "kind": "painted",
+      "sitter": "Ф. В. Тейль ванСераскеркен",
+      "ge": "ГЭ-8042",
+      "commonsTitle": "File:Teyl van Seraskerken.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 2,
+      "col": 12,
+      "kind": "painted",
+      "sitter": "И. А. Вельяминов",
+      "ge": "ГЭ-7959",
+      "commonsTitle": "File:Welyaminov Ivan Alexandrovich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 3,
+      "col": 12,
+      "kind": "painted",
+      "sitter": "Н. Д. Олсуфьев 3-й",
+      "ge": "ГЭ-8024",
+      "commonsTitle": "File:Olsufjev 3 Nikolay Dmitrievich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 4,
+      "col": 12,
+      "kind": "painted",
+      "sitter": "Г. А. Шостаков",
+      "ge": "ГЭ-8087",
+      "commonsTitle": "File:Shostakov Gerasim Alexeevich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 0,
+      "col": 13,
+      "kind": "painted",
+      "sitter": "М. А. Милорадович",
+      "ge": "ГЭ-7819",
+      "commonsTitle": "File:Михаил Андреевич Милорадович.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 1,
+      "col": 13,
+      "kind": "painted",
+      "sitter": "Ф. Ф. Левиз",
+      "ge": "ГЭ-7845",
+      "commonsTitle": "File:FriedrichvonLowisofMenar.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 2,
+      "col": 13,
+      "kind": "painted",
+      "sitter": "П. И. Ивелич",
+      "ge": "ГЭ-7958",
+      "commonsTitle": "File:Ivelich Pyotr Ivanovich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 3,
+      "col": 13,
+      "kind": "painted",
+      "sitter": "Р. Е. Ренни",
+      "ge": "ГЭ-8023",
+      "commonsTitle": "File:Renny Robert Egorovich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 4,
+      "col": 13,
+      "kind": "painted",
+      "sitter": "З. Д. Олсуфьев 1-й",
+      "ge": "ГЭ-7827",
+      "commonsTitle": "File:Olsufjev 1 Zahar Dmitrievich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 0,
+      "col": 14,
+      "kind": "painted",
+      "sitter": "П. М. Волконский",
+      "ge": "ГЭ-7882",
+      "commonsTitle": "File:Prince Pyotr Mikhailovich Volkonsky.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 1,
+      "col": 14,
+      "kind": "painted",
+      "sitter": "А. А. Аракчеев",
+      "ge": "ГЭ-7813",
+      "commonsTitle": "File:Arakcheev Alexey Andreevich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 2,
+      "col": 14,
+      "kind": "painted",
+      "sitter": "А. В. Воейков",
+      "ge": "ГЭ-8015",
+      "commonsTitle": "File:Voeikov Alexey Vasilyevich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 3,
+      "col": 14,
+      "kind": "painted",
+      "sitter": "К. Б. Кнорринг",
+      "ge": "ГЭ-8022",
+      "commonsTitle": "File:Knorring 2 Karl Bogdanovich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 4,
+      "col": 14,
+      "kind": "painted",
+      "sitter": "А. А. Протасов",
+      "ge": "ГЭ-8085",
+      "commonsTitle": "File:Protasov Alexey Andrianovich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 0,
+      "col": 15,
+      "kind": "painted",
+      "sitter": "М. И. Платов",
+      "ge": "ГЭ-7814",
+      "commonsTitle": "File:Platov.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 1,
+      "col": 15,
+      "kind": "painted",
+      "sitter": "А. Ф. Мишо",
+      "ge": "ГЭ-8081",
+      "commonsTitle": "File:Misho Alexandr Francevich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 2,
+      "col": 15,
+      "kind": "painted",
+      "sitter": "А. И. Талызин 2-й",
+      "ge": "ГЭ-7949",
+      "commonsTitle": "File:Talyzin 2 Alexandr Ivanovich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 3,
+      "col": 15,
+      "kind": "painted",
+      "sitter": "Д. И. Пышницкий",
+      "ge": "ГЭ-7890",
+      "commonsTitle": "File:Pyshnitsky Dmitry Ilyich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 4,
+      "col": 15,
+      "kind": "painted",
+      "sitter": "М. Ф. Влодек",
+      "ge": "ГЭ-8084",
+      "commonsTitle": "File:Vlodek Mihail Fyodorovich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 0,
+      "col": 16,
+      "kind": "painted",
+      "sitter": "А. П. Ожаровский",
+      "ge": "ГЭ-7893",
+      "commonsTitle": "File:Adam Petrovich Ozharovsky.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 1,
+      "col": 16,
+      "kind": "painted",
+      "sitter": "Евгений Вюртембергский",
+      "ge": "ГЭ-7831",
+      "commonsTitle": "File:Eugene of Wurtemberg.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 2,
+      "col": 16,
+      "kind": "painted",
+      "sitter": "И. И. Алексеев 1-й",
+      "ge": "ГЭ-7948",
+      "commonsTitle": "File:Alexeev 1 Ilya Ivanovich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 3,
+      "col": 16,
+      "kind": "painted",
+      "sitter": "В. Д. Иловайский 12-й",
+      "ge": "ГЭ-8014",
+      "commonsTitle": "File:Ilovajsky-12 V D.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 4,
+      "col": 16,
+      "kind": "painted",
+      "sitter": "И. Н. Эссен",
+      "ge": "ГЭ-7834",
+      "commonsTitle": "File:Essen Ivan N.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 0,
+      "col": 17,
+      "kind": "painted",
+      "sitter": "В. С. Трубецкой",
+      "ge": "ГЭ-7881",
+      "commonsTitle": "File:Trubetskoy Vasily Sergeevich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 1,
+      "col": 17,
+      "kind": "painted",
+      "sitter": "И. В. Мантейфель",
+      "ge": "ГЭ-7947",
+      "commonsTitle": "File:Mantejfel Ivan Vasilyevich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 2,
+      "col": 17,
+      "kind": "painted",
+      "sitter": "П. С. Кайсаров",
+      "ge": "ГЭ-8013",
+      "commonsTitle": "File:KaisarovPS.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 3,
+      "col": 17,
+      "kind": "silk",
+      "sitter": "Е. В. Давыдов",
+      "ge": null,
+      "commonsTitle": null
+    },
+    {
+      "wall": "A",
+      "row": 4,
+      "col": 17,
+      "kind": "painted",
+      "sitter": "К. Г. Сталь 1-й",
+      "ge": "ГЭ-8135",
+      "commonsTitle": "File:Stal 1 Karl Gustavovich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 0,
+      "col": 18,
+      "kind": "painted",
+      "sitter": "И. В. Васильчиков 1-й",
+      "ge": "ГЭ-7880",
+      "commonsTitle": "File:Vasilchikov.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 1,
+      "col": 18,
+      "kind": "painted",
+      "sitter": "К. Ф. Левенштерн",
+      "ge": "ГЭ-7946",
+      "commonsTitle": "File:Levenshtern Karl Fyodorovich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 2,
+      "col": 18,
+      "kind": "painted",
+      "sitter": "Е. Я. Савоини",
+      "ge": "ГЭ-8012",
+      "commonsTitle": "File:Savoini Yeremey Yakovlevich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 3,
+      "col": 18,
+      "kind": "painted",
+      "sitter": "И. А. Набоков",
+      "ge": "ГЭ-8075",
+      "commonsTitle": "File:Nabokov Ivan Alexandrovich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 4,
+      "col": 18,
+      "kind": "painted",
+      "sitter": "Ф. В. Назимов",
+      "ge": "ГЭ-7933",
+      "commonsTitle": "File:Nazimov Fyodor Viktorovich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 0,
+      "col": 19,
+      "kind": "painted",
+      "sitter": "П. Н. Чоглоков",
+      "ge": "ГЭ-7887",
+      "commonsTitle": "File:Choglokov Pavel Nikolaevich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 1,
+      "col": 19,
+      "kind": "painted",
+      "sitter": "А. И. Кутайсов",
+      "ge": "ГЭ-7945",
+      "commonsTitle": "File:Kutaisov.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 2,
+      "col": 19,
+      "kind": "painted",
+      "sitter": "Ф. В. Дризен",
+      "ge": "ГЭ-8011",
+      "commonsTitle": "File:Drizen Fyodor Vasilyevich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 3,
+      "col": 19,
+      "kind": "painted",
+      "sitter": "Б. Х. Рихтер",
+      "ge": "ГЭ-8074",
+      "commonsTitle": "File:Rikhter Boris Hristoforovich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 4,
+      "col": 19,
+      "kind": "painted",
+      "sitter": "И. А. Аргамаков 2-й",
+      "ge": "ГЭ-8131",
+      "commonsTitle": "File:Argamakov 2 Ivan Andreevich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 0,
+      "col": 20,
+      "kind": "painted",
+      "sitter": "А. А. Закревский",
+      "ge": "ГЭ-8091",
+      "commonsTitle": "File:Zakrevskiy Arseniy Andreevich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 1,
+      "col": 20,
+      "kind": "painted",
+      "sitter": "К. Ф. Багговут",
+      "ge": "ГЭ-8136",
+      "commonsTitle": "File:Baggovut.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 2,
+      "col": 20,
+      "kind": "painted",
+      "sitter": "Г. В. Розен 1-й",
+      "ge": "ГЭ-7864",
+      "commonsTitle": "File:Rozen 2 Grigory Vladimirovich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 3,
+      "col": 20,
+      "kind": "painted",
+      "sitter": "К. Ф. Ольдекоп",
+      "ge": "ГЭ-7969",
+      "commonsTitle": "File:Oldekop Karl Fyodorovich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 4,
+      "col": 20,
+      "kind": "painted",
+      "sitter": "Ф. А. Линдфорс",
+      "ge": "ГЭ-7938",
+      "commonsTitle": "File:Lindfors Fyodor Andreevich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 0,
+      "col": 21,
+      "kind": "painted",
+      "sitter": "П. А. Строганов",
+      "ge": "ГЭ-7872",
+      "commonsTitle": "File:Stroganov P A.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 1,
+      "col": 21,
+      "kind": "painted",
+      "sitter": "А. П. Мелиссино",
+      "ge": "ГЭ-7937",
+      "commonsTitle": "File:Melissino Alexey Petrovich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 2,
+      "col": 21,
+      "kind": "painted",
+      "sitter": "Е. М. Пиллар",
+      "ge": "ГЭ-8004",
+      "commonsTitle": "File:Pillar Egor Maximovich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 3,
+      "col": 21,
+      "kind": "silk",
+      "sitter": "А. Н. Потапов",
+      "ge": null,
+      "commonsTitle": null
+    },
+    {
+      "wall": "A",
+      "row": 4,
+      "col": 21,
+      "kind": "painted",
+      "sitter": "А. А. Ефимович",
+      "ge": "ГЭ-8129",
+      "commonsTitle": "File:Efimovich Andrey Alexandrovich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 0,
+      "col": 22,
+      "kind": "painted",
+      "sitter": "Е. И. Чаплиц",
+      "ge": "ГЭ-7871",
+      "commonsTitle": "File:Chaplits Yefim Ignatyevich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 1,
+      "col": 22,
+      "kind": "painted",
+      "sitter": "Ф. Ф. Эртель",
+      "ge": "ГЭ-7840",
+      "commonsTitle": "File:Ertel Theodor.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 2,
+      "col": 22,
+      "kind": "painted",
+      "sitter": "И. Ф. Удом 1-й",
+      "ge": "ГЭ-8003",
+      "commonsTitle": "File:Udom 1 Ivan Fyodorovich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 3,
+      "col": 22,
+      "kind": "painted",
+      "sitter": "А. И. Юшков",
+      "ge": "ГЭ-8065",
+      "commonsTitle": "File:Yushkov Alexandr Ivanovich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 4,
+      "col": 22,
+      "kind": "painted",
+      "sitter": "А. А. Скалон",
+      "ge": "ГЭ-7924",
+      "commonsTitle": "File:Skalon Anton Antonovich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 0,
+      "col": 23,
+      "kind": "painted",
+      "sitter": "П. В. Голенищев-Кутузов",
+      "ge": "ГЭ-7875",
+      "commonsTitle": "File:Golenistchev-Kutuzov PV.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 1,
+      "col": 23,
+      "kind": "painted",
+      "sitter": "П. А. Тучков 3-й",
+      "ge": "ГЭ-7935",
+      "commonsTitle": "File:Tuchkov 3 P A.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 2,
+      "col": 23,
+      "kind": "painted",
+      "sitter": "К. И. Бистром 1-й",
+      "ge": "ГЭ-8002",
+      "commonsTitle": "File:Karl Bistrom.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 3,
+      "col": 23,
+      "kind": "painted",
+      "sitter": "П. М. Колюбакин",
+      "ge": "ГЭ-7921",
+      "commonsTitle": "File:Kolyubakin Pyotr Mihailovich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 4,
+      "col": 23,
+      "kind": "painted",
+      "sitter": "Н. Д. Мякинин",
+      "ge": "ГЭ-8127",
+      "commonsTitle": "File:Myakinin Nikolay Diomidovich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 0,
+      "col": 24,
+      "kind": "painted",
+      "sitter": "Э. Ф. Сен-При",
+      "ge": "ГЭ-7869",
+      "commonsTitle": "File:Saint-Priest E F.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 1,
+      "col": 24,
+      "kind": "painted",
+      "sitter": "А. В. Розен 2-й",
+      "ge": "ГЭ-8115",
+      "commonsTitle": "File:Rozen 3 Alexander Vladimirovich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 2,
+      "col": 24,
+      "kind": "painted",
+      "sitter": "М. И. Карпенко",
+      "ge": "ГЭ-8001",
+      "commonsTitle": "File:Karpenko Moisey Ivanovich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 3,
+      "col": 24,
+      "kind": "painted",
+      "sitter": "И. З. Ершов",
+      "ge": "ГЭ-8066",
+      "commonsTitle": "File:Ershov Ivan Zaharovich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 4,
+      "col": 24,
+      "kind": "painted",
+      "sitter": "П. П. Загряжский",
+      "ge": "ГЭ-8005",
+      "commonsTitle": "File:Zagryazhsky Pyotr Petrovich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 0,
+      "col": 25,
+      "kind": "painted",
+      "sitter": "А. Х. Бенкендорф",
+      "ge": "ГЭ-7968",
+      "commonsTitle": "File:Alexander von Benckendorff.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 1,
+      "col": 25,
+      "kind": "painted",
+      "sitter": "П. П. Сухтелен 2-й",
+      "ge": "ГЭ-8134",
+      "commonsTitle": "File:Suhtelen.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 2,
+      "col": 25,
+      "kind": "painted",
+      "sitter": "М. Е. Храповицкий",
+      "ge": "ГЭ-8000",
+      "commonsTitle": "File:Hrapovitsky M E.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 3,
+      "col": 25,
+      "kind": "painted",
+      "sitter": "Н. М. Свечин",
+      "ge": "ГЭ-8064",
+      "commonsTitle": "File:Svechin Nikanor Mihailovich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 4,
+      "col": 25,
+      "kind": "painted",
+      "sitter": "В. Д. Рыков",
+      "ge": "ГЭ-8125",
+      "commonsTitle": "File:Rykov Vasily Dmitrievich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 0,
+      "col": 26,
+      "kind": "painted",
+      "sitter": "К. О. Ламберт",
+      "ge": "ГЭ-7860",
+      "commonsTitle": "File:Lambert Karl Osipovich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 1,
+      "col": 26,
+      "kind": "painted",
+      "sitter": "Б. В. Полуектов",
+      "ge": "ГЭ-8063",
+      "commonsTitle": "File:Poluektov Boris Vladimirovich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 2,
+      "col": 26,
+      "kind": "painted",
+      "sitter": "Н. В. Вуич",
+      "ge": "ГЭ-7999",
+      "commonsTitle": "File:Vuich Nikolay Vasilyevich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 3,
+      "col": 26,
+      "kind": "painted",
+      "sitter": "В. С. Рахманов",
+      "ge": "ГЭ-7932",
+      "commonsTitle": "File:Rakhmanov Vasily Sergeyevich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 4,
+      "col": 26,
+      "kind": "silk",
+      "sitter": "А. И. Гурьев",
+      "ge": null,
+      "commonsTitle": null
+    },
+    {
+      "wall": "A",
+      "row": 0,
+      "col": 27,
+      "kind": "painted",
+      "sitter": "И. Т. Сазонов 1-й",
+      "ge": "ГЭ-7859",
+      "commonsTitle": "File:Sazonov 1 Ivan Terentyevich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 1,
+      "col": 27,
+      "kind": "painted",
+      "sitter": "И. Д. Иловайский 4-й",
+      "ge": "ГЭ-7925",
+      "commonsTitle": "File:Ilovaisky 4 Ivan Dmitrievich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 2,
+      "col": 27,
+      "kind": "painted",
+      "sitter": "Д. П. Ляпунов",
+      "ge": "ГЭ-7998",
+      "commonsTitle": "File:Lyapunov Dmitry Petrovich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 3,
+      "col": 27,
+      "kind": "painted",
+      "sitter": "И. Т. Козлянинов",
+      "ge": "ГЭ-8062",
+      "commonsTitle": "File:Kozlyaninov Ivan Timofeevich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 4,
+      "col": 27,
+      "kind": "painted",
+      "sitter": "Н. И. Селявин",
+      "ge": "ГЭ-8117",
+      "commonsTitle": "File:Selyavin Nikolay Ivanovich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 0,
+      "col": 28,
+      "kind": "painted",
+      "sitter": "Г. М. Берг 1-й",
+      "ge": "ГЭ-7858",
+      "commonsTitle": "File:Berg 1 Grigory Maximobich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 1,
+      "col": 28,
+      "kind": "painted",
+      "sitter": "Л. А. Нарышкин",
+      "ge": "ГЭ-8128",
+      "commonsTitle": "File:Naryshkin Lev Alexandrovich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 2,
+      "col": 28,
+      "kind": "painted",
+      "sitter": "А. Я. Княжнин 1-й",
+      "ge": "ГЭ-7990",
+      "commonsTitle": "File:Knyazhnin 1 Alexandr Yakovlevich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 3,
+      "col": 28,
+      "kind": "painted",
+      "sitter": "А. П. Теслев",
+      "ge": "ГЭ-8061",
+      "commonsTitle": "File:Teslev Alexandr Petrovich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 4,
+      "col": 28,
+      "kind": "painted",
+      "sitter": "Д. Л. Игнатьев",
+      "ge": "ГЭ-8116",
+      "commonsTitle": "File:Ignatyev 2 Dmitry Lvovich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 0,
+      "col": 29,
+      "kind": "painted",
+      "sitter": "Л. М. Яшвиль",
+      "ge": "ГЭ-7857",
+      "commonsTitle": "File:Yashvil LM.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 1,
+      "col": 29,
+      "kind": "painted",
+      "sitter": "М. С. Вистицкий",
+      "ge": "ГЭ-7923",
+      "commonsTitle": "File:Vistitsky Mihail Stepanovich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 2,
+      "col": 29,
+      "kind": "painted",
+      "sitter": "А. С. Глебов",
+      "ge": "ГЭ-7989",
+      "commonsTitle": "File:Glebov Andrey Savvich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 3,
+      "col": 29,
+      "kind": "silk",
+      "sitter": "Н. В. Давыдов",
+      "ge": null,
+      "commonsTitle": null
+    },
+    {
+      "wall": "A",
+      "row": 4,
+      "col": 29,
+      "kind": "painted",
+      "sitter": "М. М. Окулов",
+      "ge": "ГЭ-7934",
+      "commonsTitle": "File:Okulov Modest Matveevich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 0,
+      "col": 30,
+      "kind": "painted",
+      "sitter": "П. П. Пален 1-й",
+      "ge": "ГЭ-7856",
+      "commonsTitle": "File:Peter Graf von der Pahlen.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 1,
+      "col": 30,
+      "kind": "painted",
+      "sitter": "С. Я. Репнинский 1-й",
+      "ge": "ГЭ-7927",
+      "commonsTitle": "File:Repninsky 1 Stepan Yakovlevich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 2,
+      "col": 30,
+      "kind": "painted",
+      "sitter": "М. Ф. Ставицкий",
+      "ge": "ГЭ-7988",
+      "commonsTitle": "File:Stavitsky 2 Maxim Fyodorovich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 3,
+      "col": 30,
+      "kind": "painted",
+      "sitter": "Э. Филипстальский",
+      "ge": "ГЭ-8054",
+      "commonsTitle": "File:Filippstalsky Ernest.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 4,
+      "col": 30,
+      "kind": "painted",
+      "sitter": "А. К. Ридингер",
+      "ge": "ГЭ-8114",
+      "commonsTitle": "File:Ridinger Alexandr Karlovich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 0,
+      "col": 31,
+      "kind": "painted",
+      "sitter": "И. Н. Дурново",
+      "ge": "ГЭ-8106",
+      "commonsTitle": "File:Durnovo Ivan Nikolaevich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 1,
+      "col": 31,
+      "kind": "painted",
+      "sitter": "П. И. Каблуков 1-й",
+      "ge": "ГЭ-8067",
+      "commonsTitle": "File:Kablukov 1 Platon Ivanovich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 2,
+      "col": 31,
+      "kind": "painted",
+      "sitter": "Ф. Ф. Розен 3-й",
+      "ge": "ГЭ-7987",
+      "commonsTitle": "File:Rozen 4 Fyodor Fyodorovich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 3,
+      "col": 31,
+      "kind": "painted",
+      "sitter": "К. О. Поццо-ди-Борго",
+      "ge": "ГЭ-8053",
+      "commonsTitle": "File:Pozzo di Borgo.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 4,
+      "col": 31,
+      "kind": "painted",
+      "sitter": "К. Ф. Клодт",
+      "ge": "ГЭ-8113",
+      "commonsTitle": "File:Klodt Karl Gustav.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 0,
+      "col": 32,
+      "kind": "painted",
+      "sitter": "И. И. Дибич",
+      "ge": "ГЭ-7879",
+      "commonsTitle": "File:Ivan Ivanovitch Dibich by George Dawe - Hermitage.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 1,
+      "col": 32,
+      "kind": "painted",
+      "sitter": "С. Г. Гангеблов",
+      "ge": "ГЭ-7920",
+      "commonsTitle": "File:Gangeblov S G.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 2,
+      "col": 32,
+      "kind": "painted",
+      "sitter": "Ф. Г. Гогель",
+      "ge": "ГЭ-7986",
+      "commonsTitle": "File:Gogel Fyodor Grigoryevich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 3,
+      "col": 32,
+      "kind": "painted",
+      "sitter": "Г. А. Луковкин",
+      "ge": "ГЭ-8052",
+      "commonsTitle": "File:Lukovkin Gavriil Amvrosievich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 4,
+      "col": 32,
+      "kind": "painted",
+      "sitter": "Ф. В. Зварыкин",
+      "ge": "ГЭ-8112",
+      "commonsTitle": "File:Zvarykin Fyodor Vasilyevich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 0,
+      "col": 33,
+      "kind": "painted",
+      "sitter": "И. Л. Шаховской",
+      "ge": "ГЭ-7878",
+      "commonsTitle": "File:Shahovskoy Ivan Leontyevich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 1,
+      "col": 33,
+      "kind": "painted",
+      "sitter": "Е. К. Сиверс 3-й",
+      "ge": "ГЭ-7980",
+      "commonsTitle": "File:Sievers 3 Egor Karlovich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 2,
+      "col": 33,
+      "kind": "painted",
+      "sitter": "В. П. Мезенцев 1-й",
+      "ge": "ГЭ-7985",
+      "commonsTitle": "File:Mezencev 1 Vladimir Petrovich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 3,
+      "col": 33,
+      "kind": "painted",
+      "sitter": "Р. И. Багратион",
+      "ge": "ГЭ-8051",
+      "commonsTitle": "File:Roman Bagration.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 4,
+      "col": 33,
+      "kind": "painted",
+      "sitter": "М. И. Понсет",
+      "ge": "ГЭ-8104",
+      "commonsTitle": "File:Ponset Mihail Ivanovich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 0,
+      "col": 34,
+      "kind": "painted",
+      "sitter": "П. А. Шувалов",
+      "ge": "ГЭ-7846",
+      "commonsTitle": "File:Shuvalov P A.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 1,
+      "col": 34,
+      "kind": "painted",
+      "sitter": "Н. Ф. Титов",
+      "ge": "ГЭ-7913",
+      "commonsTitle": "File:Titov Nikolay Fyodorovich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 2,
+      "col": 34,
+      "kind": "painted",
+      "sitter": "К. А. Крейц",
+      "ge": "ГЭ-7984",
+      "commonsTitle": "File:Cyprian Kreutz.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 3,
+      "col": 34,
+      "kind": "painted",
+      "sitter": "И. М. Вадбольский",
+      "ge": "ГЭ-8050",
+      "commonsTitle": "File:Vadbolsky Ivan Mihailovich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 0,
+      "col": 36,
+      "kind": "painted",
+      "sitter": "А. П. Тормасов",
+      "ge": "ГЭ-7816",
+      "commonsTitle": "File:Tormasov.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 1,
+      "col": 36,
+      "kind": "painted",
+      "sitter": "Я. А. Потёмкин",
+      "ge": "ГЭ-7976",
+      "commonsTitle": "File:Potyomkin Yakov Alexeevich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 2,
+      "col": 36,
+      "kind": "painted",
+      "sitter": "С. А. Хилков",
+      "ge": "ГЭ-8122",
+      "commonsTitle": "File:Hilkov Stepan Alexandrovich.jpg"
+    },
+    {
+      "wall": "A",
+      "row": 3,
+      "col": 36,
+      "kind": "painted",
+      "sitter": "В. Т. Денисов",
+      "ge": "ГЭ-7912",
+      "commonsTitle": "File:Denisov 7 Vasily Timofeevich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 0,
+      "col": 0,
+      "kind": "painted",
+      "sitter": "П. П. Коновницын",
+      "ge": "ГЭ-7844",
+      "commonsTitle": "File:George Dawe - Portrait of Pyotr P. Konovnitsyn.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 1,
+      "col": 0,
+      "kind": "painted",
+      "sitter": "А. И. Остерман-Толстой",
+      "ge": "ГЭ-7843",
+      "commonsTitle": "File:Ostermann-tolstoi.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 2,
+      "col": 0,
+      "kind": "painted",
+      "sitter": "В. Г. Мадатов",
+      "ge": "ГЭ-8094",
+      "commonsTitle": "File:Madatov.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 3,
+      "col": 0,
+      "kind": "painted",
+      "sitter": "С. Г. Волконский",
+      "ge": "ГЭ-7838",
+      "commonsTitle": "File:Volkonsky-4 S G.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 0,
+      "col": 2,
+      "kind": "painted",
+      "sitter": "Н. Н. Раевский",
+      "ge": "ГЭ-7822",
+      "commonsTitle": "File:Rajevskij N N.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 1,
+      "col": 2,
+      "kind": "painted",
+      "sitter": "Д. П. Неверовский",
+      "ge": "ГЭ-7874",
+      "commonsTitle": "File:Dmitry Petrovich Neverovsky.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 2,
+      "col": 2,
+      "kind": "painted",
+      "sitter": "Д. Е. Кутейников",
+      "ge": "ГЭ-7951",
+      "commonsTitle": "File:Kuteinikov D E.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 3,
+      "col": 2,
+      "kind": "painted",
+      "sitter": "И. С. Дорохов",
+      "ge": "ГЭ-7873",
+      "commonsTitle": "File:Dorohov1812.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 0,
+      "col": 3,
+      "kind": "painted",
+      "sitter": "Д. Д. Шепелев",
+      "ge": "ГЭ-7848",
+      "commonsTitle": "File:Shepelev Dmitry Dmitrievich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 1,
+      "col": 3,
+      "kind": "painted",
+      "sitter": "И. Н. Инзов",
+      "ge": "ГЭ-7936",
+      "commonsTitle": "File:Inzov Ivan Nikitich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 2,
+      "col": 3,
+      "kind": "painted",
+      "sitter": "Л. Вальмоден",
+      "ge": "ГЭ-7852",
+      "commonsTitle": "File:Walmoden.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 3,
+      "col": 3,
+      "kind": "silk",
+      "sitter": "Ф. П. Алексополь",
+      "ge": null,
+      "commonsTitle": null
+    },
+    {
+      "wall": "B",
+      "row": 4,
+      "col": 3,
+      "kind": "painted",
+      "sitter": "Т. Д. Греков",
+      "ge": "ГЭ-8097",
+      "commonsTitle": "File:Grekov 18 Timofey Dmitrievich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 0,
+      "col": 4,
+      "kind": "painted",
+      "sitter": "И. В. Сабанеев",
+      "ge": "ГЭ-7855",
+      "commonsTitle": "File:Sabaneev Ivan Vasiljevich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 1,
+      "col": 4,
+      "kind": "painted",
+      "sitter": "Ф. В. Сазонов 2-й",
+      "ge": "ГЭ-8119",
+      "commonsTitle": "File:Sazonov 2 Fyodor Wasiljevich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 2,
+      "col": 4,
+      "kind": "painted",
+      "sitter": "Д. В. Лялин",
+      "ge": "ГЭ-7979",
+      "commonsTitle": "File:Ljalin-dv.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 3,
+      "col": 4,
+      "kind": "painted",
+      "sitter": "А. П. Турчанинов 2-й",
+      "ge": "ГЭ-8045",
+      "commonsTitle": "File:Turchaninov 2 Andrey Petrovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 4,
+      "col": 4,
+      "kind": "painted",
+      "sitter": "П. В. Денисьев",
+      "ge": "ГЭ-8105",
+      "commonsTitle": "File:Denisyev 2 Pyotr Vasilyevich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 0,
+      "col": 5,
+      "kind": "painted",
+      "sitter": "М. С. Воронцов",
+      "ge": "ГЭ-7850",
+      "commonsTitle": "File:Dawe, Mikhail Vorontsov.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 1,
+      "col": 5,
+      "kind": "painted",
+      "sitter": "С. Д. Панчулидзев 2-й",
+      "ge": "ГЭ-7916",
+      "commonsTitle": "File:Panchulidzev 2 Semyon Davydovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 2,
+      "col": 5,
+      "kind": "painted",
+      "sitter": "П. Г. Лихачёв",
+      "ge": "ГЭ-7919",
+      "commonsTitle": "File:Lihachyov Pyotr Gavrilovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 3,
+      "col": 5,
+      "kind": "painted",
+      "sitter": "А. Э. Пейкер",
+      "ge": "ГЭ-8046",
+      "commonsTitle": "File:Peyker Alexandr Emmanuilovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 4,
+      "col": 5,
+      "kind": "silk",
+      "sitter": "А. И. Балла",
+      "ge": null,
+      "commonsTitle": null
+    },
+    {
+      "wall": "B",
+      "row": 0,
+      "col": 6,
+      "kind": "painted",
+      "sitter": "А. Ф. Ланжерон",
+      "ge": "ГЭ-7821",
+      "commonsTitle": "File:Langeron A F.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 1,
+      "col": 6,
+      "kind": "painted",
+      "sitter": "И. О. Витт",
+      "ge": "ГЭ-7983",
+      "commonsTitle": "File:Witte Ivan Osipovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 2,
+      "col": 6,
+      "kind": "painted",
+      "sitter": "А. И. Бистром 2-й",
+      "ge": "ГЭ-7981",
+      "commonsTitle": "File:Adam Bistrom.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 3,
+      "col": 6,
+      "kind": "painted",
+      "sitter": "Н. А. Чичерин 1-й",
+      "ge": "ГЭ-7918",
+      "commonsTitle": "File:Chicherin 1 Nikolay Alexandrovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 4,
+      "col": 6,
+      "kind": "painted",
+      "sitter": "А. И. Красовский",
+      "ge": "ГЭ-8107",
+      "commonsTitle": "File:Krasovsky Afanasy Ivanovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 0,
+      "col": 7,
+      "kind": "painted",
+      "sitter": "В. И. Каблуков 2-й",
+      "ge": "ГЭ-8120",
+      "commonsTitle": "File:Kablukov 2 Vladimir Ivanovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 1,
+      "col": 7,
+      "kind": "painted",
+      "sitter": "Б. М. Берг 2-й",
+      "ge": "ГЭ-7917",
+      "commonsTitle": "File:Berg 2 Burhard Maximobich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 2,
+      "col": 7,
+      "kind": "painted",
+      "sitter": "В. И. Гарпе",
+      "ge": "ГЭ-7982",
+      "commonsTitle": "File:Garpe Vasily Ivanovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 3,
+      "col": 7,
+      "kind": "painted",
+      "sitter": "И. Б. Ререн",
+      "ge": "ГЭ-8048",
+      "commonsTitle": "File:Reren Ivan Bogdanovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 4,
+      "col": 7,
+      "kind": "silk",
+      "sitter": "А. М. Всеволожский",
+      "ge": null,
+      "commonsTitle": null
+    },
+    {
+      "wall": "B",
+      "row": 0,
+      "col": 8,
+      "kind": "painted",
+      "sitter": "Ф. Н. Посников",
+      "ge": "ГЭ-8057",
+      "commonsTitle": "File:Posnikov Fyodor Nikolaevich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 1,
+      "col": 8,
+      "kind": "painted",
+      "sitter": "Ф. Е. Книпер",
+      "ge": "ГЭ-8047",
+      "commonsTitle": "File:Knyper Fyodor Evstafievich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 2,
+      "col": 8,
+      "kind": "painted",
+      "sitter": "А. А. Бибиков",
+      "ge": "ГЭ-7915",
+      "commonsTitle": "File:Bibikov Alexandr Alexandrovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 3,
+      "col": 8,
+      "kind": "painted",
+      "sitter": "М. Л. Трескин",
+      "ge": "ГЭ-8055",
+      "commonsTitle": "File:Treskin Mihail Lvovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 4,
+      "col": 8,
+      "kind": "painted",
+      "sitter": "А. И. Марков 2-й",
+      "ge": "ГЭ-8109",
+      "commonsTitle": "File:Markov 2 Alexandr Ivanovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 0,
+      "col": 9,
+      "kind": "painted",
+      "sitter": "А. С. Шульгин",
+      "ge": "ГЭ-8121",
+      "commonsTitle": "File:Shulgin Alexandr Sergeevich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 1,
+      "col": 9,
+      "kind": "painted",
+      "sitter": "А. И. Бартоломей",
+      "ge": "ГЭ-8108",
+      "commonsTitle": "File:Bartolomey Alexey Ivanovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 2,
+      "col": 9,
+      "kind": "painted",
+      "sitter": "А. Т. Маслов",
+      "ge": "ГЭ-7991",
+      "commonsTitle": "File:Maslov Andrey Timofeevich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 3,
+      "col": 9,
+      "kind": "painted",
+      "sitter": "И. К. Соколовский",
+      "ge": "ГЭ-8056",
+      "commonsTitle": "File:Sokolovsky Iosif Karlovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 4,
+      "col": 9,
+      "kind": "painted",
+      "sitter": "М. Н. Мацнев",
+      "ge": "ГЭ-8110",
+      "commonsTitle": "File:Macnev Mihail Nikolaevich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 0,
+      "col": 10,
+      "kind": "painted",
+      "sitter": "А. Г. Щербатов 1-й",
+      "ge": "ГЭ-7854",
+      "commonsTitle": "File:Scherbatov 1 Alexey Grigoryevich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 1,
+      "col": 10,
+      "kind": "painted",
+      "sitter": "П. П. Шрейдер",
+      "ge": "ГЭ-7978",
+      "commonsTitle": "File:Shreyder Pyotr Petrovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 2,
+      "col": 10,
+      "kind": "painted",
+      "sitter": "Ф. В. Ридигер",
+      "ge": "ГЭ-7992",
+      "commonsTitle": "File:Ridiger Fyodor Vasilyevich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 3,
+      "col": 10,
+      "kind": "painted",
+      "sitter": "С. В. Дятков",
+      "ge": "ГЭ-7926",
+      "commonsTitle": "File:Dyatkov Stepan Vasilyevich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 4,
+      "col": 10,
+      "kind": "painted",
+      "sitter": "Г. Х. Шеле",
+      "ge": "ГЭ-8111",
+      "commonsTitle": "File:Shele Gustav Hristianovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 0,
+      "col": 11,
+      "kind": "painted",
+      "sitter": "Д. А. Левин",
+      "ge": "ГЭ-8071",
+      "commonsTitle": "File:Levin Dmitry Andreevich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 1,
+      "col": 11,
+      "kind": "painted",
+      "sitter": "П. И. Балабин",
+      "ge": "ГЭ-8058",
+      "commonsTitle": "File:Balabin Pyotr Ivanovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 2,
+      "col": 11,
+      "kind": "painted",
+      "sitter": "И. Л. Поль",
+      "ge": "ГЭ-7993",
+      "commonsTitle": "File:Pol Ivan Lavrentyevich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 3,
+      "col": 11,
+      "kind": "painted",
+      "sitter": "С. Я. Репнинский 2-й",
+      "ge": "ГЭ-7922",
+      "commonsTitle": "File:Repninsky 2 Sergey Yakovlevich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 4,
+      "col": 11,
+      "kind": "painted",
+      "sitter": "А. В. Богдановский",
+      "ge": "ГЭ-8118",
+      "commonsTitle": "File:Bogdanovsky Andrey Vasilyevich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 0,
+      "col": 12,
+      "kind": "painted",
+      "sitter": "И. К. Орурк",
+      "ge": "ГЭ-7862",
+      "commonsTitle": "File:O'Rourke Joseph Cornelius.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 1,
+      "col": 12,
+      "kind": "painted",
+      "sitter": "Е. Ф. Керн",
+      "ge": "ГЭ-7995",
+      "commonsTitle": "File:Kern Ermolay Fyodorovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 2,
+      "col": 12,
+      "kind": "painted",
+      "sitter": "Г. Д. Иловайский 9-й",
+      "ge": "ГЭ-7994",
+      "commonsTitle": "File:Ilovaisky 9 Grigory Dmitrievich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 3,
+      "col": 12,
+      "kind": "silk",
+      "sitter": "Ф. П. Наний",
+      "ge": null,
+      "commonsTitle": null
+    },
+    {
+      "wall": "B",
+      "row": 4,
+      "col": 12,
+      "kind": "painted",
+      "sitter": "Н. В. Иловайский 5-й",
+      "ge": "ГЭ-7851",
+      "commonsTitle": "File:Ilovaisky 5 Nikolay Wasilyevich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 0,
+      "col": 13,
+      "kind": "painted",
+      "sitter": "Н. И. Депрерадович",
+      "ge": "ГЭ-7863",
+      "commonsTitle": "File:Depreradovich Nikolay Ivanovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 1,
+      "col": 13,
+      "kind": "painted",
+      "sitter": "А. С. Чаликов",
+      "ge": "ГЭ-7929",
+      "commonsTitle": "File:Chalikov Anton Stepanovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 2,
+      "col": 13,
+      "kind": "painted",
+      "sitter": "О. В. Иловайский 10-й",
+      "ge": "ГЭ-8079",
+      "commonsTitle": "File:Ilovaisky 10 Osip Wasilyevich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 3,
+      "col": 13,
+      "kind": "painted",
+      "sitter": "О. И. Бухгольц",
+      "ge": "ГЭ-7941",
+      "commonsTitle": "File:Buhgolts Otto Ivanovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 4,
+      "col": 13,
+      "kind": "painted",
+      "sitter": "К. Ф. Казачковский",
+      "ge": "ГЭ-7853",
+      "commonsTitle": "File:Kazachkovsky Kirill Fyodorovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 0,
+      "col": 14,
+      "kind": "painted",
+      "sitter": "П. Ф. Желтухин 2-й",
+      "ge": "ГЭ-8010",
+      "commonsTitle": "File:Zheltukhin-2 Peter.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 1,
+      "col": 14,
+      "kind": "painted",
+      "sitter": "П. Е. Бенардос",
+      "ge": "ГЭ-7930",
+      "commonsTitle": "File:Benardos Panteleymon Egorovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 2,
+      "col": 14,
+      "kind": "painted",
+      "sitter": "П. А. Кикин",
+      "ge": "ГЭ-7996",
+      "commonsTitle": "File:Kikin Petr 1812.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 3,
+      "col": 14,
+      "kind": "painted",
+      "sitter": "М. М. Волков",
+      "ge": "ГЭ-8060",
+      "commonsTitle": "File:Volkov Mihail Mihailovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 4,
+      "col": 14,
+      "kind": "painted",
+      "sitter": "И. А. Хрущов",
+      "ge": "ГЭ-7914",
+      "commonsTitle": "File:Hruschov Ivan Alexeevich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 0,
+      "col": 15,
+      "kind": "painted",
+      "sitter": "Д. А. Делянов",
+      "ge": "ГЭ-8069",
+      "commonsTitle": "File:Delyanov David Artemyevich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 1,
+      "col": 15,
+      "kind": "painted",
+      "sitter": "А. И. Альбрехт",
+      "ge": "ГЭ-8123",
+      "commonsTitle": "File:Albrecht Alexander Ivanovitch.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 2,
+      "col": 15,
+      "kind": "painted",
+      "sitter": "И. Ф. Чернозубов",
+      "ge": "ГЭ-7997",
+      "commonsTitle": "File:Chernozubov Ilya Fyodorovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 3,
+      "col": 15,
+      "kind": "painted",
+      "sitter": "А. П. Засс 2-й",
+      "ge": "ГЭ-7825",
+      "commonsTitle": "File:Zass Andrey Pavlovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 4,
+      "col": 15,
+      "kind": "painted",
+      "sitter": "И. Г. Гейденрейх",
+      "ge": "ГЭ-8049",
+      "commonsTitle": "File:Geydenrejh Ivan Grigoryevich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 0,
+      "col": 16,
+      "kind": "painted",
+      "sitter": "Г. В. Жомини",
+      "ge": "ГЭ-7866",
+      "commonsTitle": "File:Jomini Antoine-Henri.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 1,
+      "col": 16,
+      "kind": "painted",
+      "sitter": "К. М. Полторацкий",
+      "ge": "ГЭ-8034",
+      "commonsTitle": "File:Poltoratsky Konstantin Markovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 2,
+      "col": 16,
+      "kind": "painted",
+      "sitter": "Н. С. Сулима",
+      "ge": "ГЭ-8126",
+      "commonsTitle": "File:Sulima Nikolay Semyonovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 3,
+      "col": 16,
+      "kind": "painted",
+      "sitter": "И. Е. Шевич",
+      "ge": "ГЭ-7865",
+      "commonsTitle": "File:Shevich Ivan Egorovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 4,
+      "col": 16,
+      "kind": "painted",
+      "sitter": "И. И. Палицын",
+      "ge": "ГЭ-7931",
+      "commonsTitle": "File:Palicyn Ivan Ivanovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 0,
+      "col": 17,
+      "kind": "painted",
+      "sitter": "И. А. Ливен",
+      "ge": "ГЭ-7867",
+      "commonsTitle": "File:Lieven 3 Ivan Andreevich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 1,
+      "col": 17,
+      "kind": "painted",
+      "sitter": "Л. А. Денисьев",
+      "ge": "ГЭ-7939",
+      "commonsTitle": "File:Denisyev 1 Luka Alexeevich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 2,
+      "col": 17,
+      "kind": "silk",
+      "sitter": "И. Д. Иванов",
+      "ge": null,
+      "commonsTitle": null
+    },
+    {
+      "wall": "B",
+      "row": 3,
+      "col": 17,
+      "kind": "painted",
+      "sitter": "И. В. Аргамаков 1-й",
+      "ge": "ГЭ-8070",
+      "commonsTitle": "File:Argamakov 1 Ivan Vasilyevich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 4,
+      "col": 17,
+      "kind": "painted",
+      "sitter": "О. Ф. Долон",
+      "ge": "ГЭ-8124",
+      "commonsTitle": "File:Dolon Osip Francevich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 0,
+      "col": 18,
+      "kind": "painted",
+      "sitter": "А. Н. Бахметев 3-й",
+      "ge": "ГЭ-7870",
+      "commonsTitle": "File:Bahmetyev 3 Alexey Nikolaevich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 1,
+      "col": 18,
+      "kind": "painted",
+      "sitter": "Ф. И. Талызин 1-й",
+      "ge": "ГЭ-7940",
+      "commonsTitle": "File:Talyzin 1 Fyodor Ivanovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 2,
+      "col": 18,
+      "kind": "painted",
+      "sitter": "М. Ф. Наумов",
+      "ge": "ГЭ-8006",
+      "commonsTitle": "File:Naumov Mihail Fyodorovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 3,
+      "col": 18,
+      "kind": "silk",
+      "sitter": "С. Э. Жевахов",
+      "ge": null,
+      "commonsTitle": null
+    },
+    {
+      "wall": "B",
+      "row": 4,
+      "col": 18,
+      "kind": "painted",
+      "sitter": "Е. А. Ахте",
+      "ge": "ГЭ-8132",
+      "commonsTitle": "File:Ahte Egor Andreevich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 0,
+      "col": 19,
+      "kind": "painted",
+      "sitter": "Ф. О. Паулуччи",
+      "ge": "ГЭ-7839",
+      "commonsTitle": "File:PhilippoPaulucci.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 1,
+      "col": 19,
+      "kind": "painted",
+      "sitter": "Ф. И. Мосолов",
+      "ge": "ГЭ-8059",
+      "commonsTitle": "File:Mosolov Fyodor Ivanovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 2,
+      "col": 19,
+      "kind": "painted",
+      "sitter": "Е. Е. Штаден",
+      "ge": "ГЭ-8007",
+      "commonsTitle": "File:Shtaden Evstafy Evstafyevich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 3,
+      "col": 19,
+      "kind": "painted",
+      "sitter": "Е. И. Меллер-Закомельский",
+      "ge": "ГЭ-7861",
+      "commonsTitle": "File:Meller-Zakomelsky Egor Ivanovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 4,
+      "col": 19,
+      "kind": "silk",
+      "sitter": "Н. И. Лавров",
+      "ge": null,
+      "commonsTitle": null
+    },
+    {
+      "wall": "B",
+      "row": 0,
+      "col": 20,
+      "kind": "painted",
+      "sitter": "Д. В. Васильчиков 2-й",
+      "ge": "ГЭ-8009",
+      "commonsTitle": "File:Vasilchikov 2 Dmitry Vasilyevich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 1,
+      "col": 20,
+      "kind": "painted",
+      "sitter": "И. М. Дука",
+      "ge": "ГЭ-7877",
+      "commonsTitle": "File:Duka Ilya Michailovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 2,
+      "col": 20,
+      "kind": "painted",
+      "sitter": "В. Г. Костенецкий",
+      "ge": "ГЭ-7942",
+      "commonsTitle": "File:Kostenetskiy.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 3,
+      "col": 20,
+      "kind": "painted",
+      "sitter": "С. Х. Ставраков",
+      "ge": "ГЭ-8008",
+      "commonsTitle": "File:Stavrakov Semyon Hristoforovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 4,
+      "col": 20,
+      "kind": "painted",
+      "sitter": "А. П. Кутузов",
+      "ge": "ГЭ-8072",
+      "commonsTitle": "File:Kutuzov A P.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 0,
+      "col": 21,
+      "kind": "painted",
+      "sitter": "Александр Вюртембергский",
+      "ge": "ГЭ-7812",
+      "commonsTitle": "File:Wurtemberg Alexander.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 1,
+      "col": 21,
+      "kind": "painted",
+      "sitter": "Ф. Ф. Довре",
+      "ge": "ГЭ-8138",
+      "commonsTitle": "File:Dovre Fyodor Filippovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 2,
+      "col": 21,
+      "kind": "painted",
+      "sitter": "П. А. Филисов",
+      "ge": "ГЭ-7943",
+      "commonsTitle": "File:Filisov Pavel Andreevich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 3,
+      "col": 21,
+      "kind": "painted",
+      "sitter": "И. П. Россий",
+      "ge": "ГЭ-7928",
+      "commonsTitle": "File:Rossy Ignaty Petrovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 4,
+      "col": 21,
+      "kind": "painted",
+      "sitter": "А. С. Кологривов",
+      "ge": "ГЭ-8077",
+      "commonsTitle": "File:Kologrivov Alexey Semyonovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 0,
+      "col": 22,
+      "kind": "painted",
+      "sitter": "П. К. Сухтелен 1-й",
+      "ge": "ГЭ-7811",
+      "commonsTitle": "File:Sukhtelen 1 Pyotr Kornilovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 1,
+      "col": 22,
+      "kind": "painted",
+      "sitter": "П. А. Козен",
+      "ge": "ГЭ-8035",
+      "commonsTitle": "File:Kozen Petr Andreevich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 2,
+      "col": 22,
+      "kind": "painted",
+      "sitter": "Н. Г. Щербатов 2-й",
+      "ge": "ГЭ-8078",
+      "commonsTitle": "File:Scherbatov 2 Nikolay Grigoryevich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 3,
+      "col": 22,
+      "kind": "painted",
+      "sitter": "И. Д. Панчулидзев 1-й",
+      "ge": "ГЭ-7883",
+      "commonsTitle": "File:Panchulidzev 1 Ivan Davydovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 4,
+      "col": 22,
+      "kind": "painted",
+      "sitter": "А. Б. Фок",
+      "ge": "ГЭ-7944",
+      "commonsTitle": "File:Fok 2 Alexandr Borisovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 0,
+      "col": 23,
+      "kind": "painted",
+      "sitter": "Н. М. Бороздин",
+      "ge": "ГЭ-7885",
+      "commonsTitle": "File:Borozdin 2 Nikolay Mikhailovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 1,
+      "col": 23,
+      "kind": "painted",
+      "sitter": "Д. П. Резвой",
+      "ge": "ГЭ-7903",
+      "commonsTitle": "File:Rezvyj Dmitry Pertovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 2,
+      "col": 23,
+      "kind": "painted",
+      "sitter": "Х. И. Трузсон",
+      "ge": "ГЭ-7826",
+      "commonsTitle": "File:Truzson Hristian Ivanovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 3,
+      "col": 23,
+      "kind": "painted",
+      "sitter": "А. П. Никитин",
+      "ge": "ГЭ-8017",
+      "commonsTitle": "File:Nikitin Alexey Petrovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 4,
+      "col": 23,
+      "kind": "painted",
+      "sitter": "Н. В. Кретов",
+      "ge": "ГЭ-7884",
+      "commonsTitle": "File:Kretov Nikolay Vasilyevich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 0,
+      "col": 24,
+      "kind": "painted",
+      "sitter": "Д. В. Голицын",
+      "ge": "ГЭ-7832",
+      "commonsTitle": "File:Dmitriy Vladimirovich Golitsyn.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 1,
+      "col": 24,
+      "kind": "painted",
+      "sitter": "С. С. Андреевский",
+      "ge": "ГЭ-8086",
+      "commonsTitle": "File:Andreevsky Stepan Stepanovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 2,
+      "col": 24,
+      "kind": "painted",
+      "sitter": "Н. В. Дехтерев",
+      "ge": "ГЭ-7952",
+      "commonsTitle": "File:Dehterev Nikolay Vasilyevich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 3,
+      "col": 24,
+      "kind": "painted",
+      "sitter": "М. А. Арсеньев",
+      "ge": "ГЭ-8018",
+      "commonsTitle": "File:Arsenyev Mihail Andreevich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 4,
+      "col": 24,
+      "kind": "painted",
+      "sitter": "И. Н. Галатте",
+      "ge": "ГЭ-8080",
+      "commonsTitle": "File:Galatte Iosif Nikolaevich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 0,
+      "col": 25,
+      "kind": "painted",
+      "sitter": "И. Ф. Паскевич",
+      "ge": "ГЭ-7888",
+      "commonsTitle": "File:Иван Федорович Паскевич.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 1,
+      "col": 25,
+      "kind": "painted",
+      "sitter": "Ф. К. Корф",
+      "ge": "ГЭ-7868",
+      "commonsTitle": "File:Korf Fyodor Karlovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 2,
+      "col": 25,
+      "kind": "painted",
+      "sitter": "А. А. Башилов",
+      "ge": "ГЭ-7953",
+      "commonsTitle": "File:Bashilov Alexandr Alexandrovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 3,
+      "col": 25,
+      "kind": "painted",
+      "sitter": "Б. Б. Гельфрейх",
+      "ge": "ГЭ-7886",
+      "commonsTitle": "File:Gelfrejh Bogdan Borisovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 4,
+      "col": 25,
+      "kind": "painted",
+      "sitter": "Е. И. Властов",
+      "ge": "ГЭ-7910",
+      "commonsTitle": "File:Vlastov Egor Ivanovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 0,
+      "col": 26,
+      "kind": "painted",
+      "sitter": "Г. А. Эммануэль",
+      "ge": "ГЭ-7892",
+      "commonsTitle": "File:EmmanuelGA.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 1,
+      "col": 26,
+      "kind": "painted",
+      "sitter": "К. Х. Бенкендорф",
+      "ge": "ГЭ-8133",
+      "commonsTitle": "File:Konstantin von Benckendorff.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 2,
+      "col": 26,
+      "kind": "painted",
+      "sitter": "Н. Н. Хованский",
+      "ge": "ГЭ-7954",
+      "commonsTitle": "File:Hovansky Nikolay Nikolaevich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 3,
+      "col": 26,
+      "kind": "painted",
+      "sitter": "П. К. Эссен 3-й",
+      "ge": "ГЭ-7823",
+      "commonsTitle": "File:EssenPK.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 4,
+      "col": 26,
+      "kind": "painted",
+      "sitter": "Н. Ф. Емельянов",
+      "ge": "ГЭ-8082",
+      "commonsTitle": "File:Emelyanov Nikolay Filippovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 0,
+      "col": 27,
+      "kind": "painted",
+      "sitter": "В. В. Левашов",
+      "ge": "ГЭ-8020",
+      "commonsTitle": "File:Levashov V V.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 1,
+      "col": 27,
+      "kind": "painted",
+      "sitter": "К. Ф. Толь",
+      "ge": "ГЭ-7889",
+      "commonsTitle": "File:Karl Wilhelm von Toll.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 2,
+      "col": 27,
+      "kind": "painted",
+      "sitter": "М. К. Крыжановский",
+      "ge": "ГЭ-8031",
+      "commonsTitle": "File:Kryzhanovsky Maxim Konstantinovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 3,
+      "col": 27,
+      "kind": "painted",
+      "sitter": "Н. Д. Кудашев",
+      "ge": "ГЭ-8137",
+      "commonsTitle": "File:Kudashev Nikolay Danilovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 4,
+      "col": 27,
+      "kind": "painted",
+      "sitter": "М. И. Дамас",
+      "ge": "ГЭ-8083",
+      "commonsTitle": "File:Ange Hyacinthe Maxence de Damas.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 0,
+      "col": 28,
+      "kind": "painted",
+      "sitter": "А. И. Горчаков 2-й",
+      "ge": "ГЭ-7824",
+      "commonsTitle": "File:Gorchakov 2 Andrey Ivanovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 1,
+      "col": 28,
+      "kind": "painted",
+      "sitter": "В. Д. Лаптев",
+      "ge": "ГЭ-7950",
+      "commonsTitle": "File:Laptev Wasily Danilovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 2,
+      "col": 28,
+      "kind": "painted",
+      "sitter": "А. П. Урусов",
+      "ge": "ГЭ-7956",
+      "commonsTitle": "File:Urusov 2 Alexandr Petrovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 3,
+      "col": 28,
+      "kind": "painted",
+      "sitter": "И. С. Жевахов",
+      "ge": "ГЭ-8021",
+      "commonsTitle": "File:Zhevakov 1 Ivan Semyonovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 4,
+      "col": 28,
+      "kind": "painted",
+      "sitter": "Л. О. Рот",
+      "ge": "ГЭ-7900",
+      "commonsTitle": "File:Roth Loggin Osipovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 0,
+      "col": 29,
+      "kind": "painted",
+      "sitter": "Д. В. Шуханов",
+      "ge": "ГЭ-8102",
+      "commonsTitle": "File:Shuhanov Daniil Vasilyevich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 1,
+      "col": 29,
+      "kind": "painted",
+      "sitter": "Е. Ф. Сталь 2-й",
+      "ge": "ГЭ-8100",
+      "commonsTitle": "File:Stal 2 Egor Fyodorovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 2,
+      "col": 29,
+      "kind": "painted",
+      "sitter": "А. Н. Бердяев",
+      "ge": "ГЭ-7957",
+      "commonsTitle": "File:Berdyaev Akexandr Nikolaevich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 3,
+      "col": 29,
+      "kind": "painted",
+      "sitter": "А. С. Жемчужников",
+      "ge": "ГЭ-8029",
+      "commonsTitle": "File:Zhemchuzhnikovas.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 4,
+      "col": 29,
+      "kind": "silk",
+      "sitter": "А. А. Юрковский",
+      "ge": null,
+      "commonsTitle": null
+    },
+    {
+      "wall": "B",
+      "row": 0,
+      "col": 30,
+      "kind": "painted",
+      "sitter": "Д. М. Юзефович",
+      "ge": "ГЭ-8019",
+      "commonsTitle": "File:Yuzefovich Dmitry Mihailovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 1,
+      "col": 30,
+      "kind": "painted",
+      "sitter": "М. И. Мезенцев 2-й",
+      "ge": "ГЭ-8073",
+      "commonsTitle": "File:Mezencev 2 Mihail Ivanovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 2,
+      "col": 30,
+      "kind": "painted",
+      "sitter": "Е. А. Головин",
+      "ge": "ГЭ-8096",
+      "commonsTitle": "File:Golovin Yevgeny Alexandrovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 3,
+      "col": 30,
+      "kind": "painted",
+      "sitter": "А. А. Писарев",
+      "ge": "ГЭ-8030",
+      "commonsTitle": "File:Pisarev Alexandr Alexandrovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 4,
+      "col": 30,
+      "kind": "painted",
+      "sitter": "Н. М. Сипягин",
+      "ge": "ГЭ-8093",
+      "commonsTitle": "File:Sipyagin Nikolay Martemyanovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 0,
+      "col": 31,
+      "kind": "painted",
+      "sitter": "А. Л. Воинов",
+      "ge": "ГЭ-8139",
+      "commonsTitle": "File:Voinov Alexandr Lvovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 1,
+      "col": 31,
+      "kind": "painted",
+      "sitter": "К. К. Сиверс 1-й",
+      "ge": "ГЭ-7849",
+      "commonsTitle": "File:Sievers 1 Karl Karlovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 2,
+      "col": 31,
+      "kind": "painted",
+      "sitter": "А. Ю. Гамен",
+      "ge": "ГЭ-7966",
+      "commonsTitle": "File:Gamen Alexey Yurjevich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 3,
+      "col": 31,
+      "kind": "painted",
+      "sitter": "Ф. И. Сандерс",
+      "ge": "ГЭ-7955",
+      "commonsTitle": "File:Sanders Fyodor Ivanovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 4,
+      "col": 31,
+      "kind": "painted",
+      "sitter": "К. М. Герцдорф",
+      "ge": "ГЭ-7905",
+      "commonsTitle": "File:Gersdorff Karl Maximovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 0,
+      "col": 32,
+      "kind": "painted",
+      "sitter": "Ф. Ф. Штейнгель",
+      "ge": "ГЭ-7835",
+      "commonsTitle": "File:Fabian F. von Steinheil.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 1,
+      "col": 32,
+      "kind": "painted",
+      "sitter": "А. В. Иловайский 3-й",
+      "ge": "ГЭ-7901",
+      "commonsTitle": "File:Ilovaisky 3 Alexey Wasilyevich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 2,
+      "col": 32,
+      "kind": "painted",
+      "sitter": "Ф. Ф. Винцингероде",
+      "ge": "ГЭ-7830",
+      "commonsTitle": "File:Vinzingerode.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 3,
+      "col": 32,
+      "kind": "painted",
+      "sitter": "П. И. Нейдгардт",
+      "ge": "ГЭ-8032",
+      "commonsTitle": "File:Neydgardt Pavel Ivanovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 4,
+      "col": 32,
+      "kind": "painted",
+      "sitter": "В. П. Оболенский",
+      "ge": "ГЭ-8095",
+      "commonsTitle": "File:Obolensky Vasily Petrovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 0,
+      "col": 33,
+      "kind": "painted",
+      "sitter": "Д. М. Мордвинов",
+      "ge": "ГЭ-8039",
+      "commonsTitle": "File:Mordvinov Dmitry Michailovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 1,
+      "col": 33,
+      "kind": "painted",
+      "sitter": "А. Ф. Щербатов",
+      "ge": "ГЭ-7902",
+      "commonsTitle": "File:Scherbatov Alexandr Fyodorovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 2,
+      "col": 33,
+      "kind": "painted",
+      "sitter": "А. С. Уманец",
+      "ge": "ГЭ-7967",
+      "commonsTitle": "File:Umanets Andrey Semyonovich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 3,
+      "col": 33,
+      "kind": "painted",
+      "sitter": "Н. В. Васильчиков 3-й",
+      "ge": "ГЭ-8033",
+      "commonsTitle": "File:Vasilchikov 3 Nikolay Vasilyevich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 4,
+      "col": 33,
+      "kind": "painted",
+      "sitter": "М. А. Шкапский",
+      "ge": "ГЭ-7965",
+      "commonsTitle": "File:Shkapsky Mihail Andreevich.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 0,
+      "col": 34,
+      "kind": "painted",
+      "sitter": "А. П. Ермолов",
+      "ge": "ГЭ-7876",
+      "commonsTitle": "File:Alexei-jermolov.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 1,
+      "col": 34,
+      "kind": "painted",
+      "sitter": "А. Н. Сеславин",
+      "ge": "ГЭ-8092",
+      "commonsTitle": "File:Seslavin Alexandr Nikitich 1812.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 2,
+      "col": 34,
+      "kind": "painted",
+      "sitter": "Д. С. Дохтуров",
+      "ge": "ГЭ-7815",
+      "commonsTitle": "File:Dmitry Sergeyevich Dokhturov.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 3,
+      "col": 34,
+      "kind": "painted",
+      "sitter": "А. А. Тучков 4-й",
+      "ge": "ГЭ-7961",
+      "commonsTitle": "File:Tuchkov-4th A A by Daw.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 0,
+      "col": 36,
+      "kind": "painted",
+      "sitter": "П. И. Багратион",
+      "ge": "ГЭ-7818",
+      "commonsTitle": "File:George Dawe - Portrait of General Pyotr Bagration (1765-1812) - Google Art Project.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 1,
+      "col": 36,
+      "kind": "painted",
+      "sitter": "Д. В. Давыдов 2-й",
+      "ge": "ГЭ-8130",
+      "commonsTitle": "File:Denis-Davydov.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 2,
+      "col": 36,
+      "kind": "painted",
+      "sitter": "Ф. П. Уваров",
+      "ge": "ГЭ-7829",
+      "commonsTitle": "File:Uvarov Fedor.jpg"
+    },
+    {
+      "wall": "B",
+      "row": 3,
+      "col": 36,
+      "kind": "painted",
+      "sitter": "Я. П. Кульнев",
+      "ge": "ГЭ-7962",
+      "commonsTitle": "File:Kulnev.jpg"
+    }
+  ],
+  "anchors": {
+    "portal": {
+      "sitter": "Александр I",
+      "artist": "Franz Krüger",
+      "year": 1837,
+      "ge": "ГЭ-7804",
+      "commonsTitle": "File:Alexander I of Russia by F.Kruger (1837, Hermitage).jpg"
+    },
+    "westAlly": {
+      "sitter": "Франц I",
+      "artist": "Peter Krafft",
+      "year": 1832,
+      "ge": "ГЭ-7805",
+      "commonsTitle": "File:Franz II. (HRR) Eremitage St. Petersburg.JPG"
+    },
+    "eastAlly": {
+      "sitter": "Фридрих Вильгельм III",
+      "artist": "Franz Krüger",
+      "year": 1830,
+      "ge": "ГЭ-7806",
+      "commonsTitle": "File:Frid-Wil III Kruger.jpg"
+    },
+    "northPair": [
+      {
+        "sitter": "Кутузов, Михаил Илларионович",
+        "artist": "George Dawe",
+        "ge": "ГЭ-7808",
+        "commonsTitle": "File:Kutuzov2 by Daw.jpg"
+      },
+      {
+        "sitter": "Барклай де Толли, Михаил Богданович",
+        "artist": "George Dawe",
+        "ge": null,
+        "commonsTitle": "File:Barclay de Tolly (Dawe).jpg"
+      }
+    ]
+  },
+  "uncertain": [
+    {
+      "ref": "northPair[1] (Барклай де Толли, полный рост)",
+      "missing": "ge",
+      "note": "Эрмитажный номер парадного портрета Барклая не документирован в доступных источниках: нет статьи в рувики (красная ссылка в «Развеска — 2»), нет элемента Викиданных (нет ни P18 «Barclay de Tolly (Dawe).jpg», ни sitelink). Номер ГЭ-7809 вероятен по последовательности торцовых/парадных холстов (ГЭ-7804 Александр I, 7805 Франц I, 7806 Фридрих Вильгельм III, 7807 Константин Павлович, 7808 Кутузов, 7810 Веллингтон), но это гипотеза, не документация."
+    },
+    {
+      "ref": "A (wall «Левая сторона») — Портрет Александра Ивановича Остермана-Толстого (S1, ряд 2-й, col 9)",
+      "missing": "ge+commonsTitle provenance",
+      "note": "У статьи «Портрет Александра Ивановича Остермана-Толстого» нет элемента Викиданных; номер ГЭ-7843 и файл Ostermann-tolstoi.jpg взяты только из инфобокса рувики (источник с 24 ошибками и 34 дублями номеров). Коллизий номера нет, но стоит перепроверить по Эрмитажу."
+    },
+    {
+      "ref": "B (wall «Правая сторона») — Портрет Карла Осиповича Поццо ди Борго (S2, ряд 2-й, col 8)",
+      "missing": "ge+commonsTitle provenance",
+      "note": "У статьи «Портрет Карла Осиповича Поццо ди Борго» нет элемента Викиданных; номер ГЭ-8053 и файл Pozzo di Borgo.jpg взяты только из инфобокса рувики. Коллизий номера нет, но стоит перепроверить по Эрмитажу."
+    }
+  ],
+  "notes": [
+    "ВАЖНО: в схемах рувики ровно 342 получпорта (329 живописных + 13 зелёного шёлка), а не 345 (332+13), как ожидал дизайн. Обе схемы вместе покрывают всю развеску: «Схема местоположения картин» — 156 кадров (2 шёлка), «Развеска — 2» — 186 кадров (11 шёлков), схемы не пересекаются (ни один портрет не повторяется). Использованы ОБЕ; записать 345 кадров из этого источника невозможно без выдумывания трёх живописных портретов.",
+    "Использованы обе схемы рувики «Военная галерея», ревизия 154665124 (2026-11-01): «Схема местоположения кадров» (первая) и «Развеска — 2». Первая схема начинается от середины галереи и кончается торцом с выходом в Георгиевский зал (нижняя подпись «Выход в Георгиевский зал» под «Левой стороной»), вторая начинается от противоположного торца («Правая сторона» второй схемы — та же георгиевская сторона, ряды идут к середине) — стык схем = середина каждой стены (cols 16/17).",
+    "Несоответствие схем и правки дизайна по большим холстам: в схемах полноростовые пары показаны у ОБОИХ торцов и не совпадают с правкой «дверная пара = Кутузов/Барклай». Схема 1 (у георгиевского торца): Константин Павлович (лев. стена) и Кутузов (прав. стена); схема 2 (у противоположного торца): Веллингтон (лев. стена) и Барклай (прав. стена). Т.е. по схемам Кутузов и Барклай висят у РАЗНЫХ дверей. Правка дизайна (дверная пара = Кутузов + Барклай) записана как есть в anchors.northPair; фактически в галерее, по текстам Эрмитажа, у выхода в Георгиевский зал висят именно Кутузов и Барклай, у противоположного — Веллингтон и Константин Павлович — т.е. схема, вероятно, путает распределение полноростовых по стенам.",
+    "Конные/торцовые холсты: в схеме 1 Франц I (Крафт) и Фридрих Вильгельм III (Крюгер) показаны рядом-строкой в СЕРЕДИНЕ таблицы (между 7-й и 8-й линиями кадров, ≈ col 9), а не на торцовых стенах; конный Александр I Крюгера показан над таблицей с подписью «в торце галереи». Дизайн разместил все три как торцовые (portal/westAlly/eastAlly) — записано по правке дизайна.",
+    "Ещё два полноростовых холста галереи не влезли в схему anchors (нет слотов), но есть в схемах рувики и Эрмитаже: Константин Павлович (Доу; фигура — Т. Райт, 1834), ГЭ-7807, File:Konstantin Pavlovich by G.Dawe (1834, Hermitage).jpg; Веллингтон (Доу, 1829), ГЭ-7810, File:Wellington by Daw.jpg.",
+    "Номера ГЭ: для 327 из 329 живописных кадров взяты P217 Викиданных (у всех есть ссылка на базу Эрмитажа; ряд без дубликатов). Инфобоксы рувики расходятся с Викиданными в 24 случаях — везде оставлен номер Викиданных (инфобоксные содержат 34 дублирующихся номера, напр. ГЭ-7810 у Кутузова в инфобоксе — это номер Веллингтона). Для Остермана-Толстого и Поццо ди Борго (нет элементов Викиданных) — номера из инфобоксов, помечены в uncertain.",
+    "Годы правых торцовых холстов: у Фридриха Вильгельма III дизайн дал 1830, Викиданные/Эрмитаж дают 1831 — оставлен 1830 по правке дизайна. Кутузов/Барклай (полный рост) — 1829 по статье рувики.",
+    "Файлы Викисклада: выбран самый детальный существующий файл (проверено imageinfo). В 11 кадрах у инфобокса и P18 разные файлы — выбран больший, альтернативы: Ожаровский (Ozharovsky.jpg), Волконский (George Dawe - Portrait of Pyotr M. Volkonsky - WGA6130.jpg), Милорадович (Miloradovich.jpg), Дамас (Damas M I.jpg), Герцдорф (Gercdorf Karl Maximovich.jpg), Штейнгель (Steinheil F F.jpg), Сеславин (Seslavin1812.jpg), Багратион (Bagration P I.jpg), Д. Давыдов (Denisdavydov.jpg), Рахманов (Rahmanov Vasily Sergeevich.jpg), Альбрехт (Albreht Alexandr Ivanovich.jpg). У Франца I альтернатива выбранного файла: File:Johann Peter Krafft - Equestrian Portrait of Franz I - WGA12272.jpg (880×1255 против 1349×1920).",
+    "У 7 кадров P18 Викиданных указывает на файл с тем же именем, но в другом регистре (не существует): реальный файл с заглавной буквы существует и использован (Багговут, Дорохов, Кутайсов, Лялин, Неверовский, Сухтелен, Винцингероде).",
+    "Геометрия торцовых зон: у обоих торцов 5-й (верхний) ряд отсутствует на крайних двух позициях каждой стены (cols 0,2 и 34,36 — только ряды 0–3), у позиций парных полноростовых (cols 1,35) полупортретных кадров нет вовсе. 13 шёлковых рам сидят в разных рядах/колонках — см. kind:\"silk\".",
+    "В галерее реально есть ещё 4 советских добавления (портреты Роты дворцовых гренадер: Лаврентьев, Ямник, Гетгорт, Акентьев) и 2 батальных полотна Гесса — в схемах рувики их нет, в файл не включены.",
+    "Направление отсчёта колонок «Правой стороны» (wall B) — интерпретация: нижняя подпись схемы 1 читается буквально («Выход в Георгиевский зал» под Левой стороной, «Выход в Гербовый зал» под Правой), поэтому список «Правой стороны» идёт от георгиевского торца к гербовому (col 0 = верх схемы 2). Альтернативное чтение (обе стороны списка идут в одну сторону, а подписи выхода — ошибочны) зеркалит col у wall B: тогда Багратион/Д. Давыдов/Кульнев (сейчас col 36 wall B) оказываются у георгиевского торца, а не у гербового. Данные записаны по буквальному чтению; для сверки: Багратион = B/row0/col36."
+  ]
+}

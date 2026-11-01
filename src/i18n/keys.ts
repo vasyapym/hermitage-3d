@@ -222,6 +222,14 @@ export type DataKey =
   | 'data.siblingNoteMillionnaya'
   | 'data.siblingNoteCentralPavilion';
 
-export type Key = ChromeKey | IndexKey | CaptionKey | NotesKey | DataKey;
+/**
+ * The credits surface (design-gallery-atlas-v2 §6.6): one key pair for the 1812 canvases'
+ * public-domain reproductions. No credits UI ships yet — the pair is added to the union and
+ * both dictionaries so parity and the RU-chunk budget carry it; ATTRIBUTIONS.md stays the
+ * legal surface until a credits list renders it.
+ */
+export type CreditsKey = 'credits.gallery1812.canvases';
+
+export type Key = ChromeKey | IndexKey | CaptionKey | NotesKey | DataKey | CreditsKey;
 
 export type Dictionary = Readonly<Record<Key, string>>;

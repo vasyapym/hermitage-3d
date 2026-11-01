@@ -12,3 +12,5 @@ probes/
 tools/fonts/.venv/
 .agent/
 __pycache__/
+.cache/
+out/

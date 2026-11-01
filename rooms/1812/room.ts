@@ -18,6 +18,7 @@
  * the whole scope in unmount.
  */
 
+import type { WebGLRenderer } from 'three';
 import {
   BufferAttribute,
   type BufferGeometry,
@@ -98,6 +99,12 @@ export const room: RoomModule = {
     const atlas = await ctx.assets.decodeRoomTexture(contract.id, payload, ATLAS_PATH);
     const texture = atlas as Texture;
     texture.colorSpace = SRGBColorSpace; // §2.4: the CANVAS law owns the albedo tagging
+    // §5.1 (atlas v2): grazing angles down the gallery dominate — anisotropy on the atlas
+    // only, capped at 8. The one src-side change of the round; zero bytes.
+    texture.anisotropy = Math.min(
+      8,
+      (ctx.renderer as WebGLRenderer).capabilities.getMaxAnisotropy(),
+    );
     merged = mergeKit(object, texture, ctx);
     if (whitePoint !== null) {
       // The baked path (R4): the sibling's, over two charts — one white point record serves

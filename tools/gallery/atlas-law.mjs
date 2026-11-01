@@ -1,46 +1,85 @@
 /*
- * Military Gallery portrait atlas — stand-in generator law (pure).
- * Implements docs/design-gallery.md §3.4 (grid, super-blocks, missing slot, gutter, inset)
- * and §3.5 (hash-keyed rasteriser); binds DEC-016 (toolchain pins), DEC-024 (pure JS,
- * byte-identical reruns) and DEC-030 (register row). Consumed by tools/gallery/atlas.mjs
- * (the only producer of the committed ktx2) and tests/gallery-atlas.test.ts.
+ * Military Gallery portrait atlas — generator law v2 (pure).
+ * Implements docs/design-gallery-atlas-v2.md §3 (constants, per-cell content law, silk tile
+ * law, tone policy pointer, mock-first gate) atop the v1 structure it carries forward
+ * (design-gallery.md §3.4/§3.5; DEC-016 toolchain pins, DEC-024 pure JS, DEC-030 register
+ * row). Consumed by tools/gallery/import.mjs (the only producer of the committed ktx2) and
+ * tests/gallery-atlas.test.ts.
  *
  * State laws:
- * - KEYING (the §3.4 "SLOT(i)" / §3.5 "for slot i" reading adopted here): the hash key `i` is
- *   the ATLAS CELL INDEX (row-major, 0 = top-left), not the roster rank. Cells without a rank
- *   (monarch blocks, spare cells, the missing slot) need a key too; one keying serves all.
- *   Consequence: content is glued to cells — if the roster law ever rebinds a frame to another
- *   cell the atlas bytes do not move; the frame shows that cell's stand-in.
- * - UNPAINTED REGIONS (§3.4 is silent): the 12 spare free cells (slots 344…355) and the missing
- *   slot 356 are NEUTRAL — gutter, hashed umber ground, vignette, brush noise, no figure. The
- *   never-a-cell strips (right 32 px, bottom 8 px) are flat GUTTER. Far mips then average toward
- *   the dark ground, the read §3.4 accepts.
- * - DETERMINISM: integer hashing (FNV-1a over the salt, murmur3 fmix32 avalanche), IEEE basic
- *   ops, Math.floor/Math.min/Math.abs/Math.imul only. Math.sin/cos/exp/pow/log and the
- *   exponent operator are forbidden: not bit-specified across engines, they would break the
- *   DEC-024 gate. The random source is never called (DEC-024).
- * - COLOUR: values are authored as 8-bit sRGB; noise, shading and vignette multiply the encoded
- *   values (painterly, not radiometric); toktx tags the texture --assign_oetf srgb.
+ * - KEYING (carried from v1 unchanged): the hash key `i` is the ATLAS CELL INDEX (row-major,
+ *   0 = top-left), not the roster rank. Cells without a rank (monarch blocks, spare cells,
+ *   the missing slot) need a key too; one keying serves all. The roster's rank → cell step
+ *   is the slot law below; no cell index is ever stored in roster.json or atlas.lock.json.
+ * - TILES (§3.8 mock-first gate): paintAtlas({ tiles }) takes a tile provider —
+ *   tiles(slot, rect) → { kind: 'image', rgba } | { kind: 'silk', key } | { kind: 'mock' }
+ *   | null for the CELL rect (w × h px, gutter included). The default provider is mockTiles:
+ *   v1-style procedural stand-ins via the hash law, the CI-pinned mode. The real composer
+ *   supplies image tiles from the lock + cache; silk and the neutral spare/missing paint are
+ *   identical in both modes, so the mock run exercises the whole law except the source pixels.
+ * - BAND LAW (§3.2, one law for every tile kind): the content region (cell inset by
+ *   SLOT_INSET_PX = gutter + inset on every side) carries the tile's pixels; the inset band
+ *   (4 px) is edge replication of the nearest content pixel (mips pull content, not gutter);
+ *   the gutter band (3 px) stays flat GUTTER_RGB, as in v1, widened. The never-a-cell strips
+ *   (right 48 px, bottom 12 px at 3072²) are flat GUTTER.
+ * - SILK (§3.4): 13 cells paint the procedural green-silk tile — the A/B weave is the 50/50
+ *   blend base, a horizontal sheen ramp darkens linearly to −10/255 at the content's edges,
+ *   hash noise ±3/255 is seeded with SALT_1812 + key, and a 2-px SILK_EDGE border runs
+ *   inside the content rect. Identical for all 13 tiles except the noise seed.
+ * - DETERMINISM (DEC-024): integer hashing (FNV-1a over the salt, murmur3 fmix32 avalanche),
+ *   IEEE basic ops, Math.floor/Math.ceil/Math.min/Math.abs/Math.imul only. Math.sin/cos/
+ *   tan/exp/pow/log and the exponent operator are forbidden: not bit-specified across
+ *   engines, they would break the gate. The random source is never called.
+ * - COLOUR: procedural values are authored as 8-bit sRGB and multiplied in encoded space
+ *   (painterly, not radiometric — v1's law, kept for the stand-ins and silk). The
+ *   photographic path (decode → crop → box-filter → tone) is linear-light integer law in
+ *   tools/gallery/resample.mjs (§3.2/§3.5); toktx tags the texture --assign_oetf srgb.
  * - OUTPUT: paintAtlas writes RGBA (alpha 255); encodePng emits colour type 2 (RGB) so ETC1S
- *   encodes one slice (an alpha slice would roughly double the payload), with a stored-only
- *   deflate stream written here, so PNG bytes depend on no zlib version.
+ *   encodes one slice, with a stored-only deflate stream written here, so PNG bytes depend
+ *   on no zlib version.
  */
-export const ATLAS_SIZE_PX = 2048;
+export const ATLAS_LAW_VERSION = 2;
+export const ATLAS_SIZE_PX = 3072;
 export const ATLAS_COLUMNS = 21;
 export const ATLAS_ROWS = 17;
-export const SLOT_W_PX = 96;
-export const SLOT_H_PX = 120;
-export const ATLAS_GUTTER_PX = 2;
-export const ATLAS_INSET_PX = 3;
+export const SLOT_W_PX = 144;
+export const SLOT_H_PX = 180;
+export const ATLAS_GUTTER_PX = 3;
+export const ATLAS_INSET_PX = 4;
 export const SUPER_BLOCK_SLOTS = 2;
 export const SUPER_BLOCK_COUNT = 3;
 export const MISSING_SLOT = 356;
 export const SLOT_COUNT = ATLAS_COLUMNS * ATLAS_ROWS;
 export const ROSTER_COUNT = 332;
-export const SALT_1812 = 'hermitage-3d/military-gallery-1812/portrait-atlas/v1';
+/** §3.1: the full chain 3072 → 1; toktx --genmipmap writes the same 12 levels. */
+export const MIP_LEVELS = 12;
+/** §3.7: the declared encode ladder — step down while the measured KTX2 breaches the cap. */
+export const QLEVEL_LADDER = [128, 112, 96];
+/** §3.7: the atlas KTX2's ceiling fence (the test imports this — one declaration). */
+export const ATLAS_BYTES_MAX = 1_900_000;
+/** §3.4: 13 silk frames survive the hanging rule unconditionally (owner decision #4). */
+export const SILK_COUNT = 13;
+export const SALT_1812 = 'hermitage-3d/military-gallery-1812/portrait-atlas/v2';
 /** §3.4: canvas aspect 0.814 against the block's 0.80 — displayed u is stretched ×1.0175. */
 export const MONARCH_X_SCALE = 0.8 / 0.814;
+/** §6.3 posture A: the Commons license-template FAMILY a source may carry (a missing template
+ * rejects). Entries are lowercase family STEMS — Commons spells the family as a series
+ * ({{PD-Art}}, {{PD-Art-old-100-expired}}, {{PD-old-70}}, {{PD-old-100}}, {{CC-PD-Mark}}, …);
+ * a template name matches when it equals a stem or continues it with '-'. The lock records the
+ * full template name found. */
+export const LICENSE_STEMS = ['pd-art', 'pd-old', 'cc-pd-mark'];
+/** The family law over a lowercased template name (import.mjs and the lock tests share it). */
+export function isFamilyLicense(name) {
+  return LICENSE_STEMS.some((stem) => name === stem || name.startsWith(`${stem}-`));
+}
 export const GUTTER_RGB = [14, 11, 9];
+/** §3.4 silk palette (three tokens added to the atlas palette). */
+export const SILK_A = [46, 74, 54]; // #2e4a36
+export const SILK_B = [59, 92, 68]; // #3b5c44
+export const SILK_EDGE = [31, 51, 38]; // #1f3326
+export const SILK_SHEEN_STEPS = 10; // brightness −0…−10/255 from the centre line to the edges
+export const SILK_NOISE = 3; // hash noise ±3/255
+export const SILK_BORDER_PX = 2; // the SILK_EDGE border inside the content rect
 export const PALETTE_UNIFORM = [
   { name: 'infantry green', rgb: [46, 68, 50], facing: null },
   { name: 'guards dark green', rgb: [34, 52, 40], facing: null },
@@ -90,7 +129,7 @@ export const VIGNETTE = 0.38;
 const FNV_OFFSET = 0x811c9dc5;
 const FNV_PRIME = 0x01000193;
 const TWO_POW_32 = 0x100000000;
-const INSET = ATLAS_GUTTER_PX + ATLAS_INSET_PX;
+export const SLOT_INSET_PX = ATLAS_GUTTER_PX + ATLAS_INSET_PX;
 
 function fmix32(x) {
   let h = x >>> 0;
@@ -242,37 +281,104 @@ function lerp(p, q, f) {
 }
 
 /**
- * shade(vx, vy, vw, vh) → [rgb, mul] in UV-visible coordinates (origin = cell + 5 px);
+ * §3.4 silk tile law — integer ops only. `seed` is the roster key (real compose) or any
+ * distinct string (mock); the weave reads `((x + y) & 1) ? A : B` (the 50/50 blend of the
+ * two tones), the sheen ramp darkens linearly by SILK_SHEEN_STEPS/255 from the content's
+ * vertical centre line to its edges (distance doubled to stay integral), hash noise walks
+ * ±SILK_NOISE/255, and the SILK_EDGE border overrides the outer SILK_BORDER_PX.
+ */
+export function silkShade(key) {
+  const seed = `${SALT_1812}/${key}`;
+  return (x, y, vw, vh) => {
+    if (
+      x < SILK_BORDER_PX ||
+      y < SILK_BORDER_PX ||
+      x >= vw - SILK_BORDER_PX ||
+      y >= vh - SILK_BORDER_PX
+    ) {
+      return [SILK_EDGE, 1];
+    }
+    const weave = (x + y) & 1 ? SILK_A : SILK_B;
+    const dist2 = Math.abs(2 * x - (vw - 1)); // twice the distance to the centre line
+    const sheen = Math.floor((SILK_SHEEN_STEPS * dist2) / (vw - 1)); // 0…SILK_SHEEN_STEPS
+    const noise = (hash32(seed, x, y) % (2 * SILK_NOISE + 1)) - SILK_NOISE;
+    return [
+      [
+        clamp8((weave[0] * (255 - sheen)) / 255 + noise),
+        clamp8((weave[1] * (255 - sheen)) / 255 + noise),
+        clamp8((weave[2] * (255 - sheen)) / 255 + noise),
+      ],
+      1,
+    ];
+  };
+}
+
+/**
+ * shade(vx, vy, vw, vh) → [rgb, mul] in content coordinates (origin = cell + SLOT_INSET_PX);
  * `mul` folds the pre-scramble tone fields (umber value, sky tone).
  */
 function paintCell(data, slot, rect, shade) {
-  const vw = rect.w - 2 * INSET;
-  const vh = rect.h - 2 * INSET;
+  const vw = rect.w - 2 * SLOT_INSET_PX;
+  const vh = rect.h - 2 * SLOT_INSET_PX;
   const lattices = NOISE_OCTAVES.map((_v, o) => lattice(slot, o, rect.w, rect.h));
+  paintTiled(data, rect, (cx, cy) => {
+    const [c, m] = shade(cx, cy, vw, vh);
+    const nx = (cx - (vw - 1) / 2) / (vw / 2);
+    const ny = (cy - (vh - 1) / 2) / (vh / 2);
+    const q = Math.min(1, (nx * nx + ny * ny) / 2);
+    return [
+      c,
+      m * (1 - VIGNETTE * q * q) * brush(lattices, cx + SLOT_INSET_PX, cy + SLOT_INSET_PX),
+    ];
+  });
+}
+
+/**
+ * The band law (§3.2), shared by every tile kind: `contentAt(cx, cy, vw, vh)` returns the
+ * [rgb, mul] of a content pixel; the content region is painted from it, the inset band is
+ * edge-replicated (clamped sample), the gutter band stays flat GUTTER_RGB.
+ */
+function paintTiled(data, rect, contentAt) {
+  const vw = rect.w - 2 * SLOT_INSET_PX;
+  const vh = rect.h - 2 * SLOT_INSET_PX;
   for (let ly = 0; ly < rect.h; ly += 1) {
     for (let lx = 0; lx < rect.w; lx += 1) {
       const o = ((rect.y + ly) * ATLAS_SIZE_PX + rect.x + lx) * 4;
-      const onGutter =
+      if (
         lx < ATLAS_GUTTER_PX ||
         ly < ATLAS_GUTTER_PX ||
         lx >= rect.w - ATLAS_GUTTER_PX ||
-        ly >= rect.h - ATLAS_GUTTER_PX;
-      let rgb = GUTTER_RGB;
-      let mul = 1;
-      if (!onGutter) {
-        const [c, m] = shade(lx - INSET, ly - INSET, vw, vh);
-        const nx = (lx - rect.w / 2) / (vw / 2);
-        const ny = (ly - rect.h / 2) / (vh / 2);
-        const q = Math.min(1, (nx * nx + ny * ny) / 2);
-        rgb = c;
-        mul = m * (1 - VIGNETTE * q * q) * brush(lattices, lx, ly);
+        ly >= rect.h - ATLAS_GUTTER_PX
+      ) {
+        data[o] = GUTTER_RGB[0];
+        data[o + 1] = GUTTER_RGB[1];
+        data[o + 2] = GUTTER_RGB[2];
+      } else {
+        const cx = Math.min(Math.max(lx - SLOT_INSET_PX, 0), vw - 1);
+        const cy = Math.min(Math.max(ly - SLOT_INSET_PX, 0), vh - 1);
+        const [c, m] = contentAt(cx, cy, vw, vh);
+        data[o] = clamp8(c[0] * m);
+        data[o + 1] = clamp8(c[1] * m);
+        data[o + 2] = clamp8(c[2] * m);
       }
-      data[o] = clamp8(rgb[0] * mul);
-      data[o + 1] = clamp8(rgb[1] * mul);
-      data[o + 2] = clamp8(rgb[2] * mul);
       data[o + 3] = 255;
     }
   }
+}
+
+/** Blit an image tile's content rect and apply the band law (the real compose path). */
+function paintImage(data, rect, rgba) {
+  const vw = rect.w - 2 * SLOT_INSET_PX;
+  const vh = rect.h - 2 * SLOT_INSET_PX;
+  if (rgba.length !== vw * vh * 4) {
+    throw new Error(
+      `atlas-law: tile for cell ${rect.x / SLOT_W_PX + (rect.y / SLOT_H_PX) * ATLAS_COLUMNS} needs ${vw}×${vh} RGBA, got ${rgba.length / 4}px`,
+    );
+  }
+  paintTiled(data, rect, (cx, cy) => {
+    const s = (cy * vw + cx) * 4;
+    return [[rgba[s], rgba[s + 1], rgba[s + 2]], 1];
+  });
 }
 
 function neutralShade(p) {
@@ -355,8 +461,21 @@ function monarchShade(slot) {
   };
 }
 
-/** The whole 2048² RGBA atlas: blocks, roster stand-ins, neutral spare/missing cells. */
-export function paintAtlas() {
+/**
+ * The default tile provider (§3.8): the v1-style procedural stand-in for every cell. Silk
+ * cells are NOT special here — the caller (the CI mock or the composer) overrides them with
+ * { kind: 'silk', key } so the mock atlas carries the roster's 13 silk tiles.
+ */
+export function mockTiles() {
+  return { kind: 'mock' };
+}
+
+/**
+ * The whole 3072² RGBA atlas: monarch blocks, roster cells, silk cells, neutral spare and
+ * missing cells; every painted rect carries the band law. `tiles` defaults to mockTiles —
+ * the CI mode; the real compose passes image tiles from the lock + cache.
+ */
+export function paintAtlas({ tiles = mockTiles } = {}) {
   const data = new Uint8Array(ATLAS_SIZE_PX * ATLAS_SIZE_PX * 4);
   for (let o = 0; o < data.length; o += 4) {
     data[o] = GUTTER_RGB[0];
@@ -365,18 +484,39 @@ export function paintAtlas() {
     data[o + 3] = 255;
   }
   const roles = slotRoles();
-  const painted = new Set();
+  const blockFirst = new Map();
   for (let block = 0; block < SUPER_BLOCK_COUNT; block += 1) {
     const slots = superBlockSlots(block);
-    const first = slots[0];
-    paintCell(data, first, cellRect(first, SUPER_BLOCK_SLOTS), monarchShade(first));
-    for (const s of slots) painted.add(s);
+    for (const s of slots) blockFirst.set(s, slots[0]);
   }
   for (let slot = 0; slot < SLOT_COUNT; slot += 1) {
-    if (painted.has(slot)) continue;
-    const p = standInParams(slot);
-    const shade = roles[slot] === 'roster' ? standardShade(p) : neutralShade(p);
-    paintCell(data, slot, cellRect(slot, 1), shade);
+    const first = blockFirst.get(slot);
+    if (first !== undefined && first !== slot) continue; // block interiors ride the first cell
+    const edge = first !== undefined ? SUPER_BLOCK_SLOTS : 1;
+    const rect = cellRect(slot, edge);
+    const tile = tiles(slot, rect);
+    if (tile === null || tile === undefined) {
+      // The neutral law (v1, unchanged): hashed umber ground, vignette, brush noise, no figure.
+      paintCell(data, slot, rect, neutralShade(standInParams(slot)));
+      continue;
+    }
+    if (tile.kind === 'image') {
+      paintImage(data, rect, tile.rgba);
+      continue;
+    }
+    if (tile.kind === 'silk') {
+      // §3.4: the silk tile law is complete in itself — no vignette, no brush noise, no
+      // tone; it paints straight through the band law (mul 1).
+      paintTiled(data, rect, silkShade(tile.key));
+      continue;
+    }
+    // kind 'mock': the v1-style stand-in for this cell.
+    if (first !== undefined) {
+      paintCell(data, first, cellRect(first, SUPER_BLOCK_SLOTS), monarchShade(first));
+    } else {
+      const p = standInParams(slot);
+      paintCell(data, slot, rect, roles[slot] === 'roster' ? standardShade(p) : neutralShade(p));
+    }
   }
   return data;
 }
