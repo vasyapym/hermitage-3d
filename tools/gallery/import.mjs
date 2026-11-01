@@ -402,41 +402,69 @@ function licenseTemplateOf(wikitext) {
   return null;
 }
 
-async function fetchWikitext(title) {
+/** The batched metadata law (the 2026-11-01 politeness pass): imageinfo AND license wikitext
+ * are queried 50 files per call — ~14 API requests cover the whole roster instead of two per
+ * file. The bytes stay one download per file (that is the part the byte host can throttle). */
+const API_BATCH = 50;
+
+async function apiQuery(params) {
   const api = new URL('https://commons.wikimedia.org/w/api.php');
-  api.searchParams.set('action', 'query');
-  api.searchParams.set('format', 'json');
-  api.searchParams.set('prop', 'revisions');
-  api.searchParams.set('rvprop', 'content');
-  api.searchParams.set('rvslots', 'main');
-  api.searchParams.set('titles', title.startsWith('File:') ? title : `File:${title}`);
+  for (const [k, v] of Object.entries(params)) api.searchParams.set(k, String(v));
   const res = await fetchRetry(api);
-  const json = await res.json();
-  const pages = Object.values(json?.query?.pages ?? {});
-  const revision = pages[0]?.revisions?.[0];
-  const wikitext = revision?.slots?.main?.['*'] ?? '';
-  if (wikitext === '') throw new Error(`import: no wikitext for ${title}`);
-  return wikitext;
+  return res.json();
+}
+
+async function preloadMetadata(titles) {
+  const infoByTitle = new Map();
+  const licenseByTitle = new Map();
+  const norm = new Map(); // the API's from → to title normalisation
+  const keyOf = (t) => norm.get(t) ?? t;
+  const batches = [];
+  for (let i = 0; i < titles.length; i += API_BATCH) batches.push(titles.slice(i, i + API_BATCH));
+  for (const [index, batch] of batches.entries()) {
+    process.stdout.write(`meta: batch ${index + 1}/${batches.length} (${batch.length} files)\n`);
+    const joined = batch.map((t) => (t.startsWith('File:') ? t : `File:${t}`)).join('|');
+    const infoJson = await apiQuery({
+      action: 'query',
+      format: 'json',
+      prop: 'imageinfo',
+      iiprop: 'url|sha1|size|mime',
+      titles: joined,
+    });
+    for (const n of infoJson?.query?.normalized ?? []) norm.set(n.from, n.to);
+    for (const p of Object.values(infoJson?.query?.pages ?? {})) {
+      const info = p.imageinfo?.[0];
+      if (info !== undefined) infoByTitle.set(p.title, info);
+      else process.stderr.write(`meta: no imageinfo for ${p.title}\n`);
+    }
+    const wikiJson = await apiQuery({
+      action: 'query',
+      format: 'json',
+      prop: 'revisions',
+      rvprop: 'content',
+      rvslots: 'main',
+      titles: joined,
+    });
+    for (const p of Object.values(wikiJson?.query?.pages ?? {})) {
+      const wikitext = p.revisions?.[0]?.slots?.main?.['*'] ?? '';
+      licenseByTitle.set(p.title, wikitext === '' ? null : licenseTemplateOf(wikitext));
+    }
+    await sleep(FETCH_PAUSE_MS * 2);
+  }
+  return { infoByTitle, licenseByTitle, keyOf };
 }
 
 /** A substitutable source failure (no family license / no file) — collected, not fatal (§4.1:
  * "pick another Commons file" is a one-key re-lock; the run must list ALL of them at once). */
 class ImportSkip extends Error {}
 
-async function fetchOne(key, title) {
-  const api = new URL('https://commons.wikimedia.org/w/api.php');
-  api.searchParams.set('action', 'query');
-  api.searchParams.set('format', 'json');
-  api.searchParams.set('prop', 'imageinfo');
-  api.searchParams.set('iiprop', 'url|sha1|size|mime|extmetadata');
-  api.searchParams.set('titles', title.startsWith('File:') ? title : `File:${title}`);
-  const [res, wikitext] = await Promise.all([fetchRetry(api), fetchWikitext(title)]);
-  const json = await res.json();
-  const pages = Object.values(json?.query?.pages ?? {});
-  const info = pages[0]?.imageinfo?.[0];
+async function downloadOne(key, title, preloaded) {
+  const normTitle = preloaded.keyOf(title.startsWith('File:') ? title : `File:${title}`);
+  const info = preloaded.infoByTitle.get(normTitle) ?? preloaded.infoByTitle.get(title);
   if (info === undefined) throw new ImportSkip(`${key}: no imageinfo for ${title} — bad title?`);
-  const license = licenseTemplateOf(wikitext);
-  if (license === null) {
+  const license = preloaded.licenseByTitle.get(normTitle) ?? preloaded.licenseByTitle.get(title) ?? null;
+  const legal = license !== null && license !== undefined && isFamilyLicense(license.toLowerCase());
+  if (!legal) {
     throw new ImportSkip(
       `${key} (${title}): none of the PD-Art-family templates [${LICENSE_STEMS.join(', ')}] — pick another Commons file`,
     );
@@ -495,6 +523,13 @@ async function fetchAll() {
   const metas = existsSync(metaPath) ? readJson(metaPath) : {};
   const failures = [];
   let done = 0;
+  // The batched-metadata pass first: ~14 API calls cover every remaining key (the polite §§4.1;
+  // license gates evaluate BEFORE any byte is downloaded), then the byte downloads run solo.
+  const preloadable = painted.filter((f) => metas[f.key] === undefined && titleOf.get(f.key));
+  const preloaded =
+    preloadable.length > 0
+      ? await preloadMetadata([...new Set(preloadable.map((f) => titleOf.get(f.key)))])
+      : { infoByTitle: new Map(), licenseByTitle: new Map(), keyOf: (t) => t };
   for (const frame of painted) {
     const title = titleOf.get(frame.key);
     if (title === undefined || title === '') {
@@ -508,7 +543,7 @@ async function fetchAll() {
     }
     process.stdout.write(`fetch: ${frame.key} ← ${title}\n`);
     try {
-      metas[frame.key] = await fetchOne(frame.key, title);
+      metas[frame.key] = await downloadOne(frame.key, title, preloaded);
     } catch (e) {
       if (!(e instanceof ImportSkip)) throw e;
       failures.push(e.message);
