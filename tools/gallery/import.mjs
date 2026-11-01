@@ -112,9 +112,11 @@ const MONARCH_CONTENT_H = 2 * SLOT_H_PX - 2 * SLOT_INSET_PX; // 346
 const UA = 'zimny-gallery-import/2 (atlas-v2; contact: the repo owner)';
 /** Commons rate-limit etiquette (the home-IP 429 storm of 2026-11-01): small batches, a real
  * pause between batches, back off by Retry-After — but a Retry-After beyond RATE_WAIT_MAX
- * becomes a COLLECTED failure ("re-run later on a cold IP") instead of a ten-minute stall. */
-const FETCH_PAUSE_MS = 1500;
-const FETCH_BATCH = 2;
+ * becomes a COLLECTED failure ("re-run later on a cold IP") instead of a ten-minute stall.
+ * The pace constants are env-overridable for the burst-ban hypothesis tests (default law: the
+ * numbers below). */
+const FETCH_PAUSE_MS = Number(process.env.H3D_FETCH_PAUSE_MS ?? 1500);
+const FETCH_BATCH = Number(process.env.H3D_FETCH_BATCH ?? 2);
 const FETCH_TIMEOUT_MS = 30_000;
 const RATE_WAIT_MAX_MS = 120_000;
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
