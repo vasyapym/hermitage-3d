@@ -13,14 +13,15 @@ export const LIGHT_STATES: readonly LightState[] = ['day', 'dusk', 'nightChandel
 
 export const INTERIOR_LOOK_GAIN: Readonly<Record<RoomId, Readonly<Record<LightState, number>>>> = {
   jordan: { day: 4, dusk: 3, nightChandeliers: 1 },
-  // R-UX4 (walkthrough-UX pass, corridor light): all gallery states encode at the manifest's
-  // shared white point 0.2 (the lamp field byte-identical across the three atlases; day =
-  // night + day rigs at 1.0, tools/lm-recipes.mjs), so eff = 0.6 / 0.6 / 0.55. Ceiling law:
-  // max eff = 0.6 = the accepted dusk, so no state exposes a coarser 8-bit step than dusk.
-  // g(night) < g(day) is part of the law (night ≤ day holds per texel, not just on mean).
-  // The night gain is the band rule's knob (raise in 0.25 steps while it stays under g(day)):
-  // at 2.5 the captured day/night G1 mean ratio read 1.87 — the rule's step 1 → 2.75.
-  'rastrelli-gallery': { day: 3, dusk: 3, nightChandeliers: 2.75 },
+  // RG-D1 (details program, iteration 1 — the lamps' light; the R-UX4 band rule is retired for
+  // this room by owner call, design-walkthrough-ux §5 record): the three atlases carry the
+  // SAME lamp field at GALLERY_LAMP_SCALE = 8 × the rig's emission (tools/lm-recipes.mjs) and
+  // encode at the manifest's shared white point 0.8, so night ≤ dusk ≤ day holds per texel BY
+  // CONSTRUCTION and the room carries ONE gain: eff = 0.8 × 2 = 1.6 in every state. The
+  // encoded lamp toe is C = k/wp = 10 × the R-UX4 texel (wp = k/10 would make retunes of k a
+  // no-op — any (k, k/10) pair encodes the same atlas; raise C by raising k with wp held).
+  // The atlas numbers and the acceptance band live in the §5 RG-D1 record.
+  'rastrelli-gallery': { day: 2, dusk: 2, nightChandeliers: 2 },
   // R4 (design-gallery.md §4.6): the first-bake gains for the Military Gallery of 1812.
   // The states differ by an order of magnitude here (§4.3). The first bake's histogram
   // (the r17c retune law: the descriptor edit + reencode, never a re-bake) moved the DAY
