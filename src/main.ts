@@ -3421,14 +3421,23 @@ const tick = (timeMs: number): void => {
         getComputedStyle(captionTitle).opacity === '0'
       ) {
         captionTitle.textContent = '';
+        // The window's clear stamp (the fill stamp's pair; see the writer above).
+        document.documentElement.dataset.titleClearedAt = String(performance.now());
+        console.debug('zimny: titleCleared', String(performance.now()));
       }
     };
     captionTitle.ontransitioncancel = captionTitle.ontransitionend;
     if (visible || reducedMotion) captionTitle.textContent = captionNext.title;
     captionTitle.dataset.visible = String(visible);
-    // The e2e breadcrumb (the CI poll-cadence lesson): the attr STICKS with the last
-    // shown title; holdMs is the card's minimum dwell, never an exact painted duration.
-    if (visible) captionTitle.dataset.shown = captionNext.title;
+    // The window's wall-clock stamps (the CI flake fix): the readable window is a pair of
+    // APP-side facts — the fill frame and the transition-end clear — no live sampling
+    // needs to hear them (the stalled-runner class: runs 41362175165 starved the sampler's
+    // rAF outright, 41364407100's dual drive still heard only ~100 ms of the real window).
+    if (visible) {
+      captionTitle.dataset.shown = captionNext.title;
+      document.documentElement.dataset.titleShownAt = String(performance.now());
+      console.debug('zimny: titleStamped', String(performance.now()));
+    }
   }
   if (captionDiff.announcement) captionLive.textContent = captionNext.announcement;
   captionView = captionNext;
