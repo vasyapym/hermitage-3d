@@ -3,56 +3,56 @@
   "files": [
     {
       "path": "jordan.glb",
-      "bytes": 439692,
-      "sha256": "b64593868d8bc21c22eb4c794f942d0fc1f2bf90d53d1166302806b47f31da40",
+      "bytes": 222716,
+      "sha256": "c44e93b97b6f3c87477e0f824441bf63054c16eed37759ecaa26198ecb611210",
       "kind": "glb"
     },
     {
       "path": "lm/day.ktx2",
-      "bytes": 263910,
-      "sha256": "dfed97c0f8a9533b5bd5b62d6a1d434fedd14c3e1f5c4423dbccffcdda567a73",
+      "bytes": 294709,
+      "sha256": "26086ffc8b90eaf6a76342a6f510b38a68eafb4242efc633f8cde68e97a70fc5",
       "kind": "ktx2"
     },
     {
       "path": "lm/dusk.ktx2",
-      "bytes": 238732,
-      "sha256": "ada154002baf7960df0bf34ee4e94418af5bdbdc89bf14602e74d3ae68a3acd6",
+      "bytes": 273632,
+      "sha256": "19d0025524f0fcec6905f8fa73b06c5591b65794b211e13c12f6f1938c69ebd9",
       "kind": "ktx2"
     },
     {
       "path": "lm/night.ktx2",
-      "bytes": 137307,
-      "sha256": "5af47d4d0b6a587e4622d9fa160b50d74fd38816d4547bb0b576012dc4872340",
+      "bytes": 150352,
+      "sha256": "fb96c40f1e6fc42c62edce47ad1b78af2bbf233dc710f5d85c83abdbf0e630a8",
       "kind": "ktx2"
     },
     {
       "path": "probe/dusk.ktx2",
-      "bytes": 5377,
-      "sha256": "7409beccda1f446b244e654b3ce4b4764f8c78cef528ed63f9e0fd4f694c4398",
+      "bytes": 4260,
+      "sha256": "399189a35a0b9bd92c1082e1cfe320ce2344ee8c22f00c8b9198861840e98d04",
       "kind": "ktx2"
     },
     {
       "path": "tex/gilt.ktx2",
-      "bytes": 8540,
-      "sha256": "f9763ce40dc30aafe6100a7e79bd317a85108fb4d58d14fa31fb814d163420af",
+      "bytes": 9417,
+      "sha256": "a14f35e841efefff9196675c390b9525640133562a9dc2257255d3dfef982c11",
       "kind": "ktx2"
     },
     {
       "path": "tex/granite_grey.ktx2",
-      "bytes": 14007,
-      "sha256": "1e9a689e9ef766c7c540026af49bd0d741bff5ca61e5c9eb36f32777b2c544a6",
+      "bytes": 13396,
+      "sha256": "4eef842de0600fcb2666a8bc8e630c1129a61116fc751218131b142b7d22ff91",
       "kind": "ktx2"
     },
     {
       "path": "tex/marble_floor.ktx2",
-      "bytes": 39545,
-      "sha256": "4f71960e64c2ce437da539a3929b8a850969649f2257bfb8a2f8f3b2adaa4b88",
+      "bytes": 36018,
+      "sha256": "f06f3ec51293ef6e749a3c4eda800baed61a1a2cc54d8a5a80458ff68a35486f",
       "kind": "ktx2"
     },
     {
       "path": "tex/plaster_warm.ktx2",
-      "bytes": 22420,
-      "sha256": "c6359ecc19a86380a2831d8da8479b86ea9ffa87dbbb953b9d26542f1984fef6",
+      "bytes": 20355,
+      "sha256": "21cf778acd7d5ecf6735d4e3f5e5679fa36b7b563f17bd7f6aabb0e15e3d95ac",
       "kind": "ktx2"
     }
   ],
@@ -85,8 +85,8 @@
       {
         "name": "portal",
         "instances": 1,
-        "primitives": 1,
-        "triangles": 260
+        "primitives": 2,
+        "triangles": 338
       },
       {
         "name": "chandelier",
@@ -95,26 +95,50 @@
         "triangles": 356
       },
       {
+        "name": "cornice",
+        "instances": 1,
+        "primitives": 1,
+        "triangles": 198
+      },
+      {
         "name": "baluster",
         "instances": 151,
         "primitives": 1,
-        "triangles": 68
+        "triangles": 92
       },
       {
         "name": "column",
         "instances": 2,
-        "primitives": 1,
-        "triangles": 68
+        "primitives": 2,
+        "triangles": 308
       },
       {
         "name": "sconce",
         "instances": 10,
         "primitives": 2,
         "triangles": 24
+      },
+      {
+        "name": "pilaster",
+        "instances": 16,
+        "primitives": 2,
+        "triangles": 48
+      },
+      {
+        "name": "pilaster_base",
+        "instances": 16,
+        "primitives": 1,
+        "triangles": 16
+      },
+      {
+        "name": "window_frame",
+        "instances": 12,
+        "primitives": 1,
+        "triangles": 32
       }
     ],
-    "trianglesUnique": 4626,
-    "trianglesDrawn": 15110,
+    "trianglesUnique": 5262,
+    "trianglesDrawn": 20898,
     "extensionsRequired": [
       "EXT_meshopt_compression",
       "KHR_mesh_quantization",
