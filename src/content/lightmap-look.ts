@@ -21,6 +21,12 @@ export const INTERIOR_LOOK_GAIN: Readonly<Record<RoomId, Readonly<Record<LightSt
   // encoded lamp toe is C = k/wp = 10 × the R-UX4 texel (wp = k/10 would make retunes of k a
   // no-op — any (k, k/10) pair encodes the same atlas; raise C by raising k with wp held).
   // The atlas numbers and the acceptance band live in the §5 RG-D1 record.
+  // RG-E1 (the pale gallery round) re-tunes the knob to 4: the published night atlas at k = 8
+  // (the old committed value) rendered the G1 night still 2.3× brighter than the ratified
+  // golden-gallery-night baseline (0.3505 vs 0.1528 pixel mean) — the pale albedos' reflectance
+  // adds on top of the lamp field, so matching the ratified look scales the knob k := 8/2.3 ≈
+  // 3.5 → 4 (wp HELD at 0.8; the derivation + the runs live in tools/lm-recipes.mjs's RG-E1
+  // note). The gains STAY 2/2/2: eff = 0.8 × 2 = 1.6 in every state, one gain, one k.
   'rastrelli-gallery': { day: 2, dusk: 2, nightChandeliers: 2 },
   // R4 (design-gallery.md §4.6): the first-bake gains for the Military Gallery of 1812.
   // The states differ by an order of magnitude here (§4.3). The first bake's histogram

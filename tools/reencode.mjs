@@ -43,6 +43,7 @@ import { composeArgs, composeRecipeFor } from './lm-recipes.mjs';
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ENCODE_PY = join(HERE, 'reencode-encode.py');
 const COMPOSE_PY = join(HERE, 'lm_compose.py');
+const PAINT_PY = join(HERE, 'reencode-paint.py');
 const LOG_DIR = join(HERE, 'bake-logs');
 const TOKTX_INSTALL = 'install KTX-Software 4.4.2 (brew install ktx) so `toktx` is on PATH';
 
@@ -50,6 +51,23 @@ const STATES = ['day', 'dusk', 'nightChandeliers'];
 const ALIAS = { night: 'nightChandeliers' };
 const FILE_BY_STATE = { day: 'day', dusk: 'dusk', nightChandeliers: 'night' };
 const KIT_PREFIX = 'kit-';
+
+// RG-E1 so-called stairlight paint — the D-4/D-23 patch-paint law applied per PUBLISHED
+// state at ENCODE time for rooms whose states are COMPOSED of rig EXRs (a bake-time paint
+// would ink only one rig term; see tools/bpy/bake.py's PANE_PAINT — this table mirrors its
+// declared published-state colours). The atlas rect comes from the bpy stage summary's
+// lm.patches (the builder's shelf cells for the `stairlight` part). Keyed by manifest
+// state (day/dusk/nightChandeliers) + room; rooms not named here are untouched.
+const STAIRLIGHT_PAINT = {
+  'rastrelli-gallery': {
+    part: 'stairlight',
+    colours: {
+      day: [0.55, 0.58, 0.62], // cool daylight through the door
+      dusk: [0.45, 0.32, 0.17], // the warm dim evening stair
+      nightChandeliers: [0.6, 0.42, 0.22], // the lamp-lit stair (night reads strongest)
+    },
+  },
+};
 
 // Pinned transcode flags — the same ETC1S economics as the bake (§5: linear irradiance data).
 const TOKTX_FLAGS = [
@@ -129,7 +147,14 @@ function chartExr(room, state, chart) {
   return path;
 }
 
-/** R4 D-14: a staged EXR must be the plate the bake log recorded (sha256). */
+/** R4 D-14: a staged EXR must be the plate the bake log recorded (sha256).
+ * RG-D2 forensic gate: a bake record that EXISTS but has no `charts` row (or no
+ * exrSha256 in it) used to pass silently — the vacuous pass that let a stale staged
+ * plate ride in unchecked (the committed rastrelli-gallery night atlas demonstrably
+ * encoded from an earlier staged file at a compose scale that fits no current EXR).
+ * A present bake record must prove its charts: fail loud instead; the record refreshes
+ * on any tools/bake.mjs run (bake.py's summary carries the per-chart exrSha256 rows).
+ * Rooms without a bake record for the state (fresh bootstrap) keep the old way out. */
 function assertStagedExr(room, state, chart, exrPath) {
   const logPath = join(LOG_DIR, `${room}.json`);
   if (!existsSync(logPath)) return;
@@ -137,15 +162,33 @@ function assertStagedExr(room, state, chart, exrPath) {
   const rec = log.states?.[state];
   if (rec === undefined || rec === null) return;
   const chartRow = (rec.charts ?? []).find((row) => row.name === chart);
-  const digest = chartRow === undefined ? null : (chartRow.exrSha256 ?? null);
-  if (digest === null || digest === undefined) return;
-  const actual = sha256(readFileSync(exrPath));
-  if (actual !== digest) {
+  if (chartRow === undefined || chartRow.exrSha256 === null || chartRow.exrSha256 === undefined) {
     fail(
-      `staged EXR ${exrPath} sha256 ${actual} !== the bake-log record ${digest}`,
+      `bake record ${state}: no exrSha256 for chart '${chart}' — the bake-log JSON predates the chart rows`,
+      're-run the bake (node tools/bake.mjs) so the record carries the chart provenance',
+    );
+  }
+  const actual = sha256(readFileSync(exrPath));
+  if (actual !== chartRow.exrSha256) {
+    fail(
+      `staged EXR ${exrPath} sha256 ${actual} !== the bake-log record ${chartRow.exrSha256}`,
       'never re-encode a plate the log does not record',
     );
   }
+}
+
+/** The named part's patch rect (chart coords, px, y-from-top) from the bpy stage summary. */
+function patchRect(room, part) {
+  if (!patchRect.cache) patchRect.cache = new Map();
+  if (!patchRect.cache.has(room)) {
+    const path = join(STAGE_ROOT, room, 'summary.json');
+    if (!existsSync(path)) {
+      fail(`no bpy summary at ${path}`, 'regenerate the bpy stage first');
+    }
+    const lm = JSON.parse(readFileSync(path, 'utf8')).lm;
+    patchRect.cache.set(room, lm?.patches?.[part] ?? null);
+  }
+  return patchRect.cache.get(room);
 }
 
 function reencodeChart(room, state, chart, whitePoint, manifest, work) {
@@ -177,6 +220,34 @@ function reencodeChart(room, state, chart, whitePoint, manifest, work) {
       ...composeArgs(composed, resolved),
     ]);
     exr = composed;
+  }
+  // RG-E1: the stairlight's cells are painted per PUBLISHED state, after the compose and
+  // before the per-state LDR encode (the composed EXR carries one published state); the
+  // paint happens per chart — the stairlight is an architecture-chart patch.
+  const paint = chart === 'arch' ? STAIRLIGHT_PAINT[room] : undefined;
+  if (paint !== undefined) {
+    const rect = patchRect(room, paint.part);
+    if (!Array.isArray(rect) || rect.length !== 4) {
+      fail(
+        `${room}: summary lm block lacks the ${paint.part} patch rect`,
+        'regenerate the bpy stage',
+      );
+    }
+    const painted = join(STAGE_ROOT, `${room}.${file}.paint.exr`);
+    const payload = join(work, `paint-${file}.json`);
+    writeFileSync(payload, `${JSON.stringify([{ rect, colour: paint.colours[state] }])}\n`);
+    run(BLENDER, [
+      '-b',
+      '--factory-startup',
+      '-noaudio',
+      '-P',
+      PAINT_PY,
+      '--',
+      exr,
+      painted,
+      payload,
+    ]);
+    exr = painted;
   }
   const png = join(work, `${prefix}${file}.png`);
   const ktx2 = join(work, `${prefix}${file}.ktx2`);

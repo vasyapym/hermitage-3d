@@ -50,8 +50,25 @@ export const DUSK_CANDELABRA_SCALE = 1 / 3;
  * retunes: a (k, k/10) pair encodes the same atlas for every k, so the retune knob is C
  * (= k with wp fixed), never a paired law. The acceptance band: design-walkthrough-ux.md §5
  * (RG-D1 record).
+ *
+ * RG-E1 (round e1, the pale gallery) re-tunes k to 4. The fresh rig's plate came out far
+ * dimmer than RG-D1's in the raw-plate statistics (full-atlas linear mean 0.00926 lum vs the
+ * old rig's 0.2324) — RG-E1's EMITTER_EXCLUSION True empties the old bake's self-lit sconce
+ * cells (the old committed night atlas decoded at fullMean 0.5043 lum, median 0.3437, ~the
+ * anchor's 15.86 % saturated), so the ≥ 16 % near-white band the old anchor carried no longer
+ * exists as atlas content. The light-transport check that matters is the RUNTIME look, on the
+ * same decoder: the published night atlas at the committed k = 8 read (post-ETC1S decode)
+ * fullMean 0.2465 lum / rgb mean (0.294, 0.240, 0.172) and rendered the G1 night still at a
+ * pixel mean of 0.3505 against the ratified golden-gallery-night baseline's 0.1528 — a 2.3×
+ * brighter room at the same k (the pale albedos' reflectance adds on top of what the lamp
+ * field needs). Matching the ratified look scales the knob k := 8 / 2.3 ≈ 3.5 → 4 (inside
+ * the RG-D1 band's re-derived class; wp HELD at 0.8; the compose law's per-state ordering
+ * night ≤ dusk ≤ day holds by construction). The sweep retained for the record (composed
+ * plates at wp 0.8, pre-ETC1S encode means): night k=8 lum 0.2474 (clip 1.62 %), day 0.3512
+ * (clip 4.94 %), dusk 0.2691 (clip 1.62 %) — the published day/dusk still encode at k = 4
+ * via the same recipe terms (day = k·night + 1·day; dusk = 1·dusk + (k−1)·night).
  */
-export const GALLERY_LAMP_SCALE = 8;
+export const GALLERY_LAMP_SCALE = 4;
 
 /** @type {Readonly<Record<string, Readonly<Partial<Record<LightState, readonly ComposeTerm[]>>>>>} */
 export const LIGHTMAP_COMPOSE_RECIPES = Object.freeze({
