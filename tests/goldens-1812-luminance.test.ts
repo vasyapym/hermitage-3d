@@ -49,9 +49,9 @@ const LUMINANCE_BAND_TOLERANCE = 0.15;
  * below prints the measured value to fill in.
  */
 const MEAN_LUMINANCE_1812: Readonly<Record<Light, number | null>> = {
-  day: 0.022239, // R4c close: recorded at the first post-fix capture (the closed barrel)
-  dusk: 0.012466, // R4c close: recorded at the first post-fix capture (the closed barrel)
-  night: 0.02033, // R4c close: recorded at the first post-fix capture (the closed barrel)
+  day: 0.024122, // B10 re-record: the ×1.15 light + the upright hang (+8.5 % over the R4c close)
+  dusk: 0.012935, // B10 re-record (+3.8 % over R4c — the env-heavy dusk lifted least)
+  night: 0.022228, // B10 re-record (+9.3 % over R4c)
 };
 
 /** The first (sorted) baseline whose name starts with golden-1812-<light> — project suffixes vary. */

@@ -17,10 +17,11 @@
  * Subjects: J0 and J1 share the window light over the mezzanine (the locked climb); J1b keeps
  * the flight-2 sconce on the window wall (the turn is anticipated); J2 is RE-AUTHORED (R18-ux
  * D4) to FLIGHT2_TOP so press 3's gaze holds the end of the stairs, 2nd floor — the old
- * shared sconce made the held gaze pitch at the wall instead of up the flight; J2b takes the
- * upper-tier window over the landing; J3 and J4 share the modelled east-wall portal (the
- * landing is a locked dolly toward it). No consecutive gaze swings more than ~58°. Every
- * value is declared and framed by capture at integration.
+ * shared sconce made the held gaze pitch at the wall instead of up the flight; J2b locks the
+ * SAME FLIGHT2_TOP (D-J2b, owner 2026-11-02: press 4 reads a locked climb dolly — the old
+ * upper-window glance read INTO the north wall); J3 and J4 share the modelled east-wall
+ * portal (the landing is a locked dolly toward it). No consecutive gaze swings more than
+ * ~58°. Every value is declared and framed by capture at integration.
  */
 import type { RoomContract, Vec3 } from '../../src/world/registry';
 
@@ -28,12 +29,10 @@ import type { RoomContract, Vec3 } from '../../src/world/registry';
 const MEZZ_LIGHT: Vec3 = [69.2, 7.5, -84];
 /** Flight 2's middle sconce (x 75.1, datum 7.67 + 1.8), just off the north wall. */
 const FLIGHT2_SCONCE: Vec3 = [75.1, 9.5, -85.5];
-/** R18-ux D4: flight 2's top (x 82.0, the landing slab's eye height datum 10 + 1.7), 2 m past
- * the top nose (x 80), on flight 2's band centre line. R19-ux C retains this committed target:
- * local press 3 from J0 lands here at J2; route-global press counts name different stops. */
+/** Flight 2's top (x 82.0, datum 9.983 + 1.7), on flight 2's band centre line. R18-ux D4 committed
+ * it at J2; D-J2b (owner, 2026-11-02) locks J2b onto it as well — press 4 is a locked climb dolly
+ * and the upper-window glance (UPPER_WINDOW [84.85, 14.75, −86], the north wall read) is retired. */
 const FLIGHT2_TOP: Vec3 = [82.0, 11.7, -83.6];
-/** Upper-tier window, bay 5 (centre x 84.85, sill 13 head 16.5), on the wall face z −86. */
-const UPPER_WINDOW: Vec3 = [84.85, 14.75, -86];
 /** The gilt portal on the east wall: centred z −74, head y 16; aimed below the head. */
 const EAST_PORTAL: Vec3 = [92, 13, -74];
 
@@ -83,7 +82,7 @@ export const contract: RoomContract = {
         // R19-ux C retains the authored window composition here (local press 4 from J0).
         id: 'J2b',
         position: [74.5, 9.1, -83.3],
-        subject: UPPER_WINDOW,
+        subject: FLIGHT2_TOP, // D-J2b (owner, 2026-11-02): locked with J2; the north-wall glance retired
         look: { yaw: 35, pitchUp: 35, pitchDown: 25 },
         caption: 'caption.j2b',
       },

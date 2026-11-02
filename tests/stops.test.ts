@@ -320,7 +320,7 @@ describe('jordan stop-gaze swings (R18-ux D4: FLIGHT2_TOP)', () => {
   });
   for (const [n, measured, expected] of [
     ...swingRows(JORDAN, 'J1b', 'J2', 36.6), // the §8 quote «≈36.8°»; the 3D measure 36.60°
-    ...swingRows(JORDAN, 'J2', 'J2b', 14.2), // the §8 quote «≈14.4°»; the 3D measure 14.22°
+    ...swingRows(JORDAN, 'J2', 'J2b', 1.65), // D-J2b: locked on J2's framing (the §8-era 14.22° read at the north wall; retired)
   ]) {
     it(`${n}: swing ≈ ${expected}° stays under the ~58° head law`, () => {
       expect(measured, n).toBeCloseTo(expected, 1);

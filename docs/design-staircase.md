@@ -247,11 +247,12 @@ Rail: Catmull-Rom through stop positions with two helper points per flight for t
 > positions with end phantoms only — mid-segment turn helpers are rejected: centripetal
 > parameterisation is cusp-free from the stop data alone and the frozen contracts carry no
 > numbers to justify extras (the helper law above is superseded). Gaze = the glide look
-> law of walkthrough-ux §8 (R19-ux C). One phase-shaped departure turn blends the
-> frozen departure direction toward the live destination aim, then holds its target.
-> Back Gj→G0 is a near-field turn (R19-ux C): JUNCTION's ray sweeps ≈82.4° under the
-> nominal 0.4 span, so the turn spans the whole segment and the pitch rises monotonically
-> from 0° to its 3.06° settle at G0 (2.62° at 7% of the distance, 3.05° by mid-glide),
+> law of walkthrough-ux §8 (B9, supersedes R19-ux C's departure turn): the base gaze
+> travels exactly the arc between the two stops' framings with the distance fraction as
+> its one weight — no departure-turn span, no near-field class (its former exemption's
+> distance weight is now every pair's law), no held-point parallax.
+> Back Gj→G0 reads the same 83° field: the pitch rises linearly and monotonically
+> from 0° to its 3.06° settle at G0,
 > superseding FIXUPS 2's ≈10.05° and the round-landed 17.39°.
 > Shared targets stay locked dollies; the position path is this section's spline. At
 > stops the pose is bit-identical, which keeps the eight goldens green un-rebaselined.

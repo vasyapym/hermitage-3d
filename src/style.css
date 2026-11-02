@@ -661,8 +661,11 @@ body:has(#caption-title[data-visible="true"]) #touch-rail {
 }
 
 /* The arrow face: the box keeps the 72×44 minima; the glyph sits at the box's OUTER edge so
-   «←» shares the wordmark/notes-link margin and «→» shares «Залы»'s right edge — the hit area
-   grows inward. The title card's ink (.85, the caption-title register) makes the pair read as
+   «↓» shares the wordmark/notes-link margin and «↑» shares «Залы»'s right edge — the hit area
+   grows inward — and stays centred on the block axis (R20-ux: thumb contact lands at or
+   below the aim point, so the box keeps its share below the glyph). The glyphs point along the
+   route's depth, ↑ into the scene and ↓ back out of it, never sideways: the camera never
+   strafes. The title card's ink (.85, the caption-title register) makes the pair read as
    controls over the scene; a dead direction (aria-disabled) drops to a faint register;
    hover/focus rise to ink. No underline — an underlined arrow is a typographic error; the
    focus ring is the keyboard signal. */

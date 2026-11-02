@@ -13,7 +13,11 @@ export const TOUCH_RAIL_PROMPT_LINES = 3;
  * bottom edge, each at the larger of its box and its reserve (the door prompt reserves
  * TOUCH_RAIL_PROMPT_LINES of its line box, so no door label rises into the pair); out-of-flow
  * members sharing a button column count at their own tops. overflow=true when a member
- * outgrows its reserve: the slot clears it at that layout and the host warns. */
+ * outgrows its reserve: the slot clears it at that layout and the host warns.
+ * R20-ux: this is the LOWEST clean line — directly below it sit the stack gap, then the
+ * highest member at its reserve. Lowering the pair D px puts that member (D − gap) px into the
+ * box (with a reserve-filling door label, D = gap + box/2 is the R19-ux A defect). A lower pair
+ * needs a smaller HONEST reserve (fewer real label lines), never an offset. */
 export function touchRailSlotBottom(
   f: Readonly<{
     stackBottom: number;

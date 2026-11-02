@@ -325,7 +325,12 @@ export function slotUvRect(slot) {
   const y0 = (cell.row * span.height + inset) / ATLAS_SIZE_PX;
   const width = (span.width - 2 * inset) / ATLAS_SIZE_PX;
   const height = (span.height - 2 * inset) / ATLAS_SIZE_PX;
-  return { u0: x0, u1: x0 + width, v0: 1 - (y0 + height), v1: 1 - y0 };
+  // Hang law (design-gallery.md, B10): the canvas binding puts (u0, v0) on the quad's
+  // basis-low-v corner, and the builder's `_basis` points v world-DOWN, so that corner is the
+  // PHYSICAL TOP — v0 names the cell's image-top row (Blender-side 1 − y), v1 its bottom.
+  // v0 > v1 by law; chartRect keeps v0 < v1 (the bake reads the lm chart through that
+  // binding). Verified live at the M1/M3 captures (the heads hung at the frame bottoms).
+  return { u0: x0, u1: x0 + width, v0: 1 - y0, v1: 1 - (y0 + height) };
 }
 
 export function superBlockUvRect(block) {
@@ -341,7 +346,8 @@ export function superBlockUvRect(block) {
   const y0 = (cell.row * span.height + inset) / ATLAS_SIZE_PX;
   const width = (edge * span.width - 2 * inset) / ATLAS_SIZE_PX;
   const height = (edge * span.height - 2 * inset) / ATLAS_SIZE_PX;
-  return { u0: x0, u1: x0 + width, v0: 1 - (y0 + height), v1: 1 - y0 };
+  // The same hang law as slotUvRect (B10): the super-block's image-top row lands in v0.
+  return { u0: x0, u1: x0 + width, v0: 1 - y0, v1: 1 - (y0 + height) };
 }
 
 export function frameUvRect(index) {

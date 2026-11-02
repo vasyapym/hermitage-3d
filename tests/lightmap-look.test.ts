@@ -18,13 +18,18 @@ describe('INTERIOR_LOOK_GAIN', () => {
       [...INTERIOR_ROOMS, 'military-gallery'].sort(),
     );
   });
-  it('the R4 row is the first-bake gains (design-gallery.md §4.6) with eff under the ceiling', () => {
+  it('the B10 row carries the ×1.15 gains (design-gallery.md §4.6; the R4-era ceiling is retired)', () => {
     const row = INTERIOR_LOOK_GAIN['military-gallery'];
-    expect(row).toEqual({ day: 1.5, dusk: 3, nightChandeliers: 2 });
-    // D-21's pure ceiling law: eff = whitePoint × gain stays ≤ 1.0 per state, night < day.
-    const WHITE_POINT = { day: 0.5, dusk: 0.15, nightChandeliers: 0.3 } as const;
-    const effs = LIGHT_STATES.map((state) => WHITE_POINT[state] * row[state]);
-    expect(Math.max(...effs)).toBeLessThanOrEqual(1.0);
+    expect(row).toEqual({ day: 1.725, dusk: 3.45, nightChandeliers: 2.3 });
+    // B10 (owner, ≈15 % more light): one ×1.15 shape across all three states, so every
+    // inter-state relation scales. eff = manifest wp × gain = 2.5875 / 0.5175 / 0.69.
+    // The old D-21 pure ceiling ≤ 1.0 retired de-facto at 3be6e50 (the day eff became 2.25 —
+    // the stale 0.5/0.75 narrative there predates that retune); the order law night < day
+    // per texel is the surviving invariant.
+    const WHITE_POINT = { day: 1.5, dusk: 0.15, nightChandeliers: 0.3 } as const;
+    expect(WHITE_POINT.day * row.day).toBeCloseTo(2.5875, 9);
+    expect(WHITE_POINT.dusk * row.dusk).toBeCloseTo(0.5175, 9);
+    expect(WHITE_POINT.nightChandeliers * row.nightChandeliers).toBeCloseTo(0.69, 9);
     expect(WHITE_POINT.nightChandeliers * row.nightChandeliers).toBeLessThan(
       WHITE_POINT.day * row.day,
     );

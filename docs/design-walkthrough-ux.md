@@ -294,29 +294,25 @@ The transit beat, in order:
 
 Verdict: the rail stays; free roam stays rejected; the two defect laws are fixed
 inside the promise.
-- **Gaze law (R19-ux C)**: authored SUBJECTS and the subjectless next/back fallback remain
-  unchanged. A segment makes one DEPARTURE TURN, then holds its destination's target exactly.
-  The source direction is frozen at the departure position; the destination aim tracks its
-  target from the current spline position. Equal source and destination points instead remain
-  a locked dolly throughout. Yaw takes the shortest arc; pitch blends linearly with the same
-  weight. TURN_SPAN_T is 0.31744 of segment distance: smootherstep(0.4). Widen
-  that distance span by θ/TURN_REF_DEG above 45°, cap at TURN_SPAN_MAX_T = 0.4, and never pass
-  the destination. Map traveled/remaining-segment distance and span/remaining-segment distance
-  through inverse smootherstep; smootherstep of their phase ratio is the turn weight. A
-  settled adjacent step up to 45° therefore turns over its first 40% of elapsed time (952 ms
-  at the R19-ux speed), not over 31.744% of elapsed time. A near-field held point — its own
-  ray turns by TURN_REF_DEG or more between the anchor eye and that nominal span's end — is
-  exempt: its turn spans the whole remaining segment with the distance fraction as its
-  weight, so its parallax enters only in proportion to the distance covered. Partial
-  scrolls and retargets use the same geometric law; this is not a separate turn timer or an
-  absolute angular-speed cap.
-  Reversals re-anchor at the current base gaze; pass-through stops start their next turn from
-  their committed poses. Position stays on the unchanged spline. Stop poses remain
-  bit-identical. A Forward glide into an APPROACH stop uses its approach point; Back and the
-  stop itself use its subject. The approach and subject must remain on the same committed
-  gaze ray. Measured on Back Gj→G0 (JUNCTION 0.7 m over Gj, sweep 82.4°): the pitch rises
-  monotonically from 0° to its 3.06° settle; the 83° pan peaks ≈65°/s at STEP_GLIDE_MS 2380
-  (≈286°/s at SCROLL_GLIDE_MS 544).
+- **Gaze law (B9, supersedes R19-ux C's departure turn)**: authored SUBJECTS and the
+  subjectless next/back fallback remain unchanged; stop poses remain bit-identical. Between
+  two stops the base gaze travels the arc between their two committed framings and nothing
+  else: the source aim is frozen at the departure eye (or at the look in force at a
+  reversal), the destination aim is frozen at the destination eye, yaw takes the shortest
+  arc and pitch blends linearly, both with one weight — the distance fraction covered of
+  the anchor's remaining segment. The look therefore turns with the travel: it starts and
+  stops with the position, never turns faster per unit of rail than the segment's own
+  average, and no held point's parallax reaches the gaze. The base gaze is a function of
+  rail position alone: Forward and Back, step and scroll glides, partial scrolls, retargets
+  and reversals read the same look at the same point; pass-through stops are met on their
+  committed poses. Equal source and destination points remain a locked dolly throughout
+  (the point is held). There is no turn span, no TURN_REF_DEG widening and no near-field
+  exemption: the former exemption's distance weight is now the rule. An APPROACH point
+  remains authored data on its stop's committed gaze ray and no longer steers a glide
+  (at the stop it is direction-identical to the subject). Position stays on the unchanged
+  spline. Measured (derived) at STEP_GLIDE_MS 2380: a step's pan peaks at mid-glide at
+  1.875 × arc ÷ duration — G0→Gj and Back Gj→G0, 83.0° → 65.4°/s (286°/s at
+  SCROLL_GLIDE_MS); Back Gj→G0's pitch rises linearly from 0° to its 3.06° settle.
 - **Corner stops (R18-ux D3)**: a stop may be flagged `corner`. The position spline is
   evaluated per RUN — the stop list split after each corner stop — so a corner knot
   inherits no tangent from across the turn. Each run uses the committed spline and end
@@ -331,13 +327,16 @@ inside the promise.
   + 1.7 (the build script's `flight_datum()` is the source of truth);
   flight-1 stops sit on the west band (x 66..67.6), flight-2 stops on the north
   band (z −84.4..−82.8); the landing survey stop sits on the slab (x ≥ 80).
-- Committed authored set, retained by R19-ux C: J0/J1 → MEZZ_LIGHT (locked climb);
-  J1b → FLIGHT2_SCONCE; J2 → FLIGHT2_TOP; J2b → UPPER_WINDOW; J3/J4 → EAST_PORTAL
+- Committed authored set, retained by R19-ux C and B9: J0/J1 → MEZZ_LIGHT (locked climb);
+  J1b → FLIGHT2_SCONCE; J2 → FLIGHT2_TOP; J2b → the SAME FLIGHT2_TOP (D-J2b, owner
+  2026-11-02: press 4 locks onto J2's framing — the old upper-window glance into the north
+  wall retired); J3/J4 → EAST_PORTAL
   (locked approach). Local presses from J0 land at J1, J1b, J2, J2b, J3, J4. The sconce
   and window are intentional subjects, not random samples. Corridor: G0 → JUNCTION;
-  Gj/G1/G2 → EAST_DOOR, with GALLERY_MOUTH as Gj's Forward approach.
-- Look limits (R19-ux C): the same turn-phase weight blends departure rows (or the rows at
-  a reversal) into destination rows, then holds them. Limits are manual offsets around the
+  Gj/G1/G2 → EAST_DOOR; GALLERY_MOUTH stays recorded as Gj's approach on the committed ray
+  and, under B9, no longer steers the Forward glide.
+- Look limits (B9): the gaze's distance weight blends departure rows (or the rows at a
+  reversal) into destination rows over the whole remaining segment. Limits are manual offsets around the
   base gaze. Existing offsets are re-clamped, never silently reset; zero-offset stop poses
   and the stop inventory remain unchanged.
 - Reduced motion (R18-ux, verdict 2): glides become cuts stop→stop; a cut lands on the

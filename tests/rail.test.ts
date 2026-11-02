@@ -129,12 +129,8 @@ describe('committed pose law', () => {
       expect(pose.target).toEqual(STAIR.stops[i === n - 1 ? i - 1 : i + 1]?.position);
     });
   });
-  it('holds the destination’s committed target after the departure turn (R18-ux verdict 2)', () => {
-    // Mid segment b→c, past the 0.18 turn: the hold is exact — the destination's own
-    // committed object (for the pose-law stop c: the NEXT stop's position).
-    const pose = samplePose(STAIR, restingAt(0.5));
-    expect(pose.target).toEqual(STAIR.stops[3]?.position);
-  });
+  // (B9: the old «holds the destination's committed target after the departure turn» row is
+  // superseded by tests/rail-b9.test.ts's field law — no point hold exists mid-segment.)
 });
 
 describe('authored subjects (R-UX5 §8, D6)', () => {
@@ -142,22 +138,23 @@ describe('authored subjects (R-UX5 §8, D6)', () => {
     expect(samplePose(AIMED, restingAt(0)).target).toBe(AIMED.stops[0]?.subject);
     expect(samplePose(AIMED, restingAt(1)).target).toBe(AIMED.stops[1]?.subject);
   });
-  it(
-    'holds the destination subject once the turn completes (span ≤ TURN_SPAN_MAX_T); ' +
-      'before that the shortest-arc blend of the two live aims',
-    () => {
-      // A two-stop rail: k units 0..1. The turn widens with θ (A and B straddle a wide
-      // angle), so the hold is guaranteed only by the law's cap: past TURN_SPAN_MAX_T
-      // the target IS the destination's subject for the rest of the travel.
-      for (const k of [0.41, 0.6, 0.9]) {
-        expect(samplePose(AIMED, restingAt(k)).target).toEqual(B);
-      }
-      // Inside the window the target travels between the live aims (never jumps).
-      const early = samplePose(AIMED, restingAt(0.09)).target;
-      expect(early[0] ?? Number.NaN).toBeGreaterThan(0); // already dragged toward B's +10 x
-      expect(early[2] ?? Number.NaN).toBeGreaterThan(B[2]); // still short of B's z −40
-    },
-  );
+  it('travels the framing arc for the whole segment: exact framings at both ends, no point hold (B9)', () => {
+    // B9: no turn span and no cap — the aim carries the arc between the two framings for
+    // the WHOLE segment and meets B's framing only at the arrival.
+    const aPos = AIMED.stops[0]?.position ?? [0, 0, 0];
+    const bPos = AIMED.stops[1]?.position ?? [0, 0, 0];
+    const aDir = unitDir(A, aPos);
+    const chord = angleDeg(aDir, unitDir(B, bPos));
+    for (const s of [0.41, 0.6, 0.9]) {
+      const pose = samplePose(AIMED, restingAt(s));
+      const share = angleDeg(aDir, unitDir(pose.target, pose.position));
+      expect(share, `mid-turn arc share at s ${s}`).toBeGreaterThan(0);
+      expect(share, `arc share short of the arrival at s ${s}`).toBeLessThan(chord);
+      expect(pose.target === B, 'no destination object hold mid-segment').toBe(false);
+    }
+    expect(samplePose(AIMED, restingAt(0)).target).toBe(A);
+    expect(samplePose(AIMED, restingAt(1)).target).toBe(B);
+  });
   it('locks on a shared subject for the whole segment (a dolly with a subject)', () => {
     const A2: Vec3 = [10, 2.4, 0]; // equal by value, a distinct object
     const LOCK: Rail = { stops: [aimed('a', [0, 1.7, 0], A), aimed('b', [0, 1.7, -10], A2)] };
@@ -169,24 +166,40 @@ describe('authored subjects (R-UX5 §8, D6)', () => {
     }
   });
   it(
-    'holds the destination’s committed target after the departure turn when either end of ' +
-      'a segment is subjectless',
+    'meets the destination’s committed object only at the destination when either end of ' +
+      'a segment is subjectless (B9 framing law)',
     () => {
       const MIXED: Rail = { stops: [aimed('a', [0, 1.6, 0], A), stop('b', [0, 1.6, -10])] };
       expect(samplePose(MIXED, restingAt(0)).target).toBe(A);
       expect(samplePose(MIXED, restingAt(1)).target).toEqual(MIXED.stops[0]?.position);
       // The destination b is subjectless AND last: its committed object is the pose-law
-      // look-back point (a's position), and the hold delivers exactly that.
-      expect(samplePose(MIXED, restingAt(0.5)).target).toEqual(MIXED.stops[0]?.position);
+      // look-back point (a's position), and the arrival framing meets exactly that.
+      // Mid-segment the aim travels the arc between the framings — no point hold.
+      const midPose = samplePose(MIXED, restingAt(0.5));
+      expect(midPose.target === A, 'no source object hold mid-segment').toBe(false);
+      const aPos = MIXED.stops[0]?.position ?? [0, 0, 0];
+      expect(
+        angleDeg(unitDir(midPose.target, midPose.position), unitDir(A, aPos)),
+        'off A mid',
+      ).toBeGreaterThan(1e-6);
+      expect(
+        angleDeg(
+          unitDir(midPose.target, midPose.position),
+          unitDir(MIXED.stops[0]?.position ?? aPos, MIXED.stops[1]?.position ?? [0, 0, -10]),
+        ),
+        'off the arrival framing mid',
+      ).toBeGreaterThan(1e-6);
     },
   );
 });
 
-describe('the departure turn (R18-ux verdict 2)', () => {
-  it('a Back glide from i+1 to i holds subject i', () => {
-    // Backward from b: destination a holds A once the turn is done.
-    const pose = samplePose(AIMED, back(AIMED, 0.5));
-    expect(pose.target).toEqual(A);
+describe('the travel law (B9 field, superseding the R18/R19 departure turns)', () => {
+  it('a Back glide from i+1 to i holds subject i at the backward destination framing (B9)', () => {
+    // The fence at the arrival: the backward destination stop's framing object. Mid-segment
+    // the aim travels the arc between the framings — no point hold exists.
+    const pose = samplePose(AIMED, back(AIMED, 0));
+    expect(pose.target).toBe(A); // t = 0: the committed fence
+    expect(samplePose(AIMED, back(AIMED, 0.5)).target).not.toBe(A);
   });
   it('departure continuity: the gaze at u = k + ε turns within O(ε) of the committed gaze', () => {
     // R19-ux C: re-derived by measurement — the frozen-source law's residual is first order
@@ -207,17 +220,16 @@ describe('the departure turn (R18-ux verdict 2)', () => {
     const pose = samplePose(STAIR, done);
     expect(pose.target).toEqual(STAIR.stops[2]?.position);
   });
-  it('Back Gj→G0 turns from the fence at Gj; the hold lands only at G0 (near-field)', () => {
-    // R19-ux C near-field: JUNCTION's ray sweeps 82.39° under the nominal 0.4 span, so this
-    // pair's turn spans the whole segment. The old «capped at 0.4» row asserted the hold from
-    // s = 0.401 — superseded: there the gaze is still mid-turn (measured bearing 33.28° =
-    // the arc·s law 82.98°·0.401), and the hold is exact only at the destination stop.
+  it('Back Gj→G0 turns from the fence at Gj; the hold lands only at G0 (B9 framings)', () => {
+    // B9: the framings carry the whole 83° for the whole segment (the near-field class
+    // retired — its distance weight is now every pair's law). The fence holds at the exact
+    // stops; east of the fence the aim is strictly between the framings.
     const just = samplePose(GALLERY, back(GALLERY, stopParameter(GALLERY, 1)));
-    expect(just.target).toBe(GALLERY.stops[1]?.subject);
+    expect(just.target).toBe(GALLERY.stops[1]?.subject); // the Gj fence pose
     const mid = samplePose(GALLERY, back(GALLERY, stopParameter(GALLERY, 1) - 0.401 / 3));
-    expect(mid.target).not.toBe(GALLERY.stops[0]?.subject); // still mid-turn at the old cap spot
+    expect(mid.target).not.toBe(GALLERY.stops[0]?.subject); // still on the arc mid-segment
     const g0 = samplePose(GALLERY, back(GALLERY, 0));
-    expect(g0.target).toBe(GALLERY.stops[0]?.subject);
+    expect(g0.target).toBe(GALLERY.stops[0]?.subject); // the G0 fence pose
   });
   it('a mid-glide reversal re-anchors and keeps the per-16ms gaze change ≤ 3° (the step world)', () => {
     // The widest committed turn (θ = 90° at the widened span 0.36 ≈ 1034 ms of 2800) peaks
@@ -268,11 +280,11 @@ describe('the departure turn (R18-ux verdict 2)', () => {
     expect(state.glide).toBeNull();
     expect(state.u).toBe(stopParameter(GALLERY, 1));
   });
-  it('near-field Back Gj→G0 has no transient: pitch climbs monotonically to 3.06°', () => {
-    // R19-ux C near-field; supersedes B.16's ≈10.05° (FIXUPS 2) and the round's measured 17.39°.
-    // JUNCTION's ray sweeps 82.39° under the nominal 0.4 span, so the turn spans the segment
-    // with the distance fraction s as its weight: pitch = s·atan(0.7 / 13.098s) — 0.089° at
-    // s = 0.001, 2.615° at s = 0.07 (the old peak's spot), 3.0505° at s = 0.5, 3.0591° at G0.
+  it('the Back Gj→G0 pitch climbs linearly in distance, monotonically to its 3.06° settle (B9)', () => {
+    // B9: the framings carry the WHOLE segment — the blend weight IS the distance fraction
+    // w = 1 − 3u, so pitch = settle·w exactly (0.07 of the settle at the 7th-percent sample,
+    // half the settle at mid-distance). The old near-field curve (2.615° at its 7% spot)
+    // is retired.
     const u0 = stopParameter(GALLERY, 1);
     const pitchDeg = (pose: ReturnType<typeof samplePose>): number => {
       const [px, py, pz] = [pose.position[0] ?? 0, pose.position[1] ?? 0, pose.position[2] ?? 0];
@@ -289,15 +301,16 @@ describe('the departure turn (R18-ux verdict 2)', () => {
     expect(dips, 'the pitch never turns back down on the way to the settle').toBe(0);
     expect(peak, 'no sample rises above the settle').toBeLessThanOrEqual(settle + 1e-6);
     expect(pitches[0] ?? Number.NaN).toBeLessThan(0.1);
-    expect(pitches[69] ?? Number.NaN).toBeCloseTo(2.615, 2);
-    expect(pitches[499] ?? Number.NaN).toBeCloseTo(3.0505, 3);
+    expect(pitches[69] ?? Number.NaN).toBeCloseTo(settle * 0.07, 3);
+    expect(pitches[499] ?? Number.NaN).toBeCloseTo(settle * 0.5, 3);
     expect(settle).toBeCloseTo(3.0591, 3);
   });
 
-  it('near-field Back Gj→G0 spans the whole glide: half of the 83° pan at mid-segment', () => {
-    // Gj→EAST_DOOR is +x; along the straight mouth the live ray to JUNCTION keeps Gj−G0's
-    // bearing, 82.98° off +x, so the gaze bearing is 82.98°·s: 33.19° at s = 0.4 (where the
-    // capped turn used to land on JUNCTION) and 41.49° at s = 0.5; 82.98° only once at G0.
+  it('Back Gj→G0 spans the whole glide: the framings’ 83° pan half at mid-segment (B9)', () => {
+    // B9: the yaw reads the arc between the two framings — 82.98° off +x — with the same
+    // distance weight: 33.19° at w = 0.4 (u0·0.6), 41.49° at w = 0.5, and the fence's
+    // 82.98° only once at G0. (The recorded numbers coincide with the old row's: the old
+    // near-field law and B9 agree numerically on this pair's shape.)
     const u0 = stopParameter(GALLERY, 1);
     const bearingDeg = (pose: ReturnType<typeof samplePose>): number => {
       const hx = (pose.target[0] ?? 0) - (pose.position[0] ?? 0);
@@ -333,15 +346,19 @@ describe('the departure turn (R18-ux verdict 2)', () => {
 });
 
 describe('look limits', () => {
-  it('moves limits with turn phase, then holds the destination rows', () => {
+  it('moves limits with the distance weight, then holds the destination rows (B9)', () => {
+    // B9: the limits blend over the WHOLE remaining segment with s(τ) = smootherstep's
+    // travelled distance. G0's rows yaw 20 → Gj's yaw 30; pitch rows equal (15/15).
     const started = stepStop(GALLERY, restingAt(0), 1, false).state;
-    const halfway = advance(GALLERY, started, STEP_GLIDE_MS * 0.2);
-    const limits = sampleLimits(GALLERY, halfway);
-    expect(limits.yaw).toBeCloseTo(25, 7);
-    expect(limits.pitchUp).toBe(15);
-    expect(limits.pitchDown).toBe(15);
+    const fifth = advance(GALLERY, started, STEP_GLIDE_MS * 0.2);
+    expect(sampleLimits(GALLERY, fifth).yaw).toBeCloseTo(20 + 10 * 0.05792, 6);
+    expect(sampleLimits(GALLERY, fifth).pitchUp).toBe(15);
+    expect(sampleLimits(GALLERY, fifth).pitchDown).toBe(15);
     const held = advance(GALLERY, started, STEP_GLIDE_MS * 0.4);
-    expect(sampleLimits(GALLERY, held)).toEqual({ yaw: 30, pitchUp: 15, pitchDown: 15 });
+    expect(sampleLimits(GALLERY, held).yaw).toBeCloseTo(20 + 10 * 0.31744, 6);
+    // the arrival holds the destination rows exactly
+    const done = advance(GALLERY, started, STEP_GLIDE_MS);
+    expect(sampleLimits(GALLERY, done)).toEqual({ yaw: 30, pitchUp: 15, pitchDown: 15 });
   });
   it('clamp drag offsets', () => {
     // r21: drag accumulates the clamped TARGET; the rendered look eases in advance().
@@ -515,16 +532,18 @@ describe('corner runs and the approach field (R18-ux D3)', () => {
       expect(x, `chord x at u ${u.toFixed(4)}`).toBeLessThanOrEqual(1.6 + 1e-9);
     }
   });
-  it('a Forward glide into a stop with approach holds the approach point', () => {
-    // R19-ux C: re-derived from the turnFrame law for this pair — θ(JUNCTION → GALLERY_MOUTH
-    // at the G0 anchor) = 12.071° ≤ 45°, so the span does not widen: TURN_SPAN_T 0.31744
-    // (k units; u 0.10581). R18's probe u = 0.1 (k 0.3) sat inside it, mid-turn; the hold
-    // turns exact only past the span. Counter-asserts the sharper new-law pin: just before
-    // the span ends the pose is not yet held.
-    const pose = samplePose(GALLERY, restingAt(0.108)); // k 0.324, past the span
-    expect(pose.target).toEqual([4.4, 1.7, 73]);
-    const turning = samplePose(GALLERY, restingAt(0.105)); // k 0.315, inside the span
-    expect(turning.target).not.toEqual([4.4, 1.7, 73]);
+  it('a Forward glide into the approach stop reads the committed framings on both headings (B9)', () => {
+    // B9: GALLERY_MOUTH stays recorded but no longer steers — the aim travels the arc
+    // between G0's JUNCTION framing and Gj's EAST_DOOR framing, identical at both
+    // headings on the same rail point (the field law), and the arrival meets EAST_DOOR.
+    const fwd = samplePose(GALLERY, restingAt(0.108));
+    const bwd = samplePose(GALLERY, back(GALLERY, 0.108));
+    expect(
+      angleDeg(unitDir(fwd.target, fwd.position), unitDir(bwd.target, bwd.position)),
+      'the field at u 0.108 both headings',
+    ).toBeLessThan(1e-6);
+    const arrived = samplePose(GALLERY, restingAt(stopParameter(GALLERY, 1)));
+    expect(arrived.target).toBe(GALLERY.stops[1]?.subject); // EAST_DOOR at the ex-approach stop
   });
   it('a Back glide into the approach stop (and its own pose) keeps the subject', () => {
     const pose = samplePose(GALLERY, back(GALLERY, stopParameter(GALLERY, 1) + 0.05));

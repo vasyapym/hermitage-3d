@@ -134,7 +134,7 @@ sky-only rAF median is not a measurement of room GPU cost. Calibration remains p
 HUD-only selection-source/probe-count diagnostics; never invent a median for a skipped
 probe.
 
-## §4 Touch rail surface — amendment R17-B (rewritten by R18-ux verdict 1 + D6; placement and face re-ruled by R19-ux A; the slot re-ruled by R19-ux A.1)
+## §4 Touch rail surface — amendment R17-B (rewritten by R18-ux verdict 1 + D6; placement and face re-ruled by R19-ux A; the slot re-ruled by R19-ux A.1; the face re-glyphed and the slot certified the lowest clean line by R20-ux)
 
 «Add one separate navigation group, `#touch-rail`, with native Back and Forward buttons. Show
 it when any coarse pointer is available OR viewport width is at most 767.98 CSS px. Visibility
@@ -168,12 +168,15 @@ the render loop. Insufficient space is a failed layout gate, not permission to h
 essential navigation. Insufficient space means either the box on its slot runs into the
 ceiling, or the two buttons stand closer than TOUCH_RAIL_GAP_PX; both cases warn, neither
 moves the pair. A door label that outgrows its reserved band warns as well, and the layout
-that measures it stands the pair above the label. Face: two arrow glyphs — «←» for Back
-flush with the left inset, «→» for
-Forward flush with the right (the notes link's own glyph; nothing drawn) — in the chrome
+that measures it stands the pair above the label. Face: two arrow glyphs — «↓» for Back
+flush with the left inset, «↑» for
+Forward flush with the right (the notes link's own arrow family; nothing drawn) — in the chrome
 typeface at 28 px, the title card's ink (.85), a faint register for a dead direction
 (aria-disabled), ink on hover/focus, no underline; the accessible names stay the words
-(chrome.touchRailBack/Forward as aria-label). No boxes, background panel, progress text or
+(chrome.touchRailBack/Forward as aria-label). R20-ux: the glyphs point along the route's
+depth — «↑» into the scene, «↓» back out of it — because the route never strafes, and each
+glyph stays centred on its box's block axis, so the hit area grows inward and keeps its
+share below the glyph (the thumb lands at or below its aim point). No boxes, background panel, progress text or
 revived caption. Reserve the group's geometry while busy. These new 44-px targets do not
 resolve or
 retune the parked global 24-px accessibility item. Do not move existing chrome or add
@@ -187,6 +190,12 @@ slot read off the stack's top goes stale the moment a far-end label wraps — th
 interception. Three reserved lines cover the longest label at the 320-px floor; a shorter
 label (two lines at 360, one in landscape) leaves the difference empty above it, and the
 entry title surfaces one gap above the label's current box — at or below the pair's line.
+R20-ux note: the slot is the LOWEST clean line; directly below it sit the stack gap and
+then the highest member at its reserve, so the pair is never offset below the slot.
+Lowering the box by D px puts that member (D − gap) px into it, and with a reserve-filling
+door label D = gap + half the box is the R19-ux A defect. The pair stands lower only
+through a smaller honest reserve: fewer real door-label lines at the narrowest layout,
+measured, then re-cut in TOUCH_RAIL_PROMPT_LINES.
 
 ## §5 Travel and pointer laws
 
