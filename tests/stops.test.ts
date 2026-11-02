@@ -284,19 +284,20 @@ describe('square stop-gaze swings (R18-ux D1: the halfway rhythm)', () => {
     expect(SQUARE_RAIL.stops.map((s) => s.id)).toEqual(['S0', 'Sh', 'S1']);
     const sh = SQUARE_RAIL.stops[1];
     if (!sh) throw new Error('Sh missing');
-    expect(sh.position).toEqual([0, 1.7, 177]);
+    // DEC-037: the rail runs west of the Column axis; Sh moved off the axis with it.
+    expect(sh.position).toEqual([-12, 1.7, 177]);
     expect(sh.subject).toEqual(SQUARE_SH_GAZE);
     expect(SQUARE_SH_GAZE).toEqual([0, 8.5, 87]);
     expect(sh.look).toEqual({ yaw: 30, pitchUp: 25, pitchDown: 20 });
-    // The restated fences: S0 and S1 untouched.
-    expect(SQUARE_RAIL.stops[0]?.position).toEqual([0, 1.7, 230]);
+    // The restated fences: S1 untouched; S0 moved 24 m west with the rail.
+    expect(SQUARE_RAIL.stops[0]?.position).toEqual([-24, 1.7, 230]);
     expect(SQUARE_RAIL.stops[0]?.subject).toEqual(SQUARE_S0_GAZE);
     expect(SQUARE_RAIL.stops[2]?.position).toEqual([0, 1.7, 124]);
     expect(SQUARE_RAIL.stops[2]?.subject).toEqual(SQUARE_S1_GAZE);
   });
   for (const [n, measured, expected] of [
-    ...swingRows(SQUARE_RAIL, 'S0', 'Sh', 2.0),
-    ...swingRows(SQUARE_RAIL, 'Sh', 'S1', 4.4),
+    ...swingRows(SQUARE_RAIL, 'S0', 'Sh', 2.6), // DEC-037: the west rail (was 2.0 on the axis)
+    ...swingRows(SQUARE_RAIL, 'Sh', 'S1', 8.7), // DEC-037: the west rail (was 4.4 on the axis)
   ]) {
     it(`${n}: swing ≈ ${expected}° (3D ${measured.toFixed(2)}°) stays under the head law`, () => {
       expect(measured, n).toBeCloseTo(expected, 1);

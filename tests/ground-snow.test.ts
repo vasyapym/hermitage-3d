@@ -1,12 +1,15 @@
 // tests/ground-snow.test.ts
 /**
- * R12 — the ground-snow look (design-ground-snow.md §§1–4).
+ * R12 — the ground-snow look (design-ground-snow.md §§1–4); DEC-037 re-centres the lane.
  * Pins the purity fence, the laws, the bit-exact identities at wSnow = 0 and 1,
  * the GLSL/TS agreement, and the splice-and-throw discipline.
+ * The lane is the square rail's XZ line (GROUND_LANE_LINE) — laneValue/trampleField take BOTH
+ * coordinates; the old lane(x) row shapes survive as their (x, z) restatements.
  */
 
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
+import { SQUARE_RAIL } from '../src/camera/square-rail';
 import {
   GROUND_SNOW_FRAGMENT_BODY,
   GROUND_SNOW_UNIFORMS,
@@ -15,10 +18,13 @@ import {
 import {
   GROUND_BOUNCE_LINEAR,
   GROUND_LANE,
+  GROUND_LANE_LINE,
   GROUND_SNOW_FRESH_LINEAR,
   GROUND_SNOW_TRAMPLED_LINEAR,
   GROUND_TRAMPLE_BASE,
   groundSnowAlbedo,
+  laneCentreX,
+  laneValue,
   snowBounceGround,
   trampleField,
 } from '../src/world/ground-snow';
@@ -66,29 +72,76 @@ describe('ground-snow purity fence', () => {
   });
 });
 
+describe('GROUND_LANE_LINE', () => {
+  it('restates the square rail: S1 (near, the gate axis) → S0 (far, west)', () => {
+    expect(GROUND_LANE_LINE.nearX).toBe(SQUARE_RAIL.stops[2]?.position[0]);
+    expect(GROUND_LANE_LINE.nearZ).toBe(SQUARE_RAIL.stops[2]?.position[2]);
+    expect(GROUND_LANE_LINE.farX).toBe(SQUARE_RAIL.stops[0]?.position[0]);
+    expect(GROUND_LANE_LINE.farZ).toBe(SQUARE_RAIL.stops[0]?.position[2]);
+  });
+
+  it('laneCentreX follows the rail line, clamped to the S1..S0 span', () => {
+    expect(laneCentreX(124)).toBe(0); // S1
+    expect(laneCentreX(177)).toBe(-12); // Sh: 53/106 of the span is exactly one half
+    expect(laneCentreX(230)).toBe(-24); // S0
+    // Outside the span the clamped end's x carries the extension:
+    expect(laneCentreX(100)).toBe(0); // the courtyard stays on the axis centre
+    expect(laneCentreX(260)).toBe(-24); // south of S0 stays at S0's x
+  });
+
+  it('is lane 1 under each stop, the clamped ends and the courtyard (centre 0)', () => {
+    expect(laneValue(-24, 230)).toBe(1);
+    expect(laneValue(-12, 177)).toBe(1);
+    expect(laneValue(0, 124)).toBe(1);
+    expect(laneValue(0, 100)).toBe(1);
+    expect(laneValue(-24, 260)).toBe(1);
+  });
+});
+
 describe('trampleField', () => {
-  it('is symmetric in x', () => {
-    for (const x of [0, 5, 10, 14, 18, 22, 60]) {
-      expect(trampleField(x)).toBe(trampleField(-x));
+  it('is symmetric about the rail line (not the axis)', () => {
+    for (const z of [124, 177, 230]) {
+      const c = laneCentreX(z);
+      for (const d of [0, 5, 10, 14, 18, 22, 60]) {
+        expect(trampleField(c + d, z)).toBe(trampleField(c - d, z));
+      }
     }
   });
 
   it('is exactly 1 inside the lane core', () => {
-    for (const x of [0, 3, 9.5, GROUND_LANE.coreHalfM, -GROUND_LANE.coreHalfM]) {
-      expect(trampleField(x)).toBe(1);
+    for (const z of [124, 177, 230, 190, 100, 260]) {
+      const c = laneCentreX(z);
+      for (const [x, zz] of [
+        [c, z],
+        [c + 3, z],
+        [c + 9.5, z],
+        [c + GROUND_LANE.coreHalfM, z],
+        [c - GROUND_LANE.coreHalfM, z],
+      ] as const) {
+        expect(trampleField(x, zz)).toBe(1);
+      }
     }
   });
 
   it('is exactly the base beyond the lane edge', () => {
-    for (const x of [GROUND_LANE.edgeHalfM, 40, 300, -300]) {
-      expect(trampleField(x)).toBe(GROUND_TRAMPLE_BASE);
+    for (const z of [124, 177, 230, 100, 260]) {
+      const c = laneCentreX(z);
+      for (const [x, zz] of [
+        [c + GROUND_LANE.edgeHalfM, z],
+        [c + 40, z],
+        [c + 300, z],
+        [c - 300, z],
+      ] as const) {
+        expect(trampleField(x, zz)).toBe(GROUND_TRAMPLE_BASE);
+      }
     }
   });
 
   it('is monotone non-increasing across the falloff and stays in range', () => {
-    let previous = trampleField(GROUND_LANE.coreHalfM);
-    for (let x = GROUND_LANE.coreHalfM; x <= GROUND_LANE.edgeHalfM; x += 0.25) {
-      const value = trampleField(x);
+    const c = laneCentreX(177);
+    let previous = trampleField(c + GROUND_LANE.coreHalfM, 177);
+    for (let d = 0; d <= GROUND_LANE.edgeHalfM - GROUND_LANE.coreHalfM; d += 0.25) {
+      const value = trampleField(c + GROUND_LANE.coreHalfM + d, 177);
       expect(value).toBeLessThanOrEqual(previous);
       expect(value).toBeGreaterThanOrEqual(GROUND_TRAMPLE_BASE);
       expect(value).toBeLessThanOrEqual(1);
@@ -101,8 +154,15 @@ describe('groundSnowAlbedo', () => {
   const asphalt: LinearRgb = [0.0497, 0.0497, 0.0497];
 
   it('returns asphalt bit-exactly at wSnow = 0', () => {
-    for (const x of [0, 15, 300]) {
-      const out = groundSnowAlbedo(x, 0, asphalt);
+    for (const [x, z] of [
+      [0, 124],
+      [-12, 177],
+      [-24, 230],
+      [15, 300],
+      [300, 300],
+      [0, 50],
+    ] as const) {
+      const out = groundSnowAlbedo(x, z, 0, asphalt);
       expect(out[0]).toBe(asphalt[0]);
       expect(out[1]).toBe(asphalt[1]);
       expect(out[2]).toBe(asphalt[2]);
@@ -110,18 +170,60 @@ describe('groundSnowAlbedo', () => {
   });
 
   it('is fully trampled in the lane at wSnow = 1', () => {
-    const out = groundSnowAlbedo(0, 1, asphalt);
-    expect(out[0]).toBe(GROUND_SNOW_TRAMPLED_LINEAR[0]);
-    expect(out[1]).toBe(GROUND_SNOW_TRAMPLED_LINEAR[1]);
-    expect(out[2]).toBe(GROUND_SNOW_TRAMPLED_LINEAR[2]);
+    for (const [x, z] of [
+      [0, 124], // the centre at S1
+      [-12, 177], // the centre at Sh
+      [-12, 190], // the centre at z 190
+      [-24, 230], // the centre at S0
+    ] as const) {
+      const out = groundSnowAlbedo(x, z, 1, asphalt);
+      expect(out[0]).toBe(GROUND_SNOW_TRAMPLED_LINEAR[0]);
+      expect(out[1]).toBe(GROUND_SNOW_TRAMPLED_LINEAR[1]);
+      expect(out[2]).toBe(GROUND_SNOW_TRAMPLED_LINEAR[2]);
+    }
   });
 
   it('settles to mix(FRESH, TRAMPLED, BASE) beyond the lane edge at wSnow = 1', () => {
-    const out = groundSnowAlbedo(GROUND_LANE.edgeHalfM, 1, asphalt);
+    const out = groundSnowAlbedo(laneCentreX(177) + GROUND_LANE.edgeHalfM, 177, 1, asphalt);
     for (let c = 0; c < 3; c += 1) {
       const fresh = GROUND_SNOW_FRESH_LINEAR[c] ?? Number.NaN;
       const trampled = GROUND_SNOW_TRAMPLED_LINEAR[c] ?? Number.NaN;
       expect(out[c]).toBe(lerp(fresh, trampled, GROUND_TRAMPLE_BASE));
+    }
+  });
+
+  it('agrees with the TS mix chain at lane-mid points for every wSnow', () => {
+    const asphaltTwin: LinearRgb = [0.0497, 0.0497, 0.0497];
+    for (const [x, z] of [
+      [0, 124],
+      [-12, 177],
+      [-24, 230],
+      [laneCentreX(177) + 16, 177],
+    ] as const) {
+      const t = trampleField(x, z);
+      const snowRgb = [
+        lerp(
+          GROUND_SNOW_FRESH_LINEAR[0] ?? Number.NaN,
+          GROUND_SNOW_TRAMPLED_LINEAR[0] ?? Number.NaN,
+          t,
+        ),
+        lerp(
+          GROUND_SNOW_FRESH_LINEAR[1] ?? Number.NaN,
+          GROUND_SNOW_TRAMPLED_LINEAR[1] ?? Number.NaN,
+          t,
+        ),
+        lerp(
+          GROUND_SNOW_FRESH_LINEAR[2] ?? Number.NaN,
+          GROUND_SNOW_TRAMPLED_LINEAR[2] ?? Number.NaN,
+          t,
+        ),
+      ] as LinearRgb;
+      for (const w of [0, 0.5, 1]) {
+        const out = groundSnowAlbedo(x, z, w, asphaltTwin);
+        expect(out[0]).toBe(lerp(asphaltTwin[0], snowRgb[0], w));
+        expect(out[1]).toBe(lerp(asphaltTwin[1], snowRgb[1], w));
+        expect(out[2]).toBe(lerp(asphaltTwin[2], snowRgb[2], w));
+      }
     }
   });
 });
@@ -154,7 +256,7 @@ describe('snowBounceGround', () => {
 });
 
 describe('ground-snow constants', () => {
-  it('re-exports the season law\u2019s fresh albedo by reference', () => {
+  it('re-exports the season law’s fresh albedo by reference', () => {
     expect(GROUND_SNOW_FRESH_LINEAR).toBe(SNOW_ALBEDO_LINEAR);
   });
 
@@ -174,13 +276,25 @@ describe('ground-snow constants', () => {
 describe('GLSL / TS agreement', () => {
   const glslFloat = (x: number): string => (Number.isInteger(x) ? `${x}.0` : `${x}`);
 
-  it('emits the lane, base and albedo constants into the fragment body', () => {
-    expect(GROUND_SNOW_FRAGMENT_BODY).toContain(glslFloat(GROUND_LANE.coreHalfM));
-    expect(GROUND_SNOW_FRAGMENT_BODY).toContain(glslFloat(GROUND_LANE.edgeHalfM));
-    expect(GROUND_SNOW_FRAGMENT_BODY).toContain(glslFloat(GROUND_TRAMPLE_BASE));
+  it('emits the lane-line, lane width, base and albedo constants into the fragment body', () => {
+    for (const n of [
+      GROUND_LANE_LINE.nearX,
+      GROUND_LANE_LINE.nearZ,
+      GROUND_LANE_LINE.farX,
+      GROUND_LANE_LINE.farZ,
+      GROUND_LANE.coreHalfM,
+      GROUND_LANE.edgeHalfM,
+      GROUND_TRAMPLE_BASE,
+    ]) {
+      expect(GROUND_SNOW_FRAGMENT_BODY).toContain(glslFloat(n));
+    }
     for (const channel of [...GROUND_SNOW_FRESH_LINEAR, ...GROUND_SNOW_TRAMPLED_LINEAR]) {
       expect(GROUND_SNOW_FRAGMENT_BODY).toContain(glslFloat(channel));
     }
+    // The DEC-037 clamped-rail shape: world Z clamped to the S1..S0 span, x measured from
+    // the rail line via groundLaneX (the interpolated twin of laneCentreX).
+    expect(GROUND_SNOW_FRAGMENT_BODY).toContain('clamp( vGroundXZ.y');
+    expect(GROUND_SNOW_FRAGMENT_BODY).toContain('abs( vGroundXZ.x - groundLaneX )');
   });
 });
 

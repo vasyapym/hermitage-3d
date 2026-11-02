@@ -1,6 +1,5 @@
-// src/procedural/ground-snow.ts
 /**
- * R12 — the ground-snow slot (design-ground-snow.md §§1–4).
+ * R12 — the ground-snow slot (design-ground-snow.md §§1–4); DEC-037 re-centres the lane.
  *
  * ONE onBeforeCompile + customProgramCacheKey on the ground MeshLambertMaterial:
  * an ALBEDO term only (Lambert has no roughness/metalness). No draws, no triangles,
@@ -11,10 +10,10 @@
  * At uSnow = 0 the fragment's mix is exactly diffuseColor.rgb in IEEE, so
  * out-of-season frames are analytically unchanged. No early-out branch, by design.
  */
-
 import type { Material } from 'three';
 import {
   GROUND_LANE,
+  GROUND_LANE_LINE,
   GROUND_SNOW_FRESH_LINEAR,
   GROUND_SNOW_TRAMPLED_LINEAR,
   GROUND_TRAMPLE_BASE,
@@ -40,11 +39,20 @@ function spliceChunk(source: string, anchor: string, replacement: string): strin
 const FRESH_GLSL = GROUND_SNOW_FRESH_LINEAR.map(glslFloat).join(', ');
 const TRAMPLED_GLSL = GROUND_SNOW_TRAMPLED_LINEAR.map(glslFloat).join(', ');
 const BASE_GLSL = glslFloat(GROUND_TRAMPLE_BASE);
+const NEAR_X = glslFloat(GROUND_LANE_LINE.nearX);
+const NEAR_Z = glslFloat(GROUND_LANE_LINE.nearZ);
+const FAR_X = glslFloat(GROUND_LANE_LINE.farX);
+const FAR_Z = glslFloat(GROUND_LANE_LINE.farZ);
 
-/** Exported so the unit test can pin GLSL/TS agreement against the same constants. */
+/**
+ * Exported so the unit test can pin GLSL/TS agreement against the same constants. The lane lines
+ * mirror laneCentreX / laneValue operation for operation (vGroundXZ.y is world Z).
+ */
 export const GROUND_SNOW_FRAGMENT_BODY = `#include <color_fragment>
 {
-float groundLane = 1.0 - smoothstep( ${glslFloat(GROUND_LANE.coreHalfM)}, ${glslFloat(GROUND_LANE.edgeHalfM)}, abs( vGroundXZ.x ) );
+float groundLaneZ = clamp( vGroundXZ.y, ${NEAR_Z}, ${FAR_Z} );
+float groundLaneX = ${NEAR_X} + ( ${FAR_X} - ${NEAR_X} ) * ( ( groundLaneZ - ${NEAR_Z} ) / ( ${FAR_Z} - ${NEAR_Z} ) );
+float groundLane = 1.0 - smoothstep( ${glslFloat(GROUND_LANE.coreHalfM)}, ${glslFloat(GROUND_LANE.edgeHalfM)}, abs( vGroundXZ.x - groundLaneX ) );
 float groundTrample = ${BASE_GLSL} + ( 1.0 - ${BASE_GLSL} ) * groundLane;
 vec3 groundSnowRgb = mix( vec3( ${FRESH_GLSL} ), vec3( ${TRAMPLED_GLSL} ), groundTrample );
 diffuseColor.rgb = mix( diffuseColor.rgb, groundSnowRgb, uSnow );

@@ -230,8 +230,9 @@ Eye height 1.7 m above the local floor; `t` on the room rail; look limits yaw/pi
 
 | stop | position (declared) | look limits | caption beat |
 |---|---|---|---|
-| S0 | (0, 1.7, 230) — exists today | ±35/±35 | the facade and the hour |
-| S1 | (0, 1.7, 100) — arch approach | ±25 / +20…−10 | the arch opens |
+| S0 | (−24, 1.7, 230) — exists today, west of the Column's axis (DEC-037) | ±35/±35 | the facade and the hour |
+| Sh | (−12, 1.7, 177) — halfway on the west rail (R18-ux D1; DEC-037) | ±30 / +25…−20 | the arch beat (caption.s1 reused; no Sh caption authored) |
+| S1 | (0, 1.7, 124) — arch approach, on the gate axis | ±25 / +20…−10 | the arch opens |
 | G0 | (0, 1.7, 86) — inside the arch plane | ±20/±15 | dark; the square behind |
 | G1 | (24, 1.7, 73) — gallery mid | ±30/±15 | compression |
 | G2 | (42, 1.7, 73) — east door | ±15/±10 | the door (airlock) |
@@ -240,6 +241,11 @@ Eye height 1.7 m above the local floor; `t` on the room rail; look limits yaw/pi
 | J2 | (79, 6.7, −80) — half-landing turn | ±35/±35 | portholes mirror the windows |
 | J3 | (73, 9.7, −76) — upper flight | ±35/±30 | the gallery above |
 | J4 | (73, 11.7, −66) — landing between the twin columns | ±35/±30 | arrival; the portal (landing airlock) |
+
+> **DEC-037 (the square rail).** The rail no longer lies ON the gate axis — it runs 24 m west
+> and meets it at S1; the three stops stay XZ-collinear (the square's `S0/Sh/S1` rows above),
+> the subjects untouched, the perpendicular Column clearance 14.57449 m. Supersedes this
+> section's on-axis S0/S1 rows only.
 
 Rail: Catmull-Rom through stop positions with two helper points per flight for the turns; `cam` float as today. Inputs unchanged (scroll/drag/arrows). `prefers-reduced-motion`: glides become cuts stop→stop; airlocks force `transit:'cut'`.
 
