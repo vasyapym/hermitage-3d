@@ -52,10 +52,12 @@ const meanLuminance = (file: string): number => {
 };
 
 // One interior transit on a fresh page: settle at `from`, hop, settle at `to`, idle.
+// NOTE: the hop hash is composed on the Node side and passed as the argument — the
+// evaluate callback runs in the BROWSER context (the three-times-recorded closure trap).
 const hopAndSettle = async (page: Page, from: string, to: string): Promise<void> => {
   await page.goto(`/#/${from}${AT}`);
   await expect.poll(() => hudSettled(page, from), { timeout: SETTLE_TIMEOUT_MS }).toBe(true);
-  await page.evaluate(({ to }) => (location.hash = `#/${to}${AT}`), { to });
+  await page.evaluate((hash) => (location.hash = hash), `#/${to}${AT}`);
   await expect.poll(() => hudSettled(page, to), { timeout: SETTLE_TIMEOUT_MS }).toBe(true);
 };
 
