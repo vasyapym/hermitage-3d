@@ -11,11 +11,27 @@ changes).
   chain as needed, `pnpm validate`, the jordan capture battery).** The owner's live verdict on the
   room AS MERGED FROM SLICE 1: it reads as a very raw draft — work it. The relay opens with a
   CREATIVE zero-steering find/slice dossier split across two briefs after a transport timeout
-  (vault `projects v9/` — `1-hermitage-3d-jordan-slice-2-part1-find.md` the decision brief, SENT;
-  `2-hermitage-3d-jordan-slice-2-part2-code.md` the sources pack, STAGED until the adopted
-  outcome restates+constants into it — the 13-mesh census, materials/light/gate facts, capture
-  reads, verbatim source appendix; the recipient set AGENTIC-with-workspace by the owner;
-  compiled by delegated subagents from the frozen snapshot). The round rides the ROUNDS top row
+  (vault `projects v9/` — `1-hermitage-3d-jordan-slice-2-part1-find.md` the decision brief,
+  round 1 REPLIED; `2-hermitage-3d-jordan-slice-2-part2-code.md` the sources pack completed into
+  the implementation brief — the 13-mesh census, materials/light/gate facts, capture reads,
+  verbatim source appendix; the recipient set AGENTIC-with-workspace by the owner; compiled by
+  delegated subagents from the frozen snapshot). ROUND-1 ADOPTED: the FIND ranked — the states
+  mis-exposed at encode (day capped 0.4, night quantized, dusk range-less) · the emissive chips
+  blown white in every state and casting nothing · the fixture light with no body · the four
+  procedural surfaces tiling visibly · the shell's one-cell wall quads · the faceted vault ·
+  unarticulated wall fields (= 2b, named not taken) — «the room reads raw because it is
+  UNDER-LIT and UNDER-FINISHED, not under-built». THE SLICE = 2a «lit and finished before
+  furnished»: the per-state percentile encode law (W_s = p99.5 non-emissive EXR luminance,
+  clamped; g = 1/W; jordan-only mode; the dormant 6.0 scalars retired) + a bake-only 800 W lamp
+  rig (dusk/night; chips 6→1.0/0.0) + per-state pane bake emission + glb emissive retune
+  (3.0/2.0/2.5) + the four textures as seeded hash-lattice value noise + the shell wall fields
+  ≤ 2.0 m (+350 cells) + vault auto-smooth 30°. OWNER-RATIFIED ×2: DEC-026 = emission-as-lighting;
+  the 2a/2b + E-slices labelling. The reply was transport-cut in the validation tail (salvaged
+  complete for decisions). The shared-file collision rides the merge note: bake.py /
+  reencode.mjs / bake.mjs / lightmap-look.ts with the rastrelli lane — per-room mode keeps the
+  other rooms byte-identical. STEP 0 runs on a delegated mechanical subagent (stats +
+  false-colours + the W 0.45 day probe + J0/J3/J4 captures + three read-only adjudications);
+  brief 2 carries the measured W_s. The round rides the ROUNDS top row
   `PARALLEL · jordan-slice-2` (in-flight, below — rows 63/64's slots already MERGED via their
   own flip convention). CORRECTION TO THE BLOCK BELOW (stale by later merges): the slice-1
   branch's merge DID happen ahead of the square-env slot per the Live-state rows — its head
