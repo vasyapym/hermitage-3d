@@ -626,6 +626,49 @@ body {
   }
 }
 
+/* R23-ux (design-load-line.md): the load line — the loading stage under the card's room
+   title. One sans row in the hint's size with the clock row's tabular numerals, at .72
+   white — the values register between the title's .85 and the hint's .55, because it is
+   information in transit, not a resting control. The states ride data-state: off is
+   display:none (no box, no settled layout ever moves); armed is the box present but
+   transparent (the card hold before the threshold, and the fade-out with the title);
+   open/bytes/assemble/failed are ink. Fades ride the stack's own opacity law; reduced
+   motion drops the transition and the numerals carry on (content, not motion). */
+#load-line {
+  --caption-fade: 240ms;
+  margin: 0;
+  padding: 0;
+  text-align: right;
+  font-family: var(--font-sans, system-ui, sans-serif);
+  font-size: var(--hint-size);
+  letter-spacing: 0;
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: rgba(255, 255, 255, 0.72);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+  opacity: 0;
+  transition: opacity var(--caption-fade) ease;
+  pointer-events: none;
+  user-select: none;
+  display: none;
+}
+#load-line[data-state="armed"] {
+  display: block;
+}
+#load-line[data-state="open"],
+#load-line[data-state="bytes"],
+#load-line[data-state="assemble"],
+#load-line[data-state="failed"] {
+  display: block;
+  opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  #load-line {
+    transition: none;
+  }
+}
+
 /* Mobile-B (design-mobile-tier.md §4, R19-ux A + A.1): the touch rail — the separate navigation
    surface, a pair of ARROWS standing one stack gap above the corner stack's tallest door
    state: «↓» inside the left inset + its shift, «↑» inside the right inset + its shift (the

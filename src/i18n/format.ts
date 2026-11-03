@@ -36,14 +36,59 @@ export const THOUSANDS_SEPARATOR = THIN_SPACE;
 export const UNIT_SEPARATOR = NO_BREAK_SPACE;
 export const MAX_FRACTION_DIGITS = 2;
 
-export type ByteUnit = 'B' | 'kB';
+export type ByteUnit = 'B' | 'kB' | 'MB';
 
 export const BYTE_UNITS = {
   B: { en: 'B', ru: 'Б' },
   kB: { en: 'kB', ru: 'кБ' },
+  MB: { en: 'MB', ru: 'МБ' },
 } satisfies Record<ByteUnit, Record<Lang, string>>;
 
 export const formatByteUnit = (unit: ByteUnit, lang: Lang): string => BYTE_UNITS[unit][lang];
+
+/** The byte-progress law (design-load-line.md, R23-ux): a total under 1 MB reads integer KB;
+ * a total from 1 MB reads one-decimal MB — the digits' width stays constant while the
+ * numerals tick. Both values quantize at `resolution` bytes (the load line's write step,
+ * 0.1 MB == 100_000 B) so a sub-step stream chunk lands no re-render; the RU/EN columns
+ * differ only in the decimal byte and the unit's script. The received value rides the key
+ * bare and the total carries the unit — the unit shows once, per the design. */
+export const BYTE_PROGRESS_KB_MAX = 1_000_000;
+export const BYTE_PROGRESS_STEP = 100_000;
+
+export const formatByteProgress = (
+  receivedBytes: number,
+  totalBytes: number,
+  lang: Lang,
+  resolution: number = BYTE_PROGRESS_STEP,
+): Readonly<{ received: string; total: string }> => {
+  if (!Number.isFinite(receivedBytes) || !Number.isFinite(totalBytes)) {
+    throw new RangeError(
+      `formatByteProgress: bytes must be finite, got ${receivedBytes} / ${totalBytes}`,
+    );
+  }
+  const received = Math.min(receivedBytes, totalBytes);
+  if (totalBytes < BYTE_PROGRESS_KB_MAX) {
+    return {
+      received: formatInt(Math.floor(received / 1_000)),
+      total: withUnit(formatInt(Math.round(totalBytes / 1_000)), formatByteUnit('kB', lang)),
+    };
+  }
+  return {
+    received: fixedOneDecimalMb(Math.floor(received / resolution) * resolution, lang),
+    total: withUnit(
+      fixedOneDecimalMb(Math.floor(totalBytes / resolution) * resolution, lang),
+      formatByteUnit('MB', lang),
+    ),
+  };
+};
+
+/** One-decimal MB, always: formatNumber's fast path trims trailing zeros, which would make
+ * the digits' width jump at whole megabytes — the law keeps «1,0» instead of «1». A step
+ * multiple is exact in tenths (pure integer arithmetic). */
+const fixedOneDecimalMb = (bytes: number, lang: Lang): string => {
+  const tenths = Math.floor(bytes / 100_000);
+  return `${groupDigits(String(Math.floor(tenths / 10)))}${DECIMAL_SEPARATOR[lang]}${String(tenths % 10)}`;
+};
 
 export const PETERSBURG_OFFSET_LABEL = 'UTC+03:00';
 export const PETERSBURG_OFFSET_MS = 3 * 60 * 60 * 1000;

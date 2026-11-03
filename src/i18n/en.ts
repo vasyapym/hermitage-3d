@@ -53,6 +53,14 @@ export const en = {
   'chrome.sceneUnsupported': 'This tour requires a browser with WebGL2 support.',
   'chrome.sceneInterrupted': 'The scene is unavailable. Reload the page.',
   'chrome.sceneReload': 'Reload',
+  // The load line (design-load-line.md, R23-ux): the loading stage under the card's room
+  // title — the stage verb, the live byte pair, the assemble verb; the failure row is the
+  // same promise (the chain rejected and the card would hold silently). Tokens are the
+  // formatted byte values from format.ts's formatByteProgress; the unit rides {total}.
+  'chrome.load.open': 'Loading the room',
+  'chrome.load.bytes': 'Loading the room · {received} of {total}',
+  'chrome.load.assemble': 'Assembling the room · {total}',
+  'chrome.load.failed': 'The room did not open · reload the page',
   'index.open': 'Rooms',
   'index.title': 'Rooms',
   'index.current': 'Current room',

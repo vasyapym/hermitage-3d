@@ -57,6 +57,31 @@ file in the same session.
 
 ## Live state
 
+- **2026-11-03/04 · PARALLEL (worktree `~/Documents/hermitage-3d-roomload-mglight`, branch
+  `roomload-mglight` off main 92d3a4f — merges at the owner's signal; PARALLEL to the
+  jordan-slice-2 session): R23-ux the LOAD LINE + R24-ux the ENVIRONMENT HANDOVER, both
+  relayed (vault `projects v10` briefs 18/19, replies integrated; the third parallel item —
+  the project-course dossier, brief 20 — waits its turn in the vault).** R23-ux: the loading
+  stage reads live under the card's room title (`#load-line`: verb + honest byte pair,
+  nothing drawn, tabular numerals the one motion; 1 s card-threshold with a latch to the
+  title clear; the stages mark the host's own awaits via a per-row streaming sink; the
+  `failed` row announces once over the alert region). R24-ux: the dark-on-entry bug FIXED
+  (owner-measured: interior→interior arrivals read 0.49/0.80 of their cold twins with the
+  environment slot NULL — the departing room's unconditional unmount clear landed AFTER the
+  destination's hold-time publication; every interior room now saves its own per-load handle
+  and releases through `environment-slot.ts` — clear-on-identity, own-resource disposal
+  regardless; committed e2e regression + hot/cold luminance fences 0.85–1.15 at the pinned
+  pose). GATES on the branch (targeted battery): tsc 0, biome clean, vitest **1014/1/0**
+  (61 files, +38 rows: the latch/stage/format law, the sink law, the slot/lifecycle law,
+  both purity fences), build **281,474 gzip of 350,000** (+1,330 combined; the 285,707
+  ceiling holds), RU 7,332 of 12,000, budgets all ok. NOT DONE at the branch close: the e2e
+  battery (the new load-line + handover specs + smoke) — the machine was NOT quiet (the
+  parallel session's bpy bake saturates the 2 cores; the first attempt hung and was
+  abandoned) — it runs when the machine quiets or riders the stack finale with the FULL
+  e2e/golden gate per the PARALLEL law. The two full test rows deferred NOT waived. Docs
+  landed: DEC-038, DEC-039, design-load-line.md, design-environment-handover.md, this
+  bullet, ROUNDS rows 68/69.
+
 - **2026-11-03 · R22-ux MERGED TO MAIN from the parallel branch `r22-1812-look` (the worktree
   `~/Documents/hermitage-3d-uxfix-arrows-look`, off the arrows-merge ed25e4b; the FULL
   e2e/golden gate WAIVED by the owner's solo-merge ruling — the targeted battery green, rest

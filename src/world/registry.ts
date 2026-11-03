@@ -121,8 +121,15 @@ export type RoomPayload = Readonly<{ glb: ArrayBuffer; ktx2: ReadonlyMap<string,
 export type RoomObject = unknown;
 /** A decoded runtime texture (three's Texture, opaque here — the pure core never names three). */
 export type RoomTexture = unknown;
+/** R23-ux (design-load-line.md): per-row fetch progress — monotone cumulative byte counts
+ * for the row named in the first argument, called from the loaders as chunks land. */
+export type RowByteSink = (rowPath: string, loadedBytes: number) => void;
 export interface RoomAssetService {
-  fetchRoom(manifest: RoomManifest, signal: AbortSignal): Promise<RoomPayload>;
+  fetchRoom(
+    manifest: RoomManifest,
+    signal: AbortSignal,
+    onBytes?: RowByteSink,
+  ): Promise<RoomPayload>;
   mountParsed(roomId: RoomId, payload: RoomPayload): Promise<RoomObject>;
   /** §4: decode the room's lm ktx2 rows (hold-only; the caller maps paths via blend's stateOfPath). */
   decodeRoomTextures(
@@ -145,6 +152,14 @@ export interface RoomScene {
   remove(object: RoomObject): void;
   /** §5: the room's PMREM probe attaches to the host scene's environment; null clears it. */
   setEnvironment(object: RoomObject | null): void;
+  /**
+   * R24-ux — the ownership-checked release (docs/design-environment-handover.md): clear
+   * the slot ONLY if it still holds exactly this handle (interior lifetimes overlap —
+   * the destination published during the hold); returns whether the clear happened. The
+   * caller owes its own resource's disposal regardless of the answer; the law lives in
+   * src/assets/environment-slot.ts.
+   */
+  clearEnvironmentIfCurrent(object: RoomObject | null): boolean;
 }
 export interface RoomLoadContext {
   readonly assets: RoomAssetService;

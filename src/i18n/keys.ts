@@ -41,7 +41,11 @@ export type ChromeKey =
   | 'chrome.travelHintTouch'
   | 'chrome.sceneUnsupported'
   | 'chrome.sceneInterrupted'
-  | 'chrome.sceneReload';
+  | 'chrome.sceneReload'
+  | 'chrome.load.open'
+  | 'chrome.load.bytes'
+  | 'chrome.load.assemble'
+  | 'chrome.load.failed';
 
 /** Room index (design-gallery §6.2–6.4): the chrome button, the dialog heading, the current marker. */
 export type IndexKey = 'index.open' | 'index.title' | 'index.current';

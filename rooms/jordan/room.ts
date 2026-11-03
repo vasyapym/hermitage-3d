@@ -8,6 +8,7 @@
  * releases the whole scope in unmount.
  */
 import { applyTechnique, disposeTechnique } from '../../src/assets/blend-gl';
+import { releaseOwnedEnvironment } from '../../src/assets/environment-slot';
 import { LIGHT_STATES } from '../../src/content/lightmap-look';
 import { stateOfPath } from '../../src/world/blend';
 import type {
@@ -17,6 +18,7 @@ import type {
   RoomModule,
   RoomObject,
   RoomPayload,
+  RoomTexture,
   StateId,
 } from '../../src/world/registry';
 import { contract } from './contract';
@@ -24,6 +26,8 @@ import { contract } from './contract';
 let payload: RoomPayload | null = null;
 let whitePoint: LightmapIntensity | null = null;
 let object: RoomObject | null = null;
+/** R24-ux: the environment handle THIS mount created (per-load; the slot may be replaced). */
+let envHandle: RoomTexture | null = null;
 
 export const room: RoomModule = {
   contract,
@@ -45,6 +49,7 @@ export const room: RoomModule = {
     object = await ctx.assets.mountParsed(contract.id, payload);
     const env = await ctx.assets.mountEnvironment(contract.id, payload);
     ctx.scene.setEnvironment(env); // §5/ADR-0013: the probe is mounted once, inside the hold
+    envHandle = env; // R24-ux: the identity this mount owns (environment-slot.ts)
     applyTechnique(
       ctx.lmMode,
       contract.id,
@@ -59,8 +64,11 @@ export const room: RoomModule = {
   unmount(ctx) {
     if (object === null) return;
     disposeTechnique(contract.id);
-    ctx.scene.setEnvironment(null);
-    ctx.assets.disposeEnvironment(contract.id);
+    // R24-ux: clear the slot ONLY if it still holds this mount's handle (interior
+    // lifetimes overlap during a transit — the destination published already); the
+    // resource is disposed regardless, exactly this mount's own (never early-return).
+    releaseOwnedEnvironment(ctx.scene, envHandle, () => ctx.assets.disposeEnvironment(contract.id));
+    envHandle = null;
     ctx.scene.remove(object);
     ctx.assets.disposeParsed(object);
     ctx.ledger.release(contract.id);

@@ -6,6 +6,7 @@ import './style.css';
 import * as THREE from 'three';
 import { AIRLOCKS, ENTRIES } from '../rooms/index';
 import { applyWeights } from './assets/blend-gl';
+import { clearEnvironmentIfOwned } from './assets/environment-slot';
 import { createLoaders } from './assets/loaders';
 import { fetchManifest } from './assets/manifests';
 import { parseCamParam } from './camera/cam-param';
@@ -47,7 +48,13 @@ import {
   TIERS,
 } from './engine/tier';
 import { type Key, t } from './i18n';
-import { formatDate, formatTime, PETERSBURG_OFFSET_LABEL } from './i18n/format';
+import {
+  format,
+  formatByteProgress,
+  formatDate,
+  formatTime,
+  PETERSBURG_OFFSET_LABEL,
+} from './i18n/format';
 import { activateLang, activeLang, onLangChange, resolveLang } from './i18n/locale';
 // Mobile-C capture (§18.1/§18.3/§18.6): the pure command/acquisition module; every value
 // reference below lives inside the perfLog-guarded branches, so the ordinary build folds
@@ -148,6 +155,15 @@ import {
   setLangParam,
   writeStoredLang,
 } from './ui/lang-host';
+// R23-ux: the load line's pure law (docs/design-load-line.md) — thresholds and
+// the stage map; the host owns the DOM and the copy. (The threshold itself lives in the
+// law's shouldShow — the host never reads the constant.)
+import {
+  LOAD_LINE_BYTE_STEP,
+  type LoadStage,
+  shouldShow as loadLineShown,
+  loadLine as loadLineStage,
+} from './ui/load-line';
 import { createSeasonMenu } from './ui/season-menu';
 import {
   admitTouchKey,
@@ -222,6 +238,10 @@ const caption = document.querySelector('#caption');
 if (!(caption instanceof HTMLElement)) throw new Error('#caption missing');
 const captionTitle = document.querySelector('#caption-title');
 if (!(captionTitle instanceof HTMLElement)) throw new Error('#caption-title missing');
+// R23-ux: the load line — the stage under the card title; the DOM law mirrors the title's
+// (opacity-only fades; off leaves no box at settle).
+const loadLineEl = document.querySelector('#load-line');
+if (!(loadLineEl instanceof HTMLElement)) throw new Error('#load-line missing');
 const captionLive = document.querySelector('#caption-live');
 if (!(captionLive instanceof HTMLElement)) throw new Error('#caption-live missing');
 const notesLink = document.querySelector('#notes-link');
@@ -521,12 +541,20 @@ renderer.toneMapping = THREE.AgXToneMapping;
 renderer.toneMappingExposure = sample.exposure;
 // §11 runtime counting: one reset per frame, every render in that frame aggregates.
 renderer.info.autoReset = false;
-// SUB-BISECT: temporary dev-only scene access for the lightmap probes; removed before commit.
-const zimnyDebug: { scene?: unknown; renderer?: unknown } = {};
+// Dev/test-only scene readout (the earlier SUB-BISECT probe, committed by R24-ux as the
+// environment-handover regression's structural assertion): narrowly named — the e2e row
+// reads `environmentPresent()` while the transit is idle; no per-frame diagnostic work.
+const zimnyDebug: {
+  scene?: unknown;
+  renderer?: unknown;
+  environmentPresent?: () => boolean;
+} = {};
 (window as { __zimnyDebug?: unknown }).__zimnyDebug = zimnyDebug;
 queueMicrotask(() => {
   zimnyDebug.scene = scene;
   zimnyDebug.renderer = renderer;
+  zimnyDebug.environmentPresent = () =>
+    scene.environment !== null && scene.environment !== undefined;
 });
 
 const scene = new THREE.Scene();
@@ -804,6 +832,11 @@ const roomScene: RoomScene = {
   setEnvironment: (object) => {
     scene.environment = (object ?? null) as THREE.Texture | null;
   },
+  // R24-ux: the ownership-checked release — the exact identity of the handle the setter
+  // assigned (environment-slot.ts holds the law; the slot facade is the only surface the
+  // room scopes touch).
+  clearEnvironmentIfCurrent: (object) =>
+    clearEnvironmentIfOwned(scene, (object ?? null) as THREE.Texture | null),
 };
 // The `?lm=` technique switch is ephemeral per URL (the hud pattern): parsed at boot and on
 // every hashchange; rooms mounted later pick up the current mode, a mounted room keeps its
@@ -904,6 +937,50 @@ const kickPrefetch = (node: NodeHandle): void => {
   }
 };
 
+// R23-ux (design-load-line.md): the load line's facts live with the room's load chain.
+// The stages mark at the ensureRoom awaits (open = this file's manifest+chunk awaits,
+// bytes = the manifest's rows streaming inside module.load whose rows are the PAYLOAD
+// bytes — the sum of the manifest's row sizes, NOT the GPU ledger), assemble = mount +
+// compileAsync, failed = the chain rejected. Cards read this map per frame; the record is
+// a fresh one per beginTransitTo, so a re-entered room counts its own chain. The sink is
+// bound only across module.load (the serialized-hold precedent keeps it race-free).
+type RoomLoadProgress = {
+  stage: LoadStage;
+  receivedBytes: number;
+  rows: Map<string, number>;
+  totalBytes: number | null;
+  shown: boolean;
+  announced: boolean;
+  stamped: boolean;
+  failAnnounced: boolean;
+};
+const loadProgress = new Map<string, RoomLoadProgress>();
+const freshProgress = (): RoomLoadProgress => ({
+  stage: 'open',
+  receivedBytes: 0,
+  rows: new Map<string, number>(),
+  totalBytes: null,
+  shown: false,
+  announced: false,
+  stamped: false,
+  failAnnounced: false,
+});
+const progressOf = (id: string): RoomLoadProgress => {
+  let record = loadProgress.get(id);
+  if (record === undefined) {
+    record = freshProgress();
+    loadProgress.set(id, record);
+  }
+  return record;
+};
+// A row's sink counts are monotone per row (the stream's chunks report cumulative bytes);
+// the room's received is the sum of the alive rows' last counts.
+const noteRowBytes = (id: string, rowPath: string, loaded: number): void => {
+  const record = progressOf(id);
+  if (loaded >= (record.rows.get(rowPath) ?? 0)) record.rows.set(rowPath, loaded);
+  record.receivedBytes = [...record.rows.values()].reduce((sum, bytes) => sum + bytes, 0);
+};
+
 const ensureRoom = (id: RoomId): Promise<void> => {
   const existing = roomWork.get(id);
   if (existing) return existing;
@@ -912,9 +989,18 @@ const ensureRoom = (id: RoomId): Promise<void> => {
     // r16 interim: no external abort source exists until the rail prefetch lands (r18).
     const controller = new AbortController();
     const manifest = await fetchManifest(id, controller.signal);
+    const record = progressOf(id);
+    record.stage = 'bytes';
+    record.totalBytes = manifest.files.reduce((sum, row) => sum + row.bytes, 0); // R23-ux: the payload total
     const module = await roomEntryOf(id).thunk();
     roomModules.set(id, module); // disposeFrom needs the module synchronously at exit
-    await module.load(roomCtx, manifest, controller.signal);
+    assets.setLoadSink((rowPath: string, loaded: number) => noteRowBytes(id, rowPath, loaded));
+    try {
+      await module.load(roomCtx, manifest, controller.signal);
+    } finally {
+      assets.setLoadSink(null);
+    }
+    progressOf(id).stage = 'assemble';
     await module.mount(roomCtx);
     await renderer.compileAsync(scene, camera);
   })();
@@ -926,6 +1012,12 @@ const ensureRoom = (id: RoomId): Promise<void> => {
     .catch((error: unknown) => {
       pendingChains -= 1;
       console.error(`zimny: room ${id} failed`, error); // the transit dwells on the dark card
+      const record = progressOf(id); // R23-ux: the failed row — the same spoken promise
+      record.stage = 'failed';
+      if (!record.failAnnounced) {
+        record.failAnnounced = true;
+        sceneAnnouncement.textContent = t('chrome.load.failed');
+      }
       roomWork.delete(id); // a later entry may start the chain again
     });
   return promise;
@@ -2401,6 +2493,7 @@ const beginTransitTo = (target: NodeHandle, cold = false): void => {
   // before the airlock owns the camera (§5's cancel/resume idempotence law).
   cancelGesture();
   transit = { state, target, def };
+  loadProgress.set(target, freshProgress()); // R23-ux: the card counts this transit's own chain
   syncTouchRail(); // the transit owns the input — the buttons flip off-cadence (the discrete point)
   // The threshold beat's exposure endpoints (§4): the departure drains the view the visitor
   // sees (outdoors E(h), indoors the room constant) and the arrival ramps to the
@@ -3459,6 +3552,72 @@ const tick = (timeMs: number): void => {
   }
   if (captionDiff.announcement) captionLive.textContent = captionNext.announcement;
   captionView = captionNext;
+
+  // R23-ux (design-load-line.md): the load line — armed while a transit's card waits,
+  // visibly past the threshold if data is still pending, gone at idle. The latch is the
+  // pure law's (loadLineShown); the view comes from the stage map (loadLineStage); the
+  // copy and the numbers ride the i18n laws. textContent writes only on change; on the
+  // way out the outgoing glyphs stay for their fade (the title's retention law) and the
+  // next show rewrites them. Called after the caption block so the one spoken word
+  // («Загружаем зал») lands after the caption's own announcement writes, never before.
+  {
+    let nextLoadState = 'off';
+    let nextLoadText = '';
+    const st = transit?.state;
+    if (st !== undefined && st.phase !== 'idle' && st.phase !== 'exit') {
+      nextLoadState = 'armed'; // depart/arrive: the glides are their own feedback
+      if (st.phase === 'card' && st.to !== null) {
+        const record = progressOf(st.to);
+        record.shown = loadLineShown({
+          elapsedMs: st.phaseElapsedMs,
+          dataReady: ready,
+          shown: record.shown,
+        });
+        if (record.shown) {
+          nextLoadState = record.stage;
+          if (!record.announced) {
+            record.announced = true;
+            captionLive.textContent = t('chrome.load.open'); // the ONE spoken word per transit
+          }
+          if (!record.stamped) {
+            record.stamped = true;
+            document.documentElement.dataset.loadLineShownAt = String(performance.now());
+          }
+          const view = loadLineStage({
+            stage: record.stage,
+            receivedBytes: record.receivedBytes,
+            totalBytes: record.totalBytes,
+          });
+          nextLoadState = view.kind;
+          if (view.kind === 'open') nextLoadText = t('chrome.load.open');
+          else if (view.kind === 'failed') nextLoadText = t('chrome.load.failed');
+          else {
+            const progress = formatByteProgress(
+              view.kind === 'bytes' ? view.receivedBytes : view.totalBytes,
+              view.totalBytes,
+              activeLang(),
+              LOAD_LINE_BYTE_STEP,
+            );
+            nextLoadText =
+              view.kind === 'bytes'
+                ? format(t('chrome.load.bytes'), {
+                    received: progress.received,
+                    total: progress.total,
+                  })
+                : format(t('chrome.load.assemble'), { total: progress.total });
+          }
+        }
+      }
+    }
+    if (loadLineEl.dataset.state !== nextLoadState) loadLineEl.dataset.state = nextLoadState;
+    if (
+      nextLoadState !== 'off' &&
+      nextLoadState !== 'armed' &&
+      nextLoadText !== loadLineEl.textContent
+    ) {
+      loadLineEl.textContent = nextLoadText;
+    }
+  }
 
   // The door label (R-UX2, §2): one pure view per frame, the node written on change (the
   // caption law's harmless brother). The visibility belongs to the law; the TEXT composes
