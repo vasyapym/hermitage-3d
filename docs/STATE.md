@@ -4,6 +4,22 @@ One file a new relay session reads at start. Two sections: **Live state** (updat
 integration that changes the facts — same session, never later) and **Standing protocol** (rarely
 changes).
 
+- **2026-11-03 · JORDAN SLICE 2 OPEN — PARALLEL to the other agent's in-flight track (worktree
+  `~/Documents/hermitage-3d-jordan2`, branch `jordan-slice-2` off ed25e4b; MERGE into main happens
+  at the owner's notification that the other agent's round is done — NOT this session; the FULL
+  e2e/golden gate runs at that merge only; this session runs SCOPE-LOCAL gates: the bake/encode
+  chain as needed, `pnpm validate`, the jordan capture battery).** The owner's live verdict on the
+  room AS MERGED FROM SLICE 1: it reads as a very raw draft — work it. The relay opens with a
+  CREATIVE zero-steering room-state dossier (vault `projects v9/1-hermitage-3d-jordan-slice-2-room-state.md`
+  — the 13-mesh census, materials/light/gate facts, capture reads, verbatim source appendix;
+  compiled by delegated subagents from the frozen snapshot). The round rides the ROUNDS top row
+  `PARALLEL · jordan-slice-2` (in-flight, below — rows 63/64's slots already MERGED via their
+  own flip convention). CORRECTION TO THE BLOCK BELOW (stale by later merges): the slice-1
+  branch's merge DID happen ahead of the square-env slot per the Live-state rows — its head
+  block below predates those flips and is kept as-written. Detail lives in `docs/briefs/ROUNDS.md`
+  rows and the design docs; this file is the index, not the archive. If a number here contradicts
+  a fresh measurement, the measurement wins — fix this file in the same session.
+
 - **2026-11-02 · Jordan slice 1 LANDED ON THE PARALLEL BRANCH `jordan-details` (the worktree
   `~/Documents/hermitage-3d-jordan`, off d2d3aec) — "the room reads as architecture"; the
   details program's next room, PARALLEL to the luna2 session's in-flight track. MERGE into
