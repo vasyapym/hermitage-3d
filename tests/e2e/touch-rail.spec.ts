@@ -606,8 +606,8 @@ for (const lang of ['ru', 'en']) {
               );
             }
             // The face (R19-ux A): glyph arrows, the words as accessible names.
-            await expect(button(p, -1)).toHaveText('←');
-            await expect(button(p, 1)).toHaveText('→');
+            await expect(button(p, -1)).toHaveText('↓');
+            await expect(button(p, 1)).toHaveText('↑');
             await expect(button(p, -1)).toHaveAttribute(
               'aria-label',
               lang === 'ru' ? 'Назад' : 'Back',

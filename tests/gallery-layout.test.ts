@@ -83,7 +83,16 @@ function overlaps1d(a0: number, a1: number, b0: number, b1: number): boolean {
 }
 
 function rectsOverlap(a: UvRect, b: UvRect): boolean {
-  return overlaps1d(a.u0, a.u1, b.u0, b.u1) && overlaps1d(a.v0, a.v1, b.v0, b.v1);
+  // B10: the atlas rects carry v0 > v1 by law (the hang), so the V interval normalises.
+  return (
+    overlaps1d(a.u0, a.u1, b.u0, b.u1) &&
+    overlaps1d(
+      Math.min(a.v0, a.v1),
+      Math.max(a.v0, a.v1),
+      Math.min(b.v0, b.v1),
+      Math.max(b.v0, b.v1),
+    )
+  );
 }
 
 describe('§3.2 byte pin', () => {
@@ -201,10 +210,28 @@ describe('§3.4 UV invariants', () => {
       const row = Math.floor(slot / ATLAS_COLUMNS);
       expect(rect.u0).toBeCloseTo((column * span.width + inset) / ATLAS_SIZE_PX, 9);
       expect(rect.u1).toBeCloseTo((column * span.width + span.width - inset) / ATLAS_SIZE_PX, 9);
-      expect(rect.v1).toBeCloseTo(1 - (row * span.height + inset) / ATLAS_SIZE_PX, 9);
-      expect(rect.v0).toBeCloseTo(1 - (row * span.height + span.height - inset) / ATLAS_SIZE_PX, 9);
+      expect(rect.v0).toBeCloseTo(1 - (row * span.height + inset) / ATLAS_SIZE_PX, 9);
+      expect(rect.v1).toBeCloseTo(1 - (row * span.height + span.height - inset) / ATLAS_SIZE_PX, 9);
       expect(rect.u1 - rect.u0).toBeGreaterThan(0);
-      expect(rect.v1 - rect.v0).toBeGreaterThan(0);
+      // B10 hang law: v0 names the image-top row, v1 the bottom — v0 > v1 by law.
+      expect(rect.v0 - rect.v1).toBeGreaterThan(0);
+    }
+  });
+
+  it('hang law: the canvas top edge samples the cell’s image-top row (B10)', () => {
+    // The goldens baselined the mirrored hang, so they cannot witness the orientation: the
+    // binding puts (u0, v0) on the basis-low-v corner, `_basis` points v world-DOWN → that
+    // corner is the PHYSICAL TOP; the exporter flips v once and the KTX2 samples top-first,
+    // so the physical top reads atlas row (1 − v0) × ATLAS_SIZE_PX = the cell's image top.
+    for (let slot = 0; slot < ATLAS_COLUMNS * ATLAS_ROWS; slot += 1) {
+      const rect = slotUvRect(slot);
+      const row = Math.floor(slot / ATLAS_COLUMNS);
+      const imageTopRowPx = row * slotSpanPx().height + slotInsetPx();
+      expect((1 - rect.v0) * ATLAS_SIZE_PX, `slot ${slot} image-top row`).toBeCloseTo(
+        imageTopRowPx,
+        6,
+      );
+      expect(rect.v0, `slot ${slot} v0 > v1`).toBeGreaterThan(rect.v1);
     }
   });
 
@@ -233,7 +260,7 @@ describe('§3.4 UV invariants', () => {
     for (const index of allyIndexes()) {
       const rect = superBlockUvRect(superBlockAnchor(index) ?? 0);
       expect(MONARCH_CANVAS_WIDTH / MONARCH_CANVAS_HEIGHT).toBeCloseTo(
-        (rect.u1 - rect.u0) / (rect.v1 - rect.v0),
+        (rect.u1 - rect.u0) / (rect.v0 - rect.v1),
         1,
       );
     }

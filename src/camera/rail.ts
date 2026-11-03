@@ -19,26 +19,23 @@
  *   world-space point) looks at it; a stop without one looks at stop i + 1, the last looks back
  *   at i − 1. At t = 0 / t = 1 the target IS the committed object, so never-dragged stop poses
  *   stay bit-identical to the data (the golden fence).
- * - Gaze between stops (R19-ux C): one departure turn, then the destination's exact target
- *   (its subject, pose-law point, or Forward approach). The turn's source DIRECTION is frozen
- *   at departure; its destination aim tracks the held point from the current spline position.
- *   Equal source/destination points instead remain a locked dolly for the whole segment.
- *   Yaw takes the shortest arc and pitch blends linearly with the same weight.
- *   TURN_SPAN_T is segment distance: 0.31744 is smootherstep(0.4). The distance span widens
- *   by θ/TURN_REF_DEG above the reference angle, caps at TURN_SPAN_MAX_T and never passes
- *   the destination. Inverse smootherstep maps distance/remaining-segment to a phase;
- *   smootherstep of phase/end-phase shapes the turn without nesting the travel acceleration.
- *   For a settled adjacent step up to 45°, the turn occupies its first 40% of elapsed time. A
- *   near-field held point — its own ray turns by TURN_REF_DEG or more between the anchor eye and
- *   that nominal span's end — is exempt: its turn spans the whole remaining segment with the
- *   distance fraction as its weight, so its parallax enters only in proportion to the distance
- *   covered.
- *   Partial scrolls and retargets use this same geometric law, not a separate wall clock.
- *   Reversals re-anchor at the current base gaze; pass-through stops begin from their
- *   committed poses. Stops retain their exact committed targets and position objects.
- * - Look limits use the same turn-phase weight from departure rows to destination rows, then
- *   hold the destination's. User offsets are re-clamped on every transition, not reset.
- *   Offsets are degrees: yaw > 0 turns right, pitch > 0 looks up.
+ * - Gaze between stops (B9, supersedes R19-ux C's departure turn): between two stops the base
+ *   gaze travels exactly the arc between their two committed framings and nothing else — the
+ *   source aim frozen at the departure eye (or at the look in force at a reversal), the
+ *   destination aim frozen at the destination eye, yaw on the shortest arc, pitch linear, one
+ *   weight: the distance fraction covered of the anchor's remaining segment. The look
+ *   therefore turns with the travel (starts, peaks and stops with the position; never turns
+ *   faster per unit of rail than the segment's own average) and no held point's parallax
+ *   reaches the gaze. Equal source/destination points remain a locked dolly for the whole
+ *   segment (the point is held). There is no turn span, no reference widening and no
+ *   near-field exemption — the former exemption's distance weight is now the rule for every
+ *   segment.
+ *   Partial scrolls and retargets use this same position-only law, not a separate wall clock.
+ *   Reversals re-anchor at the current base gaze and retrace it; pass-through stops are met on
+ *   their committed framings. Stops retain their exact committed targets and position objects.
+ * - Look limits use the same distance weight from the rows in force at the segment's anchor to
+ *   the destination's rows, over the whole remaining segment. User offsets are re-clamped on
+ *   every transition, not reset. Offsets are degrees: yaw > 0 turns right, pitch > 0 looks up.
  * - Motion: a glide is (from, to, durationMs, elapsedMs) eased by smootherstep; advance() is
  *   pure, takes a finite non-negative deltaMs and throws RangeError otherwise. A key step in
  *   flight retargets from the current u; a scroll in flight extends the scroll glide's `to`.
@@ -111,11 +108,6 @@ export const SCROLL_GLIDE_MS = 544; // R19-ux B: the same time reduction for iso
  * slower»): wheel pixels per rail segment. 900 → 1200 = the same gesture travels 75% of the
  * distance it used to. */
 export const SCROLL_PX_PER_SEGMENT = 1200;
-/** R19-ux C: base distance span = smootherstep(0.4), so a settled adjacent step turns over
- * its first 40% of elapsed time. The angular widening and distance cap use the header law. */
-export const TURN_SPAN_T = 0.31744,
-  TURN_REF_DEG = 45,
-  TURN_SPAN_MAX_T = 0.4;
 
 const STOP_EPS = 1e-9;
 const KNOT_EPS = 1e-6;
@@ -136,20 +128,6 @@ const smootherstep = (x: number): number => {
   const t = clamp(x, 0, 1);
   return t * t * t * (t * (t * 6 - 15) + 10);
 };
-/** Bounded monotone inverse; endpoint guards preserve exact holds and avoid a zero divisor. */
-const inverseSmootherstep = (value: number): number => {
-  const x = clamp(value, 0, 1);
-  if (x === 0 || x === 1) return x;
-  let lo = 0;
-  let hi = 1;
-  for (let i = 0; i < 32; i++) {
-    const mid = (lo + hi) / 2;
-    if (smootherstep(mid) < x) lo = mid;
-    else hi = mid;
-  }
-  return (lo + hi) / 2;
-};
-
 const wrapArc = (d: number): number => {
   const r = d % TAU;
   if (r > Math.PI) return r - TAU;
@@ -163,14 +141,6 @@ const yawPitch = (d: Vec3): Angles => ({
   yaw: Math.atan2(d[0], -d[2]),
   pitch: Math.atan2(d[1], Math.hypot(d[0], d[2])),
 });
-/** Angle (degrees) between two aim directions, from their unit-space dot. A zero direction
- * compares as 0° (atan2(0, 0) = 0 keeps a vertical aim NaN-free; no NaN pin). */
-const angleDeg = (a: Vec3, b: Vec3): number => {
-  const dot = a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
-  const len = Math.hypot(a[0], a[1], a[2]) * Math.hypot(b[0], b[1], b[2]);
-  if (len === 0) return 0;
-  return (Math.acos(Math.min(1, Math.max(-1, dot / len))) * 180) / Math.PI;
-};
 const lerpLimits = (a: LookLimits, b: LookLimits, w: number): LookLimits => ({
   yaw: lerp(a.yaw, b.yaw, w),
   pitchUp: lerp(a.pitchUp, b.pitchUp, w),
@@ -216,20 +186,10 @@ const runControl = (rail: Rail, run: Run, index: number): Vec3 => {
   return stopAt(rail, index).position;
 };
 
-/**
- * The held look target INTO stop `dest` on this glide's heading (R18-ux verdict 2 + C3): a
- * Forward glide holds the stop's authored `approach` point when it has one — the opener on the
- * committed gaze ray (Gj's passage mouth) — and every other case holds the committed target.
- */
-const holdTarget = (rail: Rail, dest: number, heading: Heading): Vec3 => {
-  const stop = stopAt(rail, dest);
-  if (heading > 0 && stop.approach !== undefined) return stop.approach;
-  return committedTarget(rail, dest);
-};
-
-/** R18-ux verdict 2: the reminder of a departure turn, re-anchored at a mid-segment reversal:
- * `anchorApplies` holds only while u lies between anchor.u0 and dest in the same segment. Past
- * the destination, the anchor is stale and the next segment's origin stop takes over. */
+/** R18-ux verdict 2 (kept by B9, reworded): a segment's source aim, re-anchored at a
+ * mid-segment reversal: `anchorApplies` holds only while u lies between anchor.u0 and dest in
+ * the same segment. Past the destination, the anchor is stale and the next segment's origin
+ * stop takes over. */
 const anchorApplies = (anchor: LookAnchor | null, k: number, dest: number): boolean =>
   anchor !== null &&
   Math.floor(anchor.u0) === Math.floor(k) &&
@@ -241,16 +201,10 @@ type TurnFrame = Readonly<{
   D: Vec3;
   w: number;
 }>;
-/** The departure-turn frame at k: the header's phase law supplies the common gaze/limits
- * weight. At or beyond the distance span the hold is exact; no inverse is evaluated there. */
-function heldSweepDeg(rail: Rail, held: Vec3, from: Vec3, kEnd: number): number {
-  const to = samplePosition(rail, kEnd / (stopCount(rail) - 1));
-  return angleDeg(
-    [from[0] - held[0], from[1] - held[1], from[2] - held[2]],
-    [to[0] - held[0], to[1] - held[1], to[2] - held[2]],
-  );
-}
-
+/** B9: the segment frame at k. `a` is the departure stop's committed aim or the look in force
+ * at a reversal; `D` is the destination's committed target on either heading; `w` is the
+ * distance fraction of the anchor's remaining segment — the one weight for gaze and limits, so
+ * the look turns with the travel, never ahead of it and never after it. */
 function turnFrame(rail: Rail, k: number, heading: Heading, anchor: LookAnchor | null): TurnFrame {
   const i = Math.floor(k);
   const dest = heading > 0 ? i + 1 : i;
@@ -263,29 +217,9 @@ function turnFrame(rail: Rail, k: number, heading: Heading, anchor: LookAnchor |
           point: committedTarget(rail, orig),
           limits: stopAt(rail, orig).look,
         };
-  const pA = samplePosition(rail, a.u0 / (stopCount(rail) - 1));
-  const D = holdTarget(rail, dest, heading);
-  const theta = angleDeg(
-    [a.point[0] - pA[0], a.point[1] - pA[1], a.point[2] - pA[2]],
-    [D[0] - pA[0], D[1] - pA[1], D[2] - pA[2]],
-  );
   const remaining = Math.abs(dest - a.u0);
-  const nominal = Math.min(
-    remaining,
-    Math.min(TURN_SPAN_MAX_T, TURN_SPAN_T * Math.max(1, theta / TURN_REF_DEG)),
-  );
-  const kEnd = a.u0 + Math.sign(dest - a.u0) * nominal;
-  const nearField = nominal > 0 && heldSweepDeg(rail, D, pA, kEnd) >= TURN_REF_DEG;
-  const traveled = Math.abs(k - a.u0);
-  let w = 1;
-  if (nearField) {
-    w = Math.min(1, traveled / remaining);
-  } else if (nominal > 0 && traveled < nominal) {
-    const phase = inverseSmootherstep(traveled / remaining);
-    const endPhase = inverseSmootherstep(nominal / remaining);
-    w = smootherstep(phase / endPhase);
-  }
-  return { a, dest, D, w };
+  const w = remaining > 0 ? Math.min(1, Math.abs(k - a.u0) / remaining) : 1;
+  return { a, dest, D: committedTarget(rail, dest), w };
 }
 
 function stopAt(rail: Rail, index: number): Stop {
@@ -373,9 +307,9 @@ function forward(a: Angles): Vec3 {
   return [Math.sin(a.yaw) * c, Math.sin(a.pitch), -Math.cos(a.yaw) * c];
 }
 
-/** R18-ux verdict 2: the limits move from the look in force at the turn's start to the
- * destination stop's rows over the departure turn, then hold the destination's. At stops the
- * fence holds (the stop's own rows, bit-exact). */
+/** B9 (on R18-ux verdict 2's anchor): the limits move from the rows in force at the segment's
+ * anchor to the destination stop's rows with the gaze's distance weight, over the whole
+ * remaining segment. At stops the fence holds (the stop's own rows, bit-exact). */
 export function sampleLimits(rail: Rail, state: RailState): LookLimits {
   const { i, t } = locate(rail, state.u);
   const a = stopAt(rail, i).look;
@@ -399,23 +333,24 @@ export function samplePose(rail: Rail, state: RailState): Pose {
   if (t === 0) return { position, target: committedTarget(rail, i), limits, look };
   if (t === 1) return { position, target: committedTarget(rail, i + 1), limits, look };
   const frame = turnFrame(rail, kOf(rail, state.u), state.heading, state.anchor);
-  if (frame.w === 1 || dist(frame.a.point, frame.D) === 0) {
+  if (dist(frame.a.point, frame.D) === 0) {
+    // A locked dolly holds its shared point: the subject stays centred while the eye travels.
     return { position, target: frame.D, limits, look };
   }
 
-  // Freeze the departure direction, not a departing landmark's live parallax. A reversal's
-  // synthetic target gives the same direction at its anchor position, preserving continuity.
-  const origin = samplePosition(rail, frame.a.u0 / (stopCount(rail) - 1));
+  // B9: both aims are frozen at their own eyes — the source at the anchor (a reversal's
+  // synthetic target gives the look in force there), the destination at the destination stop —
+  // so no held point's parallax reaches the gaze: the turn is exactly the arc between the two
+  // framings.
+  const n = stopCount(rail);
+  const origin = samplePosition(rail, frame.a.u0 / (n - 1));
+  const eye = samplePosition(rail, frame.dest / (n - 1));
   const a = yawPitch([
     frame.a.point[0] - origin[0],
     frame.a.point[1] - origin[1],
     frame.a.point[2] - origin[2],
   ]);
-  const d = yawPitch([
-    frame.D[0] - position[0],
-    frame.D[1] - position[1],
-    frame.D[2] - position[2],
-  ]);
+  const d = yawPitch([frame.D[0] - eye[0], frame.D[1] - eye[1], frame.D[2] - eye[2]]);
   const dir = forward({
     yaw: a.yaw + wrapArc(d.yaw - a.yaw) * frame.w,
     pitch: lerp(a.pitch, d.pitch, frame.w),

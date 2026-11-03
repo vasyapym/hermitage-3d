@@ -46,19 +46,32 @@ describe('R19-ux B/C', () => {
     expect(SCROLL_GLIDE_MS / 640).toBeCloseTo(0.85, 12);
   });
 
-  it('uses the elapsed turn phase and the frozen source ray, not live source parallax', () => {
+  it('carries the framing arc at the distance weight (B9 pacing)', () => {
+    // B9: the aim is the arc between the two framings × the distance fraction s(τ);
+    // the limits ride the same weight. R19-ux B's smootherstep position easing is
+    // unchanged, so the position row reads as before.
     const started = stepStop(TURN_RAIL, restingAt(0), 1, false).state;
     const pose = samplePose(TURN_RAIL, advance(TURN_RAIL, started, 476));
     const dx = pose.target[0] - pose.position[0];
     const dz = pose.target[2] - pose.position[2];
     expect(pose.position[2]).toBeCloseTo(-0.5792, 8);
-    expect((Math.atan2(dx, -dz) * 180) / Math.PI).toBeCloseTo(22.5, 6);
-    expect(pose.limits.yaw).toBeCloseTo(30, 7);
-    expect(pose.limits.pitchUp).toBeCloseTo(32.5, 7);
-    expect(pose.limits.pitchDown).toBeCloseTo(15, 7);
+    // framings: a = atan2(10, 10) = 45°, d = 0°; s(0.2) = 0.05792 → yaw 45·(1−s) = 42.3936°
+    expect((Math.atan2(dx, -dz) * 180) / Math.PI).toBeCloseTo(42.3936, 4);
+    expect(pose.limits.yaw).toBeCloseTo(34.4208, 6);
+    expect(pose.limits.pitchUp).toBeCloseTo(43.552, 6);
+    expect(pose.limits.pitchDown).toBeCloseTo(10.5792, 6);
+    // s(0.4) = smootherstep(0.4) = 0.31744 → yaw 45·(1−s) = 30.7152°; limits
+    // {35→25, 45→20, 10→20} blended: {31.8256, 37.064, 13.1744}
     const held = samplePose(TURN_RAIL, advance(TURN_RAIL, started, 952));
-    expect(held.target).toBe(committedTarget(TURN_RAIL, 1));
-    expect(held.limits).toEqual({ yaw: 25, pitchUp: 20, pitchDown: 20 });
+    expect(held.position[2]).toBeCloseTo(-3.1744, 8);
+    const dx2 = held.target[0] - held.position[0];
+    const dz2 = held.target[2] - held.position[2];
+    expect((Math.atan2(dx2, -dz2) * 180) / Math.PI).toBeCloseTo(30.7152, 4);
+    expect(held.limits.yaw).toBeCloseTo(31.8256, 6);
+    // the arrival keeps the fence: the destination framing object + the destination rows
+    const arrived = samplePose(TURN_RAIL, advance(TURN_RAIL, started, 2380));
+    expect(arrived.target).toBe(committedTarget(TURN_RAIL, 1));
+    expect(arrived.limits).toEqual({ yaw: 25, pitchUp: 20, pitchDown: 20 });
   });
 
   it('retains the shared-subject dolly before the nominal turn has completed', () => {

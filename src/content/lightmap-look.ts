@@ -28,12 +28,12 @@ export const INTERIOR_LOOK_GAIN: Readonly<Record<RoomId, Readonly<Record<LightSt
   // 3.5 → 4 (wp HELD at 0.8; the derivation + the runs live in tools/lm-recipes.mjs's RG-E1
   // note). The gains STAY 2/2/2: eff = 0.8 × 2 = 1.6 in every state, one gain, one k.
   'rastrelli-gallery': { day: 2, dusk: 2, nightChandeliers: 2 },
-  // R4 (design-gallery.md §4.6): the first-bake gains for the Military Gallery of 1812.
-  // The states differ by an order of magnitude here (§4.3). The first bake's histogram
-  // (the r17c retune law: the descriptor edit + reencode, never a re-bake) moved the DAY
-  // split: the white point 0.25 clipped 46% of the plate (the floor + the lit vault sit
-  // ~0.5 linear), so the day encodes at wp 0.5 and the look gain drops 3 → 1.5 — eff stays
-  // 0.75 (the look is unchanged; the 8-bit survival is what moved). eff = 0.75 / 0.45 / 0.6
-  // — under the EFF ceiling of 1.0, night < day per texel.
-  'military-gallery': { day: 1.5, dusk: 3, nightChandeliers: 2 },
+  // R4 (design-gallery.md §4.6): the Military Gallery of 1812; the states differ by an order
+  // of magnitude in the bake (§4.3). The manifest white points are encode ranges only (the
+  // r17c retune law: descriptor edit + reencode, never a re-bake; 3be6e50 moved the day wp
+  // 0.5 → 1.5), so the rendered light is bake × gain and this row is the room's light knob.
+  // B10 (owner call, «around 15 % more light»): every state × 1.15 — one shape, so night ≤ day
+  // per texel and every inter-state ratio (incl. the dusk compose's 1/3 candelabra) holds.
+  // eff = wp × gain = 1.5 × 1.725 / 0.15 × 3.45 / 0.3 × 2.3 = 2.5875 / 0.5175 / 0.69.
+  'military-gallery': { day: 1.725, dusk: 3.45, nightChandeliers: 2.3 },
 };

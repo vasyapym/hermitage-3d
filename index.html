@@ -88,10 +88,11 @@
          chrome.* keys in main.ts (§4); a fieldset would drag in form semantics the
          group does not own (the index-list's noRedundantRoles exception precedent). -->
     <div id="touch-rail" role="group" data-visible="false">
-      <!-- R19-ux A: arrow glyphs (the notes link's own «→» family, nothing drawn); the words
-           ride aria-label from chrome.touchRailBack/Forward (bindChrome). -->
-      <button id="touch-back" type="button" aria-disabled="true" aria-label="Назад">←</button>
-      <button id="touch-forward" type="button" aria-disabled="true" aria-label="Вперёд">→</button>
+      <!-- R20-ux: depth glyphs (the notes link's own arrow family, nothing drawn): «↑» goes
+           into the scene, «↓» back out of it; the route never strafes. The words ride
+           aria-label from chrome.touchRailBack/Forward (bindChrome). -->
+      <button id="touch-back" type="button" aria-disabled="true" aria-label="Назад">↓</button>
+      <button id="touch-forward" type="button" aria-disabled="true" aria-label="Вперёд">↑</button>
     </div>
     <!-- The controls corner (R16.2, the owner's verdict): the language toggle reads
          top-right again; «Залы» takes the bottom-right corner as the corner stack's base

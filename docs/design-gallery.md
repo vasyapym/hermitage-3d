@@ -50,6 +50,14 @@ Phase 3 ships room three, the Military Gallery of 1812 (route `#/1812`), and wit
 
 3.3 Frame geometry. Four mitred bars, each a bevelled box of sixteen triangles → 64 triangles per frame, two per canvas; 335 frames ≈ 22 k triangles, ≈ 0.7 k for canvases. The gilt bars take the shared GILT material and lightmap UVs from a per-frame UV2 rectangle in the frame-kit lightmap chart; canvases take CANVAS with UV1 = atlas slot rectangle and UV2 = their own strip in the same chart. Draw calls: west wall 2, east wall 2, north pair 1, end-wall group 2 — seven draws for every portrait in the room.
 
+> **Hang law (B10, 2026-11-02).** The canvas binding puts (u0, v0) on the quad's low-v corner
+> in basis coordinates, and `military_gallery_frames._basis` points v world-DOWN — so that
+> corner sits on the PHYSICAL TOP edge. `slotUvRect`/`superBlockUvRect` therefore return
+> **v0 = 1 − y0 (the cell's image-top row) and v1 = 1 − (y0 + h)**; v0 > v1 by law.
+> `chartRect` keeps v0 < v1: the bake reads the lightmap chart through the same binding, so
+> the canvas light was never inverted. The atlas stays painted upright; the hang flip is a
+> verified live read (the M1 rows and the M3 monarchs hung heads-down before the fix).
+
 3.4 Portrait atlas. One KTX2 ETC1S texture 2048×2048 (power of two, mipmapped, through the existing KTX2 loader; nothing added to the basis decoder row — the tight budget line is untouched). Slot 96×120 px (aspect 0.80 against the canvas 0.81), grid 21×17 = 357 slots, enumerated row-major (slot 0 = top-left). Allocation: the three monarch super-blocks sit at the grid's top-left, rows 0–1, columns 0–5 (block b at columns 2b, 2b+1 — the slot set {0,1,2,3,4,5,21,22,23,24,25,26}; the relay's "slots 0–11" assumed square-tiling that a 21-wide grid does not give — amended pre-code at integration); one slot (356) is the neutral "missing" slot; the ROSTER law: the 332 standard frames (330 wall portraits + the flanking pair, in canonical frame order) take the first 332 free slots in row-major enumeration, skipping the super-block cells and the missing slot (so the roster runs 6…20, 27…41, 42…343 — contiguous in enumeration order, which is what the generator's keyed painting consumes). Canvas UVs inset 3 px inside the slot; a 2 px dark gutter is painted into every slot edge; far-mip bleeding is accepted because stand-ins are painterly, and v2 inherits the same inset law. The monarch canvases are the standard canvas scaled ×5 (1.75×2.15 m, aspect 0.814 against the block's 0.80 — a declared 1.7 % stretch that the generator authors for). Slot-keyed consumers (the generator, the chart order) see the roster's enumeration order, which is the contract between atlas and geometry; SLOT(i) in the drawing law = the roster's i-th free slot.
 
 3.5 Stand-in generator law (build-time script, the only producer of the atlas). For slot i: h = hash32(SALT_1812, i) using the committed deterministic hash (Math.random is forbidden). From h's bit fields: silhouette class ∈ {frontal, three-quarter-left, three-quarter-right}; shoulder width ∈ three named widths; head offset ±3 px; uniform colour from PALETTE_UNIFORM (six entries: infantry green, guards dark green, cuirassier white, hussar dark blue, artillery black, general's dark green with red); facing colour from PALETTE_FACING (four); epaulettes on/off; background from three dark umbers with ±8 % value from a second hash; face tone from four; two octaves of hash-based value noise as brush texture; a soft vignette. Monarch blocks use a fixed equestrian-suggestion field (horse mass, rider, sky) with hashed tone only. The rasteriser is pure JS writing RGBA (no node-canvas: platform anti-aliasing differences would break byte-identity), then the committed PNG→KTX2 ETC1S step under the DEC-016 toolchain pins (single-threaded toktx; byte-identity is the r15/r17 precedent). Output is byte-identical on rerun; CI hashes it.
@@ -116,7 +124,10 @@ Phase 3 ships room three, the Military Gallery of 1812 (route `#/1812`), and wit
   fixed tree's histogram: the arch lit 60%, p50 0.244, p90 1.14, p95 1.33 — 0.5
   still flat-clipped 13.3% as the inversion-symptom retune; 1.5 grades the
   sunlit field inside 0.89 at a 1-2% clip); the gains landed 1.5 / 3 / 2 →
-  eff 2.25 / 0.45 / 0.6.
+  eff 2.25 / 0.45 / 0.6. **B10 (owner «around 15 % more light», 2026-11-02): the
+  gains ×1.15 in every state — 1.725 / 3.45 / 2.3 → eff 2.5875 / 0.5175 / 0.69**
+  (the white points stay the encode ranges; the pixel means re-derived at the
+  re-record).
 - **The probe**: the dusk process, `PROBE_POINT_1812` = (86.25, 11.7, −12.5) — the
   room midpoint at eye height, panes swapped, fixtures restored to FULL for the
   probe render only; committed `PROBE_RES` / `PROBE_WHITE_POINT` / `PROBE_SAMPLES`.
@@ -191,10 +202,13 @@ Phase 3 ships room three, the Military Gallery of 1812 (route `#/1812`), and wit
   read — the vault lit in all three states. The honest means (day 0.022239 / dusk 0.012466
   / night 0.020330; the old day and dusk rode the leak) re-ruled the fences: the order law
   is «day > night», the dusk > night leg and the day/night ratio floor retire at M0.
-- **Residuals — accepted as-is for v1 (owner eyeball, 2026-10-27; no fix this phase; the day's light-design call parked post-v1):** the monarch/portal crown (the
+- **Residuals — accepted as-is for v1 (owner eyeball, 2026-10-27; no fix this phase; the
+  day's light-design call parked post-v1):** the monarch/portal crown (the
   canvas top sits 0.3-0.7 m behind the valance/pediment band — "centred under
   the pediment" by design, the 34% share is the owner's call); the portrait
-  atlas's v orientation (`_basis`'s v points down — check the hang at runtime);
+  atlas's v orientation — CLOSED (B10, 2026-11-02): checked live at the M1/M3
+  captures — every canvas hung vertically mirrored; fixed in the atlas-rect
+  law (see «Hang law», `slotUvRect`/`superBlockUvRect` v0 = 1 − y0);
   the end walls' night bounce dimness (the torchères are side-wall only);
   the day's sun pools died with the leak — the closed barrel leaves the
   lanterns' light path weak (the low sun behind the glazing), the floor reads
