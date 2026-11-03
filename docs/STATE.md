@@ -12,8 +12,10 @@ changes).
   room AS MERGED FROM SLICE 1: it reads as a very raw draft — work it. The relay opens with a
   CREATIVE zero-steering find/slice dossier split across two briefs after a transport timeout
   (vault `projects v9/` — `1-hermitage-3d-jordan-slice-2-part1-find.md` the decision brief,
-  round 1 REPLIED; `2-hermitage-3d-jordan-slice-2-part2-code.md` the sources pack completed into
-  the implementation brief — the 13-mesh census, materials/light/gate facts, capture reads,
+  round 1 REPLIED; brief 2 split AGAIN by a transport timeout into
+  `2a-hermitage-3d-jordan-slice-2-decisions.md` the decisions brief (SENT) +
+  `2b-hermitage-3d-jordan-slice-2-code-relay.md` the room code relay (staged,
+  completed from the 2a reply; the chain files ride a following brief) — the 13-mesh census, materials/light/gate facts, capture reads,
   verbatim source appendix; the recipient set AGENTIC-with-workspace by the owner; compiled by
   delegated subagents from the frozen snapshot). ROUND-1 ADOPTED: the FIND ranked — the states
   mis-exposed at encode (day capped 0.4, night quantized, dusk range-less) · the emissive chips
