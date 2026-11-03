@@ -18,11 +18,17 @@ changes).
   door and the order» slice) and the cheap D-run executed (a doubleSided flip probe: NO change
   in the black zones → not backface-culling; the end-wall fields exist per bpy:773-843 → the
   black is atlas/bake-side, covered by the slice's gutter-fill/dead-cell guards + the rebuild).
-  PART 2 = the IMPLEMENTATION brief RELAYED (the vault
-  `projects v9/3-hermitage-3d-rastrelli-gallery-part2-code.md`: the adopted constants verbatim
-  + the nine missing-facts answers + the LM-no-mips code fact (refuses D4's gutter theory) +
-  the FULL source pack as 12 complete FILE blocks; the specialist writes complete files, the
-  D-wishes' after-slice battery is the integration's own work). Owner decisions pending at the
+  Implementation SPLIT INTO 2a/2b (owner call: the whale brief `3-…-part2-code.md` timed the
+  chat model out; that vault file is retired): 2a = the BUILDER + GATE half (the vault
+  `projects v9/3a-…-part2a-builder.md`, ~79 KB in, the east-end rebuild + the order + the
+  painters + the FACING/WATERTIGHT/PX_PER_M_FLOOR guards + the `lm.cells` map; the huge-file
+  SEGMENT law lets the builder arrive across messages), 2b = the SHARED CHAIN + RECORD half
+  (the vault `projects v9/3b-…-part2b-chain.md`: bake.py keyed rows + the STAGE_SPILL hook +
+  the white-point dict + gutter-fill/DEAD_CELL behind default-off per-room dicts + the
+  register/walkthrough texts; the old builder rides CONTEXT-ONLY). THE CROSS-PART INTERFACE is
+  the orchestrator's adjudication: `summary.json lm.cells` = the allocated-cell map (sorted
+  keys) consumed by the encode side; both halves carry the adopted slice verbatim. Owner
+  decisions pending at the
   integration plate: the value inversion, the door card/stage spill, the capture-band rows. The
   orchestrator runs the room's bpy/bake/re-encode chain + tsc/biome/vitest + build/budget on the
   branch; NO merge and NO full e2e/golden gate this session. MERGE into main + the FULL
