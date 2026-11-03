@@ -4,6 +4,15 @@ One file a new relay session reads at start. Two sections: **Live state** (updat
 integration that changes the facts — same session, never later) and **Standing protocol** (rarely
 changes).
 
+- **2026-11-03 · rg-details OPENED ON THE PARALLEL BRANCH `rastrelli-details` (the worktree
+  `~/Documents/hermitage-3d-rastrelli`, off ed25e4b post-R21-ux) — the Rastrelli Gallery's next
+  round: the owner's TODAY re-issue that the room «looks very raw / as a draft», PARALLEL to the
+  in-flight jordan track. One COMBINED long-context CREATIVE brief (the vault
+  `projects v9/1-hermitage-3d-rastrelli-gallery-round.md`): the zero-steering room-state dossier
+  + the ranked-gaps ask + the implementation in ONE draw, 25 committed files riding along. The
+  orchestrator runs the room's bpy/bake/re-encode chain + tsc/biome/vitest + build/budget on the
+  branch; NO merge and NO full e2e/golden gate this session. MERGE into main + the FULL
+  e2e/golden gate run at the owner's stack signal only. ROUNDS row 67.**
 - **2026-11-02 · Jordan slice 1 LANDED ON THE PARALLEL BRANCH `jordan-details` (the worktree
   `~/Documents/hermitage-3d-jordan`, off d2d3aec) — "the room reads as architecture"; the
   details program's next room, PARALLEL to the luna2 session's in-flight track. MERGE into
