@@ -209,3 +209,31 @@ describe('B9 keeps the recorded rows', () => {
     expect(done.u).toBe(stopParameter(rail, 1));
   });
 });
+
+describe('R22-ux: the military corner-run hold', () => {
+  it('military M3→M4: a held east look rides the limiting blend linearly to the doors framing', () => {
+    const rail = contract1812.rail;
+    const end = framings(rail, 3); // the two endpoint base-gaze angles, from the file's helper
+    // M3: south base + held yaw −90 (clamped by the ±90 row) composes to due east (90°).
+    // M4: the doors base yaw clamped by the ±40 row composes to the square-on doors view.
+    const atDoor = end.b.yaw - 40;
+    for (const s of S) {
+      const base = midState(rail, 3, s, 1); // the file's helper; heading forward
+      const state = {
+        ...base,
+        look: { yaw: -90, pitch: 0 },
+        lookTarget: { yaw: -90, pitch: 0 },
+      };
+      const pose = samplePose(rail, state);
+      // flat base-gaze direction, then the host's yaw composition about +Y:
+      const vx = pose.target[0] - pose.position[0];
+      const vz = pose.target[2] - pose.position[2];
+      const th = (-pose.look.yaw * Math.PI) / 180;
+      const cx = vx * Math.cos(th) + vz * Math.sin(th);
+      const cz = -vx * Math.sin(th) + vz * Math.cos(th);
+      const composed = (Math.atan2(cx, -cz) * 180) / Math.PI;
+      const expected = 90 + (atDoor - 90) * s;
+      expect(Math.abs(composed - expected), `held look at s ${s}`).toBeLessThanOrEqual(0.5);
+    }
+  });
+});

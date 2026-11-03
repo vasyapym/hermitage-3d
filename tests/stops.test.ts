@@ -353,4 +353,25 @@ describe('1812 stop-gaze swings (R18-ux D5: the axial dolly)', () => {
       }
     }
   });
+  // R22-ux: the look rows square the gaze on each reachable long wall, never past 90.
+  it('reaches each long wall within 90° and caps every yaw row at 90', () => {
+    for (const stop of GALLERY_1812.rail.stops) {
+      expect(stop.look.yaw, `${stop.id} cap`).toBeLessThanOrEqual(90 + 1e-9);
+      const subject = stop.subject;
+      if (subject === null) continue; // not the 1812 stops: every one carries a subject
+      const vx = subject[0] - stop.position[0];
+      const vz = subject[2] - stop.position[2];
+      for (const wallX of [1, -1]) {
+        // the angle between the flat view bearing and the wall direction (∓1, 0):
+        const cosA = (vx * wallX) / Math.hypot(vx, vz);
+        const a = Math.acos(Math.min(1, Math.max(-1, cosA))) * (180 / Math.PI);
+        if (a <= 90 + 1e-9) {
+          expect(
+            stop.look.yaw,
+            `${stop.id} reaches the wall at ${a.toFixed(1)}°`,
+          ).toBeGreaterThanOrEqual(a - 1e-9);
+        }
+      }
+    }
+  });
 });
