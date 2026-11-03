@@ -10,8 +10,11 @@ changes).
   e2e/golden gate runs at that merge only; this session runs SCOPE-LOCAL gates: the bake/encode
   chain as needed, `pnpm validate`, the jordan capture battery).** The owner's live verdict on the
   room AS MERGED FROM SLICE 1: it reads as a very raw draft — work it. The relay opens with a
-  CREATIVE zero-steering room-state dossier (vault `projects v9/1-hermitage-3d-jordan-slice-2-room-state.md`
-  — the 13-mesh census, materials/light/gate facts, capture reads, verbatim source appendix;
+  CREATIVE zero-steering find/slice dossier split across two briefs after a transport timeout
+  (vault `projects v9/` — `1-hermitage-3d-jordan-slice-2-part1-find.md` the decision brief, SENT;
+  `2-hermitage-3d-jordan-slice-2-part2-code.md` the sources pack, STAGED until the adopted
+  outcome restates+constants into it — the 13-mesh census, materials/light/gate facts, capture
+  reads, verbatim source appendix; the recipient set AGENTIC-with-workspace by the owner;
   compiled by delegated subagents from the frozen snapshot). The round rides the ROUNDS top row
   `PARALLEL · jordan-slice-2` (in-flight, below — rows 63/64's slots already MERGED via their
   own flip convention). CORRECTION TO THE BLOCK BELOW (stale by later merges): the slice-1
