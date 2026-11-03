@@ -3,44 +3,50 @@
   "files": [
     {
       "path": "lm/day.ktx2",
-      "bytes": 41331,
-      "sha256": "824511bd8151166067ec6b7d61ea674f31e8a2f6994fb7ced3664e4d6f075784",
+      "bytes": 93345,
+      "sha256": "9614135b6eaedc4c5c3a120ed2f3a4a5dde6f50eb64e096a8c66976a60d3e129",
       "kind": "ktx2"
     },
     {
       "path": "lm/dusk.ktx2",
-      "bytes": 39713,
-      "sha256": "d532c5c2f28a3689a0514221bc2fa5f765d29e22b5cf37e8b0081f7d63e90737",
+      "bytes": 82714,
+      "sha256": "041eed0456e7afa5833b70d77d2018288c99a6edd3932d2080f4cd58dbe6bef0",
       "kind": "ktx2"
     },
     {
       "path": "lm/night.ktx2",
-      "bytes": 40609,
-      "sha256": "987dd2cb562b29e10127d2105cad54cd0cf99927e90cb1fb4556bf1cedd184c0",
+      "bytes": 77609,
+      "sha256": "53a888d6fc0cc8171bbfc84ebfaf23bf729a1c2b2dcabaccd91a1ee8bc2409c9",
       "kind": "ktx2"
     },
     {
       "path": "probe/dusk.ktx2",
-      "bytes": 866,
-      "sha256": "34d70cabd6efe58ee9f39d027103bb3ad18e0758b2dcd5ae4ab661f379590603",
+      "bytes": 2206,
+      "sha256": "f2e64c2f8379754bf711e83644f87f20f5ca0815cff0638122ba3dc1d1593a8e",
       "kind": "ktx2"
     },
     {
       "path": "rastrelli-gallery.glb",
-      "bytes": 89652,
-      "sha256": "cdd2737fa31ff05e34f26564f176e313d108530bd4d7ae43e231914a411e013e",
+      "bytes": 87748,
+      "sha256": "44bdf1ab845eba9cbc36b43ec19cdf794db0a0b1e2cb1260cea5e1c45da93887",
       "kind": "glb"
     },
     {
-      "path": "tex/plaster_dark.ktx2",
-      "bytes": 16320,
-      "sha256": "13d95b5161689ce73825368d5a99a2a5b613516d0f810198b2191987f6f20d2c",
+      "path": "tex/plaster_pale.ktx2",
+      "bytes": 10728,
+      "sha256": "71f6e0eeb622e461ddaa4e5c4afc3dca6d1b8c2331485d463f21199f2a751e88",
       "kind": "ktx2"
     },
     {
       "path": "tex/stone_flags.ktx2",
-      "bytes": 16163,
-      "sha256": "20e57190d0043e894c71790e29cc549405e162ab33ca044c60e1613fe684e885",
+      "bytes": 15313,
+      "sha256": "940111ee8cd6f525c4a5d7e09db9c306b76671f78a1e5a5a6b0c636eb69296e7",
+      "kind": "ktx2"
+    },
+    {
+      "path": "tex/stucco_grey.ktx2",
+      "bytes": 6846,
+      "sha256": "5fb21b89e026576ea688eb9c9a6e228567c4144d0c62bb2bbdb71c6e9a620237",
       "kind": "ktx2"
     }
   ],
@@ -49,20 +55,8 @@
       {
         "name": "shell",
         "instances": 1,
-        "primitives": 2,
-        "triangles": 768
-      },
-      {
-        "name": "portal",
-        "instances": 1,
-        "primitives": 1,
-        "triangles": 30
-      },
-      {
-        "name": "pilaster",
-        "instances": 24,
-        "primitives": 1,
-        "triangles": 30
+        "primitives": 4,
+        "triangles": 3044
       },
       {
         "name": "sconce",
@@ -71,8 +65,8 @@
         "triangles": 42
       }
     ],
-    "trianglesUnique": 870,
-    "trianglesDrawn": 2106,
+    "trianglesUnique": 3086,
+    "trianglesDrawn": 3632,
     "extensionsRequired": [
       "EXT_meshopt_compression",
       "KHR_mesh_quantization",

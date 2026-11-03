@@ -3,35 +3,63 @@
   "states": {
     "day": {
       "blender": "Blender 4.2.23 LTS",
+      "charts": [
+        {
+          "clippedFraction": 0,
+          "emitters": 0,
+          "exrSha256": "43fa51573e5c3f5eefe0441673c78ba9de0c8a2d10c1a2a4cea17ab236fc06c2",
+          "name": "arch",
+          "objects": 15,
+          "pad": 2,
+          "peak": 4.2241,
+          "res": 1024,
+          "targets": 2
+        }
+      ],
       "clippedFraction": 0,
       "command": "node tools/bake.mjs rastrelli-gallery day",
       "denoiser": "OPENIMAGEDENOISE",
+      "duskFixtures": null,
       "margin": 2,
-      "peak": 0.202,
+      "peak": 4.2241,
       "probe": null,
       "res": 1024,
       "samples": 128,
-      "seconds": 726.9,
+      "seconds": 408.4,
       "state": "day",
       "whitePoint": 4,
       "artifacts": [
         {
           "rel": "lm/day.ktx2",
-          "bytes": 1370,
-          "sha256": "3225e529b66fea8be262a21f716d03a43e15ef320f99c4bb34965ab5cafed3dd"
+          "bytes": 20319,
+          "sha256": "0a397615ded1105677c4a30570243fd857dcdb120bd65f243c8d53291343bf65"
         }
       ]
     },
     "dusk": {
       "blender": "Blender 4.2.23 LTS",
-      "clippedFraction": 0.0141,
+      "charts": [
+        {
+          "clippedFraction": 0,
+          "emitters": 14,
+          "exrSha256": "84220fb55de60d1d431569bd045b64a9e00330b615792b41bdf88599980f9c29",
+          "name": "arch",
+          "objects": 1,
+          "pad": 2,
+          "peak": 2.227,
+          "res": 1024,
+          "targets": 1
+        }
+      ],
+      "clippedFraction": 0,
       "command": "node tools/bake.mjs rastrelli-gallery dusk",
       "denoiser": "OPENIMAGEDENOISE",
+      "duskFixtures": true,
       "margin": 2,
-      "peak": 9.0536,
+      "peak": 2.227,
       "probe": {
-        "clippedFraction": 0,
-        "peak": 3.8639,
+        "clippedFraction": 0.0003,
+        "peak": 6.0403,
         "point": [
           0,
           1.7,
@@ -46,40 +74,54 @@
       },
       "res": 1024,
       "samples": 128,
-      "seconds": 1562.7,
+      "seconds": 640.4,
       "state": "dusk",
       "whitePoint": 4,
       "artifacts": [
         {
           "rel": "lm/dusk.ktx2",
-          "bytes": 12626,
-          "sha256": "3fc406a826f91f839108cbd86f393fa18aab866c271d13c71ed5c8757a2d4a76"
+          "bytes": 18674,
+          "sha256": "ff89e11e8decaad67eb157719bf9ae3aa8195f51035806d19c7e9ccef1e97c25"
         },
         {
           "rel": "probe/dusk.ktx2",
-          "bytes": 866,
-          "sha256": "34d70cabd6efe58ee9f39d027103bb3ad18e0758b2dcd5ae4ab661f379590603"
+          "bytes": 2206,
+          "sha256": "f2e64c2f8379754bf711e83644f87f20f5ca0815cff0638122ba3dc1d1593a8e"
         }
       ]
     },
     "nightChandeliers": {
       "blender": "Blender 4.2.23 LTS",
-      "clippedFraction": 0.0141,
+      "charts": [
+        {
+          "clippedFraction": 0,
+          "emitters": 14,
+          "exrSha256": "68a5fd29e2bd1ed6c9131fb9389fb93d2030093b94a76df4980122e8bd16bfa8",
+          "name": "arch",
+          "objects": 1,
+          "pad": 2,
+          "peak": 2.1981,
+          "res": 1024,
+          "targets": 1
+        }
+      ],
+      "clippedFraction": 0,
       "command": "node tools/bake.mjs rastrelli-gallery nightChandeliers",
       "denoiser": "OPENIMAGEDENOISE",
+      "duskFixtures": null,
       "margin": 2,
-      "peak": 9.1816,
+      "peak": 2.1981,
       "probe": null,
       "res": 1024,
       "samples": 128,
-      "seconds": 1716.9,
+      "seconds": 574.4,
       "state": "nightChandeliers",
       "whitePoint": 4,
       "artifacts": [
         {
           "rel": "lm/night.ktx2",
-          "bytes": 12942,
-          "sha256": "6573ebbaf80bfd6c9c9dafcf44ededb31992b1a63910a3a74ff2bddc66ae23cc"
+          "bytes": 14032,
+          "sha256": "de80902f10581d79664594ec86957cb6b5a37cea2592b31d057ddd3d56281e13"
         }
       ]
     }

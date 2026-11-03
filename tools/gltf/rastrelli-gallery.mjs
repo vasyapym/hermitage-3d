@@ -31,17 +31,23 @@ export const ROOM = {
     textureBytesMax: 1_000_000,
     payloadBytesMax: 2_000_000,
   },
-  // r17 fills { states: ['day', 'dusk', 'nightChandeliers'], res: 1024 }; keep the empty shape.
-  // r17a: filled by the bake (tools/bake.mjs) — three states at LM_RES 1024, the intensity
-  // scalar is the bake's white point (ETC1S is 8-bit LDR; the runtime restores the level).
-  lightmaps: { states: ['day', 'dusk', 'nightChandeliers'], res: 1024, intensity: 4.0 },
+  // r17a filled the row (three states at LM_RES 1024, baked by tools/bake.mjs). The
+  // intensity record is the manifest's per-state white point — the re-encode law's single
+  // source of truth (tools/reencode.mjs): RG-D1 set 0.8 in every state and the round that
+  // follows (RG-E1) keeps it; the retune knob is the compose scale k, never this table.
+  lightmaps: {
+    states: ['day', 'dusk', 'nightChandeliers'],
+    res: 1024,
+    intensity: { day: 0.8, dusk: 0.8, nightChandeliers: 0.8 },
+  },
 };
 
-const TEXTURES = ['stone_flags', 'plaster_dark'];
+const TEXTURES = ['stone_flags', 'plaster_pale', 'stucco_grey'];
 // textureBytesMax 1.0 MB = r17 lightmaps 0.6 MB + this atlas <= 0.4 MB. Hard gate here.
 const ATLAS_BYTES_MAX = 400_000;
-// Real kit: shell 1, sconce 14, pilaster 24 (11 per side + 2 corner returns), portal 1.
-const EXPECTED_INSTANCES = { shell: 1, sconce: 14, pilaster: 24, portal: 1 };
+// RG-E1 kit: the merged shell (shell geometry + 24 inline pilasters + folded doorcase + ribs
+// + niches) is ONE datablock, x1; the sconce template x14 (the reserved atlas strip).
+const EXPECTED_INSTANCES = { shell: 1, sconce: 14 };
 const GLOW_MATERIAL = 'sconce_glow';
 const GLOW_STRENGTH = 6;
 const TOKTX_ARGS = [
