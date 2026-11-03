@@ -18,10 +18,11 @@ describe('touch rail', () => {
       law.TOUCH_BUTTON_MIN_BLOCK_PX,
       law.TOUCH_RAIL_GAP_PX,
       law.TOUCH_RAIL_INSET_PX,
+      law.TOUCH_RAIL_SHIFT_PCT,
       law.TOUCH_RAIL_CLEARANCE_PX,
       law.TOUCH_RAIL_MAX_WIDTH_PX,
       law.TOUCH_RAIL_PROMPT_LINES,
-    ]).toEqual([72, 44, 8, 24, 16, 767.98, 3]);
+    ]).toEqual([72, 44, 8, 24, 7, 16, 767.98, 3]);
   });
 
   it('stands the box one stack gap above the reserved door band, whatever the label', () => {

@@ -38,7 +38,9 @@ CHARSET.push(
   0x202f, // narrow no-break space
   0x2116, // numero
   0x2190, // leftwards arrow
+  0x2191, // upwards arrow (the touch rail's depth glyph, R21-ux)
   0x2192, // rightwards arrow
+  0x2193, // downwards arrow (the touch rail's depth glyph, R21-ux)
   0x2212, // minus
   0x2264, // ≤
   0x2265, // ≥
