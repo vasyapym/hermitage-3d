@@ -14,9 +14,16 @@ changes).
   4 stops × day + Gj/G1 × dusk-night + 3 rail cam frames, factual reads written into §1.5) /
   §2 the record verbatim / §3 pipeline / §4 A&Q / §5 the six-item decision contract + appendix
   law files; NO code from the specialist in part 1; the workspace is ATTACHED to the specialist
-  chat — it reads the repo itself, read-only), PART 2 = the implementation brief composed from
-  the adopted verdict (carries the sources + the adopted constants; complete FILE blocks, never
-  patches). The
+  chat — it reads the repo itself, read-only) — DONE; the verdict ADOPTED (the RG-F1 «the lit
+  door and the order» slice) and the cheap D-run executed (a doubleSided flip probe: NO change
+  in the black zones → not backface-culling; the end-wall fields exist per bpy:773-843 → the
+  black is atlas/bake-side, covered by the slice's gutter-fill/dead-cell guards + the rebuild).
+  PART 2 = the IMPLEMENTATION brief RELAYED (the vault
+  `projects v9/3-hermitage-3d-rastrelli-gallery-part2-code.md`: the adopted constants verbatim
+  + the nine missing-facts answers + the LM-no-mips code fact (refuses D4's gutter theory) +
+  the FULL source pack as 12 complete FILE blocks; the specialist writes complete files, the
+  D-wishes' after-slice battery is the integration's own work). Owner decisions pending at the
+  integration plate: the value inversion, the door card/stage spill, the capture-band rows. The
   orchestrator runs the room's bpy/bake/re-encode chain + tsc/biome/vitest + build/budget on the
   branch; NO merge and NO full e2e/golden gate this session. MERGE into main + the FULL
   e2e/golden gate run at the owner's stack signal only. (The round opened with the owner's
