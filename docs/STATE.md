@@ -86,7 +86,37 @@ changes).
   per-room sRGB switch, the NEW lm-percentile tool pair, bake.mjs's step-skip + the
   dict-flowing manifest row, blend-gl's :44 law amendment + the SCALE hook — dispatched to a
   delegated subagent (background); the bakes + percentile + row-paste + test re-pins + validate
-  + captures follow on its landing. The round rides
+  + captures follow on its landing. **THE CHAIN PHASE LANDED (round 4, orchestrator-direct via
+  the delegated subagent; uncommitted per the run card):** bake.py — the `'percentile'` sentinel
+  (jordan lm bakes EXR-only, siblings byte-identical; the probe path unchanged; the dusk probe
+  restores authored chip strengths with the rig left ON), the order-law splice (swap → capture →
+  PANE_BAKE_EMISSION day/dusk None + night (0.10,0.12,0.18)×0.3 → FIXTURE_BAKE_STRENGTH 0/1/1 →
+  rig → sun → bake), the 800+800 W rig (the sconce lamps 0.63 m proud of the glow-box centre
+  +0.25 above datum; the 8 drop lamps at y 14.0 = the D3 formula's authoritative value; the core
+  lamp LOWERED to y 13.15 by the clearance law — 0.05 below the octahedron tip; exact
+  sphere-vs-mesh BVH clearance FAIL at 0.03 m; camera/glossy hidden; the D3 sanity row
+  asserted), the centroid representative law, the bake-log encode placeholders (cellsSha256 +
+  the D4 schema); reencode.mjs — the one per-room LM_ENCODE.transfer switch (srgb_oetf(clip(rgb/W))
+  + --assign_oetf srgb, ASSIGN never CONVERT, no genmips; absent LM_ENCODE = the byte-identical
+  today path); the NEW tools/lm-percentile.mjs + bpy/lm_percentile.py (nearest-rank p99.5 over
+  the 28×28 interiors of allocated non-excluded cells; decimal HALF-UP round2; the --dry/--check
+  laws; the manifest-first write; the two stdout paste rows); bake.mjs — the step-skip for
+  percentile rooms, the dicts FLOWING through lightmapsRow (the D2 retired rows), the
+  conditional provenance keys keeping sibling logs byte-identical; blend-gl.ts — the :44 law
+  amendment (jordan's sRGB containers decoded by the sampler; composition stays linear) + the
+  guarded emissive hook (the authored bases captured ONCE in a WeakMap BEFORE any write;
+  per-frame base × Σ w·scale at the envMapIntensity cadence; dispose restores the base; rooms
+  without a scale row never enter). SIX DISCLOSED DEVIATIONS ALL ADOPTED: the clearance
+  mechanic reading (exact mesh distance — the chandelier's own AABB is unsatisfiable as an
+  AABB-literal), the core y 13.15, y_k 14.0 (the formula authoritative, 14.15 the sphere top),
+  the --dry stop band informational (the run card owns the stop), the conditional log keys, the
+  lmEncodeOf loader. tsc 0 / lint 0 / 183 files clean. THE BAKE-AND-DERIVE BATCH DISPATCHED (the
+  run card steps 2–7, background; binding stop-rules: the wRaw bands day [0.35,1.0] · dusk/night
+  [0.30,2.50]; haloFraction > 0.005 = STOP for the owner's sconce→50 W call): three sequential
+  bakes under caffeinate → --dry → the real percentile pass (manifest → sRGB reencode → log →
+  paste rows) → the row paste → step-5 idempotence + --check + the cross-room guard → the
+  jordan-only test re-pins → pnpm validate → the 18-shot capture battery (J0..J4 × day + J4
+  dusk/night + the A/B trio vs step 0) into probes/slice2-shots/. The round rides
   the ROUNDS top row
   `PARALLEL · jordan-slice-2` (in-flight, below — rows 63/64's slots already MERGED via their
   own flip convention). CORRECTION TO THE BLOCK BELOW (stale by later merges): the slice-1
