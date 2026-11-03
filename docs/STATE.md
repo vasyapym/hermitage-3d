@@ -116,7 +116,26 @@ changes).
   bakes under caffeinate → --dry → the real percentile pass (manifest → sRGB reencode → log →
   paste rows) → the row paste → step-5 idempotence + --check + the cross-room guard → the
   jordan-only test re-pins → pnpm validate → the 18-shot capture battery (J0..J4 × day + J4
-  dusk/night + the A/B trio vs step 0) into probes/slice2-shots/. The round rides
+  dusk/night + the A/B trio vs step 0) into probes/slice2-shots/. **THE BAKE-AND-DERIVE BATCH
+  REPORTED — BAKES DONE, THE RUN CARD STOPPED AT ITS BINDING GATE (exactly as designed):** the
+  three bakes succeeded (day 2,381.9 s · dusk 3,016.8 · night 2,793.9 wall; cells.json sha
+  dca79efe… all three; the fresh dusk probe 13,535 B cef3cd4b…; the rig verified — day rig
+  null (sun-only), dusk/night carry the full rig with the core at y 13.15 and the drops at
+  y 14.0); one deterministic driver-tail fault during bakes 1–2 (the lightmapsRow gate tripping
+  on the STALE committed log rows — self-resolved at bake 3, no retry burned); halo clean
+  everywhere (max 0.001353 ≤ 0.005 — the sconce-50 W contingency never fired). THE DRY STOP:
+  day wRaw 1.02422 vs the [0.35, 1.0] band — **OUT BY +2.42 %** (dusk 2.3575 and night 2.3655
+  in band); nothing written — the manifest keeps the bootstrap dict, lightmap-look the
+  bootstrap gains. The dry paste-preview rows (NOT applied): intensity {0.45 / 1 / 1.2},
+  gains {2.22 / 1 / 0.83}. Notable measured fact: dusk and night p99 sit within 0.0004 of each
+  other (2.0216 vs 2.0212) — the dusk≈night pre-committed contingency now has real numbers
+  riding on the captures. The exclusion-scope delta on the record: day's step-0 p99.5 0.557
+  (the >1.5-per-cell proxy removing 14 sun-patch cells whole) vs 1.02422 (the adopted
+  material-only scope keeps them; the day clamp binds at 0.45 either way). The post-bake
+  decision round is dispatched to the specialist (vault `projects v9/3-hermitage-3d-jordan-slice-2-postbake-ruling.md`
+  — the STOP's classification + the confirm/revise ruling on the dry rows + the
+  dusk-contingency rule + the clip-fraction reading + the proceed instruction; steps 4–7 of
+  the run card held). The round rides
   the ROUNDS top row
   `PARALLEL · jordan-slice-2` (in-flight, below — rows 63/64's slots already MERGED via their
   own flip convention). CORRECTION TO THE BLOCK BELOW (stale by later merges): the slice-1
