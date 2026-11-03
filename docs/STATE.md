@@ -7,10 +7,13 @@ changes).
 - **2026-11-03 · rg-details OPENED ON THE PARALLEL BRANCH `rastrelli-details` (the worktree
   `~/Documents/hermitage-3d-rastrelli`, off ed25e4b post-R21-ux) — the Rastrelli Gallery's next
   round: the owner's TODAY re-issue that the room «looks very raw / as a draft», PARALLEL to the
-  in-flight jordan track. One COMBINED long-context CREATIVE brief (the vault
-  `projects v9/1-hermitage-3d-rastrelli-gallery-round.md`): the zero-steering room-state dossier
-  + the ranked-gaps ask + the implementation in ONE draw, the room's 18-block file set riding
-  along (two design docs trimmed to their room-binding sections; the cuts declared in the brief). The
+  in-flight jordan track. A TWO-STAGE CREATIVE round (the owner's split call after the combined
+  implementation ask stalled the specialist): brief 1 (the vault
+  `projects v9/1-hermitage-3d-rastrelli-gallery-round.md`) = STAGE 1, the ASSESSMENT draw — the
+  zero-steering room-state dossier + the ranked-gaps ask, NO code artifacts from the specialist
+  (the room's 18-block file set rides along; two design docs trimmed to their room-binding
+  sections, the cuts declared in the brief); brief 2 then composes the IMPLEMENTATION stage from
+  the adopted verdict (fresh brief, staged TRUNCATED-HERE batches, only the touched files). The
   orchestrator runs the room's bpy/bake/re-encode chain + tsc/biome/vitest + build/budget on the
   branch; NO merge and NO full e2e/golden gate this session. MERGE into main + the FULL
   e2e/golden gate run at the owner's stack signal only. (The round opened with the owner's
