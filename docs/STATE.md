@@ -57,9 +57,10 @@ file in the same session.
 
 ## Live state
 
-- **2026-11-03 · R22-ux LANDED ON THE PARALLEL BRANCH `r22-1812-look` (the worktree
-  `~/Documents/hermitage-3d-uxfix-arrows-look`, off the arrows-merge ed25e4b; MERGE + the FULL
-  gate at the owner's signal only).** The 1812 manual look opens to the portrait walls
+- **2026-11-03 · R22-ux MERGED TO MAIN from the parallel branch `r22-1812-look` (the worktree
+  `~/Documents/hermitage-3d-uxfix-arrows-look`, off the arrows-merge ed25e4b; the FULL
+  e2e/golden gate WAIVED by the owner's solo-merge ruling — the targeted battery green, rest
+  poses and all pinned surfaces untouched by construction).** The 1812 manual look opens to the portrait walls
   (CREATIVE relay ×1 — the vault `projects v9/17-…`; integration by a delegated agent,
   orchestrator-reviewed): YAW ROWS ONLY — M0–M3 30/60/40/25 → **90**, M4 20 → **40** (the east
   wall's square-on turn, 38.3° left of the doors; the west wall 141.7° round — past the 90°
