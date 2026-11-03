@@ -7,13 +7,16 @@ changes).
 - **2026-11-03 · rg-details OPENED ON THE PARALLEL BRANCH `rastrelli-details` (the worktree
   `~/Documents/hermitage-3d-rastrelli`, off ed25e4b post-R21-ux) — the Rastrelli Gallery's next
   round: the owner's TODAY re-issue that the room «looks very raw / as a draft», PARALLEL to the
-  in-flight jordan track. A TWO-STAGE CREATIVE round (the owner's split call after the combined
-  implementation ask stalled the specialist): brief 1 (the vault
-  `projects v9/1-hermitage-3d-rastrelli-gallery-round.md`) = STAGE 1, the ASSESSMENT draw — the
-  zero-steering room-state dossier + the ranked-gaps ask, NO code artifacts from the specialist
-  (the room's 18-block file set rides along; two design docs trimmed to their room-binding
-  sections, the cuts declared in the brief); brief 2 then composes the IMPLEMENTATION stage from
-  the adopted verdict (fresh brief, staged TRUNCATED-HERE batches, only the touched files). The
+  in-flight jordan track. A TWO-PART round in the jordan-slice-2 brief shape (the owner's call
+  after the combined ask stalled the specialist): PART 1 = the FIND/SPLICE decision brief (the
+  vault `projects v9/2-hermitage-3d-rastrelli-gallery-part1-find.md` — §0 task&freedom / §1 the
+  full state incl. the orchestrator's OWN capture battery `probes/rg-round-shots/` (11 frames:
+  4 stops × day + Gj/G1 × dusk-night + 3 rail cam frames, factual reads written into §1.5) /
+  §2 the record verbatim / §3 pipeline / §4 A&Q / §5 the six-item decision contract + appendix
+  law files; NO code from the specialist in part 1; the workspace is ATTACHED to the specialist
+  chat — it reads the repo itself, read-only), PART 2 = the implementation brief composed from
+  the adopted verdict (carries the sources + the adopted constants; complete FILE blocks, never
+  patches). The
   orchestrator runs the room's bpy/bake/re-encode chain + tsc/biome/vitest + build/budget on the
   branch; NO merge and NO full e2e/golden gate this session. MERGE into main + the FULL
   e2e/golden gate run at the owner's stack signal only. (The round opened with the owner's
