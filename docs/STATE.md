@@ -64,7 +64,29 @@ changes).
   tone-mapper step-downs; the GILT_METALLIC owner question). 2b (the room code relay) COMPLETED
   + SENT: the adopted blocks pasted back verbatim + two NEW code-fact adjudications (three's
   stock lm path divides by π inside BRDF_Lambert — the D1 κ absorbs any scale; no per-state
-  emissive hook exists in the room path — the SCALE table is a NEW guarded hook). The round rides
+  emissive hook exists in the room path — the SCALE table is a NEW guarded hook). ROUND-3 (2b)
+  REPLIED and INTEGRATED (commit 6faa3a2, the three complete files landed with a full salvage
+  read): the builder — the value-noise textures on the seeded integer hash, the marble
+  slab-block/quadrant UV law covering both final slab-edge risers inside the joint-free
+  guarantee, the shell fields ≤ 2.0 m (1,974 faces realized), the vault's shared-topology
+  smoothing via `shade_smooth()` + `set_sharp_from_angle(30°)`, the emissive retunes pane
+  (0.84,0.89,1.00)×3.0 / sconce ×2.0 / chandelier ×2.5, `LM_CELL_MAP` + `write_lm_cells()`;
+  the disclosed REVISION: `GILT_BASE` = the former generator's exact channel means (0.88,
+  0.705, 0.35) encoded-sRGB (the numeric gold-F0 record never existed in the appendix — the
+  reconciliation row rides the landing record); the gates — the LM_ENCODE percentile/sRGB
+  export, EMISSIVE {3,2,2.5}, the per-state intensity-dict gate, the KHR_lights_punctual
+  refusal; lightmap-look — the bootstrap dict 2.22/2.27/1.67, the κ=1.0-at-the-uniform-level
+  statement, INTERIOR_EMISSIVE_SCALE jordan-only. THE ASSET CHAIN GREEN at the new law: shell
+  3,740 tris, lm cells 3,250 of 4,096 (envelope 1,986 + part2 1,264; under the 3,400 warn),
+  drawn 21,872 ≤ 380,000, draws 19, the glb 237,648 B sha c8fc2ceb…, tex 40,472 B (the
+  value-noise PNGs encode ~2× tighter than the trig lattice), payload 1,001,073 ≤ 7,000,000;
+  tsc 0, biome clean. NO captures/commits past this point until the run card's step 5 — the lm
+  ktx2s are STALE by design. THE COMPANION BATCH (the chain = an orchestrator-direct mechanical
+  run, the specs closed by D1–D5): the bake.py sentinel/rig/pane-row splice, reencode's
+  per-room sRGB switch, the NEW lm-percentile tool pair, bake.mjs's step-skip + the
+  dict-flowing manifest row, blend-gl's :44 law amendment + the SCALE hook — dispatched to a
+  delegated subagent (background); the bakes + percentile + row-paste + test re-pins + validate
+  + captures follow on its landing. The round rides
   the ROUNDS top row
   `PARALLEL · jordan-slice-2` (in-flight, below — rows 63/64's slots already MERGED via their
   own flip convention). CORRECTION TO THE BLOCK BELOW (stale by later merges): the slice-1
