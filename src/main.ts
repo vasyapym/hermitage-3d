@@ -99,6 +99,7 @@ import {
   unknownField,
 } from './perf/mobile-report';
 import { noteTransitFrame, openTransitLog, type TransitLog } from './perf/transit-log';
+import { buildColumn, setColumnOpacity } from './procedural/column';
 import { buildFacade, FACADE_SURFACE_UNIFORMS } from './procedural/facade-builder';
 import { solveSouthFacade } from './procedural/facade-solver';
 import { GROUND_SNOW_UNIFORMS, patchGroundSnowSlot } from './procedural/ground-snow';
@@ -169,6 +170,7 @@ import {
   finishTransit,
   type TransitState,
 } from './world/airlock';
+import { SUN_SHADOW_FIT } from './world/column';
 import { snowBounceGround } from './world/ground-snow';
 import { parseLmParam } from './world/lm-mode';
 import { WINDOW_WARM_LINEAR, warmGround } from './world/night-facade';
@@ -525,7 +527,7 @@ queueMicrotask(() => {
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(55, 1, 0.5, 2000);
-camera.position.set(0, 1.7, 230); // eye height mid-square; framing fits the 227 m south front
+camera.position.set(-24, 1.7, 230); // = SQUARE_RAIL S0 (DEC-037: west of the gate axis)
 camera.lookAt(0, 11, 0);
 
 // Card-model massing at true scale — the Phase 0 "architect's card model" (ships-list).
@@ -560,6 +562,9 @@ const snowCap = buildSnowCap(solvedFacade.value);
 // faded in with the massing. The kit's middle ground-arch slab is voided for it.
 const throat = buildThroat();
 openGroundArch(facadeBuild);
+// DEC-037: the Alexander Column on the gate axis — one merged Lambert mesh inside the palace
+// group (the indoors flip inherited), faded with the massing in applyPresentation.
+const alexanderColumn = buildColumn();
 
 const palace = new THREE.Group();
 palace.name = 'PalaceMassing';
@@ -647,6 +652,7 @@ palace.add(
   nightLattice.group,
   snowCap.group,
   throat.group,
+  alexanderColumn.mesh,
 );
 // Shadows return with the facade kit (architecture.md): every solid casts and receives.
 ground.receiveShadow = true;
@@ -662,15 +668,22 @@ scene.add(palace);
 const sun = new THREE.DirectionalLight(0xffffff, 0); // intensity driven by the sample
 sun.castShadow = true;
 sun.shadow.mapSize.set(1024, 1024); // T1 default until quality tiers land
-sun.shadow.camera.left = -130;
-sun.shadow.camera.right = 130;
-sun.shadow.camera.top = 130;
-sun.shadow.camera.bottom = -130;
-sun.shadow.camera.near = 100;
-sun.shadow.camera.far = 2200;
+sun.shadow.camera.left = SUN_SHADOW_FIT.left;
+sun.shadow.camera.right = SUN_SHADOW_FIT.right;
+sun.shadow.camera.top = SUN_SHADOW_FIT.top;
+sun.shadow.camera.bottom = SUN_SHADOW_FIT.bottom;
+sun.shadow.camera.near = SUN_SHADOW_FIT.near;
+sun.shadow.camera.far = SUN_SHADOW_FIT.far;
 sun.shadow.bias = -0.0001;
 sun.shadow.normalBias = 0.25;
-scene.add(sun);
+// DEC-037: the committed ±130 m box re-centred on z = SUN_SHADOW_FIT.centreZ so it reaches the
+// Column. The rig carries the light AND its target: applyEpoch's sun.position stays the rig-local
+// sunDirection × SUN_DISTANCE, so the light direction is unchanged while the box translates.
+const sunRig = new THREE.Group();
+sunRig.name = 'SunRig';
+sunRig.position.set(0, 0, SUN_SHADOW_FIT.centreZ);
+sunRig.add(sun, sun.target);
+scene.add(sunRig);
 const hemi = new THREE.HemisphereLight(0xffffff, 0x000000, 1); // colours driven by the sample
 scene.add(hemi);
 
@@ -2565,6 +2578,7 @@ const applyPresentation = (): void => {
     // Opaque once settled: depth-write rendering without the transparency pass.
     kitMaterial.transparent = presentation.massingOpacity < 1;
     setThroatOpacity(throat, presentation.massingOpacity);
+    setColumnOpacity(alexanderColumn, presentation.massingOpacity);
   }
   scrub.hidden = arrival.phase !== 'settled';
   notesLink.hidden = arrival.phase !== 'settled'; // DEC-004's in-app route to /notes

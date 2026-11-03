@@ -88,7 +88,7 @@ Tiers: **T0** (low: DPR 1, no bloom, 1 K shadow, near-LOD instancing) · **T1** 
 **Golden frames — implemented arrangement:** CI runs only the Playwright *smoke* project, in a
 separate `e2e` job on software GL (SwiftShader): deterministic T1 and T0 boots, HUD `data-*` budget
 assertions (draw calls ≤ 250, triangles ≤ 1.0 M), tier-label checks, generous hang bounds (`#title`
-≤ 15 s, settled ≤ 45 s) and a clean-console gate. Pixel goldens (`tests/e2e/golden.spec.ts`: 13 scenes — noon, white night, the December night, the S1 pin and the nine room goldens — jordan J4 / gallery G1 / 1812 M0 × day/dusk/night at the shared det instants, deterministic mode, page-level clip of the `#scene` viewport, `maxDiffPixelRatio` 0.01, plus 16 layout fixtures en/ru across 360/768/1280/1920 on both pages) run locally on the
+≤ 15 s, settled ≤ 45 s) and a clean-console gate. Pixel goldens (`tests/e2e/golden.spec.ts`: 15 scenes — noon, white night, S1 noon, the three winter/autumn square gates (dec night, dec noon, oct night) and the nine room goldens — jordan J4 / gallery G1 / 1812 M0 × day/dusk/night at the shared det instants, deterministic mode, page-level clip of the `#scene` viewport, `maxDiffPixelRatio` 0.01, plus 16 layout fixtures en/ru across 360/768/1280/1920 on both pages) run locally on the
 reference Mac's GPU. This is the charter's documented "goldens run locally" fallback, adopted
 deliberately rather than after observed flakiness: software-GL output is deterministic per machine,
 but baselines are not portable across platforms, so CI goldens would need their own generated

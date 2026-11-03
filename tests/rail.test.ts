@@ -561,10 +561,12 @@ describe('seed precedence', () => {
 describe('square rail (design §6.1, declared data; R18-ux D1)', () => {
   it('pins the three declared stops', () => {
     expect(SQUARE_RAIL.stops.map((s) => s.id)).toEqual(['S0', 'Sh', 'S1']);
-    expect(SQUARE_RAIL.stops[0]?.position).toEqual([0, 1.7, 230]);
+    // DEC-037: the rail runs west of the Column axis — S0 24 m, Sh 12 m, S1 on the axis.
+    expect(SQUARE_RAIL.stops[0]?.position).toEqual([-24, 1.7, 230]);
     expect(SQUARE_RAIL.stops[0]?.look).toEqual({ yaw: 35, pitchUp: 35, pitchDown: 35 });
     expect(t(SQUARE_RAIL.stops[0]?.caption ?? 'caption.s0')).toBe('the facade and the hour');
-    expect(SQUARE_RAIL.stops[1]?.position).toEqual([0, 1.7, 177]);
+    // DEC-037: Sh moved off the axis with the west rail (z 177 unchanged).
+    expect(SQUARE_RAIL.stops[1]?.position).toEqual([-12, 1.7, 177]);
     expect(SQUARE_RAIL.stops[1]?.subject).toEqual(SQUARE_SH_GAZE);
     expect(SQUARE_RAIL.stops[1]?.look).toEqual({ yaw: 30, pitchUp: 25, pitchDown: 20 });
     expect(SQUARE_RAIL.stops[2]?.position).toEqual([0, 1.7, 124]);
