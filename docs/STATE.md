@@ -9,7 +9,8 @@ changes).
   round: the owner's TODAY re-issue that the room «looks very raw / as a draft», PARALLEL to the
   in-flight jordan track. One COMBINED long-context CREATIVE brief (the vault
   `projects v9/1-hermitage-3d-rastrelli-gallery-round.md`): the zero-steering room-state dossier
-  + the ranked-gaps ask + the implementation in ONE draw, 25 committed files riding along. The
+  + the ranked-gaps ask + the implementation in ONE draw, the room's 18-block file set riding
+  along (two design docs trimmed to their room-binding sections; the cuts declared in the brief). The
   orchestrator runs the room's bpy/bake/re-encode chain + tsc/biome/vitest + build/budget on the
   branch; NO merge and NO full e2e/golden gate this session. MERGE into main + the FULL
   e2e/golden gate run at the owner's stack signal only. (The round opened with the owner's
