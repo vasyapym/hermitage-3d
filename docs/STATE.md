@@ -31,7 +31,25 @@ changes).
   reencode.mjs / bake.mjs / lightmap-look.ts with the rastrelli lane — per-room mode keeps the
   other rooms byte-identical. STEP 0 runs on a delegated mechanical subagent (stats +
   false-colours + the W 0.45 day probe + J0/J3/J4 captures + three read-only adjudications);
-  brief 2 carries the measured W_s. The round rides the ROUNDS top row
+  brief 2 carries the measured W_s. **STEP-0 LANDED
+  (same session):** EXR stats on the denoised plates (non-emissive p99.5: day 0.557 / dusk 0.4386
+  / night 0.599; day all-texel 0.732 — the day clamp 0.45 binds regardless; frac L≥0.1 non-emit
+  day 1.6% / night 40.4%; exclusion labeled — day's excluded 14 cells are sun patches, night's
+  107 are the baked fixtures) → MEASURED under the adopted law: day 0.45/2.22 (clamp), dusk
+  0.44/2.27, night 0.60/1.67 sRGB-branch or 0.50/2.00 linear-fallback; probe day.ktx2 at W 0.45
+  = 181,773 B sha 96ccf31a…, the three J0/J3/J4 day shots captured (the port-4174 trap hit once:
+  a leftover preview from the OLD worktree contaminated two shots — discarded, the recapture
+  byte-verified the served ktx2; tracked files restored, git clean); the orchestrator eyeball:
+  the re-exposed day reads LIT with range while the surface artifacts (wave banding, the
+  vault's rippling cells, the granite weave) + the zero-spill flat-white emissives now dominate
+  — exposure does the lighting half, not the surfaces. ADJUDICATIONS: (a) the loader honours an
+  sRGB-flagged ktx2 (KTX2Loader reads the DFD transfer function; the blend-gl "LINEAR" comment
+  is the current law and flag+encode must move together); (b) the pane's warm emission does NOT
+  enter the day/dusk bakes (the swap rebuilds the node tree without any Emission node and
+  fixtures_off zeroes the rest — the FIND-2 bake-face corrected; the glb runtime face stands;
+  night's pane emission IS baked); (c) the day sun DOES enter the north windows (skew 2.6 m/m,
+  ≈25% of each bay; lower tier floors 4–8 m south; upper tier strikes the west wall mid-height)
+  — the (iv) fallback axis does NOT trigger. The round rides the ROUNDS top row
   `PARALLEL · jordan-slice-2` (in-flight, below — rows 63/64's slots already MERGED via their
   own flip convention). CORRECTION TO THE BLOCK BELOW (stale by later merges): the slice-1
   branch's merge DID happen ahead of the square-env slot per the Live-state rows — its head
