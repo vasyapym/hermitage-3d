@@ -100,6 +100,7 @@ import {
 } from './perf/mobile-report';
 import { noteTransitFrame, openTransitLog, type TransitLog } from './perf/transit-log';
 import { buildColumn, setColumnOpacity } from './procedural/column';
+import { buildColumnFence, setColumnFenceOpacity } from './procedural/column-fence';
 import { buildFacade, FACADE_SURFACE_UNIFORMS } from './procedural/facade-builder';
 import { solveSouthFacade } from './procedural/facade-solver';
 import { GROUND_SNOW_UNIFORMS, patchGroundSnowSlot } from './procedural/ground-snow';
@@ -565,6 +566,9 @@ openGroundArch(facadeBuild);
 // DEC-037: the Alexander Column on the gate axis — one merged Lambert mesh inside the palace
 // group (the indoors flip inherited), faded with the massing in applyPresentation.
 const alexanderColumn = buildColumn();
+// DEC-038: Montferrand's bronze fence round the Column — one merged Lambert mesh, the same group,
+// the same fade and the same every-solid shadow loop.
+const columnFence = buildColumnFence();
 
 const palace = new THREE.Group();
 palace.name = 'PalaceMassing';
@@ -653,6 +657,7 @@ palace.add(
   snowCap.group,
   throat.group,
   alexanderColumn.mesh,
+  columnFence.mesh,
 );
 // Shadows return with the facade kit (architecture.md): every solid casts and receives.
 ground.receiveShadow = true;
@@ -2579,6 +2584,7 @@ const applyPresentation = (): void => {
     kitMaterial.transparent = presentation.massingOpacity < 1;
     setThroatOpacity(throat, presentation.massingOpacity);
     setColumnOpacity(alexanderColumn, presentation.massingOpacity);
+    setColumnFenceOpacity(columnFence, presentation.massingOpacity);
   }
   scrub.hidden = arrival.phase !== 'settled';
   notesLink.hidden = arrival.phase !== 'settled'; // DEC-004's in-app route to /notes
