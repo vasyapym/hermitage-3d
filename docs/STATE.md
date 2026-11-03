@@ -12,7 +12,9 @@ changes).
   + the ranked-gaps ask + the implementation in ONE draw, 25 committed files riding along. The
   orchestrator runs the room's bpy/bake/re-encode chain + tsc/biome/vitest + build/budget on the
   branch; NO merge and NO full e2e/golden gate this session. MERGE into main + the FULL
-  e2e/golden gate run at the owner's stack signal only. ROUNDS row 67.**
+  e2e/golden gate run at the owner's stack signal only. (The round opened with the owner's
+  framing amendment: the ROLE boilerplate re-phrased as the engineering peer + THE STAGE LAW —
+  transport trap 5.) ROUNDS row 67.**
 - **2026-11-02 · Jordan slice 1 LANDED ON THE PARALLEL BRANCH `jordan-details` (the worktree
   `~/Documents/hermitage-3d-jordan`, off d2d3aec) — "the room reads as architecture"; the
   details program's next room, PARALLEL to the luna2 session's in-flight track. MERGE into
@@ -268,10 +270,22 @@ docs/briefs/). Owner reads Russian; briefs and code in English.
 4. Same-base `page.goto` is a FRAGMENT navigation (no reload), and a mounted room keeps its
    technique until the next exit disposes it — measurement/e2e configs must open a FRESH page
    per configuration (the round-17c measurement's first run silently re-measured config 1).
+5. THE STAGE LAW (owner, 2026-11-03): every relay reply ships as a SEQUENCE of stage messages
+   in the same thread, never one monologue — stage 1 = the assessment/design draw, complete in
+   itself; later stages = implementation batches per file or tight family; every non-final
+   stage ends `TRUNCATED-HERE: <next artifact>`, the final ends `COMPLETE`; no recap
+   transitions, each stage opens on its own facts. The generation dead-air (a passive-framed
+   specialist stalls mid-output with nothing yielded) is the trap this law exists to prevent.
 
 **Brief boilerplate (copy blocks, compose fresh only the task-specific parts).**
-- ROLE line: «You are the specialist of a relay. You have no tools, no repo access and no prior
-  context; the orchestrator integrates your reply into the repository and validates it.»
+- ROLE line (the engineering-peer frame; OWNER AMENDMENT 2026-11-03 — the fresh-session law
+  stands, but never phrase the specialist as «you have no tools / no repo access»; a passive
+  one-shot frame produces one uninterrupted generation — see trap 5): «You are the room's
+  engineering lead for this round. The orchestrator hands you the room's committed source tree
+  inside this brief and takes your work back — it integrates, runs the bake chain, and
+  validates everything against the repository's own gates (build chain, budgets, the tests it
+  writes from your pins). Everything you may consult is inside this brief. Every brief is a
+  fresh session — carry forward whatever the reply itself needs.»
 - HOUSE STYLE (binds every file): leading block comment citing the design sections implemented;
   named exports only, no default exports; no enums; `satisfies` over `as` where a literal object
   is typed; `import type` for type-only imports; strict TS — noUncheckedIndexedAccess (index
