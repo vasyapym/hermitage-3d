@@ -3,6 +3,8 @@ export const TOUCH_BUTTON_MIN_INLINE_PX = 72;
 export const TOUCH_BUTTON_MIN_BLOCK_PX = 44;
 export const TOUCH_RAIL_GAP_PX = 8;
 export const TOUCH_RAIL_INSET_PX = 24;
+/** R21-ux: each box sits this share of the viewport width inside the inset (host writes `%`). */
+export const TOUCH_RAIL_SHIFT_PCT = 7;
 export const TOUCH_RAIL_CLEARANCE_PX = 16;
 export const TOUCH_RAIL_MAX_WIDTH_PX = 767.98;
 

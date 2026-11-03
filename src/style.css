@@ -628,24 +628,32 @@ body {
 
 /* Mobile-B (design-mobile-tier.md §4, R19-ux A + A.1): the touch rail — the separate navigation
    surface, a pair of ARROWS standing one stack gap above the corner stack's tallest door
-   state: «←» flush with the left inset, «→» flush with the right (the notes link's own glyph —
-   one chrome vocabulary, nothing drawn). Position host-owned from JS (layoutTouchRail sets
-   --touch-center from the stack's stable facts — its bottom edge, its members' boxes, the door
-   prompt's reserved three-line band — never its content-sized top, so no door label rises into
-   the pair); the inset is the larger of the law's 24 px and the applicable safe-area inset via
-   max(). Absence is display:none (the #season-list[hidden] precedent: out of layout, focus
-   and the a11y tree); the geometry is reserved while busy. While the black card's room title
-   shows (#caption-title data-visible) the arrows yield by opacity only — the title surfaces in
-   their band and they return as it fades («arrows replace them»); the box never moves. A slot
-   that runs into the chrome above, or a door label past its band, warns loudly in the repo's
+   state: «↓» inside the left inset + its shift, «↑» inside the right inset + its shift (the
+   notes link's own glyph — one chrome vocabulary, nothing drawn). Position host-owned from JS
+   (layoutTouchRail sets --touch-center from the stack's stable facts — its bottom edge, its
+   members' boxes, the door prompt's reserved three-line band — never its content-sized top, so
+   no door label rises into the pair); the inset is the larger of the law's 24 px and the
+   applicable safe-area inset via max(). R21-ux: each side additionally gains
+   var(--touch-shift) — TOUCH_RAIL_SHIFT_PCT of the viewport width, added OUTSIDE the
+   safe-area max() so a notch still pushes the pair further in, and scaling with the device so
+   the placement reads the same at the 320 floor and at 844 landscape. Absence is display:none
+   (the #season-list[hidden] precedent: out of layout, focus and the a11y tree); the geometry
+   is reserved while busy. While the black card's room title shows (#caption-title
+   data-visible) the arrows yield by opacity only — the title surfaces in their band and they
+   return as it fades («arrows replace them»); the box never moves. A slot that runs into the
+   chrome above, or a door label past its band, warns loudly in the repo's
    zimny: convention and never hides navigation (§4's failed layout gate). */
 #touch-rail {
   position: fixed;
   display: flex;
   gap: var(--touch-gap);
   justify-content: space-between;
-  left: max(var(--touch-inset), env(safe-area-inset-left, 0px));
-  right: max(var(--touch-inset), env(safe-area-inset-right, 0px));
+  /* R21-ux: each box sits --touch-shift (TOUCH_RAIL_SHIFT_PCT % of the viewport width) inside
+     the chrome inset: a one-handed thumb rests inside the screen edge, not on it. The shift is
+     added outside the safe-area max() so notches still push the pair in, and it scales with
+     the device so the pair reads the same at 320 and 844. */
+  left: calc(max(var(--touch-inset), env(safe-area-inset-left, 0px)) + var(--touch-shift));
+  right: calc(max(var(--touch-inset), env(safe-area-inset-right, 0px)) + var(--touch-shift));
   top: var(--touch-center);
   transform: translateY(-50%);
   pointer-events: none;
@@ -660,15 +668,18 @@ body:has(#caption-title[data-visible="true"]) #touch-rail {
   display: none;
 }
 
-/* The arrow face: the box keeps the 72×44 minima; the glyph sits at the box's OUTER edge so
-   «↓» shares the wordmark/notes-link margin and «↑» shares «Залы»'s right edge — the hit area
-   grows inward — and stays centred on the block axis (R20-ux: thumb contact lands at or
-   below the aim point, so the box keeps its share below the glyph). The glyphs point along the
-   route's depth, ↑ into the scene and ↓ back out of it, never sideways: the camera never
-   strafes. The title card's ink (.85, the caption-title register) makes the pair read as
-   controls over the scene; a dead direction (aria-disabled) drops to a faint register;
-   hover/focus rise to ink. No underline — an underlined arrow is a typographic error; the
-   focus ring is the keyboard signal. */
+/* The arrow face: the box keeps the 72×44 minima; the glyph sits at the box's OUTER edge — the
+   hit area grows inward — and stays centred on the block axis (R20-ux: thumb contact lands at
+   or below the aim point, so the box keeps its share below the glyph). The glyphs point along
+   the route's depth, ↑ into the scene and ↓ back out of it, never sideways: the camera never
+   strafes. R21-ux: the pair sets in the chrome face's medium (500 — the subset's only step
+   above regular) at 27 px: on a phone these two are the only way to travel the route, and
+   regular at 28 px read thin over the scene. Since R21-ux the depth arrows also ride the
+   typeface's own ↑/↓ glyphs — U+2191/U+2193 restored to the §2.1 subset (until then the
+   fallback face served them). The title card's ink (.85, the caption-title register) makes
+   the pair read as controls over the scene; a dead direction (aria-disabled) drops to a faint
+   register; hover/focus rise to ink. No underline — an underlined arrow is a typographic
+   error; the focus ring is the keyboard signal. */
 #touch-rail button {
   min-inline-size: var(--touch-min-inline);
   min-block-size: var(--touch-min-block);
@@ -682,9 +693,9 @@ body:has(#caption-title[data-visible="true"]) #touch-rail {
   background: none;
   cursor: pointer;
   font-family: inherit;
-  font-size: 28px;
+  font-size: 27px;
   line-height: 1;
-  font-weight: 400;
+  font-weight: 500;
   color: rgba(255, 255, 255, 0.85);
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
   user-select: none;

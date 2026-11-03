@@ -159,6 +159,7 @@ import {
   TOUCH_RAIL_GAP_PX,
   TOUCH_RAIL_INSET_PX,
   TOUCH_RAIL_PROMPT_LINES,
+  TOUCH_RAIL_SHIFT_PCT,
   touchRailCenter,
   touchRailSlotBottom,
   touchRailVisible,
@@ -370,7 +371,10 @@ const layoutTouchRail = (): void => {
   ] as const;
   for (const [name, value] of vars) {
     touchRail.style.setProperty(name, `${value}px`);
-  } // the four --touch-* vars, unchanged
+  } // the four --touch-* px vars
+  // R21-ux: percent, not vw — CSS calc() resolves a % length against the fixed element's
+  // containing block (the viewport), the same base the e2e probe reads as clientWidth.
+  touchRail.style.setProperty('--touch-shift', `${TOUCH_RAIL_SHIFT_PCT}%`);
   const visible = touchRailVisible({
     coarsePointer,
     widthCssPx: document.documentElement.clientWidth,

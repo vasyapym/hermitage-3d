@@ -103,8 +103,10 @@ ISO dates in both languages; «±24» unspaced, «≤ N» spaced; proper names: 
   the romance). If the owner wants the quieter version, drop the serif file; nothing else changes.
 - Files under `public/fonts/`: `plex-sans-400.woff2`, `plex-sans-500.woff2`, `plex-serif-400.woff2`;
   subset = Basic Latin + Latin-1 punctuation + full basic Cyrillic (U+0400–045F, incl. Ё/ё) + U+00A0 00AB
-  00B1 00B7 00BB 00D7 2009 2013 2014 2019 201C–201E 2026 202F 2116 2190 2192 2212 2264 2265 03A3; layout
-  features kept: `kern, liga, locl, tnum, pnum, ccmp, mark, mkmk`. Expected ≈ 50–60 KB each.
+  00B1 00B7 00BB 00D7 2009 2013 2014 2019 201C–201E 2026 202F 2116 2190 2191 2192 2193 2212 2264 2265 03A3; layout
+  features kept: `kern, liga, locl, tnum, pnum, ccmp, mark, mkmk`. Expected ≈ 50–60 KB each. R21-ux:
+  U+2191/U+2193 (the touch rail's depth arrows «↑»/«↓») restored to the set so the chrome's medium
+  serves them.
 - Reproducible build: `scripts/fonts/subset.mjs` (dev dependency `subset-font` or `pyftsubset`; the source
   release tag pinned; outputs committed). If the OFL carries a Reserved Font Name, the subsets' internal
   names become «WP Sans» / «WP Serif»; the CSS families are project-local regardless. `OFL.txt` ships beside

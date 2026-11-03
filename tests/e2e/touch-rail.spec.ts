@@ -11,6 +11,7 @@ import {
   TOUCH_BUTTON_MIN_BLOCK_PX as H,
   TOUCH_RAIL_INSET_PX as INSET,
   TOUCH_RAIL_PROMPT_LINES as LINES,
+  TOUCH_RAIL_SHIFT_PCT as SHIFT_PCT,
   touchRailCenter,
   touchRailSlotBottom,
   TOUCH_BUTTON_MIN_INLINE_PX as W,
@@ -544,6 +545,7 @@ for (const lang of ['ru', 'en']) {
               };
             });
             if (probe === null) throw new Error('the rail geometry did not read');
+            const SHIFT = (SHIFT_PCT / 100) * probe.clientWidth;
             // The §4 box laws (unchanged): the two buttons carry the 72/44 minima; the
             // 8-px TOUCH_RAIL_GAP_PX is now the MINIMUM gap (verdict 1's space-between
             // pair spreads the buttons to the two insets).
@@ -554,13 +556,13 @@ for (const lang of ['ru', 'en']) {
             expect(probe.b.x - probe.a.x - probe.a.width).toBeGreaterThanOrEqual(GAP - 0.5);
             // Row 1: the two buttons share one top (±0.5 px).
             expect(Math.abs(probe.a.y - probe.b.y)).toBeLessThanOrEqual(0.5);
-            // Row 2: back.left = max(24, safe-area-left) (±0.5) — the env() insets resolve
-            // to 0 without viewport-fit=cover (§4's law note), so 24 exactly.
-            expect(probe.a.x).toBeGreaterThanOrEqual(INSET - 0.5);
-            expect(Math.abs(probe.rail.x - INSET)).toBeLessThanOrEqual(0.5);
-            // Row 3: clientWidth − fwd.right = max(24, safe-area-right) (±0.5).
+            // Row 2: back.left = max(24, safe-area-left) + SHIFT (±0.5) — the env() insets
+            // resolve to 0 without viewport-fit=cover (§4's law note), so 24 + 7 % (R21-ux).
+            expect(probe.a.x).toBeGreaterThanOrEqual(INSET + SHIFT - 0.5);
+            expect(Math.abs(probe.rail.x - (INSET + SHIFT))).toBeLessThanOrEqual(0.5);
+            // Row 3: clientWidth − fwd.right = max(24, safe-area-right) + SHIFT (±0.5, R21-ux).
             expect(
-              Math.abs(probe.clientWidth - probe.b.x - probe.b.width - INSET),
+              Math.abs(probe.clientWidth - probe.b.x - probe.b.width - (INSET + SHIFT)),
             ).toBeLessThanOrEqual(0.5);
             // Row 4 (R19-ux A.1): the box stands on the reserved slot — its bottom edge at
             // touchRailSlotBottom over the live stack facts (±1), the door prompt counted at
@@ -612,6 +614,12 @@ for (const lang of ['ru', 'en']) {
               'aria-label',
               lang === 'ru' ? 'Назад' : 'Back',
             );
+            // The face law (R21-ux): medium at 27 px is pinned, not eyeballed.
+            const face = await button(p, 1).evaluate((el) => {
+              const style = getComputedStyle(el);
+              return { size: style.fontSize, weight: style.fontWeight };
+            });
+            expect(face).toEqual({ size: '27px', weight: '500' });
             // Row 6: elementFromPoint at the group's centre returns the canvas — the group's
             // own box passes pointer input through (the verdict-1 layout law).
             expect(
