@@ -57,10 +57,10 @@ file in the same session.
 
 ## Live state
 
-- **2026-11-03 · R21-ux LANDED ON THE PARALLEL BRANCH `uxfix-arrows-look` (the worktree
-  `~/Documents/hermitage-3d-uxfix-arrows-look`, off the finale's cf2a3cf; MERGE + the FULL
-  e2e/golden gate at the owner's signal only — the owner RULED the full gate unnecessary
-  pre-merge, the targeted set suffices).** The owner's arrow tune (CREATIVE relay ×1 adopted —
+- **2026-11-03 · R21-ux MERGED TO MAIN from the parallel branch `uxfix-arrows-look` (the
+  worktree `~/Documents/hermitage-3d-uxfix-arrows-look`, off the finale's cf2a3cf; the FULL
+  e2e/golden gate WAIVED by the owner's solo-merge ruling — the targeted battery green, the
+  scene goldens untouched by construction).** The owner's arrow tune (CREATIVE relay ×1 adopted —
   the vault `projects v9/16-…`; a SECOND independent draw re-ran the same brief, disagreed ONLY
   on the 7 % measure, owner adjudicated): the face moves to the subset's only heavier cut —
   Medium 500 @ 27 px (was regular 400 @ 28; no synthetic stroke — over the .85 translucence it
