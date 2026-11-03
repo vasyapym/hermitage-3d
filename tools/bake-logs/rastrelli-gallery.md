@@ -6,18 +6,18 @@ The committed ktx2 bytes + sha256 below are the byte-identity gate (`--verify`).
 
 | state | command | Blender | res | samples | denoiser | white point | peak | clipped | wall s |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| day | `node tools/bake.mjs rastrelli-gallery day` | Blender 4.2.23 LTS | 1024 | 128 | OPENIMAGEDENOISE | 4 | 0.202 | 0 | 726.9 |
-| dusk | `node tools/bake.mjs rastrelli-gallery dusk` | Blender 4.2.23 LTS | 1024 | 128 | OPENIMAGEDENOISE | 4 | 9.0536 | 0.0141 | 1562.7 |
-| nightChandeliers | `node tools/bake.mjs rastrelli-gallery nightChandeliers` | Blender 4.2.23 LTS | 1024 | 128 | OPENIMAGEDENOISE | 4 | 9.1816 | 0.0141 | 1716.9 |
+| day | `node tools/bake.mjs rastrelli-gallery day` | Blender 4.2.23 LTS | 1024 | 128 | OPENIMAGEDENOISE | 4 | 4.2241 | 0 | 408.4 |
+| dusk | `node tools/bake.mjs rastrelli-gallery dusk` | Blender 4.2.23 LTS | 1024 | 128 | OPENIMAGEDENOISE | 4 | 2.227 | 0 | 640.4 |
+| nightChandeliers | `node tools/bake.mjs rastrelli-gallery nightChandeliers` | Blender 4.2.23 LTS | 1024 | 128 | OPENIMAGEDENOISE | 4 | 2.1981 | 0 | 574.4 |
 
 ## Artifacts
 
 | state | file | bytes | sha256 |
 | --- | --- | --- | --- |
-| day | lm/day.ktx2 | 1370 | 3225e529b66fea8be262a21f716d03a43e15ef320f99c4bb34965ab5cafed3dd |
-| dusk | lm/dusk.ktx2 | 12626 | 3fc406a826f91f839108cbd86f393fa18aab866c271d13c71ed5c8757a2d4a76 |
-| dusk | probe/dusk.ktx2 | 866 | 34d70cabd6efe58ee9f39d027103bb3ad18e0758b2dcd5ae4ab661f379590603 |
-| nightChandeliers | lm/night.ktx2 | 12942 | 6573ebbaf80bfd6c9c9dafcf44ededb31992b1a63910a3a74ff2bddc66ae23cc |
+| day | lm/day.ktx2 | 20319 | 0a397615ded1105677c4a30570243fd857dcdb120bd65f243c8d53291343bf65 |
+| dusk | lm/dusk.ktx2 | 18674 | ff89e11e8decaad67eb157719bf9ae3aa8195f51035806d19c7e9ccef1e97c25 |
+| dusk | probe/dusk.ktx2 | 2206 | f2e64c2f8379754bf711e83644f87f20f5ca0815cff0638122ba3dc1d1593a8e |
+| nightChandeliers | lm/night.ktx2 | 14032 | de80902f10581d79664594ec86957cb6b5a37cea2592b31d057ddd3d56281e13 |
 
 ## Borrowed-hardware menu
 

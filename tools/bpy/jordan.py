@@ -1,17 +1,34 @@
-"""Zimny phase-2 - jordan (Jordan Staircase) — the complete kit (envelope + ascent).
+"""Zimny phase-2 - jordan (Jordan Staircase) — the complete kit (envelope + ascent + order).
 
 Deterministic bpy authoring for Blender 4.2 LTS. Everything is authored in glTF world axes
 (+X east, +Z south / Palace Square, -Z north / Neva, +Y up); Blender = (x, -z, y).
 The envelope ('shell' and 'pane': geometry, UVs, lm cells) is frozen; the ascent adds NEW
 meshes only: 'stairs', 'rail', 'baluster' (instanced), 'column' (x2), 'portal' (with vase
-niches), 'chandelier' and 'sconce' (instanced). Kit lm cells start at LM_PART2_FIRST_CELL;
-instanced props share their template's cells (ADR-0013 probe).
-No randomness, no noise, no tangents. Two UV layers per mesh: 'uv' (box, metres / UV_TILE_M)
-and 'lm' (per-face padded cell in a FIXED 64 x 64 grid over LM_RES).
+niches and closed doors), 'chandelier' and 'sconce' (instanced). Jordan details slice 1
+(design-staircase.md §2.2 hero-mesh + materials rows, §4.4 look-law consumer, §9 budget
+rows; design-walkthrough-ux.md §8 stop subjects, §9 stair-arrival clauses;
+docs/artistic-license.md 'Jordan wall order' row) adds the wall ORDER against the frozen
+shell: 'cornice' (the two-step entablature ring at the vault spring + the vestibule trim),
+'pilaster' + 'pilaster_base' (instanced giant order on the window piers and the east wall,
+gilt capitals, the east bases at landing level), 'window_frame' (instanced stucco
+architraves on all twelve windows); the east portal deepens to a 0.7 m aedicule with
+closed double doors; the columns gain base, entasis and a gilt capital whose abacus
+carries the cornice; the balustrade thickens; the four procedural textures retune to white
+stucco / Carrara marble / grey-pink granite / gold (gilt metallic 0.5). Emitters (pane,
+sconce_glow, chandelier_glow) are byte-identical to the committed kit: fixture FORM awaits
+real-object evidence (DEC-026). Kit lm cells start at LM_PART2_FIRST_CELL; instanced
+props share their template's cells (ADR-0013 probe). No randomness, no noise, no
+tangents. Two UV layers per mesh: 'uv' (box, metres / UV_TILE_M) and 'lm' (per-face
+padded cell in a FIXED 64 x 64 grid over LM_RES).
 
-Orchestrator adjudication vs the specialist draft: stage_dir() binds to the asset.mjs driver
-convention (`-- --room <id> --out <stage>`; `--stage`, a bare positional path, and ZIMNY_STAGE
-are also accepted) - the draft's bare argv[0] would have consumed the literal '--room' flag.
+Template convention for wall-mounted instanced props (sconce, pilaster, pilaster_base,
+window_frame): the wall is the template plane z = 0, the prop projects toward -Z;
+rot_y -pi/2 mounts it on the west wall, pi on the north, pi/2 on the east, 0 on the south.
+
+Orchestrator adjudication vs the specialist draft: stage_dir() binds to the asset.mjs
+driver convention (`-- --room <id> --out <stage>`; `--stage`, a bare positional path, and
+ZIMNY_STAGE are also accepted) - the draft's bare argv[0] would have consumed the literal
+'--room' flag.
 """
 import json
 import math
@@ -76,9 +93,12 @@ TEXTURES = (('marble_floor', 512), ('plaster_warm', 512), ('granite_grey', 256),
 MAT_PLASTER, MAT_MARBLE = 0, 1
 
 # ---- PART 2: the ascent (new constants; everything above is the frozen envelope) -----------
+
 KIT_BASE, KIT_GLOW = 0, 1  # per-mesh material slots for the two-slot kit meshes (sconce, chandelier)
+KIT_ACCENT = 1  # the gilt slot on the two-slot ORDER meshes (column, portal, pilaster); cornice, pilaster_base, window_frame are plaster-only
 KIT_GLOW_RGB = (1.0, 0.86, 0.62)
 KIT_GLOW_EMISSION = 6.0
+GILT_METALLIC = 0.5  # half diffuse (the lightmap lights it), half specular (the ADR-0013 probe)
 LM_CAPACITY = LM_GRID * LM_GRID  # 4096 cells
 
 RISERS = 35  # per flight; the 35th riser is the slab edge of the level above
@@ -110,7 +130,7 @@ FLIGHTS = (
 
 RAIL_INSET = 0.1  # rail / baluster centre line inboard of the open edge
 RAIL_TOP = 1.0  # rail top above the flight datum (nose line - one rise) and the slab edges
-RAIL_PROFILE = (0.12, 0.08)  # (width, height) of the rectangular handrail section
+RAIL_PROFILE = (0.16, 0.10)  # (width, height) of the rectangular handrail section
 RAIL_RUNS = (
     ((F1_X[1] - RAIL_INSET, Y_FLOOR, F1_Z0),
      (F1_X[1] - RAIL_INSET, MEZZ_Y, MEZZ_Z[1] - RAIL_INSET),
@@ -126,22 +146,32 @@ RAIL_RUNS = (
 )
 
 BALUSTER_PITCH = 0.55  # count per segment = int(horizontal length / pitch + 0.5) -> N = 151
-BALUSTER_SEG = 6
-BALUSTER_RINGS = ((0.05, -2 * RISE), (0.07, 0.03), (0.03, 0.14), (0.06, 0.42), (0.03, 0.72),
-                  (0.05, 0.95))  # (radius, y above datum); root sunk two rises into the step
+BALUSTER_SEG = 8
+BALUSTER_RINGS = ((0.06, -2 * RISE), (0.085, 0.03), (0.04, 0.16), (0.075, 0.45), (0.04, 0.74),
+                  (0.065, 0.93))  # (radius, y above datum); root sunk two rises into the step
 
 COLUMN_XZ = ((91.0, -76.6), (91.0, -71.4))  # twin granite columns flanking the portal
-COLUMN_SEG = 12
+COLUMN_SEG = 16
 COLUMN_PLINTH = (0.65, 0.3)  # half-width, height
-COLUMN_SHAFT = ((0.5, 0.3), (0.42, 8.9))  # (radius, local y) bottom -> top
-COLUMN_CAP = (0.6, 8.9, 9.5)  # half-width, y0, y1 (top at Y 19.5, under the vault)
+# One granite lathe: torus base, entasis shaft; (radius, local y) bottom -> top.
+COLUMN_SHAFT_RINGS = ((0.62, 0.30), (0.62, 0.40), (0.54, 0.48), (0.50, 0.56), (0.50, 2.40),
+                      (0.47, 4.40), (0.42, 6.20))
+COLUMN_CAPITAL_RINGS = ((0.42, 6.20), (0.45, 6.32), (0.56, 6.55), (0.60, 6.72))  # gilt echinus
+COLUMN_ABACUS = (0.65, 6.72, 7.0)  # half-width, y0, y1 — top at Y 17.0 = the cornice bottom
 
 PORTAL_Z = -74.0
 PORTAL_HALF_W = 1.5
 PORTAL_H = 6.0
 PORTAL_JAMB = 0.5
-PORTAL_DEPTH = 0.25  # proud of the east wall
-PORTAL_ENTAB = (16.5, 17.3, 2.6)  # y0, y1, half-width
+PORTAL_DEPTH = 0.7  # frame face proud of the east wall (the reveal the doors sit in)
+PORTAL_HEAD = 0.4  # head band height above the opening
+PORTAL_ENTAB = (16.4, 17.0, 1.9, 0.9)  # y0, y1, half-width, proud — tops out at the cornice; 1.9 keeps 0.05 m clear of the column abaci (z -75.95)
+DOOR_LEAF = (0.14, 0.06)  # leaf slab x-offsets from the wall: back, front (0.08 m thick)
+DOOR_MOULD = (0.14, 0.05)  # gilt moulding width, proud of the leaf
+DOOR_STILES_DZ = (-1.43, 0.0, 1.43)  # outer stiles flush with the opening, one meeting stile
+DOOR_RAILS_Y = (10.5, 12.9, 15.0, 15.7)  # bottom, lock, frieze, top rails — WORLD y (bottom 0.5 over the slab, top under the door head)
+DOOR_MARGIN = 0.07  # stiles stop this far short of sill and head
+
 NICHE_DZ = 5.5  # niche bays either side of the portal axis
 NICHE_OUTER = (0.75, 10.8, 14.4)  # half-width, y0, y1 of the aedicule
 NICHE_OPEN = (0.5, 11.1, 14.0)  # half-width, sill, head of the recess
@@ -170,6 +200,40 @@ SCONCE_NORTH_X = (71.2, 75.1, 79.0)  # flight 2, window piers between bays 1-2, 
 SCONCE_EAST = ((-82.0, 12.4), (-66.0, 12.4))  # (z, y) on the east wall flanking the portal
 SCONCE_BRACKET = (0.35, 0.05)  # depth, half-size
 SCONCE_GLOW_BOX = ((0.22, 0.48), (0.05, 0.45), (-0.13, 0.13))  # (depth, height, width) mount offsets
+
+# ---- SLICE 1: the wall order (new meshes against the frozen shell) -------------------------
+# Wall-mounted order templates follow the sconce convention (wall = template plane z 0, prop
+# projects -Z) and emit NO wall-plane back face (the vestibule shell faces are double-sided).
+CORNICE = ((17.0, 17.45, 0.35), (17.45, 18.0, 0.60))  # two steps (y0, y1, projection): bed band, corona; corona top = the vault spring
+CORNICE_DIV = 4  # lm segments per run (a 6.5 m cell -> 0.23 m/px)
+CORNICE_RUNS = (  # (axis, wall plane, u0, u1, inward sign, trim); trimmed runs shorten by each step's projection to butt under the N/S runs
+    ('z', Z_N, X_W, X_E, 1.0, False),
+    ('z', Z_S, X_W, X_E, -1.0, False),
+    ('x', X_W, Z_N, Z_S, 1.0, True),
+    ('x', X_E, Z_N, Z_S, -1.0, True),
+)
+VEST_CAP = (2.78, 3.0, 0.14)  # cap moulding (y0, y1, projection) on the vestibule box's three free faces
+VEST_CAP_RUNS = (  # (axis, plane, u0, u1, outward sign); the north run is extended by the projection to close both corners
+    ('z', VEST_Z[0], VEST_X[0] - 0.14, VEST_X[1] + 0.14, -1.0),
+    ('x', VEST_X[0], VEST_Z[0], VEST_Z[1], -1.0),
+    ('x', VEST_X[1], VEST_Z[0], VEST_Z[1], 1.0),
+)
+VEST_DOOR_FRAME = (0.16, 0.08)  # architrave (band width, projection) round DOOR_X x (0, DOOR_H) on the z = VEST_Z[0] face; head top 2.76 clears the cap
+PILASTER_Y0 = 0.6  # shaft foot = base top for every instance (one template; the four east shafts rise from the floor through the landing slab)
+PILASTER_SHAFT = (0.45, 0.20, 15.7)  # half-width, projection, height -> world 0.6..16.3; projection < the sconce glow depth 0.22, so the three north sconces mount on the shaft face
+PILASTER_SHAFT_DIV = 4  # lm segments up the shaft
+PILASTER_CAPITAL = ((0.47, 0.22, 15.70, 15.82), (0.52, 0.26, 15.82, 16.15), (0.56, 0.28, 16.15, 16.40))  # gilt (KIT_ACCENT): necking, echinus, abacus — (half-width, proj, local y0, y1); abacus top = world 17.0, under the 0.35 bed band
+PILASTER_BASE = ((0.54, 0.28, 0.0, 0.45), (0.50, 0.24, 0.45, 0.60))  # plaster, from the floor: plinth, torus band — (half-width, proj, y0, y1)
+PIER_X = (67.075, 71.2, 75.1, 79.0, 82.9, 86.8, 90.925)  # north/south pier centres: the two end piers and the five 1.7 m piers between window bays
+PILASTER_NORTH_X = PIER_X
+PILASTER_SOUTH_X = (67.075, 71.2, 75.1, 86.8, 90.925)  # 79.0 and 82.9 fall inside the vestibule box
+PILASTER_EAST_Z = (-85.2, -76.6, -71.4, -62.8)  # corner pair 0.8 m off the end walls; inner pair = responds behind COLUMN_XZ (0.07 m clear of plinth and abacus)
+PILASTERS = tuple([(x, Z_N, math.pi) for x in PILASTER_NORTH_X] + [(x, Z_S, 0.0) for x in PILASTER_SOUTH_X] + [(X_E, z, math.pi / 2) for z in PILASTER_EAST_Z])  # 16 x (plan x, plan z, rot_y); pilaster_base uses the same roster at Y_FLOOR
+WIN_X = tuple((X_W + X_E) / 2 + (i - (WIN_BAYS - 1) / 2) * WIN_PITCH for i in range(WIN_BAYS))  # == window_bays(): 69.25 .. 88.75
+WINDOW_FRAME_OPEN = (WIN_W, WIN_TIERS[0][1] - WIN_TIERS[0][0])  # 2.2 x 3.5 (both tiers identical), centred on the template origin
+WINDOW_ARCH = (0.18, 0.10)  # architrave band width, projection — jambs + head, no hood (the upper heads sit 0.5 m under the cornice)
+WINDOW_SILL = (0.14, 0.18, 0.06)  # sill height, projection, overhang beyond the architrave; 0.16 m clear of the pilaster edge
+WINDOW_FRAMES = tuple((cx, (sill + head) / 2) for cx in WIN_X for sill, head in WIN_TIERS)  # 12 x (x, y) on the north wall, rot_y pi
 
 
 # ---- vector helpers (glTF space) -----------------------------------------------------------
@@ -263,38 +327,51 @@ def _wave(u, v, a, b, phase=0.0):
 
 
 def tex_marble_floor(n):
+    """Carrara: cool near-white body, thin neutral-grey veins (sharper exponents than the
+    committed brown-warm veins), a faint cloud so the slab is not flat."""
     u, v = _grid(n)
     w1 = np.sin(2 * math.pi * (3 * u + 2 * v) + 1.5 * _wave(u, v, 2, -3) + 0.8 * _wave(u, v, 5, 1))
     w2 = np.sin(2 * math.pi * (u - 4 * v) + 1.1 * _wave(u, v, 3, 1) + 0.5 * _wave(u, v, -2, 6))
-    vein, vein2 = np.exp(-4.0 * np.abs(w1)), np.exp(-7.0 * np.abs(w2))
-    base = 0.90 - 0.03 * _wave(u, v, 1, 1)
-    r = base - 0.26 * vein - 0.12 * vein2
-    g = base - 0.01 - 0.28 * vein - 0.14 * vein2
-    b = base - 0.04 - 0.30 * vein - 0.16 * vein2
-    return r, g, b
+    w3 = np.sin(2 * math.pi * (5 * u + 3 * v) + 0.9 * _wave(u, v, -3, 4, 0.5))
+    vein = np.exp(-9.0 * np.abs(w1))
+    vein2 = np.exp(-14.0 * np.abs(w2))
+    vein3 = np.exp(-18.0 * np.abs(w3))
+    cloud = 0.02 * _wave(u, v, 1, 1) + 0.01 * _wave(u, v, 4, -3, 0.7)
+    base = 0.86 + cloud
+    grey = 0.20 * vein + 0.12 * vein2 + 0.07 * vein3
+    return base - grey, base - grey, base + 0.01 - 0.9 * grey
 
 
 def tex_plaster_warm(n):
+    """White stucco with a faint warm cast and low-amplitude mottle (name locked)."""
     u, v = _grid(n)
-    m = 0.025 * _wave(u, v, 7, 3) + 0.02 * _wave(u, v, 2, 11, 1.0)
-    m = m + 0.015 * _wave(u, v, 13, 5) * _wave(u, v, 3, -9)
-    return 0.86 + m, 0.78 + 0.9 * m, 0.66 + 0.7 * m
+    m = 0.02 * _wave(u, v, 7, 3) + 0.015 * _wave(u, v, 2, 11, 1.0)
+    m = m + 0.012 * _wave(u, v, 13, 5) * _wave(u, v, 3, -9)
+    return 0.84 + m, 0.83 + 0.95 * m, 0.80 + 0.85 * m
 
 
 def tex_granite_grey(n):
+    """Grey-pink Serdobol granite: pinkish-grey body, pink feldspar field, quartz sparkle,
+    dark mica specks (name locked)."""
     u, v = _grid(n)
     s = _wave(u, v, 37, 23) * _wave(u, v, 29, -41) * _wave(u, v, 17, 53)
+    p = _wave(u, v, 43, -19, 0.6) * _wave(u, v, 23, 31, 1.3)
     spark = np.clip((s - 0.55) * 4.0, 0.0, 1.0)
     dark = np.clip((-s - 0.6) * 4.0, 0.0, 1.0)
-    grey = 0.50 + 0.06 * _wave(u, v, 3, 5) + 0.04 * s
-    f = 0.25 * spark - 0.22 * dark
-    return grey + f, grey + 0.01 + f, grey + 0.02 + f
+    pink = np.clip((p - 0.45) * 3.0, 0.0, 1.0)
+    grey = 0.46 + 0.04 * _wave(u, v, 3, 5) + 0.03 * s
+    f = 0.22 * spark - 0.24 * dark
+    return grey + 0.04 + f + 0.14 * pink, grey - 0.01 + f + 0.04 * pink, grey - 0.02 + f + 0.03 * pink
 
 
 def tex_gilt(n):
+    """Gold leaf: broad sheen plus a fine leaf-lap field; lifted green channel so the
+    half-metallic F0 (GILT_METALLIC) reads gold, not copper."""
     u, v = _grid(n)
     sheen = 0.5 + 0.5 * _wave(u, v, 2, 3) * _wave(u, v, -1, 5)
-    return 0.78 + 0.14 * sheen, 0.58 + 0.14 * sheen, 0.22 + 0.08 * sheen
+    leaf = 0.5 + 0.5 * _wave(u, v, 11, -7, 0.4) * _wave(u, v, 5, 13)
+    return (0.80 + 0.12 * sheen + 0.04 * leaf, 0.64 + 0.10 * sheen + 0.03 * leaf,
+            0.30 + 0.08 * sheen + 0.02 * leaf)
 
 
 TEX_FN = {
@@ -322,7 +399,7 @@ def write_texture(name, size, tex_dir):
     return img
 
 
-def make_material(name, image, roughness, emission=None):
+def make_material(name, image, roughness, emission=None, metallic=0.0):
     mat = bpy.data.materials.new(name)
     mat.use_nodes = True
     nt = mat.node_tree
@@ -335,13 +412,12 @@ def make_material(name, image, roughness, emission=None):
     nt.links.new(uvn.outputs['UV'], tex.inputs['Vector'])
     nt.links.new(tex.outputs['Color'], bsdf.inputs['Base Color'])
     bsdf.inputs['Roughness'].default_value = roughness
-    bsdf.inputs['Metallic'].default_value = 0.0
+    bsdf.inputs['Metallic'].default_value = metallic
     if emission is not None:
         rgb, strength = emission
         bsdf.inputs['Emission Color'].default_value = (*rgb, 1.0)
         bsdf.inputs['Emission Strength'].default_value = strength
     return mat
-
 
 # ---- geometry ------------------------------------------------------------------------------
 def window_bays():
@@ -659,24 +735,105 @@ def build_baluster(b):
     kit_lathe(b, BALUSTER_RINGS, BALUSTER_SEG)
 
 
+def kit_open_box(b, x, y, z, mat=KIT_BASE, hide=()):
+    """Axis-aligned box in glTF space emitting only the faces not named in `hide` ('west' -X,
+    'east' +X, 'bottom', 'top', 'north' -Z, 'south' +Z). Used wherever a kit_box face would be
+    buried against the shell, a slab or another kit solid, so the order grammar emits no
+    coincident pairs and spends no lm cells on faces that are never seen."""
+    x0, x1 = x
+    y0, y1 = y
+    z0, z1 = z
+    cx, cy, cz = (x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2
+    faces = (
+        ('west', [(x0, y0, z0), (x0, y0, z1), (x0, y1, z1), (x0, y1, z0)], (x0 - 1.0, cy, cz)),
+        ('east', [(x1, y0, z0), (x1, y0, z1), (x1, y1, z1), (x1, y1, z0)], (x1 + 1.0, cy, cz)),
+        ('bottom', [(x0, y0, z0), (x1, y0, z0), (x1, y0, z1), (x0, y0, z1)], (cx, y0 - 1.0, cz)),
+        ('top', [(x0, y1, z0), (x1, y1, z0), (x1, y1, z1), (x0, y1, z1)], (cx, y1 + 1.0, cz)),
+        ('north', [(x0, y0, z0), (x1, y0, z0), (x1, y1, z0), (x0, y1, z0)], (cx, cy, z0 - 1.0)),
+        ('south', [(x0, y0, z1), (x1, y0, z1), (x1, y1, z1), (x0, y1, z1)], (cx, cy, z1 + 1.0)),
+    )
+    for name, pts, ref in faces:
+        if name not in hide:
+            b.add(pts, mat, ref)
+
+
+def kit_lathe_sides(b, rings, segments, cx=0.0, cz=0.0, mat=KIT_BASE):
+    """kit_lathe without its two end caps, for a lathe whose ends are both buried (the column
+    shaft sits on the plinth and under the echinus; the echinus sits on the shaft and under
+    the abacus). Same ring/segment face order as kit_lathe."""
+    circles = [kit_circle(cx, cz, r, y, segments) for r, y in rings]
+    for a, c in zip(circles, circles[1:]):
+        centre = (cx, (a[0][1] + c[0][1]) / 2, cz)
+        for i in range(segments):
+            j = (i + 1) % segments
+            face = [a[i], a[j], c[j], c[i]]
+            b.add(face, mat, v_sub(v_scale(kit_centre(face), 2), centre))
+
+
 def build_column(b):
+    """Template origin = plinth foot at LANDING_Y. Granite (KIT_BASE): plinth box (no bottom,
+    it stands on the slab) and one lathe — torus base + entasis shaft — with no caps (foot on
+    the plinth top, head under the echinus). Gilt (KIT_ACCENT): echinus lathe, no caps (on the
+    shaft, under the abacus), and the abacus box with no top: its top is world 17.0, the
+    cornice bottom, and faces up where no eye in the room can see it. Requires, as the adopted
+    constants hold: plinth half >= torus radius, echinus foot radius >= shaft top radius 0.42,
+    abacus half >= echinus top radius."""
     half, height = COLUMN_PLINTH
-    kit_box(b, (-half, half), (0.0, height), (-half, half))
-    kit_lathe(b, COLUMN_SHAFT, COLUMN_SEG)
-    half, bottom, top = COLUMN_CAP
-    kit_box(b, (-half, half), (bottom, top), (-half, half))
+    kit_open_box(b, (-half, half), (0.0, height), (-half, half), KIT_BASE, hide=('bottom',))
+    kit_lathe_sides(b, COLUMN_SHAFT_RINGS, COLUMN_SEG)
+    kit_lathe_sides(b, COLUMN_CAPITAL_RINGS, COLUMN_SEG, mat=KIT_ACCENT)
+    half, y0, y1 = COLUMN_ABACUS
+    kit_open_box(b, (-half, half), (y0, y1), (-half, half), KIT_ACCENT, hide=('top',))
 
 
 def build_portal(b):
-    x = (X_E - PORTAL_DEPTH, X_E)
-    head = LANDING_Y + PORTAL_H
+    """World-space aedicule on the east wall, the shell uncut, no wall-plane (east) faces.
+    White stucco (KIT_BASE): two jambs (no top/bottom - under the head band, on the slab),
+    head band and entablature (no top - they face up at 16.4 / 17.0), the two closed leaves
+    (front faces only: every other leaf face is sealed by jambs, head band, slab and the
+    meeting line, so the slab behind the leaves is never seen), the niche aedicules exactly
+    as committed. Gilt (KIT_ACCENT): stile and rail mouldings proud of the leaf fronts, the
+    niche vases. Stiles are the moulding width centred on PORTAL_Z + dz and clamped to the
+    opening; rails run between neighbouring stiles at the DOOR_RAILS_Y WORLD heights (the
+    orchestrator's integration correction: the constants store world y, not sill offsets),
+    their ends buried in the stiles. The leaf fronts are split at the rail centres so each
+    panel band owns an lm cell under the mouldings."""
+    sill, head = LANDING_Y, LANDING_Y + PORTAL_H
+    frame_x = (X_E - PORTAL_DEPTH, X_E)
+    outer = PORTAL_HALF_W + PORTAL_JAMB
     for sign in (-1, 1):
-        z = sorted((PORTAL_Z + sign * PORTAL_HALF_W, PORTAL_Z + sign * (PORTAL_HALF_W + PORTAL_JAMB)))
-        kit_box(b, x, (LANDING_Y, head), z)
-    half = PORTAL_HALF_W + PORTAL_JAMB
-    kit_box(b, x, (head, head + PORTAL_JAMB), (PORTAL_Z - half, PORTAL_Z + half))
-    bottom, top, half = PORTAL_ENTAB
-    kit_box(b, x, (bottom, top), (PORTAL_Z - half, PORTAL_Z + half))
+        z = sorted((PORTAL_Z + sign * PORTAL_HALF_W, PORTAL_Z + sign * outer))
+        kit_open_box(b, frame_x, (sill, head), z, KIT_BASE, hide=('east', 'top', 'bottom'))
+    kit_open_box(b, frame_x, (head, head + PORTAL_HEAD), (PORTAL_Z - outer, PORTAL_Z + outer),
+                 KIT_BASE, hide=('east', 'top'))
+    y0, y1, half, proud = PORTAL_ENTAB
+    kit_open_box(b, (X_E - proud, X_E), (y0, y1), (PORTAL_Z - half, PORTAL_Z + half), KIT_BASE,
+                 hide=('east', 'top'))
+    back, front = DOOR_LEAF
+    width, proud = DOOR_MOULD
+    if not (0.0 <= front < back and front + proud <= PORTAL_DEPTH):
+        raise RuntimeError('portal doors must sit inside the reveal: DOOR_LEAF/DOOR_MOULD vs PORTAL_DEPTH')
+    xf = X_E - front
+    levels = (sill,) + DOOR_RAILS_Y + (head,)
+    for sign in (-1, 1):
+        z0, z1 = sorted((PORTAL_Z, PORTAL_Z + sign * PORTAL_HALF_W))
+        for ya, yb in zip(levels, levels[1:]):
+            b.add([(xf, ya, z0), (xf, ya, z1), (xf, yb, z1), (xf, yb, z0)], KIT_BASE,
+                  (xf - 1.0, (ya + yb) / 2, (z0 + z1) / 2))
+    stile_y = (sill + DOOR_MARGIN, head - DOOR_MARGIN)
+    stiles = []
+    for dz in DOOR_STILES_DZ:
+        c = PORTAL_Z + dz
+        stiles.append((max(PORTAL_Z - PORTAL_HALF_W, c - width / 2),
+                       min(PORTAL_Z + PORTAL_HALF_W, c + width / 2)))
+    stiles.sort()
+    for z in stiles:
+        kit_open_box(b, (xf - proud, xf), stile_y, z, KIT_ACCENT, hide=('east',))
+    for a, c in zip(stiles, stiles[1:]):
+        for y in DOOR_RAILS_Y:
+            yc = y
+            kit_open_box(b, (xf - proud, xf), (yc - width / 2, yc + width / 2), (a[1], c[0]),
+                         KIT_ACCENT, hide=('east', 'north', 'south'))
     face, back = X_E - NICHE_DEPTH, X_E - NICHE_DEPTH + NICHE_CAVITY
     for cz in (PORTAL_Z - NICHE_DZ, PORTAL_Z + NICHE_DZ):
         outer_w, y0, y1 = NICHE_OUTER
@@ -696,7 +853,8 @@ def build_portal(b):
         b.add([(back, p[1], p[2]) for p in inner], KIT_BASE, HALL_REF)
         cx, (half, height) = (face + back) / 2, PEDESTAL
         kit_box(b, (cx - half, cx + half), (sill, sill + height), (cz - half, cz + half))
-        kit_lathe(b, [(r, sill + height + y) for r, y in VASE_RINGS], VASE_SEG, cx, cz)
+        kit_lathe(b, [(r, sill + height + y) for r, y in VASE_RINGS], VASE_SEG, cx, cz,
+                  mat=KIT_ACCENT)
 
 
 def build_chandelier(b):
@@ -727,6 +885,125 @@ def build_sconce(b):
     kit_box(b, (-half, half), (-half, half), (-depth, 0.0), KIT_BASE)
     depth, height, width = SCONCE_GLOW_BOX
     kit_box(b, width, height, (-depth[1], -depth[0]), KIT_GLOW)
+
+
+# ---- SLICE 1: wall-mounted order grammar ---------------------------------------------------
+def wall_point(axis, plane, u, y, d):
+    """Point on an axis-aligned wall run: axis 'z' = a z-plane run along x, 'x' = an x-plane
+    run along z; `d` is the signed offset off the plane (the run's inward/outward sign already
+    applied). Own helper (not plane_point) so the order grammar does not lean on the flights'
+    signature."""
+    if axis == 'z':
+        return (u, y, plane + d)
+    return (plane + d, y, u)
+
+
+def kit_wall_box(b, x, y, depth, mat=KIT_BASE, hide=(), wall_z=0.0):
+    """Box against a wall plane (z = wall_z, projecting -Z) with NO wall-plane back face;
+    `hide` names further faces that are always buried ('top', 'bottom', 'left', 'right')."""
+    x0, x1 = x
+    y0, y1 = y
+    z0, z1 = wall_z - depth, wall_z
+    cx, cy, cz = (x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2
+    faces = (
+        ('front', [(x0, y0, z0), (x1, y0, z0), (x1, y1, z0), (x0, y1, z0)], (cx, cy, z0 - 1.0)),
+        ('left', [(x0, y0, z1), (x0, y0, z0), (x0, y1, z0), (x0, y1, z1)], (x0 - 1.0, cy, cz)),
+        ('right', [(x1, y0, z1), (x1, y0, z0), (x1, y1, z0), (x1, y1, z1)], (x1 + 1.0, cy, cz)),
+        ('bottom', [(x0, y0, z1), (x1, y0, z1), (x1, y0, z0), (x0, y0, z0)], (cx, y0 - 1.0, cz)),
+        ('top', [(x0, y1, z1), (x1, y1, z1), (x1, y1, z0), (x0, y1, z0)], (cx, y1 + 1.0, cz)),
+    )
+    for name, pts, ref in faces:
+        if name not in hide:
+            b.add(pts, mat, ref)
+
+
+def kit_mould(b, axis, plane, u0, u1, sign, profile, divisions, trim=False, caps=False,
+              mat=KIT_BASE):
+    """Sweep an open (projection, y) profile along a wall run, one face per profile segment
+    per division; the wall plane is never emitted. The profile starts on the wall at the
+    bottom and runs outward/upward with the solid on its left, so each segment's outward
+    normal is its right-hand perpendicular (robust for the stepped, concave cornice section).
+    A trimmed run shortens every face by its own step's projection so it butts under the
+    untrimmed run at the corner. `caps` closes both ends with the profile polygon
+    (untrimmed runs only)."""
+    for p, q in zip(profile, profile[1:]):
+        t = max(p[0], q[0]) if trim else 0.0
+        a0, a1 = u0 + t, u1 - t
+        nd, ny = q[1] - p[1], p[0] - q[0]  # outward perpendicular of the segment heading
+        for i in range(divisions):
+            s0 = a0 + (a1 - a0) * i / divisions
+            s1 = a0 + (a1 - a0) * (i + 1) / divisions
+            face = [wall_point(axis, plane, s0, p[1], sign * p[0]),
+                    wall_point(axis, plane, s1, p[1], sign * p[0]),
+                    wall_point(axis, plane, s1, q[1], sign * q[0]),
+                    wall_point(axis, plane, s0, q[1], sign * q[0])]
+            md, my = (p[0] + q[0]) / 2, (p[1] + q[1]) / 2
+            b.add(face, mat, wall_point(axis, plane, (s0 + s1) / 2, my + ny, sign * (md + nd)))
+        if caps:
+            dc = sum(d for d, _ in profile) / len(profile)
+            yc = sum(y for _, y in profile) / len(profile)
+            for u, out in ((u0, -1.0), (u1, 1.0)):
+                ring = [wall_point(axis, plane, u, y, sign * d) for d, y in profile]
+                b.add(ring, mat, wall_point(axis, plane, u + out, yc, sign * dc))
+
+
+def build_cornice(b):
+    """One world-space mesh: the two-step ring (bed band + corona, no corona top — it faces up
+    at the vault spring and is never seen), the vestibule cap on its three free faces and the
+    door architrave. Butt corners, no end caps: the N/S runs' step fronts visually close the
+    trimmed E/W legs; the cap's north run alone shows its two outer ends."""
+    (y0, y1, d1), (_, y2, d2) = CORNICE
+    profile = ((0.0, y0), (d1, y0), (d1, y1), (d2, y1), (d2, y2))
+    for axis, plane, u0, u1, sign, trim in CORNICE_RUNS:
+        kit_mould(b, axis, plane, u0, u1, sign, profile, CORNICE_DIV, trim=trim)
+    y0, y1, d = VEST_CAP
+    cap = ((0.0, y0), (d, y0), (d, y1), (0.0, y1))
+    for axis, plane, u0, u1, sign in VEST_CAP_RUNS:
+        kit_mould(b, axis, plane, u0, u1, sign, cap, 2, caps=(axis == 'z'))
+    band, proj = VEST_DOOR_FRAME
+    for x in ((DOOR_X[0] - band, DOOR_X[0]), (DOOR_X[1], DOOR_X[1] + band)):
+        kit_wall_box(b, x, (Y_FLOOR, DOOR_H), proj, hide=('top', 'bottom'), wall_z=VEST_Z[0])
+    kit_wall_box(b, (DOOR_X[0] - band, DOOR_X[1] + band), (DOOR_H, DOOR_H + band), proj,
+                 wall_z=VEST_Z[0])
+
+
+def build_pilaster(b):
+    """Template origin = shaft foot on the wall plane, projecting -Z; the wiring mounts it at
+    PILASTER_Y0 so the abacus top lands at world 17.0. Shaft foot/top and the lower capital
+    tops are buried (base torus 0.50/0.24 > shaft 0.45/0.20; each band overhangs the one
+    below). The abacus top is hidden too: it would be coplanar with the cornice soffit, so
+    omitting it removes the only coincident pair at y 17 without losing a visible face."""
+    half, proj, height = PILASTER_SHAFT
+    step = height / PILASTER_SHAFT_DIV
+    for i in range(PILASTER_SHAFT_DIV):
+        kit_wall_box(b, (-half, half), (i * step, (i + 1) * step), proj, KIT_BASE,
+                     hide=('top', 'bottom'))
+    for half, proj, y0, y1 in PILASTER_CAPITAL:
+        kit_wall_box(b, (-half, half), (y0, y1), proj, KIT_ACCENT, hide=('top',))
+
+
+def build_pilaster_base(b):
+    """Plaster plinth and torus band from the floor (local y 0) to the shaft foot at 0.6;
+    bottoms sit on the floor and are never emitted. Mounted at Y_FLOOR for all sixteen
+    roster entries."""
+    for half, proj, y0, y1 in PILASTER_BASE:
+        kit_wall_box(b, (-half, half), (y0, y1), proj, KIT_BASE, hide=('bottom',))
+
+
+def build_window_frame(b):
+    """Template centred on the opening (WINDOW_FRAME_OPEN 2.2 x 3.5), wall at z 0 projecting
+    -Z: two jambs standing on the sill, a head band over both jambs, the sill slab
+    overhanging the architrave by WINDOW_SILL[2]; no hood. Jamb tops/bottoms are buried in
+    head and sill."""
+    width, height = WINDOW_FRAME_OPEN
+    band, proj = WINDOW_ARCH
+    sill_h, sill_proj, overhang = WINDOW_SILL
+    hw, hh = width / 2, height / 2
+    for x in ((-hw - band, -hw), (hw, hw + band)):
+        kit_wall_box(b, x, (-hh, hh), proj, KIT_BASE, hide=('top', 'bottom'))
+    kit_wall_box(b, (-hw - band, hw + band), (hh, hh + band), proj, KIT_BASE)
+    kit_wall_box(b, (-hw - band - overhang, hw + band + overhang), (-hh - sill_h, -hh),
+                 sill_proj, KIT_BASE)
 
 
 def place(name, me, location, rot_y=0.0):
@@ -805,7 +1082,7 @@ def main():
     make_material('sconce_glow', images['plaster_warm'], 0.85, (KIT_GLOW_RGB, KIT_GLOW_EMISSION))
     make_material('chandelier_glow', images['gilt'], 0.35, (KIT_GLOW_RGB, KIT_GLOW_EMISSION))
     make_material('granite_grey', images['granite_grey'], 0.6)
-    make_material('gilt', images['gilt'], 0.35)
+    make_material('gilt', images['gilt'], 0.35, metallic=GILT_METALLIC)
 
     shell, pane = MeshBuilder('shell'), MeshBuilder('pane')
     build_floor(shell)
@@ -820,10 +1097,15 @@ def main():
         ('stairs', build_stairs, ['marble_floor']),
         ('rail', build_rail, ['gilt']),
         ('baluster', build_baluster, ['gilt']),
-        ('column', build_column, ['granite_grey']),
-        ('portal', build_portal, ['gilt']),
+        ('column', build_column, ['granite_grey', 'gilt']),
+        ('portal', build_portal, ['plaster_warm', 'gilt']),
         ('chandelier', build_chandelier, ['gilt', 'chandelier_glow']),
         ('sconce', build_sconce, ['plaster_warm', 'sconce_glow']),
+        # slice 1: the wall order; slot order = KIT_BASE 0, KIT_ACCENT 1 as the builders emit it
+        ('cornice', build_cornice, ['plaster_warm']),
+        ('pilaster', build_pilaster, ['plaster_warm', 'gilt']),
+        ('pilaster_base', build_pilaster_base, ['plaster_warm']),
+        ('window_frame', build_window_frame, ['plaster_warm']),
     ):
         b = MeshBuilder(name)
         builder(b)
@@ -847,7 +1129,7 @@ def main():
         draws += prims
         if name == 'pane':
             envelope_cells = cells
-        if name in ('baluster', 'column', 'sconce'):
+        if name in ('baluster', 'column', 'sconce', 'pilaster', 'pilaster_base', 'window_frame'):
             ob = bpy.data.objects[name]
             templates[name] = ob.data
             bpy.data.objects.remove(ob, do_unlink=True)
@@ -881,6 +1163,17 @@ def main():
         put('sconce', (x, flight_datum(FLIGHTS[1], x) + SCONCE_ABOVE, Z_N), math.pi)
     for z, y in SCONCE_EAST:
         put('sconce', (X_E, y, z), math.pi / 2)
+    # slice 1: the wall order. Template convention = sconce convention: wall plane z 0, prop
+    # toward local -Z. rot_y about glTF +Y (= Blender Z after to_b): north pi -> local -Z
+    # becomes world +Z into the hall; south 0 -> world -Z; east pi/2 -> world -X (and local
+    # +x -> world -z). The roster carries each pier's rot_y; shaft foot PILASTER_Y0 is world
+    # y (= base top), the base stands on Y_FLOOR for all sixteen entries (one template; the
+    # east shafts rise from the floor through the landing slab).
+    for x, z, rot_y in PILASTERS:
+        put('pilaster', (x, PILASTER_Y0, z), rot_y)
+        put('pilaster_base', (x, Y_FLOOR, z), rot_y)
+    for x, y in WINDOW_FRAMES:
+        put('window_frame', (x, y, Z_N), math.pi)
 
     drawn = sum(row['triangles'] * row['instances'] for row in meshes.values())
     draws_naive = sum(primitives[name] * row['instances'] for name, row in meshes.items())
@@ -912,6 +1205,7 @@ def main():
                    'totalCells': cells, 'capacity': LM_CAPACITY},
             'uvTileM': UV_TILE_M,
             'paneEmissionStrength': PANE_EMISSION,
+            'giltMetallic': GILT_METALLIC,
             'textures': [n for n, _ in TEXTURES],
             'flights': [dict(f, top=f['a0'] + f['d'] * RUN, risers=RISERS, treads=TREADS,
                              riseM=RISE, goingM=GOING, runM=RUN,
@@ -932,11 +1226,22 @@ def main():
                           'rings': BALUSTER_RINGS, 'placement': 'equal-bin midpoints per segment',
                           'datum': 'same continuous nose-minus-rise datum as the rail'},
             'columns': {'count': meshes['column']['instances'], 'xz': COLUMN_XZ,
-                        'baseY': LANDING_Y, 'plinth': COLUMN_PLINTH, 'shaft': COLUMN_SHAFT,
-                        'cap': COLUMN_CAP, 'segments': COLUMN_SEG, 'capLoweredM': 0.0,
-                        'capTopY': LANDING_Y + COLUMN_CAP[2]},
+                        'baseY': LANDING_Y, 'plinth': COLUMN_PLINTH,
+                        'shaftRings': COLUMN_SHAFT_RINGS, 'capitalRings': COLUMN_CAPITAL_RINGS,
+                        'abacus': COLUMN_ABACUS, 'segments': COLUMN_SEG,
+                        'abacusTopY': round(LANDING_Y + COLUMN_ABACUS[2], 6),
+                        'buried': 'plinth bottom, lathe ends, abacus top (coplanar with the cornice soffit)',
+                        'materials': {'granite_grey': 'plinth, torus, shaft',
+                                      'gilt': 'echinus, abacus'}},
             'portal': {'z': PORTAL_Z, 'baseY': LANDING_Y, 'halfWidthM': PORTAL_HALF_W,
                        'heightM': PORTAL_H, 'jambM': PORTAL_JAMB, 'depthM': PORTAL_DEPTH,
+                       'head': PORTAL_HEAD,
+                       'doors': {'leaf': DOOR_LEAF, 'mould': DOOR_MOULD,
+                                 'stilesDz': DOOR_STILES_DZ, 'railsY': DOOR_RAILS_Y,
+                                 'railsYFrame': 'world', 'margin': DOOR_MARGIN,
+                                 'panels': 'white', 'state': 'closed (DEC-025)'},
+                       'materials': {'plaster_warm': 'jambs, head, entablature, leaves, niches, pedestals',
+                                     'gilt': 'stile and rail mouldings, vases'},
                        'entablature': PORTAL_ENTAB, 'opening': 'wall-backed; frozen shell uncut',
                        'nichesZ': [PORTAL_Z - NICHE_DZ, PORTAL_Z + NICHE_DZ],
                        'nicheOuter': NICHE_OUTER, 'nicheOpen': NICHE_OPEN,
@@ -944,6 +1249,32 @@ def main():
                        'pedestal': PEDESTAL,
                        'vases': {'count': 2, 'segments': VASE_SEG, 'rings': VASE_RINGS,
                                  'mesh': 'portal'}},
+            'order': {
+              'cornice': {'steps': CORNICE, 'divisions': CORNICE_DIV, 'runs': CORNICE_RUNS,
+                          'bottomY': CORNICE[0][0], 'topY': CORNICE[1][1],
+                          'corners': 'butt; E/W runs trimmed by each step projection; no end caps',
+                          'vestibuleCap': VEST_CAP, 'vestibuleCapRuns': VEST_CAP_RUNS,
+                          'vestibuleDoorFrame': VEST_DOOR_FRAME,
+                          'instances': meshes['cornice']['instances'], 'mesh': 'world-space'},
+              'pilasters': {'footY': PILASTER_Y0, 'shaft': PILASTER_SHAFT,
+                            'shaftDivisions': PILASTER_SHAFT_DIV, 'capital': PILASTER_CAPITAL,
+                            'abacusTopY': round(PILASTER_Y0 + PILASTER_CAPITAL[-1][3], 6),
+                            'base': PILASTER_BASE, 'baseY': Y_FLOOR,
+                            'northX': PILASTER_NORTH_X, 'southX': PILASTER_SOUTH_X,
+                            'eastZ': PILASTER_EAST_Z, 'roster': PILASTERS,
+                            'N': meshes['pilaster']['instances'],
+                            'basesN': meshes['pilaster_base']['instances'],
+                            'templateFront': '-Z',
+                            'rotYRadians': {'north': math.pi, 'south': 0.0,
+                                            'east': math.pi / 2}},
+              'windowFrames': {'opening': WINDOW_FRAME_OPEN, 'architrave': WINDOW_ARCH,
+                               'sill': WINDOW_SILL, 'baysX': WIN_X, 'roster': WINDOW_FRAMES,
+                               'wall': 'north', 'wallZ': Z_N, 'rotYRadians': math.pi,
+                               'N': meshes['window_frame']['instances']},
+              'slots': {'base': KIT_BASE, 'accent': KIT_ACCENT,
+                        'law': 'materials[i] is the builder slot i; one glTF primitive per used slot'},
+              },
+
             'chandelier': {'xz': CHAND_C, 'ringY': CHAND_RING_Y, 'radiiM': CHAND_R,
                            'bandM': CHAND_BAND, 'segments': CHAND_SEG, 'rodWidthM': CHAND_ROD,
                            'rodTopY': CHAND_ROD_TOP, 'pendants': min(CHAND_SEG, 8),

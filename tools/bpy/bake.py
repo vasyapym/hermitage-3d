@@ -103,12 +103,26 @@ DUSK_FIXTURES = {'rastrelli-gallery': True, 'jordan': True, 'military-gallery': 
 # (linear, bake units) after OIDN and before the LDR encode, into the surviving denoised
 # EXR — reencode.mjs and the compose law see the paint as bake content. The part names the
 # architecture-chart patches whose cells are painted (arch chart only).
+# RG-E1: rastrelli-gallery's stairlight (the lunette back quad above the east door) carries
+# the same three published-state colours — but this room's states are COMPOSED of rig EXRs
+# (tools/lm-recipes.mjs), so a bake-time paint would ink only one rig term per plate. The
+# paint application therefore runs at ENCODE time, per published state, in
+# tools/reencode.mjs (staged summary lm.patches carries the atlas rect); 'atEncode': True
+# keeps THIS table the declared colour record while gating the bake-time application.
+# The military-gallery row keeps firing here exactly as committed.
 PANE_PAINT = {
     'military-gallery': {
         'part': 'lantern_glazing',
         'day': (0.20, 0.23, 0.28),           # cool skylight
         'dusk': (0.05, 0.06, 0.09),          # the dusk sky colour (blue-grey)
         'nightChandeliers': (0.004, 0.005, 0.008),  # dark glass with a faint sky memory
+    },
+    'rastrelli-gallery': {
+        'atEncode': True,
+        'part': 'stairlight',
+        'day': (0.55, 0.58, 0.62),
+        'dusk': (0.45, 0.32, 0.17),
+        'nightChandeliers': (0.60, 0.42, 0.22),
     },
 }
 CYCLES_SEED = 0
@@ -126,7 +140,11 @@ PREVIEW_SAMPLES = 32       # the layout-check path: quarter res, a fraction of t
 # emission (F11). The siblings keep False: their committed bakes had the fixtures
 # selected and bound with their cells baked (O10), and a future sibling rebake must
 # reproduce that committed shape byte-stably until the owner re-adjudicates.
-EMITTER_EXCLUSION = {'military-gallery': True}
+# RG-E1 re-adjudication for THIS room's re-bake: rastrelli-gallery joins True — the sconce
+# glow's cells stay clear and the warm colour is runtime material emission; the earlier
+# siblings-keep-False byte-stability note no longer covers a room that re-bakes its
+# architecture (RG-E1 rebuilds the shell), and the sconce albedo is near-black iron.
+EMITTER_EXCLUSION = {'military-gallery': True, 'rastrelli-gallery': True}
 
 
 def fail(message):
@@ -777,7 +795,10 @@ def main():
         save_exr(image, lm_dir / f'{prefix}{file_state}.raw.exr')
         denoised = denoise_image(scene, image, lm_dir / f'{prefix}{file_state}.exr')
         paint = PANE_PAINT.get(room)
-        if paint is not None and spec['name'] == 'arch':
+        # The 'atEncode' rooms (rastrelli-gallery) paint per PUBLISHED state at re-encode —
+        # their states are composed of the rig EXRs here, so this bake-time application
+        # would ink only one rig term. The 1812 row keeps firing below exactly as committed.
+        if paint is not None and not paint.get('atEncode', False) and spec['name'] == 'arch':
             paint_pane_cells(denoised, pane_rects(namespace, paint['part']), paint[state])
         peak, clipped = encode_ldr(
             denoised, white_point, 'ZIMNY_LM_LDR', lm_dir / f'{prefix}{file_state}.png')
