@@ -51,7 +51,21 @@ changes).
   fixtures_off zeroes the rest — the FIND-2 bake-face corrected; the glb runtime face stands;
   night's pane emission IS baked); (c) the day sun DOES enter the north windows (skew 2.6 m/m,
   ≈25% of each bay; lower tier floors 4–8 m south; upper tier strikes the west wall mid-height)
-  — the (iv) fallback axis does NOT trigger. The round rides the ROUNDS top row
+  — the (iv) fallback axis does NOT trigger. ROUND-2 (2a) ADOPTED: the sRGB branch with the
+  κ_s = 1.0 display clip (eff = W×g ≈ 1 — the texel IS the display value), the cell-map-scoped
+  nearest-rank percentile (cells.json from the bake; allocated interiors; the committed W_s =
+  the tool's output, never hand-typed), the lm-percentile tool wrapping reencode's one per-room
+  sRGB switch, the bake-side rig (800 W sconces + 800 W chandelier, clearance law, camera/glossy
+  hidden, states-scaled), the pane rows revisited (day/dusk retired — no bake vehicle; night
+  kept as the real term), the glb emissive retune (pane cool-white ×3.0) + the NEW per-state
+  INTERIOR_EMISSIVE_SCALE table, the marble slab-block/quadrant-tread fix, gilt 0.32,
+  chandelier radii 0.15/0.20, BAKE_TEMPLATE_INSTANCE 'centroid', the KHR_lights_punctual gate,
+  and the logged contingencies (sconce halo → 50 W; the dusk≈night row; qlevel 255 named; the
+  tone-mapper step-downs; the GILT_METALLIC owner question). 2b (the room code relay) COMPLETED
+  + SENT: the adopted blocks pasted back verbatim + two NEW code-fact adjudications (three's
+  stock lm path divides by π inside BRDF_Lambert — the D1 κ absorbs any scale; no per-state
+  emissive hook exists in the room path — the SCALE table is a NEW guarded hook). The round rides
+  the ROUNDS top row
   `PARALLEL · jordan-slice-2` (in-flight, below — rows 63/64's slots already MERGED via their
   own flip convention). CORRECTION TO THE BLOCK BELOW (stale by later merges): the slice-1
   branch's merge DID happen ahead of the square-env slot per the Live-state rows — its head
