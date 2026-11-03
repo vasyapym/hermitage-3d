@@ -364,18 +364,27 @@ inside the promise.
 
   | Stop | Position | Subject | Look {yaw, up/down} | Change |
   |---|---|---|---|---|
-  | M0 | [86.25, 11.65, −38] | AXIS_FAR | {30, +25/−10} | none |
-  | M1 | [86.25, 11.65, −25] | AXIS_FAR | {60, +25/−15} | x 84.3→86.25 (on axis); subject WEST_BLOCK→AXIS_FAR; yaw 25→60 so a drag-left frames the west portrait block |
-  | M2 | [86.25, 11.65, −12.5] | AXIS_FAR | {40, +55/−0} | subject LANTERN→AXIS_FAR; rows unchanged — pitchUp 55 keeps the 35° lantern as the drag's reward |
-  | M3 | [86.25, 11.65, 0] | MONARCHS | {25, +20/−10} | z 9→0; flagged `corner` |
-  | M4 | [88.5, 11.65, 13] | ST_GEORGE_DOORS | {20, +10/−10} | none |
+  | M0 | [86.25, 11.65, −38] | AXIS_FAR | {90, +25/−10} | R22-ux: yaw 30→90 — squares on either portrait wall; the trailing frame edge brings the north end-wall corners into the frusta union (one capture-day check on the end wall). |
+  | M1 | [86.25, 11.65, −25] | AXIS_FAR | {90, +25/−15} | x 84.3→86.25 (on axis); subject WEST_BLOCK→AXIS_FAR; yaw 25→60 so a drag-left frames the west portrait block; R22-ux: yaw 60→90 — a drag-left now squares on the west block (due west); the frame stays on the long wall, so the set-edge half of the capture-day line is answered by geometry — block fill stays a composition check. |
+  | M2 | [86.25, 11.65, −12.5] | AXIS_FAR | {90, +55/−0} | subject LANTERN→AXIS_FAR; rows unchanged — pitchUp 55 keeps the 35° lantern as the drag's reward; R22-ux: yaw 40→90; pitch rows unchanged — pitchDown 0 hides no canvas (lowest edge −3.6°). |
+  | M3 | [86.25, 11.65, 0] | MONARCHS | {90, +20/−10} | z 9→0; flagged `corner`; R22-ux: yaw 25→90; the z 4..6 slide stays open (position, out of this round). |
+  | M4 | [88.5, 11.65, 13] | ST_GEORGE_DOORS | {40, +10/−10} | was none; R22-ux: yaw 20→40 — squares on the east wall (38.3° left of the doors); the west wall (+141.7°) lies past the 90° cap and is read from the axial stops. |
+
+  R22-ux (owner ruling): the gallery is read off its two portrait walls, so every axial stop's
+  yaw row opens to ±90° — the composed gaze squares on either wall at 4.2 m, where the
+  unchanged pitch rows already frame the whole five-row ladder (−3.6°…+35.2°) inside the 55°
+  frame — and the door stop M4 opens to ±40°, the turn that squares it on the east wall 2 m
+  beside it, because no yaw row exceeds 90°: a look never faces back past the side, the half
+  the frusta union was never built for.
 
   The rail becomes one axial dolly: run M0..M3 is axial (x = 86.25 to float rounding); run
   M3→M4 is the chord (2.25, 0, 13), 9.8° off axis, straight to the door stop. Segments
   13 / 12.5 / 12.5 / 13.2 m — an even rhythm at the R19-ux 2380 ms (approximately 5.5 / 5.3 /
   5.3 / 5.5 m/s average). Presses 1–2 remain a locked dolly. Press 3 turns toward MONARCHS;
   press 4 turns toward the doors, then holds that point as it approaches. These small
-  departure turns use the 0.31744 distance span and the 40%-elapsed-time phase law. The
+  departure turns ride the B9 distance weight (one weight over the anchor's remaining
+  segment, above), which superseded the 0.31744 distance span and the 40%-elapsed-time
+  phase law. The
   door's near-field parallax still contributes angular motion after the turn; the previous
   timing's measured/estimated rates are not current rate guarantees and must not be carried
   forward as evidence.

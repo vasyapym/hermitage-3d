@@ -221,7 +221,17 @@ The adopted probe law applies unchanged (ADR-0013): one static dusk environment 
 
 ## 6. Cinematography and the room index
 
-6.1 Rail: five stops over 55 m, glides of 12–15 m at the committed glide duration, scroll/drag/arrows as everywhere, reduced motion cuts. Stop ids follow the committed one-letter pattern (S0/S1 square, G0–G2, J0–J4): **M0–M4**. M0 Threshold (x 86.25, z −38, eye 1.65, looking south along the axis; yaw ±30°, pitch −10/+25°) — the signature long view and the golden stop. M1 West wall (x 84.3, z −25, looking west at a block; yaw ±25°, pitch ±20°, never closer than 2.2 m to the canvases so stand-in texels stay painterly). M2 Lantern (x 86.25, z −12.5, looking up 35°; yaw ±40°, pitch 0/+55°) — vault and glazing bars. M3 Monarchs (x 86.25, z +9, looking south at H3; yaw ±20°, pitch ±15°). M4 Doors (x 88.5, z +13, looking east-south at the closed St George's doors; yaw ±20°, pitch ±10°) — end of route; the stop caption carries the sentence the retired card used to carry ("за дверями — Георгиевский зал", Q2). Captions are i18n keys `caption.m0`–`caption.m4` (committed grammar), Russian canonical.
+6.1 Rail: five stops over 55 m, glides of 12–15 m at the committed glide duration, scroll/drag/arrows as everywhere, reduced motion cuts. Stop ids follow the committed one-letter pattern (S0/S1 square, G0–G2, J0–J4): **M0–M4**.
+
+- **M0** axis, z −38 → far axis (`AXIS_FAR`); yaw ±90°, pitch +25°/−10°.
+- **M1** axis, z −25 → far axis; the west block, due west, is the drag-left reward; yaw ±90°, pitch +25°/−15°.
+- **M2** axis, z −12.5 → far axis; the lantern is the look-up reward; yaw ±90°, pitch +55°/0°.
+- **M3** axis, z 0 → monarch wall at 14.9 m; corner stop; yaw ±90°, pitch +20°/−10°.
+- **M4** x 88.5, z 13 → St George doors, by the corner run from M3; yaw ±40°, pitch ±10°.
+
+R22-ux (owner ruling): the gallery is read off its two portrait walls, so every axial stop's yaw row opens to ±90° — the composed gaze squares on either wall at 4.2 m, where the unchanged pitch rows already frame the whole five-row ladder (−3.6°…+35.2°) inside the 55° frame — and the door stop M4 opens to ±40°, the turn that squares it on the east wall 2 m beside it, because no yaw row exceeds 90°: a look never faces back past the side, the half the frusta union was never built for. This also supersedes the stale pre-R18 values that used to live in this list (M1 «x 84.3 … yaw ±25°», M3 «z +9 … yaw ±20°, pitch ±15°»).
+
+Captions are i18n keys `caption.m0`–`caption.m4` (committed grammar), Russian canonical.
 
 6.2 Room index — what it is. A deep-link list: an in-app overlay listing the built rooms in route order with their Russian/English names and a marker for the current room. Its data source is the room registry itself — no second list exists ("the registry is the index"); unbuilt rooms do not appear, nothing says "coming soon".
 

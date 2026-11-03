@@ -57,6 +57,37 @@ file in the same session.
 
 ## Live state
 
+- **2026-11-03 · R22-ux LANDED ON THE PARALLEL BRANCH `r22-1812-look` (the worktree
+  `~/Documents/hermitage-3d-uxfix-arrows-look`, off the arrows-merge ed25e4b; MERGE + the FULL
+  gate at the owner's signal only).** The 1812 manual look opens to the portrait walls
+  (CREATIVE relay ×1 — the vault `projects v9/17-…`; integration by a delegated agent,
+  orchestrator-reviewed): YAW ROWS ONLY — M0–M3 30/60/40/25 → **90**, M4 20 → **40** (the east
+  wall's square-on turn, 38.3° left of the doors; the west wall 141.7° round — past the 90°
+  cap, read from the axial stops); pitch rows, positions, subjects, captions, the corner flag
+  and ALL code paths untouched — no new constant, the rows are data. THE LAW: no yaw row
+  exceeds 90°, so a look never faces back past the side wall into the half the frusta union
+  was never built for. The corner run M3→M4: the limit blends 90→40 under the B9 weight — a
+  held EAST look stays within ~2° of due east the whole way (the new rail-b9 pin rides it
+  linearly in w, ≤0.5°, endpoints from data); a held WEST look is carried 101.7° round — M4 at
+  90 would halve the swing but would arrive looking back up the hall with a landscape frame on
+  the never-modelled north end 53 m away. M0's ONE capture-day check: a landscape frame's
+  trailing edge takes in the north end-wall corners 2 m behind (a ≤2.5 m centre-line doorway
+  stays out of frame; if it fails — model the end wall per «the model follows the views», or
+  narrow M0 alone to 60). THE BRIEF'S THREE CORRECTIONS (the specialist's, recorded): M4's 20
+  is the room's smallest yaw (25 is the smallest on the centre line); at ±20 M4's west wall is
+  121.7° away (51.7° still short at ±90); the pitch «shortfalls» re-lensed — the rows must fit
+  the FRAME (±27.5° at FOV 55; the ladder −3.6..+35.2° at 4.21 m ⇒ every axial pitchUp already
+  covers). STALE-DOC ITEMS CLOSED: design-gallery §6.1's pre-R18 values replaced wholesale;
+  the contract's «eye sits below» comment fixed to «level with (5 cm above)»;
+  walkthrough-ux:378's superseded turn-span line reworded to the B9 law. PINS: the reach+cap
+  pin (every reachable wall square-on-able; every yaw ≤ 90 ⇒ centre-line rows pinned exactly
+  90, M4 ∈ [38.3, 90]); vitest 976/1/0, tsc 0, biome clean, mobile-plan --check byte-identical
+  (717,197 B; needs --frozen-at per the tool's header), build 280,144 gzip ≤ 350,000. PARKED
+  with the owner: portrait phones reach ±90 in ≈5 full-width swipes (17.5°/swipe; ≈1.4 drags
+  on desktop) — a mobile UX question; and M4's east-wall top rows at 2 m sit 46–57° up, ABOVE
+  its pitchUp 10 — those photos stay unreadable at the door stop without an owner call. The
+  full record = docs/briefs/ROUNDS.md row 67.
+
 - **2026-11-03 · R21-ux MERGED TO MAIN from the parallel branch `uxfix-arrows-look` (the
   worktree `~/Documents/hermitage-3d-uxfix-arrows-look`, off the finale's cf2a3cf; the FULL
   e2e/golden gate WAIVED by the owner's solo-merge ruling — the targeted battery green, the
