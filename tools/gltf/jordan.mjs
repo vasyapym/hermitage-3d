@@ -1,5 +1,5 @@
 // Zimny phase-2 — jordan (Jordan Staircase) room module. Part 1 = envelope.
-// Part 2 only appends rows to EXPECTED_INSTANCES / EMISSIVE_MATERIALS; gates need no edits.
+// Part 2 / later slices append rows to EXPECTED_INSTANCES / MATERIAL_SLOTS / EMISSIVE_MATERIALS / METALLIC_MATERIALS.
 //
 // Orchestrator adjudications vs the specialist draft: this module binds to the REAL asset.mjs
 // driver contract — exports ROOM {id:...} + optimise({roomId, stage, out}); the MANIFEST itself
@@ -41,8 +41,28 @@ export const EXPECTED_INSTANCES = {
   portal: 1,
   chandelier: 1,
   sconce: 10,
+  cornice: 1,
+  pilaster: 16,
+  pilaster_base: 16,
+  window_frame: 12,
+};
+export const MATERIAL_SLOTS = {
+  shell: ['plaster_warm', 'marble_floor'],
+  pane: ['pane'],
+  stairs: ['marble_floor'],
+  rail: ['gilt'],
+  baluster: ['gilt'],
+  column: ['granite_grey', 'gilt'],
+  portal: ['plaster_warm', 'gilt'],
+  chandelier: ['gilt', 'chandelier_glow'],
+  sconce: ['plaster_warm', 'sconce_glow'],
+  cornice: ['plaster_warm'],
+  pilaster: ['plaster_warm', 'gilt'],
+  pilaster_base: ['plaster_warm'],
+  window_frame: ['plaster_warm'],
 };
 export const EMISSIVE_MATERIALS = { pane: 6, sconce_glow: 6, chandelier_glow: 6 };
+export const METALLIC_MATERIALS = { gilt: 0.5 };
 
 const TOKTX_ARGS = [
   '--t2',
@@ -174,6 +194,33 @@ function gateConventions(json) {
     if (typeof s !== 'number' || Math.abs(s - strength) > 1e-3)
       fail(`material ${name}: emissiveStrength ${s} != ${strength}`);
   }
+  const slotMeshes = Object.keys(MATERIAL_SLOTS).sort();
+  const instanceMeshes = Object.keys(EXPECTED_INSTANCES).sort();
+  if (slotMeshes.join() !== instanceMeshes.join())
+    fail(`MATERIAL_SLOTS [${slotMeshes}] != EXPECTED_INSTANCES [${instanceMeshes}]`);
+  for (const [i, mesh] of (json.meshes ?? []).entries()) {
+    const name = baseName(mesh.name ?? `mesh_${i}`);
+    const slots = MATERIAL_SLOTS[name];
+    if (!slots) fail(`${name}: no MATERIAL_SLOTS row`);
+    const indices = mesh.primitives.map((prim) => {
+      if (prim.material === undefined) fail(`${name}: primitive without material`);
+      return prim.material;
+    });
+    const distinct = new Set(indices).size;
+    if (distinct !== indices.length)
+      fail(`${name}: ${indices.length} primitives over ${distinct} distinct materials`);
+    const got = indices.map((m) => baseName(materials[m]?.name ?? `material_${m}`));
+    if (got.join() !== slots.join()) fail(`${name}: materials [${got}] != slots [${slots}]`);
+  }
+  for (const name of Object.keys(METALLIC_MATERIALS))
+    if (!materials.some((m) => baseName(m.name ?? '') === name))
+      fail(`metallic material ${name} missing`);
+  for (const [i, m] of materials.entries()) {
+    const name = baseName(m.name ?? `material_${i}`);
+    const expected = METALLIC_MATERIALS[name] ?? 0;
+    const factor = m.pbrMetallicRoughness?.metallicFactor ?? 1;
+    if (factor !== expected) fail(`material ${name}: metallicFactor ${factor} != ${expected}`);
+  }
 }
 
 function geometryRows(json) {
@@ -238,6 +285,8 @@ export function optimise({ roomId, stage, out }) {
   if (summary.room !== roomId) fail(`summary room ${summary.room} != ${roomId}`);
   if (summary.declared?.paneEmissionStrength !== EMISSIVE_MATERIALS.pane)
     fail('declared pane emission drifted from module');
+  if (summary.declared?.giltMetallic !== METALLIC_MATERIALS.gilt)
+    fail('declared gilt metallic drifted from module');
 
   const textures = encodeTextures(stage, texOut);
   const finalGlb = transformChain(stage);

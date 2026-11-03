@@ -2,7 +2,56 @@
 
 One file a new relay session reads at start. Two sections: **Live state** (update in the same
 integration that changes the facts — same session, never later) and **Standing protocol** (rarely
-changes). Detail lives in `docs/briefs/ROUNDS.md` rows and the design docs; this file is the index,
+changes).
+
+- **2026-11-02 · Jordan slice 1 LANDED ON THE PARALLEL BRANCH `jordan-details` (the worktree
+  `~/Documents/hermitage-3d-jordan`, off d2d3aec) — "the room reads as architecture"; the
+  details program's next room, PARALLEL to the luna2 session's in-flight track. MERGE into
+  main + the FULL e2e/golden gate run at the owner's stack signal only — NOT this session.**
+  (CREATIVE relay ×4 draws — the vault `projects v8/` briefs 8-… (the zero-steering room-state
+  dossier; three transport-timeout recoveries carried the FIND/SLICE + the constants fragment
+  forward), 11-… (the PART-2 constants), 12-… (the four order builders), 13-… + 14-… (the
+  portal/column rewrites + the wiring); MECHANICAL relay ×1 — 15-… (FILE 2, the gate rows + the
+  license row); the full round record = docs/briefs/ROUNDS.md row 64.) THE DELIVERABLE: the four
+  texture retunes (white stucco / Carrara / Serdobol-like granite / half-metallic gold —
+  metallicFactor 0.5 on gilt ONLY, every other material 0, gate-pinned); the wall ORDER as new
+  meshes against the frozen shell — the two-step cornice ring at the vault spring (y 17–18) incl.
+  the vestibule's cap moulding + door architrave, the giant pilaster order (16 shafts + gilt
+  capitals; 16 bases at the floor; the four east shafts pass through the landing slab), stucco
+  architraves ×12, the portal rebuilt as a 0.7 m aedicule with closed WHITE leaf doors + gilt
+  stiles/rails (the vases carried to the gilt slot), the twin granite columns rebuilt
+  (plinth + torus/entasis lathe + gilt echinus + abacus meeting the cornice soffit at y 17.0),
+  the balustrade thickened (0.16×0.10 rail, 8-seg balusters ×151). INTEGRATION CORRECTIONS
+  (re-measured): `DOOR_RAILS_Y` read as WORLD y (the reply's sill-offset read put the top rail
+  at +25.7 m above the landing); the portal reveal guard's direction (back 0.14 > front 0.06 per
+  DOOR_LEAF's own «0.08 m thick» comment; the reply's `back < front` guard tripped the build);
+  the runners/template/placement splice re-indented to the committed nesting; the summary's
+  columns record retired the dead `shaft`/`cap` keys (NameError) for
+  shaftRings/capitalRings/abacus + abacusTopY 17.0. THE RE-BAKE RECOVERY (recorded as a standing
+  trap): the three-state rerun baked at bake.py's dormant scalar wp 6.0 and the chain
+  REGENERATED the manifest's intensity row as a scalar 6 — the r17c per-state dict
+  (0.1 / 0.1 / 3.0) was restored by edit and the three lm ktx2s re-encoded from the surviving
+  denoised EXRs via `tools/reencode.mjs jordan all` (the 17c encode law; byte new: day 294,709 /
+  dusk 273,632 / night 150,352; probe untouched). The 8-bit loss of the 6.0-scaled PNG
+  intermediates is why re-bakes MUST respect the manifest dict (fix the descriptor OR re-encode
+  after, never trust bake.py's own table). NEW GATE ROWS in `tools/gltf/jordan.mjs`:
+  EXPECTED_INSTANCES 13 meshes · MATERIAL_SLOTS (primitives = distinct materials = the row,
+  order-checked) · METALLIC_MATERIALS {gilt: 0.5} with the `?? 1` glTF-default failing loudly ·
+  the declared.giltMetallic drift guard. REALIZED AT THE BUILD: lm cells 2,798 of 4,096
+  (envelope 1,501 + kit 1,262; a 35-cell unallocated gap — recorded), draws 19 ≤ 60, drawn
+  20,898 ≤ 380,000, naive 245; instances 16/16/12/1/2/1/10/151 per the adopted rosters; the glb
+  222,716 B sha c44e93b9… (was 439,692); tex bytes 79,186; room payload 1,028,681 ≤ 7,000,000.
+  GATES on the branch: bpy execution green; the encode chain green (toktx + every gate row
+  against the real glb); the three-state rebake green under caffeinate; `pnpm validate` green
+  (tsc 0, biome repo-wide clean, vitest 917/1/0, build 278,518 gzip ≤ 350,000, RU 7,245
+  ≤ 12,000, budgets all ok incl. basis 584,862 unchanged); the capture battery green
+  (probes/slice1-shots: 7 stops × day, J4 × 3 states, two rail-param intermediates — the room
+  reads architecture; the 3 jordan scene goldens are STALE by design and re-baseline at the
+  stack finale). FORECLOSED for later slices (owner calls): the fixture form (slice 2 — awaits
+  the axial photograph; the glow chips stay), the painted plafond vs the J2 caption (slice 3),
+  the coffer rosettes (slice 4); the south-pier/porthole 0.2 m clearance + the pilaster-capital
+  grain flagged to the owner's eye. The rg-d1 precedent's light-chain lesson held: the encode
+  white points are DATA; bake.py's own table is the dormant legacy. Detail lives in `docs/briefs/ROUNDS.md` rows and the design docs; this file is the index,
 not the archive. If a number here contradicts a fresh measurement, the measurement wins — fix this
 file in the same session.
 
