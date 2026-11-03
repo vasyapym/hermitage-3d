@@ -93,6 +93,17 @@ interior departure).
   should confirm no newly exposed stale/missing-IBL frame appears.
 - The unequal dark reads (1812 −51%, jordan −20%) and the dark-state vault mosaic's material
   cause remain unproven; no compensation with exposure/lights/bakes/goldens is allowed.
+
+## §7 — THE FIX VERIFIED AT RUNTIME (2026-11-04, hand-run probe, built preview)
+
+Same probe as the defect dossier (fresh pages, the pinned golden noon, gitignored `probes/
+mg-dark-probe.mjs`, storm-stretched 240 s settles): fresh `#/1812` meanY 31.03 / env bound;
+jordan→1812 (THE defect's path) meanY **31.04** / env **bound** — ratio 1.0003 vs cold; fresh
+`#/jordan` 81.39; gallery→jordan meanY **81.39** env bound — ratio 1.0000. The hot entries are
+now numerically identical to the cold twins on both pairs. The formal e2e battery (the two new
+spec files' rows + smoke) rides the quiet machine / the parallel stack finale — the first
+attempts under the parallel bpy bake could not settle (a ~68 s cold-settle stretch measured);
+the probe above is the round's runtime verdict until that window.
 - The dev-only `?hud=1`-less sessions: the row reads `__zimnyDebug.environmentPresent()` which
   exists in every build (a dev-only GTM-free closure; documented; cheap).
 

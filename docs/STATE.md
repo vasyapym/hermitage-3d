@@ -74,11 +74,15 @@ file in the same session.
   pose). GATES on the branch (targeted battery): tsc 0, biome clean, vitest **1014/1/0**
   (61 files, +38 rows: the latch/stage/format law, the sink law, the slot/lifecycle law,
   both purity fences), build **281,474 gzip of 350,000** (+1,330 combined; the 285,707
-  ceiling holds), RU 7,332 of 12,000, budgets all ok. NOT DONE at the branch close: the e2e
+  ceiling holds), RU 7,332 of 12,000, budgets all ok. ALREADY WAITS: the e2e
   battery (the new load-line + handover specs + smoke) — the machine was NOT quiet (the
-  parallel session's bpy bake saturates the 2 cores; the first attempt hung and was
-  abandoned) — it runs when the machine quiets or riders the stack finale with the FULL
-  e2e/golden gate per the PARALLEL law. The two full test rows deferred NOT waived. Docs
+  parallel session's bpy bake saturates the 2 cores; a ~68 s cold-settle stretch measured in
+  the hand probe) — it runs when the machine quiets or rides the stack finale with the FULL
+  e2e/golden gate per the PARALLEL law. The stand-in runtime verdict recorded in
+  design-environment-handover.md §7 (the same measurement class as the defect dossier, the
+  fix's own probe): jordan→1812 meanY 31.04 vs fresh 31.03 (ratio 1.0003, env bound),
+  gallery→jordan meanY 81.39 vs fresh 81.39 (ratio 1.0000) — the hot entries equal the cold
+  twins; the fix verified. The two full test rows deferred NOT waived. Docs
   landed: DEC-038, DEC-039, design-load-line.md, design-environment-handover.md, this
   bullet, ROUNDS rows 68/69.
 
