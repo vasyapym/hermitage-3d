@@ -38,9 +38,12 @@ changes).
   `3c-…-part2a-correction.md` vault file retires): 3c = THE WATERTIGHT DECISION DRAW (the
   vault `projects v9/3c-…-watertight-decision.md` — facts-only, prose contract: THE
   DIAGNOSIS + THE ROUTE VERDICT (the reply's own named assembler alternative stands) + THE
-  REPAIR SPEC, no code artifacts), 3d = THE WATERTIGHT IMPLEMENTATION DRAW RELAYED (the
+  REPAIR SPEC, no code artifacts), 3d = THE WATERTIGHT IMPLEMENTATION DRAW (the
   vault `projects v9/3d-…-watertight-implementation.md`, 90 KB: the verdict verbatim + both
-  integrated files); THE ADOPTED ROUTE = repair the Boolean chain with SOURCE-DERIVED
+  integrated files); 3d's delivery got transport-cut mid-token inside painted_regions; the received prefix
+  (~25 KB through the fragment ` fo`) is saved as the stage-side commit of record and 3e =
+  THE CONTINUATION DRAW (self-sufficient: verdict + prefix + gate embedded; REMAINDER-ONLY
+  law) relays next; THE ADOPTED ROUTE = repair the Boolean chain with SOURCE-DERIVED
   junction-local boundary reconstruction (the constrained canonicalization + welds, the
   repair-registry families, source-facet patch restoration, the explicit closure law;
   tolerance-only healing and the whole-room assembler rejected); the checkpoint inventories
