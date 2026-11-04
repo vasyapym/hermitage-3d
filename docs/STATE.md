@@ -373,6 +373,16 @@ on SwiftShader asserts contracts, never cadence; device numbers headed only; chr
 13.7 via PLAYWRIGHT_HOST_PLATFORM_OVERRIDE=mac14; locator screenshots fail element-stability on
 rAF-canvas — page-level capture with clip, expect timeout 60 s.
 
+**The budget ledger (owner, 2026-11-04, standing):** `docs/budget-ledger.md` is the ONE
+authoritative reservation table — committed costs per named snapshot + the open branches'
+reservations against the shared envelope. Every session: READ it before planning a round (does
+the declared allowance fit alongside the open reservations?); DECLARE your round's reservation
+row in it BEFORE the first commit against shared lines; the INTEGRATING session updates the
+table at every merge/closed candidate (and releases reservations of abandoned candidates);
+**DEC numbers are assigned by the integrating authority** — a parallel branch parks its
+DEC-ready row and never infers the next number from an old count. The dossier's rules live in
+`docs/design-project-course.md` §3; the dossier itself is owner-ratification-pending record.
+
 **Per-round read map (read only what the brief will quote; full reads only at wiring time).**
 Design doc: docs/design-staircase.md. r16: §1.1, §2, §8, §10 (+src/main.ts at wiring).
 r17: §4, §5, §7 + tools/asset.mjs + ADR-0013. r18: §6 + src/ui/hud.ts + src/sky/arrival.ts.
