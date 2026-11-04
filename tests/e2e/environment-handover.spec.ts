@@ -63,6 +63,18 @@ const meanLuminance = (file: string): number => {
 // One interior transit on a fresh page: settle at `from`, hop, settle at `to`, idle.
 // NOTE: the hop hash is composed on the Node side and passed as the argument — the
 // evaluate callback runs in the BROWSER context (the three-times-recorded closure trap).
+// THE ROUTE-SLUG LAW (the heartbeat run's verdict): the resolver matches the committed
+// entry.route EXACTLY and falls back to the square on an unknown token (`unknown-route`,
+// registry.ts) — a room's ID is NOT its route; DEC-029 commits military-gallery's slug as
+// `/1812`. The first draft hopped to `#/military-gallery?…` and the app HONESTLY walked
+// the chain home (jordan → rastrelli → square — two-room overlap pay on the ledger).
+// The smoke deep-link rows pin these same slugs from outside, so a drift fails there.
+const ROUTE_SLUGS: Readonly<Record<string, string>> = {
+  square: '/',
+  'rastrelli-gallery': 'gallery',
+  jordan: 'jordan',
+  'military-gallery': '1812',
+};
 // The per-step stamps (Node-side, printed inline by the line reporter) turned the
 // «predicate starved» class into facts: WHICH leg ate the budget and how much.
 const stepStamp = (label: string, startedAt: number): void => {
@@ -71,7 +83,7 @@ const stepStamp = (label: string, startedAt: number): void => {
 const hopAndSettle = async (page: Page, from: string, to: string): Promise<void> => {
   const startedAt = Date.now();
   stepStamp(`${from}: goto begin`, startedAt);
-  await page.goto(`/#/${from}${AT}`);
+  await page.goto(`/#/${ROUTE_SLUGS[from] ?? from}${AT}`);
   stepStamp(`${from}: page open`, startedAt);
   await expect.poll(() => hudSettled(page, from), { timeout: SETTLE_TIMEOUT_MS }).toBe(true);
   stepStamp(`${from}: settled`, startedAt);
@@ -105,7 +117,7 @@ const hopAndSettle = async (page: Page, from: string, to: string): Promise<void>
       .catch((error: unknown) => stepStamp(`heartbeat failed: ${String(error)}`, startedAt));
   }, 10_000);
   try {
-    await page.evaluate((hash) => (location.hash = hash), `#/${to}${AT}`);
+    await page.evaluate((hash) => (location.hash = hash), `#/${ROUTE_SLUGS[to] ?? to}${AT}`);
     stepStamp(`hop ${from} → ${to}`, startedAt);
     await expect.poll(() => hudSettled(page, to), { timeout: SETTLE_TIMEOUT_MS }).toBe(true);
     stepStamp(`${to}: settled`, startedAt);
@@ -153,7 +165,7 @@ test('the 1812 hot entry renders as bright as a cold deep link (0.85–1.15)', a
   mark('hot: jordan goto');
   await expect.poll(() => hudSettled(page, 'jordan'), { timeout: SETTLE_TIMEOUT_MS }).toBe(true);
   mark('hot: jordan settled');
-  await page.evaluate((params) => (location.hash = `#/military-gallery${params}`), STOP);
+  await page.evaluate((params) => (location.hash = `#/1812${params}`), STOP); // DEC-029's slug
   mark('hot: hop → military');
   await expect
     .poll(() => hudSettled(page, 'military-gallery'), { timeout: SETTLE_TIMEOUT_MS })
@@ -162,7 +174,7 @@ test('the 1812 hot entry renders as bright as a cold deep link (0.85–1.15)', a
   await page.waitForTimeout(SETTLE_MARGIN_MS);
   const hotFile = await shoot(page, 'military-hot');
   const coldPage = await page.context().newPage();
-  await coldPage.goto(`/#/military-gallery${STOP}`);
+  await coldPage.goto(`/#/1812${STOP}`); // DEC-029's slug (the route, not the room id)
   await expect
     .poll(() => hudSettled(coldPage, 'military-gallery'), { timeout: SETTLE_TIMEOUT_MS })
     .toBe(true);
