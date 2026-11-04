@@ -10,10 +10,19 @@
  * own policy: no probe — the slot nulls when the interior leaves it).
  * Every configuration opens a FRESH page (the resident/fragment-hop landmine), while the
  * intended transitions stay chained on their own page.
+ *
+ * THE STARVE-BISECT VERDICT (probes/settle-bisect.mjs): the SAME page/URL/viewport settles
+ * in ~14 s OUTSIDE the test harness (plain launch, no recording machinery) while this
+ * file's rows starved their 240 s predicates inside it — the trace/screenshot recorders
+ * breathe on every action of these minutes-long rAF-canvas rows. These rows keep their
+ * verdicts via the hud attrs, the dev readout and console stamps, so the recording knobs
+ * go off FOR THIS FILE ONLY (the global retain-on-failure law stays for the rest).
  */
 import { readFileSync } from 'node:fs';
 import { expect, type Page, test } from '@playwright/test';
 import { PNG } from 'pngjs';
+
+test.use({ trace: 'off', screenshot: 'off' });
 
 const AT = '?at=2026-06-22T03:18:00Z&det=1&hud=1'; // the rooms' pinned golden noon det instant
 const SETTLE_TIMEOUT_MS = 240_000;
@@ -66,10 +75,45 @@ const hopAndSettle = async (page: Page, from: string, to: string): Promise<void>
   stepStamp(`${from}: page open`, startedAt);
   await expect.poll(() => hudSettled(page, from), { timeout: SETTLE_TIMEOUT_MS }).toBe(true);
   stepStamp(`${from}: settled`, startedAt);
-  await page.evaluate((hash) => (location.hash = hash), `#/${to}${AT}`);
-  stepStamp(`hop ${from} → ${to}`, startedAt);
-  await expect.poll(() => hudSettled(page, to), { timeout: SETTLE_TIMEOUT_MS }).toBe(true);
-  stepStamp(`${to}: settled`, startedAt);
+  // THE SECOND-LEG HEARTBEAT (the harness-only starve): every 10 s reads the app's own
+  // state — which room binds, what the hold-row says, whether the ledger moved, whether
+  // the environment slot is bound — and hears the app's console. The app is identical
+  // under the plain probe (the same hop settled in 15–30 s); this turns the harness's
+  // silent freeze into per-10-s facts.
+  const appLines: string[] = [];
+  const consoleTap = (message: { type(): string; text(): string }): void => {
+    if (['error', 'warning'].includes(message.type()))
+      appLines.push(`${message.type()}: ${message.text()}`);
+  };
+  page.on('console', consoleTap);
+  const heartbeat = setInterval(() => {
+    void page
+      .evaluate(() => {
+        const hud = document.getElementById('hud');
+        const ds = hud?.dataset;
+        const debug = window as unknown as {
+          __zimnyDebug?: { environmentPresent?: () => boolean };
+        };
+        return JSON.stringify({
+          room: ds?.room,
+          hold: ds?.holdMs,
+          ledger: ds?.ledgerBytes,
+          env: debug.__zimnyDebug?.environmentPresent?.() ?? 'n/a',
+        });
+      })
+      .then((state) => stepStamp(`heartbeat ${state}`, startedAt))
+      .catch((error: unknown) => stepStamp(`heartbeat failed: ${String(error)}`, startedAt));
+  }, 10_000);
+  try {
+    await page.evaluate((hash) => (location.hash = hash), `#/${to}${AT}`);
+    stepStamp(`hop ${from} → ${to}`, startedAt);
+    await expect.poll(() => hudSettled(page, to), { timeout: SETTLE_TIMEOUT_MS }).toBe(true);
+    stepStamp(`${to}: settled`, startedAt);
+  } finally {
+    clearInterval(heartbeat);
+    page.off('console', consoleTap);
+    for (const line of appLines) stepStamp(`app ${line}`, startedAt);
+  }
 };
 
 // The hot/cold pair capture: the hot page walks jordan→1812 (the defect's own path) and
