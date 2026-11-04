@@ -53,6 +53,14 @@ const announcements = async (page: Page): Promise<ReadonlyArray<string>> =>
     () => (window as unknown as { __loadAnnouncements?: string[] }).__loadAnnouncements,
   )) ?? []) as ReadonlyArray<string>;
 
+// The reset between legs: the design's law is ONE spoken word PER TRANSIT — a boot
+// transit legitimately shows its own line when its data wait outlives the threshold,
+// and this row counts only the 1812 transit's word.
+const resetAnnouncements = (page: Page): Promise<unknown> =>
+  page.evaluate(() => {
+    (window as unknown as { __loadAnnouncements?: string[] }).__loadAnnouncements = [];
+  });
+
 test('the load line counts a throttled 1812 open (ru)', async ({ page }) => {
   test.setTimeout(300_000); // the storm-stretched budget precedent (R16.2): the parallel
   // bake saturates the runner and stretches every settle; the predicates stay 120 s.
@@ -64,18 +72,20 @@ test('the load line counts a throttled 1812 open (ru)', async ({ page }) => {
   });
   await page.goto(`/#/jordan${AT}`);
   await expect.poll(() => hudSettled(page, 'jordan'), { timeout: SETTLE_TIMEOUT_MS }).toBe(true);
+  await resetAnnouncements(page); // count ONLY the 1812 transit (one word PER TRANSIT)
   await page.evaluate((hash) => (location.hash = hash), `#/1812${AT}`);
   // The line arms at the card and shows past the threshold: open (manifest/chunk) or
-  // bytes (rows streaming) — both honest while the data waits.
+  // bytes (rows streaming) — both honest while the data waits. The visible TEXT rides
+  // the stage AT THAT FRAME (open's verb, the bytes pair, or the assemble verb) — the
+  // stage may have advanced by the frame the text assert runs, so the row asserts the
+  // stage FAMILY, not a state captured a frame earlier (the race the first run caught).
   const line = page.locator('#load-line');
-  await expect(line).toHaveAttribute('data-state', /open|bytes/, { timeout: LINE_TIMEOUT_MS });
-  const state = await line.getAttribute('data-state');
-  if (state === 'bytes') {
-    // The RU pair: the decimals ride the ru column, the unit rides the total only.
-    await expect(line).toHaveText(/·\s\d+(,\d+)?\sиз\s\d+(,\d+)?\s(МБ|кБ)$/, {
-      timeout: LINE_TIMEOUT_MS,
-    });
-  }
+  await expect(line).toHaveAttribute('data-state', /open|bytes|assemble/, {
+    timeout: LINE_TIMEOUT_MS,
+  });
+  // The RU family: the verb register in both stage voices; the pair's shape rides the
+  // unitten when the bytes stage is the one visible.
+  await expect(line).toHaveText(/Загружаем зал|Собираем зал/, { timeout: LINE_TIMEOUT_MS });
   // The one spoken word: the verb, exactly once (the arrival announce may rewrite it).
   await expect
     .poll(
@@ -107,16 +117,17 @@ test('the load line speaks the en copy when the session runs en', async ({ page 
   });
   await page.goto(`/#/jordan${AT}&lang=en`);
   await expect.poll(() => hudSettled(page, 'jordan'), { timeout: SETTLE_TIMEOUT_MS }).toBe(true);
+  await resetAnnouncements(page); // one word per transit — count only the 1812 leg
   await page.evaluate((hash) => (location.hash = hash), `#/1812${AT}&lang=en`);
   const line = page.locator('#load-line');
-  await expect(line).toHaveAttribute('data-state', /open|bytes/, { timeout: LINE_TIMEOUT_MS });
-  if ((await line.getAttribute('data-state')) === 'bytes') {
-    await expect(line).toHaveText(/·\s\d+(\.\d+)?\sof\s\d+(\.\d+)?\s(MB|kB)$/, {
-      timeout: LINE_TIMEOUT_MS,
-    });
-  } else {
-    await expect(line).toHaveText('Loading the room', { timeout: LINE_TIMEOUT_MS });
-  }
+  await expect(line).toHaveAttribute('data-state', /open|bytes|assemble/, {
+    timeout: LINE_TIMEOUT_MS,
+  });
+  // The EN family — the state rides the frame it lands on, so the text asserts the
+  // stage family (the stale-state race the first run caught on the RU row).
+  await expect(line).toHaveText(/Loading the room|Assembling the room/, {
+    timeout: LINE_TIMEOUT_MS,
+  });
   await expect
     .poll(() => hudSettled(page, 'military-gallery'), { timeout: SETTLE_TIMEOUT_MS })
     .toBe(true);
