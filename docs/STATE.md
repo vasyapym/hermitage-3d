@@ -60,8 +60,15 @@ file in the same session.
 - **2026-11-03/04 · PARALLEL (worktree `~/Documents/hermitage-3d-roomload-mglight`, branch
   `roomload-mglight` off main 92d3a4f — merges at the owner's signal; PARALLEL to the
   jordan-slice-2 session): R23-ux the LOAD LINE + R24-ux the ENVIRONMENT HANDOVER, both
-  relayed (vault `projects v10` briefs 18/19, replies integrated; the third parallel item —
-  the project-course dossier, brief 20 — waits its turn in the vault).** R23-ux: the loading
+  relayed; the THIRD parallel item — the project-course dossier (brief 20) — NOW RECORDED as
+  docs/design-project-course.md (the specialist's course note §§0–3 verbatim with the
+  integration corrections §0.2; RATIFICATION PENDING — no cap/Frozen-law/route change takes
+  effect until the owner calls; the open owner asks: the explicit JS operating ceiling
+  285,707, the no-expansion default + the vision round after consolidation, the charter's
+  ≤7-room counting rule, and the merge order jordan-slice-2 → room-open → a11y → finishing;
+  its arithmetic read the pre-refresh snapshot — refreshed: ceiling-class JS headroom 4,233 B,
+  one +3,000 declared round leaves ≈1,233 B, RU 4,668 B — the «almost spent» conclusion
+  strengthens).** R23-ux: the loading
   stage reads live under the card's room title (`#load-line`: verb + honest byte pair,
   nothing drawn, tabular numerals the one motion; 1 s card-threshold with a latch to the
   title clear; the stages mark the host's own awaits via a per-row streaming sink; the
