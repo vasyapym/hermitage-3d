@@ -54,11 +54,22 @@ const meanLuminance = (file: string): number => {
 // One interior transit on a fresh page: settle at `from`, hop, settle at `to`, idle.
 // NOTE: the hop hash is composed on the Node side and passed as the argument — the
 // evaluate callback runs in the BROWSER context (the three-times-recorded closure trap).
+// The per-step stamps (Node-side, printed inline by the line reporter) turned the
+// «predicate starved» class into facts: WHICH leg ate the budget and how much.
+const stepStamp = (label: string, startedAt: number): void => {
+  console.log(`[handover] +${((Date.now() - startedAt) / 1000).toFixed(1)}s ${label}`);
+};
 const hopAndSettle = async (page: Page, from: string, to: string): Promise<void> => {
+  const startedAt = Date.now();
+  stepStamp(`${from}: goto begin`, startedAt);
   await page.goto(`/#/${from}${AT}`);
+  stepStamp(`${from}: page open`, startedAt);
   await expect.poll(() => hudSettled(page, from), { timeout: SETTLE_TIMEOUT_MS }).toBe(true);
+  stepStamp(`${from}: settled`, startedAt);
   await page.evaluate((hash) => (location.hash = hash), `#/${to}${AT}`);
+  stepStamp(`hop ${from} → ${to}`, startedAt);
   await expect.poll(() => hudSettled(page, to), { timeout: SETTLE_TIMEOUT_MS }).toBe(true);
+  stepStamp(`${to}: settled`, startedAt);
 };
 
 // The hot/cold pair capture: the hot page walks jordan→1812 (the defect's own path) and
@@ -90,12 +101,20 @@ test('gallery → jordan: the destination environment survives an interior depar
 test('the 1812 hot entry renders as bright as a cold deep link (0.85–1.15)', async ({ page }) => {
   test.setTimeout(300_000); // the storm-stretched budget precedent (R16.2)
   const STOP = `${AT}&stop=M0`; // the pinned entry stop on both pages of the pair
+  const t0 = Date.now();
+  const mark = (label: string): void => {
+    console.log(`[handover-fence] +${((Date.now() - t0) / 1000).toFixed(1)}s ${label}`);
+  };
   await page.goto(`/#/jordan${STOP}`);
+  mark('hot: jordan goto');
   await expect.poll(() => hudSettled(page, 'jordan'), { timeout: SETTLE_TIMEOUT_MS }).toBe(true);
+  mark('hot: jordan settled');
   await page.evaluate((params) => (location.hash = `#/military-gallery${params}`), STOP);
+  mark('hot: hop → military');
   await expect
     .poll(() => hudSettled(page, 'military-gallery'), { timeout: SETTLE_TIMEOUT_MS })
     .toBe(true);
+  mark('hot: military settled');
   await page.waitForTimeout(SETTLE_MARGIN_MS);
   const hotFile = await shoot(page, 'military-hot');
   const coldPage = await page.context().newPage();
