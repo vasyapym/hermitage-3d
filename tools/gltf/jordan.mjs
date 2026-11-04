@@ -40,8 +40,9 @@ export const ROOM = {
   lightmaps: {
     states: ['day', 'dusk', 'nightChandeliers'],
     res: 2048,
-    // Step-0 bootstrap only. Replace with lm-percentile's fresh-bake paste row.
-    intensity: { day: 0.45, dusk: 0.44, nightChandeliers: 0.6 },
+    // lm-percentile's landed row (fresh-bake plates, D1 clamps, κ=1): wRaw 1.02422 → 0.45,
+    // dusk 2.357531 → 1, night 2.365537 → 1.2 (tools/bake-logs/jordan.md § Encode).
+    intensity: { day: 0.45, dusk: 1, nightChandeliers: 1.2 },
   },
 };
 

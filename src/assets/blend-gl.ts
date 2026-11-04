@@ -42,13 +42,21 @@
  * - Materials are patched once per unique instance (shared across meshes).
  * - Module-level state is safe: the coordinator serializes transits (loaders.ts pattern).
  * - lm textures are LINEAR data (NoColorSpace) and are added to `irradiance` untouched.
+ *   Jordan's sources are sRGB containers decoded to linear by the GPU sampler (the DFD
+ *   flag travels with the encode); the other rooms' sources stay linear data. Composition
+ *   and the irradiance inputs stay linear on every path either way.
  * - A missing texture for a bound state throws — loud, never a silent black room.
  * - The coordinator calls applyWeights(roomId, frozenWeights) once per frame; unregistered
  *   rooms no-op (a hold before mount, the square).
  * - b-rt needs a renderable half-float colour attachment; when absent it throws loud at mount.
  */
 import * as THREE from 'three';
-import { INTERIOR_LOOK_GAIN, LIGHT_STATES } from '../content/lightmap-look';
+import {
+  INTERIOR_EMISSIVE_SCALE,
+  INTERIOR_LOOK_GAIN,
+  type InteriorEmissiveStateScale,
+  LIGHT_STATES,
+} from '../content/lightmap-look';
 import { type BlendWeights, blendPayload, environmentScalar } from '../world/blend';
 import type {
   LightmapIntensity,
@@ -74,6 +82,9 @@ export type ChartOf = (material: THREE.MeshStandardMaterial) => ChartId;
 
 type LmBUniform = { value: THREE.Texture };
 
+/** The D6/D1 runtime emissive law per material: authoredStrength × Σ_s w_s scale_s. */
+type EmissiveRow = { base: number; scale: InteriorEmissiveStateScale };
+
 type SharedUniforms = Readonly<{
   /** ONE lmB object per chart — a material's program wires the one of its chart. */
   lmB: ReadonlyMap<ChartId, LmBUniform>;
@@ -97,10 +108,58 @@ type RoomTechnique = Readonly<{
   effective: LightmapIntensity;
   /** B-RT only: the per-room render target and its quad scene (the ceiling re-blend). */
   rt: { target: THREE.WebGLRenderTarget; scene: THREE.Scene; camera: THREE.Camera } | null;
+  /** D6/D1: jordan's per-frame emissive rows — authored base, INTERIOR_EMISSIVE_SCALE row.
+   *  Null for every room without a scale-table row (never a default multiplier). */
+  emissive: ReadonlyMap<THREE.MeshStandardMaterial, EmissiveRow> | null;
   current: { a: StateId | null; b: StateId | null };
 }>;
 
 const rooms = new Map<RoomId, RoomTechnique>();
+
+/** The authored emissive bases, read ONCE per material instance at first patch — before
+ * any per-frame write. A remount (same material instance) reuses the stored base, so a
+ * scaled frame value can never become the next mount's base. */
+const authoredEmissive = new WeakMap<THREE.MeshStandardMaterial, number>();
+
+function authoredEmissiveBase(material: THREE.MeshStandardMaterial): number {
+  const saved = authoredEmissive.get(material);
+  if (saved !== undefined) return saved;
+  authoredEmissive.set(material, material.emissiveIntensity);
+  return material.emissiveIntensity;
+}
+
+/** Jordan's D6 hook: the per-material emissive rows (by the glb material name). Missing
+ * room/material rows mean no write, never a default; other rooms' materials never enter. */
+function captureEmissiveScale(
+  roomId: RoomId,
+  materials: readonly THREE.MeshStandardMaterial[],
+): ReadonlyMap<THREE.MeshStandardMaterial, EmissiveRow> | null {
+  const roomScale = INTERIOR_EMISSIVE_SCALE[roomId];
+  if (!roomScale) return null;
+  const library = roomScale as Partial<Record<string, InteriorEmissiveStateScale>>;
+  const rows = new Map<THREE.MeshStandardMaterial, EmissiveRow>();
+  for (const material of materials) {
+    const scale = library[material.name];
+    if (scale === undefined) continue;
+    rows.set(material, { base: authoredEmissiveBase(material), scale });
+  }
+  return rows.size > 0 ? rows : null;
+}
+
+/** The runtime law applied to ONE jordan material this frame:
+ * emissiveIntensity = authoredStrength × Σ_s (w_s × scale_m_s), w = this frame's blend
+ * weights (the same frame the lm scalars consume). */
+function applyEmissiveWeights(
+  material: THREE.MeshStandardMaterial,
+  row: EmissiveRow,
+  weights: BlendWeights,
+): void {
+  material.emissiveIntensity =
+    row.base *
+    (weights.day * row.scale.day +
+      weights.dusk * row.scale.dusk +
+      weights.nightChandeliers * row.scale.nightChandeliers);
+}
 
 const LIGHTMAP_UV_CHANNEL = 1;
 const CACHE_KEY = 'zimny-lm-blend-v1';
@@ -427,7 +486,17 @@ export function applyChartedTechnique(
     };
   }
 
-  rooms.set(roomId, { mode, handle, shared, materials, charts: bindings, effective, rt, current });
+  rooms.set(roomId, {
+    mode,
+    handle,
+    shared,
+    materials,
+    charts: bindings,
+    effective,
+    rt,
+    emissive: captureEmissiveScale(roomId, materials),
+    current,
+  });
   return handle;
 }
 
@@ -475,6 +544,14 @@ export function applyWeights(roomId: RoomId, weights: BlendWeights): void {
     const scaleB = payload.b === null ? 0 : payload.wB * room.effective[payload.b];
     room.handle.setWeights(payload.wA * effA, scaleB);
   }
+  // D6/D1: jordan's per-material emissive law, the same frame the lm scalars consume.
+  // Per-material, per-frame (the envMapIntensity cadence), jordan-scoped: rooms without
+  // a scale table have no entries and are never written.
+  if (room.emissive) {
+    for (const [material, row] of room.emissive) {
+      applyEmissiveWeights(material, row, weights);
+    }
+  }
   // §5/ADR-0013: the probe is hour-static; envMapIntensity follows the clock scalars.
   const envIntensity = environmentScalar(weights);
   for (const material of room.materials) material.envMapIntensity = envIntensity;
@@ -485,6 +562,13 @@ export function disposeTechnique(roomId: RoomId): void {
   if (room === undefined) return;
   for (const lmB of room.shared.lmB.values()) lmB.value = blackTexel();
   room.shared.lmScale.value = 0;
+  if (room.emissive) {
+    // The scaled frame values never outlive the room: every tracked material leaves at
+    // its authored base (a remount re-captures from the same WeakMap anyway).
+    for (const [material, row] of room.emissive) {
+      material.emissiveIntensity = row.base;
+    }
+  }
   if (room.rt) {
     room.rt.target.dispose();
     for (const child of room.rt.scene.children) {

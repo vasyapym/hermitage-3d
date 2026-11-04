@@ -26,7 +26,7 @@ import {
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import {
   ASSETS_DIR,
   BLENDER,
@@ -88,6 +88,17 @@ const TOKTX_FLAGS = [
 
 function fail(message, hint) {
   throw new ChainError(hint === undefined ? message : `${message} (${hint})`);
+}
+
+/** D1 (jordan slice 2): the per-room LM encode contract lives on the room's gltf module.
+ * When tools/gltf/<room>.mjs exports LM_ENCODE with transfer 'srgb', the lm encode runs
+ * the sRGB branch (stored = srgb_oetf(clip(rgb / W_s, 0, 1)); toktx assigns the sRGB
+ * OETF — never converts). Rooms without LM_ENCODE keep the committed linear path
+ * byte-for-byte. */
+async function lmEncodeOf(room) {
+  const file = join(HERE, 'gltf', `${room}.mjs`);
+  const mod = await import(pathToFileURL(file).href);
+  return mod.LM_ENCODE ?? null;
 }
 
 function parseArgs(argv) {
@@ -191,7 +202,15 @@ function patchRect(room, part) {
   return patchRect.cache.get(room);
 }
 
-function reencodeChart(room, state, chart, whitePoint, manifest, work) {
+/** D1: the sRGB branch swaps the OETF ASSIGN only — encode etc1s, threads 1, no
+ * --genmipmap stay exactly as pinned. */
+function toktxFlagsFor(transfer) {
+  if (transfer !== 'srgb') return TOKTX_FLAGS;
+  const at = TOKTX_FLAGS.indexOf('--assign_oetf');
+  return [...TOKTX_FLAGS.slice(0, at + 1), 'srgb', ...TOKTX_FLAGS.slice(at + 2)];
+}
+
+function reencodeChart(room, state, chart, whitePoint, manifest, work, transfer) {
   const file = FILE_BY_STATE[state];
   const prefix = chart === 'arch' ? '' : KIT_PREFIX;
   let exr = chartExr(room, state, chart);
@@ -251,7 +270,10 @@ function reencodeChart(room, state, chart, whitePoint, manifest, work) {
   }
   const png = join(work, `${prefix}${file}.png`);
   const ktx2 = join(work, `${prefix}${file}.ktx2`);
-  console.log(`\n== ${room} ${state} ${chart}: whitePoint=${whitePoint}`);
+  console.log(
+    `\n== ${room} ${state} ${chart}: whitePoint=${whitePoint}` +
+      `${transfer === 'srgb' ? ' transfer=srgb' : ''}`,
+  );
   run(BLENDER, [
     '-b',
     '--factory-startup',
@@ -262,8 +284,9 @@ function reencodeChart(room, state, chart, whitePoint, manifest, work) {
     exr,
     png,
     String(whitePoint),
+    ...(transfer === 'srgb' ? ['--transfer', 'srgb'] : []),
   ]);
-  run('toktx', [...TOKTX_FLAGS, ktx2, png]);
+  run('toktx', [...toktxFlagsFor(transfer), ktx2, png]);
   if (!existsSync(ktx2)) fail(`toktx produced no file at ${ktx2}`);
   // Publish only now: encode + transcode both succeeded (all-or-nothing per state).
   const rel = `lm/${prefix}${file}.ktx2`;
@@ -278,12 +301,14 @@ function reencodeChart(room, state, chart, whitePoint, manifest, work) {
   console.log(`published ${dest} (${bytes.length} bytes, sha256 ${sha})`);
 }
 
-function reencodeState(room, state, manifest, work, charts) {
+function reencodeState(room, state, manifest, work, charts, transfer) {
   const whitePoint = whitePointOf(manifest, room, state);
-  for (const chart of charts) reencodeChart(room, state, chart, whitePoint, manifest, work);
+  for (const chart of charts) {
+    reencodeChart(room, state, chart, whitePoint, manifest, work, transfer);
+  }
 }
 
-function main() {
+async function main() {
   const { room, states } = parseArgs(process.argv.slice(2));
   const tc = readToolchain();
   requireTool('toktx', ['--version'], requirePinned(tc, 'toktx'), TOKTX_INSTALL);
@@ -291,10 +316,14 @@ function main() {
     fail(`Blender not found at ${BLENDER}`, 'set ZIMNY_BLENDER to the Blender binary');
   }
   const { path, manifest } = readManifest(room);
+  const lmEncode = await lmEncodeOf(room);
+  const transfer = lmEncode?.transfer === 'srgb' ? 'srgb' : null;
   const charts = chartsOf(manifest, room);
   const work = mkdtempSync(join(tmpdir(), 'zimny-reencode-'));
   try {
-    for (const state of states) reencodeState(room, state, manifest, work, charts);
+    for (const state of states) {
+      reencodeState(room, state, manifest, work, charts, transfer);
+    }
     // The record is already the source of truth; rewrite it verbatim so the file is self-stating.
     manifest.lightmaps.intensity = Object.fromEntries(
       STATES.map((s) => [s, whitePointOf(manifest, room, s)]),
@@ -307,7 +336,7 @@ function main() {
 }
 
 try {
-  main();
+  await main();
 } catch (error) {
   console.error(`reencode: ${error instanceof Error ? error.message : error}`);
   process.exit(1);

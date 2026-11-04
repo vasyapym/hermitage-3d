@@ -146,7 +146,38 @@ changes).
   two-row paste into jordan.mjs + lightmap-look.ts → the manifest regen from the pasted
   descriptor → --check → the cross-room byte-identical guard → the jordan-only test re-pins →
   full `pnpm validate` → build/serve byte-verify → the 18-shot capture battery into
-  probes/slice2-shots/. The round rides
+  probes/slice2-shots/. **ROUND LANDED (2026-11-04, the run card steps 4–7 complete):** the real
+  lm-percentile pass ran (stats dry-identical — the same three EXR shas + cells sha); the two
+  rows PASTED + verified: `ROOM.lightmaps.intensity = { day 0.45, dusk 1, nightChandeliers 1.2 }`
+  · `INTERIOR_LOOK_GAIN.jordan = { day 2.22, dusk 1, nightChandeliers 0.83 }` (κ = 1.0); the
+  three lm ktx2s RE-ENCODED via the sRGB path (day 304,963 B sha 284c01b7… · dusk 324,047
+  7b367736… · night 313,051 7288c24a… — night +2.1× over the old black 150,352, the rig's pools
+  cost real bytes) + the fresh dusk probe (13,535 B cef3cd4b…); manifest regenerated (9 files,
+  payload 1,233,716 ≤ 7,000,000; the dict lands byte-exact); --check PASS on all three sources;
+  the glb sha UNCHANGED (c8fc2ceb… — no geometry rerun); the cross-room guard EMPTY
+  (rastrelli/military artifacts byte-identical); the jordan value rows re-pinned in
+  tests/blend-gl.test.ts only ({0.45/1/1.2} + the eff pins 0.999/1/0.996 + three technical
+  rows) — lightmap-look/assets tests needed nothing. **FULL pnpm validate GREEN**: tsc 0,
+  biome 183 files clean, vitest 974 passed / 1 skipped / 0 failed (58 files), build 2.40 s,
+  js gzip 280,385 ≤ 350,000, budgets all ok. ONE DEVIATION on the landing:
+  `tools/reencode.mjs` crashed on its first real reencode (a missing `pathToFileURL` import in
+  its dynamic-loader path); fixed with ONE import token + re-run — recorded as a touch-list
+  exception. The capture battery 12/12 (7 stops × day + J4 × dusk/night + the A/B trio
+  byte-identical to their day counterparts, the runner law one-fresh-page-per-shot; the
+  served-asset byte-verify passed pre-shot) — the corridor and the landing reads TRANSFORMED:
+  the day state carries directional warm sun and legible shading (no flat-grey murk), the
+  marble floor reads large soft veins on the 2×2 slab grid, gilt reads GOLD in every state
+  (**the parked GILT_METALLIC owner question closes with no change**), the granite columns
+  read grey speckled (the red-brown weave gone), the vault is smoothly shaded (the wave/cell
+  patchwork gone), NIGHT is candle-lit legible (the slice-1 pink/red blotching gone; the sconce
+  pools + the chandelier drops carry the read). PARKED at the capture verdict: dusk vs night
+  read CLOSE-but-distinguishable by the plain eye — the specialist's pre-commit
+  (RIG_STATE_SCALE.dusk 0.1 + a dusk-only rebake + κ_dusk) stands as the named-not-taken knob
+  pending the owner's eye; the pane emissives still read flat-bright (the window cards remain
+  the white-night conceit); wall articulation stays 2b (named not taken); the fixture FORM
+  stays an E-slice. THE FULL e2e/golden gate + the jordan golden re-baselines (3 stale-by-design)
+  remain deferred to the OWNER'S MERGE SIGNAL per the standing parallel law. The round rides
+  the ROUNDS top row
   the ROUNDS top row
   `PARALLEL · jordan-slice-2` (in-flight, below — rows 63/64's slots already MERGED via their
   own flip convention). CORRECTION TO THE BLOCK BELOW (stale by later merges): the slice-1
