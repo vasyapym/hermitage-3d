@@ -150,7 +150,9 @@ test('gallery → jordan: the destination environment survives an interior depar
   page,
 }) => {
   test.setTimeout(300_000); // the storm-stretched budget precedent (R16.2)
-  await hopAndSettle(page, 'gallery', 'jordan');
+  // The room IDs ride the settle predicate (data-room binds the ID); the slug map owns
+  // the URLs (Rastrelli's slug is «gallery», its ID is rastrelli-gallery).
+  await hopAndSettle(page, 'rastrelli-gallery', 'jordan');
   expect(await environmentPresent(page)).toBe(true);
 });
 
@@ -216,7 +218,21 @@ test('interior → square: the slot follows the square\u2019s own no-probe polic
   await hopAndSettle(page, 'jordan', 'military-gallery');
   expect(await environmentPresent(page)).toBe(true);
   await page.evaluate((params) => (location.hash = `#/${params}`), AT);
-  await expect.poll(() => hudSettled(page, 'square'), { timeout: SETTLE_TIMEOUT_MS }).toBe(true);
+  // The resident's OWN settle contract (the RG-D1 recorded fact): the square's boot
+  // ledger is 0 forever — the hudSettled ledger gate does not apply; the square rows
+  // assert room + hold-0, presence is asserted separately below.
+  await expect
+    .poll(
+      () =>
+        page.evaluate(() => {
+          const hud = document.querySelector('#hud');
+          if (hud === null) return false;
+          const ds = (hud as HTMLElement).dataset;
+          return ds.room === 'square' && ds.holdMs === '0';
+        }),
+      { timeout: SETTLE_TIMEOUT_MS },
+    )
+    .toBe(true);
   // The square is sun/hemisphere-lit and never binds a probe today: the returning
   // interior's ownership-checked release clears the last interior texture and returns
   // the slot to the square's own (null) environment. This row pins THAT POLICY as-is —
