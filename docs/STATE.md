@@ -57,18 +57,13 @@ file in the same session.
 
 ## Live state
 
-- **2026-11-03/04 · PARALLEL (worktree `~/Documents/hermitage-3d-roomload-mglight`, branch
-  `roomload-mglight` off main 92d3a4f — merges at the owner's signal; PARALLEL to the
-  jordan-slice-2 session): R23-ux the LOAD LINE + R24-ux the ENVIRONMENT HANDOVER, both
-  relayed; the THIRD parallel item — the project-course dossier (brief 20) — NOW RECORDED as
-  docs/design-project-course.md (the specialist's course note §§0–3 verbatim with the
-  integration corrections §0.2; RATIFICATION PENDING — no cap/Frozen-law/route change takes
-  effect until the owner calls; the open owner asks: the explicit JS operating ceiling
-  285,707, the no-expansion default + the vision round after consolidation, the charter's
-  ≤7-room counting rule, and the merge order jordan-slice-2 → room-open → a11y → finishing;
-  its arithmetic read the pre-refresh snapshot — refreshed: ceiling-class JS headroom 4,233 B,
-  one +3,000 declared round leaves ≈1,233 B, RU 4,668 B — the «almost spent» conclusion
-  strengthens).** R23-ux: the loading
+- **2026-11-03/04 · MERGED TO MAIN (stack slot 1/4 of the four-session stack — the owner's
+  solo-merge ruling 2026-11-05; the FULL e2e/golden gate rides the STACK FINALE by the LAST
+  merging session): R23-ux the LOAD LINE + R24-ux the ENVIRONMENT HANDOVER, relayed
+  (vault `projects v10` briefs 18/19) + the third item — the project-course dossier (brief
+  20) — recorded as docs/design-project-course.md (RATIFICATION PENDING on its calls; the
+  budget ledger founded per the owner's call — docs/budget-ledger.md + the STATE
+  standing-protocol duty).** R23-ux: the loading
   stage reads live under the card's room title (`#load-line`: verb + honest byte pair,
   nothing drawn, tabular numerals the one motion; 1 s card-threshold with a latch to the
   title clear; the stages mark the host's own awaits via a per-row streaming sink; the
@@ -89,9 +84,21 @@ file in the same session.
   design-environment-handover.md §7 (the same measurement class as the defect dossier, the
   fix's own probe): jordan→1812 meanY 31.04 vs fresh 31.03 (ratio 1.0003, env bound),
   gallery→jordan meanY 81.39 vs fresh 81.39 (ratio 1.0000) — the hot entries equal the cold
-  twins; the fix verified. The two full test rows deferred NOT waived. Docs
-  landed: DEC-038, DEC-039, design-load-line.md, design-environment-handover.md, this
-  bullet, ROUNDS rows 68/69.
+  twins; the fix verified. THE MERGE RECORD: the keyboard-walk row (smoke 271) went red in
+  every storm-class battery (×3) and got a two-verdict split — single-row GREEN on main
+  (10.5 m) / single-row RED on this branch (15.2 m) — the committed bisect (probes/mg-dark-,
+  settle-bisect, remount-hang traces) + the delegated probes EXONERATE the ownership law
+  (the reverse hop's chain completes at ~47 s where the load window allows: bytes →
+  assemble → swap → dispose, env bound); per-10-s facts show the machine's per-leg class
+  (58–86 s × 34 legs ≫ the row's 900 s) is the bound, not the code — the row is DEFERRED,
+  NOT WAIVED, to the stack finale's quiet window; the deterministic gates on the branch's
+  HEAD: tsc 0, biome clean (189), vitest 1014/1/0 (61 files +38 rows),
+  build **281,504 gzip of 350,000** (+30 fresh-measure drift over the round's 281,474 print,
+  reconciled here), RU 7,332 of 12,000, budgets ok; the targeted e2e: environment-handover
+  5/5 (the slugs law: a room ID ≠ its route — DEC-029's `/1812`; the resident square's
+  ledger-0 contract), load-line 2/2, smoke 14/15. Docs
+  landed: DEC-038, DEC-039, design-load-line.md, design-environment-handover.md,
+  design-project-course.md, budget-ledger.md, this bullet, ROUNDS rows 68/69/70.
 
 - **2026-11-03 · R22-ux MERGED TO MAIN from the parallel branch `r22-1812-look` (the worktree
   `~/Documents/hermitage-3d-uxfix-arrows-look`, off the arrows-merge ed25e4b; the FULL

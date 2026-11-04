@@ -25,10 +25,10 @@ that decides whether a next round's declared allowance fits. The project-course 
 
 ## Shared lines
 
-| line | cap | operating ceiling | committed (main @ 92d3a4f) | committed (branch `roomload-mglight`) | reserved (open branches) | remaining to the operating ceiling |
+| line | cap | operating ceiling | committed (main @ the roomload merge, 2026-11-05) | committed (branch `roomload-mglight`) | reserved (open branches) | remaining to the operating ceiling |
 |---|---|---|---|---|---|---|
-| JS gzip (all chunks) | 350,000 | 285,707 — *proposed explicit ceiling, owner ratification pending (design-project-course §1)* | 280,144 | 281,474 (its +1,330 = R23-ux + R24-ux) | jordan-slice-2: declared +3,000-class per round, exact pending its integration | **4,233** |
-| RU strings (lazy chunk) | 12,000 | — | 7,245 | 7,332 (its +87) | jordan-slice-2 pending | **4,668** |
+| JS gzip (all chunks) | 350,000 | 285,707 — *proposed explicit ceiling, owner ratification pending (design-project-course §1)* | **281,504** (the fresh measure at the merged tree; the round's print was 281,474 — +30 toolchain drift, reconciled) | merged | none — jordan-slice-2 family reservations pending its integration | **4,203** |
+| RU strings (lazy chunk) | 12,000 | — | 7,332 | merged | jordan-slice-2 pending | **4,668** |
 | basis transcoder | 600,000 | — | 584,862 | unchanged | none | 15,138 — effectively closed (the dossier: only a measured vendor upgrade opens it) |
 | exterior (square payload) | 4,000,000 | — | 0 | unchanged | none | full; the dossier: measure the procedural baseline BEFORE an asset program (no texture/tri/draw caps yet — under-specified) |
 | `_check` canary | 500,000 | — | 37,157 | unchanged | none | full |
@@ -48,8 +48,9 @@ that decides whether a next round's declared allowance fits. The project-course 
 
 | branch / candidate | what it reserves | status |
 |---|---|---|
-| `jordan-slice-2` (worktree `~/Documents/hermitage-3d-jordan2`) | the stair hall's light program: percentile encode law, lamp bake rig, per-state pane emission, value-noise textures, shell subdivision — its own payload/texture/decode-cell + shared JS deltas | IN FLIGHT (bakes mid-flight); exact numbers recorded here at its integration |
-| `roomload-mglight` (worktree `~/Documents/hermitage-3d-roomload-mglight`) | R23-ux (the load line) + R24-ux (the environment handover): declared +3,000 JS — measured +1,330 gz COMBINED, RU +87, zeroes on every asset/draw line | LANDED ON THE BRANCH (commits efc0578…9c2fe2a), merges by the owner's signal; the e2e battery rides the quiet-window finale; its dossier record awaits ratification |
+| `jordan-slice-2` (worktree `~/Documents/hermitage-3d-jordan2`) | the stair hall's light program: percentile encode law, lamp bake rig, per-state pane emission, value-noise textures, shell subdivision — its own payload/texture/decode-cell + shared JS deltas | IN FLIGHT (its session done per the owner, 4 slots done); exact numbers recorded here at its merge |
+| ~~`roomload-mglight`~~ — RELEASED | R23-ux + R24-ux: declared +3,000 JS — measured +1,330–1,360 gz, RU +87, zeroes on every asset/draw line | **MERGED to main 2026-11-05 (stack slot 1/4)** — the reservation is spent and recorded in the committed column |
 
 **Update log (append at each integration; newest first):**
+- 2026-11-05 · the roomload-mglight branch MERGED to main (stack slot 1/4): committed (main) JS 280,144 → **281,504** (the fresh measure; +30 toolchain drift over the round's 281,474 print, reconciled), RU 7,245 → 7,332; the branch's reservation released; the jordan-slice-2 family reservations remain the only open ones (their integration re-dimensions jordan/1812/decode-cells).
 - 2026-11-04 · table founded (this session) — snapshots named; the dossier's rules recorded; reservations: the two in-flight branches as prose-pending numerics.
