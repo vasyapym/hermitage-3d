@@ -34,8 +34,12 @@ changes).
   collect-cleanup/inset_arch guard fixes). THE AIR VOLUME + the pocket-niche UNION lane pass
   WATERTIGHT+FACING ✓; the members DIFFERENCE fails closed_guard with 15 real seam edges
   (the exact-solver drifts 1e-6..2.5e-4 at the profile/plane meetings). THE CREATIVE
-  CORRECTION BRIEF relaid (the vault `projects v9/3c-…-part2a-correction.md`, 78 KB, both
-  current files riding): the findings + the reply's own named assembler alternative. Owner
+  CORRECTION RE-SPLIT (owner call: the 78 KB whale could stall the chat again; the
+  `3c-…-part2a-correction.md` vault file retires): 3c = THE WATERTIGHT DECISION DRAW (the
+  vault `projects v9/3c-…-watertight-decision.md` — facts-only, prose contract: THE
+  DIAGNOSIS + THE ROUTE VERDICT (the reply's own named assembler alternative stands) + THE
+  REPAIR SPEC, no code artifacts), 3d = THE WATERTIGHT IMPLEMENTATION DRAW composed from the
+  adopted spec (it will carry the verdict verbatim + both integrated files). Owner
   decisions pending at the
   integration plate: the value inversion, the door card/stage spill, the capture-band rows. The
   orchestrator runs the room's bpy/bake/re-encode chain + tsc/biome/vitest + build/budget on the
