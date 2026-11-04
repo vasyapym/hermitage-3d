@@ -25,9 +25,17 @@ changes).
   SEGMENT law lets the builder arrive across messages), 2b = the SHARED CHAIN + RECORD half
   (the vault `projects v9/3b-…-part2b-chain.md`: bake.py keyed rows + the STAGE_SPILL hook +
   the white-point dict + gutter-fill/DEAD_CELL behind default-off per-room dicts + the
-  register/walkthrough texts; the old builder rides CONTEXT-ONLY). THE CROSS-PART INTERFACE is
-  the orchestrator's adjudication: `summary.json lm.cells` = the allocated-cell map (sorted
-  keys) consumed by the encode side; both halves carry the adopted slice verbatim. Owner
+  register/walkthrough texts; the old builder rides CONTEXT-ONLY). 2A-INTEGRATION: the two
+  files landed + the orchestrator's fixes recorded in the builder (TRANSVERSE_ARCH_CROWN
+  3.38→3.34: the 0.1727<0.18 chord-crossing re-measure → 0.18803; LINE_PERP_MAX 5e-6 NEW:
+  the bmesh float32 noise ~9.5e-7 at 40 m spans skipped the first two roof-row splits; the
+  conform-chain rebuild: per-position weld_verts repair + survivor remap + single-edge
+  materialization + faces.new's edge adoption; the sliver pass RG_F1_SLIVERS 9; the
+  collect-cleanup/inset_arch guard fixes). THE AIR VOLUME + the pocket-niche UNION lane pass
+  WATERTIGHT+FACING ✓; the members DIFFERENCE fails closed_guard with 15 real seam edges
+  (the exact-solver drifts 1e-6..2.5e-4 at the profile/plane meetings). THE CREATIVE
+  CORRECTION BRIEF relaid (the vault `projects v9/3c-…-part2a-correction.md`, 78 KB, both
+  current files riding): the findings + the reply's own named assembler alternative. Owner
   decisions pending at the
   integration plate: the value inversion, the door card/stage spill, the capture-band rows. The
   orchestrator runs the room's bpy/bake/re-encode chain + tsc/biome/vitest + build/budget on the
