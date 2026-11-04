@@ -135,7 +135,18 @@ changes).
   decision round is dispatched to the specialist (vault `projects v9/3-hermitage-3d-jordan-slice-2-postbake-ruling.md`
   — the STOP's classification + the confirm/revise ruling on the dry rows + the
   dusk-contingency rule + the clip-fraction reading + the proceed instruction; steps 4–7 of
-  the run card held). The round rides
+  the run card held). **THE OWNER'S RATIFICATION (2026-11-04, the question tool): the ruling
+  paste is SKIPPED — the dry rows land verbatim as the unbranched application of the adopted
+  law** (D1's clamps + κ=1 give day wRaw 1.02422 → clamp 0.45; dusk/night in band; the
+  specialist's own pre-committed rows — «day at 0.45 is deliberate, and the sun patches clip» —
+  decide the day case; the dusk≈night contingency and the parked GILT_METALLIC read are
+  capture-conditioned by their own wording and return at the capture verdict). THE LANDING
+  BATCH DISPATCHED (background, the run card steps 4–7): the real lm-percentile pass (the
+  manifest-first row write, the sRGB re-encode of the three plates, the bake-log fill) → the
+  two-row paste into jordan.mjs + lightmap-look.ts → the manifest regen from the pasted
+  descriptor → --check → the cross-room byte-identical guard → the jordan-only test re-pins →
+  full `pnpm validate` → build/serve byte-verify → the 18-shot capture battery into
+  probes/slice2-shots/. The round rides
   the ROUNDS top row
   `PARALLEL · jordan-slice-2` (in-flight, below — rows 63/64's slots already MERGED via their
   own flip convention). CORRECTION TO THE BLOCK BELOW (stale by later merges): the slice-1
