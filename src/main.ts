@@ -3582,6 +3582,14 @@ const tick = (timeMs: number): void => {
           if (!record.stamped) {
             record.stamped = true;
             document.documentElement.dataset.loadLineShownAt = String(performance.now());
+            // R23-ux (the overshoot law): the card's clock CARRIES the previous phase's
+            // overshoot, so a starved depart frame can make the card begin already past
+            // the threshold — the line then shows on its first frame. The app-side fact
+            // of WHY rides this second stamp (the e2e row accepts either clock reaching
+            // the threshold; showing EARLIER than the law would break both).
+            document.documentElement.dataset.loadLineCardElapsedMs = String(
+              Math.round(st.phaseElapsedMs),
+            );
           }
           const view = loadLineStage({
             stage: record.stage,

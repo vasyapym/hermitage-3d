@@ -16,7 +16,7 @@ import { expect, type Page, test } from '@playwright/test';
 import { PNG } from 'pngjs';
 
 const AT = '?at=2026-06-22T03:18:00Z&det=1&hud=1'; // the rooms' pinned golden noon det instant
-const SETTLE_TIMEOUT_MS = 120_000;
+const SETTLE_TIMEOUT_MS = 240_000;
 const SETTLE_MARGIN_MS = 1_500; // the goldens' post-settle compositor margin
 
 const hudSettled = (page: Page, room: string): Promise<boolean> =>

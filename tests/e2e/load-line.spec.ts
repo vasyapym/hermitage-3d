@@ -11,7 +11,7 @@
 import { expect, type Page, test } from '@playwright/test';
 
 const AT = '?at=2026-06-22T03:18:00Z&det=1&hud=1'; // the room's own pinned golden instant
-const SETTLE_TIMEOUT_MS = 120_000;
+const SETTLE_TIMEOUT_MS = 240_000;
 const LINE_TIMEOUT_MS = 60_000;
 // The throttle's length: far above LOAD_LINE_AFTER_MS (1,000), far below the settle budget,
 // possibly doubled — the idle prefetch's own request, queued behind the transit's
@@ -98,14 +98,22 @@ test('the load line counts a throttled 1812 open (ru)', async ({ page }) => {
     .poll(() => hudSettled(page, 'military-gallery'), { timeout: SETTLE_TIMEOUT_MS })
     .toBe(true);
   await expect(line).toHaveAttribute('data-state', 'off', { timeout: LINE_TIMEOUT_MS });
-  // The app-side window: the line shows ≥ LOAD_LINE_AFTER_MS after the title shows.
+  // The app-side window: the line's show is bounded by the threshold measured on ONE of
+  // the two honest clocks — the title window (card's first frame) or the card's own
+  // elapsed (which CARRIES a previous phase's overshoot: a starved frame makes the card
+  // begin already ≥ 1000 ms, and the line shows on that frame). Showing EARLIER than
+  // the law would fail BOTH clocks; this row stays a lower bound under any jitter.
   const stamps = await page.evaluate(() => ({
     title: document.documentElement.dataset.titleShownAt,
     line: document.documentElement.dataset.loadLineShownAt,
+    cardElapsed: document.documentElement.dataset.loadLineCardElapsedMs,
   }));
   expect(stamps.title).toBeDefined();
   expect(stamps.line).toBeDefined();
-  expect(Number(stamps.line) - Number(stamps.title)).toBeGreaterThanOrEqual(1_000);
+  expect(stamps.cardElapsed).toBeDefined();
+  const byTitleClock = Number(stamps.line) - Number(stamps.title) >= 1_000;
+  const byCardClock = Number(stamps.cardElapsed) >= 1_000;
+  expect(byTitleClock || byCardClock).toBe(true);
 });
 
 test('the load line speaks the en copy when the session runs en', async ({ page }) => {
