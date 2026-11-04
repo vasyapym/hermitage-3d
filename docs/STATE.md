@@ -38,8 +38,14 @@ changes).
   `3c-…-part2a-correction.md` vault file retires): 3c = THE WATERTIGHT DECISION DRAW (the
   vault `projects v9/3c-…-watertight-decision.md` — facts-only, prose contract: THE
   DIAGNOSIS + THE ROUTE VERDICT (the reply's own named assembler alternative stands) + THE
-  REPAIR SPEC, no code artifacts), 3d = THE WATERTIGHT IMPLEMENTATION DRAW composed from the
-  adopted spec (it will carry the verdict verbatim + both integrated files). Owner
+  REPAIR SPEC, no code artifacts), 3d = THE WATERTIGHT IMPLEMENTATION DRAW RELAYED (the
+  vault `projects v9/3d-…-watertight-implementation.md`, 90 KB: the verdict verbatim + both
+  integrated files); THE ADOPTED ROUTE = repair the Boolean chain with SOURCE-DERIVED
+  junction-local boundary reconstruction (the constrained canonicalization + welds, the
+  repair-registry families, source-facet patch restoration, the explicit closure law;
+  tolerance-only healing and the whole-room assembler rejected); the checkpoint inventories
+  (vertex/edge ids, loop sequences, use counts, per-removed-face records) + canonical
+  fingerprints are IN-FILE requirements. Owner
   decisions pending at the
   integration plate: the value inversion, the door card/stage spill, the capture-band rows. The
   orchestrator runs the room's bpy/bake/re-encode chain + tsc/biome/vitest + build/budget on the
