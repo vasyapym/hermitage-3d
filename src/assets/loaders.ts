@@ -41,11 +41,17 @@ import type {
   RoomManifest,
   RoomObject,
   RoomPayload,
+  RowByteSink,
 } from '../world/registry';
 
 export interface Loaders extends RoomAssetService {
   /** §4.6: stage exactly one prefetch unit — bytes or one lm transcode, nothing GPU-side. */
   stageUnit(unit: PrefetchUnit, manifest: RoomManifest): Promise<void>;
+  /** R23-ux: bind the visitor-facing per-row progress sink for ONE serialized hold chain
+   * (the host sets it around `module.load` and clears it after; the never-while-pending
+   * law keeps idle staging out of the binding — the holds are serialized, the r16
+   * rebinding precedent). */
+  setLoadSink(sink: RowByteSink | null): void;
   dispose(): void;
 }
 
@@ -102,10 +108,22 @@ export function createLoaders(
   };
   const parseGlb = (data: ArrayBuffer, path: string): Promise<GLTF> =>
     new Promise((resolve, reject) => gltf.parse(data, path, resolve, reject));
+  /** R23-ux: the module-level sink binding — cleared between chains (setLoadSink). */
+  let progressSink: RowByteSink | null = null;
+  /**
+   * The row reader: per-chunk progress through response.body's stream (ProgressEvent-free —
+   * the CDN may br-encode, so `loaded` counts DECODED bytes, which is what the manifest's
+   * row size compares against), falling back to one resolve-time count when a body stream
+   * is unavailable (tests, opaque environments). The byte-count law is unchanged: a row
+   * whose total fails to match the manifest size still throws. The sink is whoever asked
+   * for this fetch — a direct caller's param, the host's bound load sink, or nobody
+   * (stageUnit passes null explicitly: prefetch is never a visitor wait).
+   */
   const fetchRow = (
     roomId: string,
     row: Readonly<{ path: string; bytes: number }>,
     signal: AbortSignal | undefined,
+    sink: RowByteSink | null,
   ): Promise<ArrayBuffer> => {
     const res =
       signal === undefined
@@ -113,9 +131,33 @@ export function createLoaders(
         : fetchImpl(`/assets/${roomId}/${row.path}`, { signal });
     return res.then(async (response) => {
       if (!response.ok) throw new Error(`fetchRoom: ${response.status} for ${row.path}`);
-      const bytes = await response.arrayBuffer();
-      if (bytes.byteLength !== row.bytes) throw new Error(`fetchRoom: size mismatch ${row.path}`);
-      return bytes;
+      const body = (response as Response).body;
+      if (!body || sink === null) {
+        const bytes = await response.arrayBuffer();
+        if (bytes.byteLength !== row.bytes) throw new Error(`fetchRoom: size mismatch ${row.path}`);
+        if (sink !== null) sink(row.path, bytes.byteLength);
+        return bytes;
+      }
+      const reader = body.getReader();
+      const chunks: Uint8Array[] = [];
+      let total = 0;
+      for (;;) {
+        const next = await reader.read();
+        if (next.done) break;
+        if (next.value !== undefined && next.value !== null) {
+          chunks.push(next.value);
+          total += next.value.byteLength;
+          sink(row.path, total);
+        }
+      }
+      if (total !== row.bytes) throw new Error(`fetchRoom: size mismatch ${row.path}`);
+      const bytes = new Uint8Array(total);
+      let offset = 0;
+      for (const chunk of chunks) {
+        bytes.set(chunk, offset);
+        offset += chunk.byteLength;
+      }
+      return bytes.buffer;
     });
   };
   /** A cached row counts only when its size still matches the manifest — a mismatch re-fetches. */
@@ -132,12 +174,19 @@ export function createLoaders(
       ktx2.parse(bytes, (texture: unknown) => resolve(texture as RoomObject), reject);
     });
   return {
-    async fetchRoom(manifest, signal) {
+    async fetchRoom(manifest, signal, onBytes) {
+      // The effective sink: a direct param beats the host's bound chain sink — a caller
+      // that asked for progress gets progress even while a binding happens to be stale.
+      const sink = onBytes ?? progressSink;
       const entry = cacheOf(manifest.id);
       const rows = await Promise.all(
         manifest.files.map(async (row) => {
           const hit = cachedRow(entry, row);
-          const bytes = hit ?? (await fetchRow(manifest.id, row, signal));
+          if (hit !== null) {
+            sink?.(row.path, row.bytes); // a cache hit is all of its bytes, at once
+            return [row, hit] as const;
+          }
+          const bytes = await fetchRow(manifest.id, row, signal, sink);
           if (row.kind === 'glb') entry.glb = bytes;
           else entry.ktx2.set(row.path, bytes);
           return [row, bytes] as const;
@@ -213,7 +262,7 @@ export function createLoaders(
           : manifest.files.find((candidate) => candidate.path === unit.path);
       if (row === undefined) throw new Error(`stageUnit: ${unit.roomId} has no row for this unit`);
       if (cachedRow(entry, row) !== null) return;
-      const bytes = await fetchRow(unit.roomId, row, undefined);
+      const bytes = await fetchRow(unit.roomId, row, undefined, null); // prefetch is never a visitor wait
       if (row.kind === 'glb') entry.glb = bytes;
       else entry.ktx2.set(row.path, bytes);
     },
@@ -290,6 +339,10 @@ export function createLoaders(
       });
       for (const url of blobsByRoot.get(root) ?? []) URL.revokeObjectURL(url);
       blobsByRoot.delete(root);
+    },
+    /** R23-ux: the module-level sink binding, cleared between chains (see setLoadSink). */
+    setLoadSink(sink) {
+      progressSink = sink;
     },
     dispose() {
       pmrem.dispose();

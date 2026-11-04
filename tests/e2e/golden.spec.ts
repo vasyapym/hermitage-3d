@@ -18,8 +18,11 @@ const VIEWPORT = { width: 1280, height: 720 };
 // in the baseline. Hide them (visibility keeps layout, so nothing reflows). #chrome-row holds
 // the notes link; #lang-toggle is the §1.2 top-right toggle (outside the row); #travel-hint is
 // the §9 hint — all overlay chrome.
+// R23-ux: the load line rides the same hide law (it lives in the corner stack during a
+// transit; a settled scene never shows it, and the goldens' deep-link entries never reach
+// the threshold — the row hides it unconditionally, one selector, no image change).
 const HIDE_OVERLAYS_CSS =
-  '#title, #scrub, #chrome-row, #lang-toggle, #index-open, #index-dialog, #travel-hint, #edge-prompt, #hud, #caption, #caption-title { visibility: hidden !important; }';
+  '#title, #scrub, #chrome-row, #lang-toggle, #index-open, #index-dialog, #travel-hint, #edge-prompt, #hud, #caption, #caption-title, #load-line { visibility: hidden !important; }';
 
 const MAX_DIFF_PIXEL_RATIO = 0.01;
 

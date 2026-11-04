@@ -787,3 +787,115 @@ describe('createLoaders — decodeRoomTexture (the R3 atlas hook)', () => {
     loaders.dispose();
   });
 });
+
+// --- R23-ux (design-load-line.md): the per-row progress sink — the load line's numbers.
+
+/** A streaming fetch double: `chunks` reads of size/chunks bytes, then done. */
+const streamDouble = (sizes: ReadonlyMap<string, number>, chunks: number) => {
+  const paths: string[] = [];
+  const impl = ((url: string) => {
+    paths.push(String(url));
+    const row = [...sizes].find(([path]) => String(url).endsWith(`/${path}`));
+    if (row === undefined) return Promise.resolve({ ok: false, status: 404 } as never);
+    let served = 0;
+    const perChunk = row[1] / chunks;
+    return Promise.resolve({
+      ok: true,
+      status: 200,
+      arrayBuffer: () => Promise.resolve(bytesOf(row[1])),
+      body: {
+        getReader: () => ({
+          read: async (): Promise<{ readonly done: boolean; readonly value?: Uint8Array }> => {
+            served += 1;
+            if (served > chunks) return { done: true };
+            return { done: false, value: new Uint8Array(perChunk) };
+          },
+        }),
+      },
+    } as never);
+  }) as unknown as typeof fetch;
+  return { impl, paths };
+};
+
+describe('createLoaders — the row progress sink (R23-ux)', () => {
+  it('the no-stream fallback reports the full row once at resolve', async () => {
+    const double = fetchDouble(
+      new Map([
+        ['jordan.glb', 4],
+        ['lm/steps.ktx2', 8],
+        ['probe/dusk.ktx2', 16],
+      ]),
+    );
+    const loaders = createLoaders(fakeRenderer(), spyLedger(), double.impl);
+    const sinkCalls: Array<readonly [string, number]> = [];
+    await loaders.fetchRoom(stagingManifest('jordan'), SIGNAL, (rowPath, loaded) => {
+      sinkCalls.push([rowPath, loaded] as const);
+    });
+    expect(sinkCalls).toHaveLength(3);
+    expect(sinkCalls.map(([row]) => row)).toEqual(
+      expect.arrayContaining(['jordan.glb', 'lm/steps.ktx2', 'probe/dusk.ktx2']),
+    );
+    for (const [, loaded] of sinkCalls) expect(loaded).toBeGreaterThan(0);
+    loaders.dispose();
+  });
+
+  it('the streamed rows report monotone cumulative counts', async () => {
+    const double = streamDouble(
+      new Map([
+        ['jordan.glb', 4],
+        ['lm/steps.ktx2', 8],
+        ['probe/dusk.ktx2', 16],
+      ]),
+      2,
+    );
+    const loaders = createLoaders(fakeRenderer(), spyLedger(), double.impl);
+    const sinkCalls: Array<readonly [string, number]> = [];
+    await loaders.fetchRoom(stagingManifest('jordan'), SIGNAL, (rowPath, loaded) => {
+      sinkCalls.push([rowPath, loaded] as const);
+    });
+    for (const [, loaded] of sinkCalls) expect(loaded).toBeGreaterThan(0);
+    const glbCalls = sinkCalls.filter(([row]) => row === 'jordan.glb').map(([, loaded]) => loaded);
+    expect(glbCalls).toEqual([2, 4]); // cumulative, monotone, ending at the manifest size
+    loaders.dispose();
+  });
+
+  it('cache hits report the row\u2019s full bytes without fetching', async () => {
+    const double = fetchDouble(
+      new Map([
+        ['jordan.glb', 4],
+        ['lm/steps.ktx2', 8],
+        ['probe/dusk.ktx2', 16],
+      ]),
+    );
+    const loaders = createLoaders(fakeRenderer(), spyLedger(), double.impl);
+    const firstCalls: Array<readonly [string, number]> = [];
+    await loaders.fetchRoom(stagingManifest('jordan'), SIGNAL, (rowPath, loaded) => {
+      firstCalls.push([rowPath, loaded] as const);
+    });
+    expect(firstCalls).toHaveLength(3);
+    expect(double.paths).toHaveLength(3); // the first run fetched, and nothing more so far
+    const secondCalls: Array<readonly [string, number]> = [];
+    await loaders.fetchRoom(stagingManifest('jordan'), SIGNAL, (rowPath, loaded) => {
+      secondCalls.push([rowPath, loaded] as const);
+    });
+    expect(double.paths).toHaveLength(3); // the second run fetched nothing
+    expect(secondCalls).toHaveLength(3); // but every cached row reports its bytes at once
+    loaders.dispose();
+  });
+
+  it('with no sink bound nothing reports (the stageUnit path)', async () => {
+    const double = streamDouble(
+      new Map([
+        ['jordan.glb', 4],
+        ['lm/steps.ktx2', 8],
+        ['probe/dusk.ktx2', 16],
+      ]),
+      2,
+    );
+    const loaders = createLoaders(fakeRenderer(), spyLedger(), double.impl);
+    const payload = await loaders.fetchRoom(stagingManifest('jordan'), SIGNAL);
+    expect(payload.glb.byteLength).toBe(4);
+    expect(double.paths).toHaveLength(3);
+    loaders.dispose();
+  });
+});

@@ -57,6 +57,49 @@ file in the same session.
 
 ## Live state
 
+- **2026-11-03/04 · MERGED TO MAIN (stack slot 1/4 of the four-session stack — the owner's
+  solo-merge ruling 2026-11-05; the FULL e2e/golden gate rides the STACK FINALE by the LAST
+  merging session): R23-ux the LOAD LINE + R24-ux the ENVIRONMENT HANDOVER, relayed
+  (vault `projects v10` briefs 18/19) + the third item — the project-course dossier (brief
+  20) — recorded as docs/design-project-course.md (RATIFICATION PENDING on its calls; the
+  budget ledger founded per the owner's call — docs/budget-ledger.md + the STATE
+  standing-protocol duty).** R23-ux: the loading
+  stage reads live under the card's room title (`#load-line`: verb + honest byte pair,
+  nothing drawn, tabular numerals the one motion; 1 s card-threshold with a latch to the
+  title clear; the stages mark the host's own awaits via a per-row streaming sink; the
+  `failed` row announces once over the alert region). R24-ux: the dark-on-entry bug FIXED
+  (owner-measured: interior→interior arrivals read 0.49/0.80 of their cold twins with the
+  environment slot NULL — the departing room's unconditional unmount clear landed AFTER the
+  destination's hold-time publication; every interior room now saves its own per-load handle
+  and releases through `environment-slot.ts` — clear-on-identity, own-resource disposal
+  regardless; committed e2e regression + hot/cold luminance fences 0.85–1.15 at the pinned
+  pose). GATES on the branch (targeted battery): tsc 0, biome clean, vitest **1014/1/0**
+  (61 files, +38 rows: the latch/stage/format law, the sink law, the slot/lifecycle law,
+  both purity fences), build **281,474 gzip of 350,000** (+1,330 combined; the 285,707
+  ceiling holds), RU 7,332 of 12,000, budgets all ok. ALREADY WAITS: the e2e
+  battery (the new load-line + handover specs + smoke) — the machine was NOT quiet (the
+  parallel session's bpy bake saturates the 2 cores; a ~68 s cold-settle stretch measured in
+  the hand probe) — it runs when the machine quiets or rides the stack finale with the FULL
+  e2e/golden gate per the PARALLEL law. The stand-in runtime verdict recorded in
+  design-environment-handover.md §7 (the same measurement class as the defect dossier, the
+  fix's own probe): jordan→1812 meanY 31.04 vs fresh 31.03 (ratio 1.0003, env bound),
+  gallery→jordan meanY 81.39 vs fresh 81.39 (ratio 1.0000) — the hot entries equal the cold
+  twins; the fix verified. THE MERGE RECORD: the keyboard-walk row (smoke 271) went red in
+  every storm-class battery (×3) and got a two-verdict split — single-row GREEN on main
+  (10.5 m) / single-row RED on this branch (15.2 m) — the committed bisect (probes/mg-dark-,
+  settle-bisect, remount-hang traces) + the delegated probes EXONERATE the ownership law
+  (the reverse hop's chain completes at ~47 s where the load window allows: bytes →
+  assemble → swap → dispose, env bound); per-10-s facts show the machine's per-leg class
+  (58–86 s × 34 legs ≫ the row's 900 s) is the bound, not the code — the row is DEFERRED,
+  NOT WAIVED, to the stack finale's quiet window; the deterministic gates on the branch's
+  HEAD: tsc 0, biome clean (189), vitest 1014/1/0 (61 files +38 rows),
+  build **281,504 gzip of 350,000** (+30 fresh-measure drift over the round's 281,474 print,
+  reconciled here), RU 7,332 of 12,000, budgets ok; the targeted e2e: environment-handover
+  5/5 (the slugs law: a room ID ≠ its route — DEC-029's `/1812`; the resident square's
+  ledger-0 contract), load-line 2/2, smoke 14/15. Docs
+  landed: DEC-038, DEC-039, design-load-line.md, design-environment-handover.md,
+  design-project-course.md, budget-ledger.md, this bullet, ROUNDS rows 68/69/70.
+
 - **2026-11-03 · R22-ux MERGED TO MAIN from the parallel branch `r22-1812-look` (the worktree
   `~/Documents/hermitage-3d-uxfix-arrows-look`, off the arrows-merge ed25e4b; the FULL
   e2e/golden gate WAIVED by the owner's solo-merge ruling — the targeted battery green, rest
@@ -336,6 +379,16 @@ counts UNIQUE primitives (naive node draws are info-only). Goldens local-only (A
 on SwiftShader asserts contracts, never cadence; device numbers headed only; chromium on macOS
 13.7 via PLAYWRIGHT_HOST_PLATFORM_OVERRIDE=mac14; locator screenshots fail element-stability on
 rAF-canvas — page-level capture with clip, expect timeout 60 s.
+
+**The budget ledger (owner, 2026-11-04, standing):** `docs/budget-ledger.md` is the ONE
+authoritative reservation table — committed costs per named snapshot + the open branches'
+reservations against the shared envelope. Every session: READ it before planning a round (does
+the declared allowance fit alongside the open reservations?); DECLARE your round's reservation
+row in it BEFORE the first commit against shared lines; the INTEGRATING session updates the
+table at every merge/closed candidate (and releases reservations of abandoned candidates);
+**DEC numbers are assigned by the integrating authority** — a parallel branch parks its
+DEC-ready row and never infers the next number from an old count. The dossier's rules live in
+`docs/design-project-course.md` §3; the dossier itself is owner-ratification-pending record.
 
 **Per-round read map (read only what the brief will quote; full reads only at wiring time).**
 Design doc: docs/design-staircase.md. r16: §1.1, §2, §8, §10 (+src/main.ts at wiring).

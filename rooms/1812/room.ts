@@ -32,6 +32,7 @@ import {
 } from 'three';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { applyChartedTechnique, disposeTechnique } from '../../src/assets/blend-gl';
+import { releaseOwnedEnvironment } from '../../src/assets/environment-slot';
 import { LIGHT_STATES } from '../../src/content/lightmap-look';
 import { stateOfPath } from '../../src/world/blend';
 import type {
@@ -41,6 +42,7 @@ import type {
   RoomModule,
   RoomObject,
   RoomPayload,
+  RoomTexture,
   StateId,
 } from '../../src/world/registry';
 import { chartOfUserData, kitStateOfPath, LM_CHART_KEY, type LmChart } from './charts';
@@ -69,7 +71,8 @@ type Merged = Readonly<{
 let payload: RoomPayload | null = null;
 let whitePoint: LightmapIntensity | null = null; // null while unbaked (the canary branch)
 let object: RoomObject | null = null;
-let envMounted = false;
+/** R24-ux: the environment handle THIS mount created (per-load; the slot may be replaced). */
+let envHandle: RoomTexture | null = null;
 let merged: Merged | null = null;
 
 /** §3.7: the chart a material reads — the kit tag or the architecture default. */
@@ -111,7 +114,7 @@ export const room: RoomModule = {
       // both (D-9: both charts of a state encode at the same white point).
       const env = await ctx.assets.mountEnvironment(contract.id, payload);
       ctx.scene.setEnvironment(env); // §5/ADR-0013: the probe is mounted once, inside the hold
-      envMounted = true;
+      envHandle = env; // R24-ux: the identity this mount owns (environment-slot.ts)
       applyChartedTechnique(
         ctx.lmMode,
         contract.id,
@@ -128,11 +131,13 @@ export const room: RoomModule = {
   unmount(ctx) {
     if (object === null) return;
     if (whitePoint !== null) disposeTechnique(contract.id);
-    if (envMounted) {
-      ctx.scene.setEnvironment(null);
-      ctx.assets.disposeEnvironment(contract.id);
-      envMounted = false;
-    }
+    // R24-ux: clear the slot ONLY if it still holds this mount's handle (interior
+    // lifetimes overlap during a transit — the destination published already); the
+    // resource is disposed regardless, exactly this mount's own (never early-return).
+    // String guard (the unbaked canary branch never mounted an environment — the
+    // helper's null-owned case is the same no-op), so every interior module is identical.
+    releaseOwnedEnvironment(ctx.scene, envHandle, () => ctx.assets.disposeEnvironment(contract.id));
+    envHandle = null;
     ctx.scene.remove(object);
     if (merged !== null) {
       for (const g of merged.geometries) g.dispose();
