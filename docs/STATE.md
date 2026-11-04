@@ -48,7 +48,24 @@ changes).
   repair-registry families, source-facet patch restoration, the explicit closure law;
   tolerance-only healing and the whole-room assembler rejected); the checkpoint inventories
   (vertex/edge ids, loop sequences, use counts, per-removed-face records) + canonical
-  fingerprints are IN-FILE requirements. Owner
+  fingerprints are IN-FILE requirements.
+  THE HANDOFF: THIS ORCHESTRATOR'S CONTEXT IS SPENT; A FRESH SESSION TAKES OVER
+  (cd ~/Documents/hermitage-3d-rastrelli; /usr/bin/git fetch origin; re-read this bullet).
+  The delivery artifacts stand in the stage dir
+  /private/var/folders/8x/yls1cw1d6s3fmbrxhqg0y17w0000gp/T/opencode/rg-assets/:
+  `received-builder-part1.py` (the prefix through the fragment ` fo`),
+  `received-segment1-rest.py` (the kernel, resuming `r piece in outside)`),
+  `received-reply-tail.md` (the adopted S2-S9 mechanical spec + challenges).
+  THE NEW SESSION'S JOB LIST: (1) stitch
+  cat(received-builder-part1.py, received-segment1-rest.py) — the seam concat
+  provably completes ` fo` + `r piece` into ` for piece` — into
+  tools/bpy/rastrelli-gallery.py; (2) the predecessor's construction stages
+  (the pre-3d builder, preserved at git ddd47d7:tools/bpy/rastrelli-gallery.py;
+  its Booleans/registry/conform were the only changed parts) re-wired per the
+  S2 spec into build_operands facet records + SOURCE_ATTRIBUTE attaches, the
+  chain order per S3; (3) implement S4-S8 per the spec file; (4) the S9 tail
+  (finish/shelf/export/summary) unchanged; (5) caffeinate pnpm asset:bpy → the
+  RG_F1_* rows → pnpm asset:gltf; (6) records + push. Owner
   decisions pending at the
   integration plate: the value inversion, the door card/stage spill, the capture-band rows. The
   orchestrator runs the room's bpy/bake/re-encode chain + tsc/biome/vitest + build/budget on the
