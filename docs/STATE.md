@@ -8,7 +8,8 @@ changes).
   `~/Documents/hermitage-3d-jordan2`, branch `jordan-slice-2` off ed25e4b; MERGE into main happens
   at the owner's notification that the other agent's round is done — NOT this session; the FULL
   e2e/golden gate runs at that merge only; this session runs SCOPE-LOCAL gates: the bake/encode
-  chain as needed, `pnpm validate`, the jordan capture battery).** The owner's live verdict on the
+  chain as needed, `pnpm validate`, the jordan capture battery) — THE PREMERGE RECORD, superseded
+  by the MERGED bullet above; kept as-written per the flip convention.** The owner's live verdict on the
   room AS MERGED FROM SLICE 1: it reads as a very raw draft — work it. The relay opens with a
   CREATIVE zero-steering find/slice dossier split across two briefs after a transport timeout
   (vault `projects v9/` — `1-hermitage-3d-jordan-slice-2-part1-find.md` the decision brief,
@@ -238,6 +239,37 @@ not the archive. If a number here contradicts a fresh measurement, the measureme
 file in the same session.
 
 ## Live state
+
+- **2026-11-03/05 · JORDAN SLICE 2 MERGED TO MAIN (stack slot 2/4 of the four-session stack —
+  the owner's solo-merge ruling; MERGE commit 607d2d7 off ed25e4b from the worktree
+  `~/Documents/hermitage-3d-jordan2`, branch `jordan-slice-2`; the FULL e2e/golden gate runs at
+  the stack finale by the LAST merging session — NOT this merge; this session ran SCOPE-LOCAL
+  gates and re-baselines NOTHING).** The slot's record: six relay rounds (the transport-split
+  dossier 1 → the decision round 2a → the code relay 2b → the chain phase → the post-bake
+  ruling round the owner skipped via the ratified dry-rows landing → the landing batch; the
+  vault `projects v9/` briefs 1/2a/2b, brief 3 unused). THE DELIVERABLE: the room reads lit and
+  finished — the percentile/sRGB encode law (W {day 0.45, dusk 1, nightChandeliers 1.2}; gains
+  {2.22, 1, 0.83}; κ = 1.0; the manifest-first lm-percentile run + --check provenance closes
+  the 17c dormant-wp trap structurally), the three sRGB lightmaps re-encoded from the fresh
+  Cycles plates (2 h 19 m of sequential caffeinated bakes; night 313,051 B = +2.1× over the old
+  near-black plate — the 800 + 800 W bake-side rig's pools: 10 sconce lamps + 8 chandelier
+  drops at y 14.0 + the core lowered to y 13.15 by the clearance law; sun-only day), the
+  value-noise surfaces (seeded integer hash; gilt channels (0.88, 0.705, 0.35) reconciled), the
+  shell fields ≤ 2.0 m (1,974 faces; 3,250/4,096 lm cells; cells.json provenance), the vault
+  smooth-shaded, the marble's slab-block/quadrant UV law, the runtime emissive retunes + the
+  guarded INTERIOR_EMISSIVE_SCALE hook, and the tools (lm-percentile.mjs + lm_percentile.py +
+  reencode's per-room sRGB switch + bake.py's percentile sentinel + bake.mjs's dict flow).
+  THE MERGED-TREE BATTERY: tsc 0 · biome clean · vitest 1021/1/0 (63 files; main's 1014
+  survived + the re-pinned jordan rows) · js gzip 281,748 ≤ 350,000 (the hook ≈ +244 over
+  slot-1's 281,504) · RU byte-equal 7,332 · jordan payload 1,237,543 ≤ 7,000,000 · the
+  cross-room guard EMPTY · docs/budget-ledger.md updated (the jordan-slice-2 reservation
+  released as spent). THE GILT_METALLIC owner question CLOSED BY THE CAPTURES (gilt reads gold
+  in all three states). PARKED on the owner's eye: the dusk≈night separation (the pretrained
+  RIG_STATE_SCALE.dusk 0.1 + a dusk-only rebake + κ_dusk knob — named not taken), the pane
+  cards' white-night conceit; wall articulation = slice 2b (named not taken); the fixture FORM
+  stays an E-slice. The detailed round record = docs/briefs/ROUNDS.md (the flipped
+  jordan-slice-2 row) + the premerge head block below. If a number here contradicts a fresh
+  measurement, the measurement wins — fix this file in the same session.
 
 - **2026-11-03/04 · MERGED TO MAIN (stack slot 1/4 of the four-session stack — the owner's
   solo-merge ruling 2026-11-05; the FULL e2e/golden gate rides the STACK FINALE by the LAST
