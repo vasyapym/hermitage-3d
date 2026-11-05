@@ -240,6 +240,26 @@ file in the same session.
 
 ## Live state
 
+- **2026-11-05 · THE COLUMN'S BRONZE FENCE MERGED TO MAIN (stack slot 3/4 of the four-session
+  stack — the owner's solo-merge ruling; MERGE commit 18eedd8 off 5793299 from the worktree
+  `~/Documents/hermitage-3d-square-env2`, branch `square-env2`; the FULL e2e/golden gate + the five
+  S0 re-baselines (noon, white-night, dec-noon, dec-night, oct-night) + the golden-s1-noon HOLD
+  render ride the stack finale by the LAST merging session — deferred NOT waived).** The round:
+  DEC-038 Part A — the sourced 1834 bronze fence after Montferrand (16.5 × 16.5 × 1.5 m; 136
+  eagles read one crowned staff each; 12 trophy guns upright; closed centred gates; NO kerb — not
+  in the source; 1,568 tris pinned; era stays post-1834; the lanterns stay the named successor —
+  «four» counts only the 1977 square-corner recreations, no count/height/form at the Column). One
+  merged Lambert `ColumnFenceBronze` + the pure law pair + 22 test rows; Dec: the corrected rail
+  clearances NW 4.70635 / SW 8.34997 (closest pass ≈(−12.84016, 180.71072) ≈3.80 m before Sh —
+  DEC-037's «≈2.9 m» was the half-diagonal bound). THE MERGED-TREE BATTERY (this flip's fresh
+  measure): tsc 0 · biome clean · **vitest 1043 passed | 1 skipped (64 files)** · JS gzip
+  **282,514 of 350,000** (the union shift +766 over slot-2's 281,748; the operating ceiling keeps
+  **3,193** headroom) · RU 7,332 byte-equal · exterior 0 B · basis unchanged. Budget ledger rows
+  updated (the square-env2 reservation released as spent). The RELAY framing lesson rides the
+  ROUNDS intro: briefs no longer assert a no-tools posture; tool/search use invited for
+  faithfulness — the reply's arithmetic arrived exact. The premerge landed bullet kept as-written
+  below per the flip convention.
+
 - **2026-11-03/05 · JORDAN SLICE 2 MERGED TO MAIN (stack slot 2/4 of the four-session stack —
   the owner's solo-merge ruling; MERGE commit 607d2d7 off ed25e4b from the worktree
   `~/Documents/hermitage-3d-jordan2`, branch `jordan-slice-2`; the FULL e2e/golden gate runs at
