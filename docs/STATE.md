@@ -4,6 +4,188 @@ One file a new relay session reads at start. Two sections: **Live state** (updat
 integration that changes the facts — same session, never later) and **Standing protocol** (rarely
 changes).
 
+- **2026-11-03 · JORDAN SLICE 2 OPEN — PARALLEL to the other agent's in-flight track (worktree
+  `~/Documents/hermitage-3d-jordan2`, branch `jordan-slice-2` off ed25e4b; MERGE into main happens
+  at the owner's notification that the other agent's round is done — NOT this session; the FULL
+  e2e/golden gate runs at that merge only; this session runs SCOPE-LOCAL gates: the bake/encode
+  chain as needed, `pnpm validate`, the jordan capture battery).** The owner's live verdict on the
+  room AS MERGED FROM SLICE 1: it reads as a very raw draft — work it. The relay opens with a
+  CREATIVE zero-steering find/slice dossier split across two briefs after a transport timeout
+  (vault `projects v9/` — `1-hermitage-3d-jordan-slice-2-part1-find.md` the decision brief,
+  round 1 REPLIED; brief 2 split AGAIN by a transport timeout into
+  `2a-hermitage-3d-jordan-slice-2-decisions.md` the decisions brief (SENT) +
+  `2b-hermitage-3d-jordan-slice-2-code-relay.md` the room code relay (staged,
+  completed from the 2a reply; the chain files ride a following brief) — the 13-mesh census, materials/light/gate facts, capture reads,
+  verbatim source appendix; the recipient set AGENTIC-with-workspace by the owner; compiled by
+  delegated subagents from the frozen snapshot). ROUND-1 ADOPTED: the FIND ranked — the states
+  mis-exposed at encode (day capped 0.4, night quantized, dusk range-less) · the emissive chips
+  blown white in every state and casting nothing · the fixture light with no body · the four
+  procedural surfaces tiling visibly · the shell's one-cell wall quads · the faceted vault ·
+  unarticulated wall fields (= 2b, named not taken) — «the room reads raw because it is
+  UNDER-LIT and UNDER-FINISHED, not under-built». THE SLICE = 2a «lit and finished before
+  furnished»: the per-state percentile encode law (W_s = p99.5 non-emissive EXR luminance,
+  clamped; g = 1/W; jordan-only mode; the dormant 6.0 scalars retired) + a bake-only 800 W lamp
+  rig (dusk/night; chips 6→1.0/0.0) + per-state pane bake emission + glb emissive retune
+  (3.0/2.0/2.5) + the four textures as seeded hash-lattice value noise + the shell wall fields
+  ≤ 2.0 m (+350 cells) + vault auto-smooth 30°. OWNER-RATIFIED ×2: DEC-026 = emission-as-lighting;
+  the 2a/2b + E-slices labelling. The reply was transport-cut in the validation tail (salvaged
+  complete for decisions). The shared-file collision rides the merge note: bake.py /
+  reencode.mjs / bake.mjs / lightmap-look.ts with the rastrelli lane — per-room mode keeps the
+  other rooms byte-identical. STEP 0 runs on a delegated mechanical subagent (stats +
+  false-colours + the W 0.45 day probe + J0/J3/J4 captures + three read-only adjudications);
+  brief 2 carries the measured W_s. **STEP-0 LANDED
+  (same session):** EXR stats on the denoised plates (non-emissive p99.5: day 0.557 / dusk 0.4386
+  / night 0.599; day all-texel 0.732 — the day clamp 0.45 binds regardless; frac L≥0.1 non-emit
+  day 1.6% / night 40.4%; exclusion labeled — day's excluded 14 cells are sun patches, night's
+  107 are the baked fixtures) → MEASURED under the adopted law: day 0.45/2.22 (clamp), dusk
+  0.44/2.27, night 0.60/1.67 sRGB-branch or 0.50/2.00 linear-fallback; probe day.ktx2 at W 0.45
+  = 181,773 B sha 96ccf31a…, the three J0/J3/J4 day shots captured (the port-4174 trap hit once:
+  a leftover preview from the OLD worktree contaminated two shots — discarded, the recapture
+  byte-verified the served ktx2; tracked files restored, git clean); the orchestrator eyeball:
+  the re-exposed day reads LIT with range while the surface artifacts (wave banding, the
+  vault's rippling cells, the granite weave) + the zero-spill flat-white emissives now dominate
+  — exposure does the lighting half, not the surfaces. ADJUDICATIONS: (a) the loader honours an
+  sRGB-flagged ktx2 (KTX2Loader reads the DFD transfer function; the blend-gl "LINEAR" comment
+  is the current law and flag+encode must move together); (b) the pane's warm emission does NOT
+  enter the day/dusk bakes (the swap rebuilds the node tree without any Emission node and
+  fixtures_off zeroes the rest — the FIND-2 bake-face corrected; the glb runtime face stands;
+  night's pane emission IS baked); (c) the day sun DOES enter the north windows (skew 2.6 m/m,
+  ≈25% of each bay; lower tier floors 4–8 m south; upper tier strikes the west wall mid-height)
+  — the (iv) fallback axis does NOT trigger. ROUND-2 (2a) ADOPTED: the sRGB branch with the
+  κ_s = 1.0 display clip (eff = W×g ≈ 1 — the texel IS the display value), the cell-map-scoped
+  nearest-rank percentile (cells.json from the bake; allocated interiors; the committed W_s =
+  the tool's output, never hand-typed), the lm-percentile tool wrapping reencode's one per-room
+  sRGB switch, the bake-side rig (800 W sconces + 800 W chandelier, clearance law, camera/glossy
+  hidden, states-scaled), the pane rows revisited (day/dusk retired — no bake vehicle; night
+  kept as the real term), the glb emissive retune (pane cool-white ×3.0) + the NEW per-state
+  INTERIOR_EMISSIVE_SCALE table, the marble slab-block/quadrant-tread fix, gilt 0.32,
+  chandelier radii 0.15/0.20, BAKE_TEMPLATE_INSTANCE 'centroid', the KHR_lights_punctual gate,
+  and the logged contingencies (sconce halo → 50 W; the dusk≈night row; qlevel 255 named; the
+  tone-mapper step-downs; the GILT_METALLIC owner question). 2b (the room code relay) COMPLETED
+  + SENT: the adopted blocks pasted back verbatim + two NEW code-fact adjudications (three's
+  stock lm path divides by π inside BRDF_Lambert — the D1 κ absorbs any scale; no per-state
+  emissive hook exists in the room path — the SCALE table is a NEW guarded hook). ROUND-3 (2b)
+  REPLIED and INTEGRATED (commit 6faa3a2, the three complete files landed with a full salvage
+  read): the builder — the value-noise textures on the seeded integer hash, the marble
+  slab-block/quadrant UV law covering both final slab-edge risers inside the joint-free
+  guarantee, the shell fields ≤ 2.0 m (1,974 faces realized), the vault's shared-topology
+  smoothing via `shade_smooth()` + `set_sharp_from_angle(30°)`, the emissive retunes pane
+  (0.84,0.89,1.00)×3.0 / sconce ×2.0 / chandelier ×2.5, `LM_CELL_MAP` + `write_lm_cells()`;
+  the disclosed REVISION: `GILT_BASE` = the former generator's exact channel means (0.88,
+  0.705, 0.35) encoded-sRGB (the numeric gold-F0 record never existed in the appendix — the
+  reconciliation row rides the landing record); the gates — the LM_ENCODE percentile/sRGB
+  export, EMISSIVE {3,2,2.5}, the per-state intensity-dict gate, the KHR_lights_punctual
+  refusal; lightmap-look — the bootstrap dict 2.22/2.27/1.67, the κ=1.0-at-the-uniform-level
+  statement, INTERIOR_EMISSIVE_SCALE jordan-only. THE ASSET CHAIN GREEN at the new law: shell
+  3,740 tris, lm cells 3,250 of 4,096 (envelope 1,986 + part2 1,264; under the 3,400 warn),
+  drawn 21,872 ≤ 380,000, draws 19, the glb 237,648 B sha c8fc2ceb…, tex 40,472 B (the
+  value-noise PNGs encode ~2× tighter than the trig lattice), payload 1,001,073 ≤ 7,000,000;
+  tsc 0, biome clean. NO captures/commits past this point until the run card's step 5 — the lm
+  ktx2s are STALE by design. THE COMPANION BATCH (the chain = an orchestrator-direct mechanical
+  run, the specs closed by D1–D5): the bake.py sentinel/rig/pane-row splice, reencode's
+  per-room sRGB switch, the NEW lm-percentile tool pair, bake.mjs's step-skip + the
+  dict-flowing manifest row, blend-gl's :44 law amendment + the SCALE hook — dispatched to a
+  delegated subagent (background); the bakes + percentile + row-paste + test re-pins + validate
+  + captures follow on its landing. **THE CHAIN PHASE LANDED (round 4, orchestrator-direct via
+  the delegated subagent; uncommitted per the run card):** bake.py — the `'percentile'` sentinel
+  (jordan lm bakes EXR-only, siblings byte-identical; the probe path unchanged; the dusk probe
+  restores authored chip strengths with the rig left ON), the order-law splice (swap → capture →
+  PANE_BAKE_EMISSION day/dusk None + night (0.10,0.12,0.18)×0.3 → FIXTURE_BAKE_STRENGTH 0/1/1 →
+  rig → sun → bake), the 800+800 W rig (the sconce lamps 0.63 m proud of the glow-box centre
+  +0.25 above datum; the 8 drop lamps at y 14.0 = the D3 formula's authoritative value; the core
+  lamp LOWERED to y 13.15 by the clearance law — 0.05 below the octahedron tip; exact
+  sphere-vs-mesh BVH clearance FAIL at 0.03 m; camera/glossy hidden; the D3 sanity row
+  asserted), the centroid representative law, the bake-log encode placeholders (cellsSha256 +
+  the D4 schema); reencode.mjs — the one per-room LM_ENCODE.transfer switch (srgb_oetf(clip(rgb/W))
+  + --assign_oetf srgb, ASSIGN never CONVERT, no genmips; absent LM_ENCODE = the byte-identical
+  today path); the NEW tools/lm-percentile.mjs + bpy/lm_percentile.py (nearest-rank p99.5 over
+  the 28×28 interiors of allocated non-excluded cells; decimal HALF-UP round2; the --dry/--check
+  laws; the manifest-first write; the two stdout paste rows); bake.mjs — the step-skip for
+  percentile rooms, the dicts FLOWING through lightmapsRow (the D2 retired rows), the
+  conditional provenance keys keeping sibling logs byte-identical; blend-gl.ts — the :44 law
+  amendment (jordan's sRGB containers decoded by the sampler; composition stays linear) + the
+  guarded emissive hook (the authored bases captured ONCE in a WeakMap BEFORE any write;
+  per-frame base × Σ w·scale at the envMapIntensity cadence; dispose restores the base; rooms
+  without a scale row never enter). SIX DISCLOSED DEVIATIONS ALL ADOPTED: the clearance
+  mechanic reading (exact mesh distance — the chandelier's own AABB is unsatisfiable as an
+  AABB-literal), the core y 13.15, y_k 14.0 (the formula authoritative, 14.15 the sphere top),
+  the --dry stop band informational (the run card owns the stop), the conditional log keys, the
+  lmEncodeOf loader. tsc 0 / lint 0 / 183 files clean. THE BAKE-AND-DERIVE BATCH DISPATCHED (the
+  run card steps 2–7, background; binding stop-rules: the wRaw bands day [0.35,1.0] · dusk/night
+  [0.30,2.50]; haloFraction > 0.005 = STOP for the owner's sconce→50 W call): three sequential
+  bakes under caffeinate → --dry → the real percentile pass (manifest → sRGB reencode → log →
+  paste rows) → the row paste → step-5 idempotence + --check + the cross-room guard → the
+  jordan-only test re-pins → pnpm validate → the 18-shot capture battery (J0..J4 × day + J4
+  dusk/night + the A/B trio vs step 0) into probes/slice2-shots/. **THE BAKE-AND-DERIVE BATCH
+  REPORTED — BAKES DONE, THE RUN CARD STOPPED AT ITS BINDING GATE (exactly as designed):** the
+  three bakes succeeded (day 2,381.9 s · dusk 3,016.8 · night 2,793.9 wall; cells.json sha
+  dca79efe… all three; the fresh dusk probe 13,535 B cef3cd4b…; the rig verified — day rig
+  null (sun-only), dusk/night carry the full rig with the core at y 13.15 and the drops at
+  y 14.0); one deterministic driver-tail fault during bakes 1–2 (the lightmapsRow gate tripping
+  on the STALE committed log rows — self-resolved at bake 3, no retry burned); halo clean
+  everywhere (max 0.001353 ≤ 0.005 — the sconce-50 W contingency never fired). THE DRY STOP:
+  day wRaw 1.02422 vs the [0.35, 1.0] band — **OUT BY +2.42 %** (dusk 2.3575 and night 2.3655
+  in band); nothing written — the manifest keeps the bootstrap dict, lightmap-look the
+  bootstrap gains. The dry paste-preview rows (NOT applied): intensity {0.45 / 1 / 1.2},
+  gains {2.22 / 1 / 0.83}. Notable measured fact: dusk and night p99 sit within 0.0004 of each
+  other (2.0216 vs 2.0212) — the dusk≈night pre-committed contingency now has real numbers
+  riding on the captures. The exclusion-scope delta on the record: day's step-0 p99.5 0.557
+  (the >1.5-per-cell proxy removing 14 sun-patch cells whole) vs 1.02422 (the adopted
+  material-only scope keeps them; the day clamp binds at 0.45 either way). The post-bake
+  decision round is dispatched to the specialist (vault `projects v9/3-hermitage-3d-jordan-slice-2-postbake-ruling.md`
+  — the STOP's classification + the confirm/revise ruling on the dry rows + the
+  dusk-contingency rule + the clip-fraction reading + the proceed instruction; steps 4–7 of
+  the run card held). **THE OWNER'S RATIFICATION (2026-11-04, the question tool): the ruling
+  paste is SKIPPED — the dry rows land verbatim as the unbranched application of the adopted
+  law** (D1's clamps + κ=1 give day wRaw 1.02422 → clamp 0.45; dusk/night in band; the
+  specialist's own pre-committed rows — «day at 0.45 is deliberate, and the sun patches clip» —
+  decide the day case; the dusk≈night contingency and the parked GILT_METALLIC read are
+  capture-conditioned by their own wording and return at the capture verdict). THE LANDING
+  BATCH DISPATCHED (background, the run card steps 4–7): the real lm-percentile pass (the
+  manifest-first row write, the sRGB re-encode of the three plates, the bake-log fill) → the
+  two-row paste into jordan.mjs + lightmap-look.ts → the manifest regen from the pasted
+  descriptor → --check → the cross-room byte-identical guard → the jordan-only test re-pins →
+  full `pnpm validate` → build/serve byte-verify → the 18-shot capture battery into
+  probes/slice2-shots/. **ROUND LANDED (2026-11-04, the run card steps 4–7 complete):** the real
+  lm-percentile pass ran (stats dry-identical — the same three EXR shas + cells sha); the two
+  rows PASTED + verified: `ROOM.lightmaps.intensity = { day 0.45, dusk 1, nightChandeliers 1.2 }`
+  · `INTERIOR_LOOK_GAIN.jordan = { day 2.22, dusk 1, nightChandeliers 0.83 }` (κ = 1.0); the
+  three lm ktx2s RE-ENCODED via the sRGB path (day 304,963 B sha 284c01b7… · dusk 324,047
+  7b367736… · night 313,051 7288c24a… — night +2.1× over the old black 150,352, the rig's pools
+  cost real bytes) + the fresh dusk probe (13,535 B cef3cd4b…); manifest regenerated (9 files,
+  payload 1,233,716 ≤ 7,000,000; the dict lands byte-exact); --check PASS on all three sources;
+  the glb sha UNCHANGED (c8fc2ceb… — no geometry rerun); the cross-room guard EMPTY
+  (rastrelli/military artifacts byte-identical); the jordan value rows re-pinned in
+  tests/blend-gl.test.ts only ({0.45/1/1.2} + the eff pins 0.999/1/0.996 + three technical
+  rows) — lightmap-look/assets tests needed nothing. **FULL pnpm validate GREEN**: tsc 0,
+  biome 183 files clean, vitest 974 passed / 1 skipped / 0 failed (58 files), build 2.40 s,
+  js gzip 280,385 ≤ 350,000, budgets all ok. ONE DEVIATION on the landing:
+  `tools/reencode.mjs` crashed on its first real reencode (a missing `pathToFileURL` import in
+  its dynamic-loader path); fixed with ONE import token + re-run — recorded as a touch-list
+  exception. The capture battery 12/12 (7 stops × day + J4 × dusk/night + the A/B trio
+  byte-identical to their day counterparts, the runner law one-fresh-page-per-shot; the
+  served-asset byte-verify passed pre-shot) — the corridor and the landing reads TRANSFORMED:
+  the day state carries directional warm sun and legible shading (no flat-grey murk), the
+  marble floor reads large soft veins on the 2×2 slab grid, gilt reads GOLD in every state
+  (**the parked GILT_METALLIC owner question closes with no change**), the granite columns
+  read grey speckled (the red-brown weave gone), the vault is smoothly shaded (the wave/cell
+  patchwork gone), NIGHT is candle-lit legible (the slice-1 pink/red blotching gone; the sconce
+  pools + the chandelier drops carry the read). PARKED at the capture verdict: dusk vs night
+  read CLOSE-but-distinguishable by the plain eye — the specialist's pre-commit
+  (RIG_STATE_SCALE.dusk 0.1 + a dusk-only rebake + κ_dusk) stands as the named-not-taken knob
+  pending the owner's eye; the pane emissives still read flat-bright (the window cards remain
+  the white-night conceit); wall articulation stays 2b (named not taken); the fixture FORM
+  stays an E-slice. THE FULL e2e/golden gate + the jordan golden re-baselines (3 stale-by-design)
+  remain deferred to the OWNER'S MERGE SIGNAL per the standing parallel law. The round rides
+  the ROUNDS top row
+  the ROUNDS top row
+  `PARALLEL · jordan-slice-2` (in-flight, below — rows 63/64's slots already MERGED via their
+  own flip convention). CORRECTION TO THE BLOCK BELOW (stale by later merges): the slice-1
+  branch's merge DID happen ahead of the square-env slot per the Live-state rows — its head
+  block below predates those flips and is kept as-written. Detail lives in `docs/briefs/ROUNDS.md`
+  rows and the design docs; this file is the index, not the archive. If a number here contradicts
+  a fresh measurement, the measurement wins — fix this file in the same session.
+
 - **2026-11-02 · Jordan slice 1 LANDED ON THE PARALLEL BRANCH `jordan-details` (the worktree
   `~/Documents/hermitage-3d-jordan`, off d2d3aec) — "the room reads as architecture"; the
   details program's next room, PARALLEL to the luna2 session's in-flight track. MERGE into

@@ -38,6 +38,15 @@
 # mesh data, so every instance would overwrite the same cells.
 # Determinism law: fixed Cycles seed, CPU device, no randomness, no clock reads, sorted-key JSON,
 # locale-independent output. The committed glb is never read or written here.
+#
+# D1 (jordan slice 2): WHITE_POINT['jordan'] = 'percentile' is a SENTINEL, not a float —
+# jordan's lm charts bake EXR ONLY (the stage's denoised EXR + the builder's OWN cells.json
+# via ZIMNY_BAKE are the deliverables; NO bake-time jordan lm LDR PNG/ktx2), while the PROBE
+# keeps its committed encode at PROBE_WHITE_POINT. The encode/publication side belongs to
+# tools/lm-percentile.mjs + tools/reencode.mjs (--transfer srgb). The order law splice per
+# state: build -> pane swap (day, dusk) -> capture_fixtures -> PANE_BAKE_EMISSION +
+# FIXTURE_BAKE_STRENGTH (absolute overrides, capture/restore-safe) -> the lamp rig
+# (RIG_STATE_SCALE scale > 0 only) -> add_sun (day) -> world -> bake -> the dusk probe.
 import argparse
 import hashlib
 import json
@@ -49,7 +58,9 @@ from pathlib import Path
 
 import bpy
 import numpy as np
+import mathutils.geometry
 from mathutils import Vector
+from mathutils.bvhtree import BVHTree
 
 ROOMS = ('rastrelli-gallery', 'jordan', 'military-gallery')
 STATES = ('day', 'dusk', 'nightChandeliers')
@@ -71,11 +82,12 @@ DUSK_GLOW_POWER = 4.0     # FILL — new default; MASKED-IN-BRIEF: keep the DUSK
 BAKE_SAMPLES = 128        # FILL — new default; MASKED-IN-BRIEF: keep the BAKE_SAMPLES value
 PROBE_SAMPLES = 256       # FILL — new default; MASKED-IN-BRIEF: keep the PROBE_SAMPLES value
 BAKE_MARGIN_PX = None     # FILL — None = the chart's own pad; MASKED-IN-BRIEF: keep the value
-# FILL — the encode white point per room: a scalar (the siblings' committed rows) or a
-# per-state dict (1812's r17c law; Block 2's WHITE_POINT_1812). MASKED-IN-BRIEF: keep the values
+# FILL — the encode white point per room: a scalar (the siblings' committed rows), a
+# per-state dict (1812's r17c law; Block 2's WHITE_POINT_1812), or the jordan slice 2's
+# 'percentile' SENTINEL (D1: the sentinel says the encoder is lm-percentile, not this bake).
 WHITE_POINT = {
     'rastrelli-gallery': 4.0,
-    'jordan': 6.0,
+    'jordan': 'percentile',
     'military-gallery': {'day': 1.5, 'dusk': 0.15, 'nightChandeliers': 0.3},
 }
 PROBE_WHITE_POINT = 1.0   # pinned by ADR-0013: "neutral" = absolute LDR clamp
@@ -145,6 +157,60 @@ PREVIEW_SAMPLES = 32       # the layout-check path: quarter res, a fraction of t
 # siblings-keep-False byte-stability note no longer covers a room that re-bakes its
 # architecture (RG-E1 rebuilds the shell), and the sconce albedo is near-black iron.
 EMITTER_EXCLUSION = {'military-gallery': True, 'rastrelli-gallery': True}
+
+# ---- D1 (jordan slice 2): the per-room outcome tables — every other room keeps the
+# exact committed path (absent room row = the room is not in the table) --------------
+
+# B (D1): an absolute Emission override on the pane material, applied AFTER the swap and
+# the capture (restore law untouched). day/dusk None = skip: the swap rebuilds the pane
+# tree WITHOUT an Emission node (no bake vehicle; the swap + world carry the window
+# light); night carries the real pane term as rgb + strength.
+PANE_BAKE_EMISSION = {
+    'jordan': {
+        'day': None,
+        'dusk': None,
+        'nightChandeliers': ((0.10, 0.12, 0.18), 0.3),
+    },
+}
+# C (D1): absolute per-material Emission Strength overrides (replaces the blanket
+# fixtures-off law for a table room: the table covers the room's glow chips). The
+# capture/restore law stays byte-compatible — the overrides ride ON TOP of the captured
+# values, so the dusk probe restores the AUTHORED glb strengths with the rig left on.
+FIXTURE_BAKE_STRENGTH = {
+    'jordan': {
+        'sconce_glow': {'day': 0.0, 'dusk': 1.0, 'nightChandeliers': 1.0},
+        'chandelier_glow': {'day': 0.0, 'dusk': 1.0, 'nightChandeliers': 1.0},
+    },
+}
+# C (D1): the lamp rig lights a state only where its scale is > 0 (jordan day bakes with
+# no rig — its light is the sun).
+RIG_STATE_SCALE = {'jordan': {'day': 0.0, 'dusk': 1.0, 'nightChandeliers': 1.0}}
+# D (D1): the per-template lm representative law for instanced props — 'first' keeps the
+# committed deterministic-first-object selection; jordan's 'centroid' picks the instance
+# nearest the roster's centroid.
+BAKE_TEMPLATE_INSTANCE = {'jordan': 'centroid'}
+
+# D3 (jordan slice 2): the bake lamp rig. Common: POINT lamps, use_shadow,
+# visible_camera/visible_glossy off, clearance 0.03 m (JORDAN_RIG_CLEARANCE). Derived
+# from the BUILDER's own constants in the exec namespace (SCONCE_*, FLIGHTS,
+# flight_datum, CHAND_*) — never from a parsed summary copy. Coordinates in glTF world
+# (+X east, +Y up, +Z south); the rig rows land in the bake log's 'rig' block.
+JORDAN_RIG_CLEARANCE = 0.03       # every lamp sphere clears every fixture by >= this
+JORDAN_RIG_FRONT = 0.15           # sconce lamp's offset beyond the glow box's far face
+JORDAN_RIG_RING_FLOOR = 0.35      # the ring law's artistic floor below the drop centre
+JORDAN_RIG_RING_GAP = 0.05        # ring lamps: sphere surface 0.05 clear of the drop tip
+JORDAN_RIG_CORE_GAP = 0.05        # core lamp: sphere surface 0.05 clear of the core oct
+JORDAN_RIG_CORE_BASE_Y = 14.3     # D3's authored core-lamp start y (it intersects the oct)
+JORDAN_RIG_STEP = 0.005           # the lower-to-clear rule's deterministic descent step
+JORDAN_RIG_SCONCE = {'power_W': 80.0, 'radius_m': 0.12, 'colour': (1.00, 0.76, 0.46)}
+JORDAN_RIG_RING = {'power_W': 75.0, 'radius_m': 0.15, 'colour': (1.00, 0.80, 0.55)}
+JORDAN_RIG_CORE = {'power_W': 200.0, 'radius_m': 0.20, 'colour': (1.00, 0.80, 0.55)}
+# The fixture vocabulary the clearance law guards (D1's LM_ENCODE.excludeMaterials;
+# bake.py cannot read tools/gltf/jordan.mjs, so the names are declared here on purpose).
+JORDAN_RIG_FIXTURE_MATERIALS = ('pane', 'sconce_glow', 'chandelier_glow')
+# D3's sanity contract: the flight-2 middle sconce's lamp lands within 0.6 m of the
+# committed probe row on the room side.
+JORDAN_RIG_SANITY = {'point': (75.1, 9.5, -85.5), 'max_distance_m': 0.6, 'z_above': -85.6}
 
 
 def fail(message):
@@ -304,6 +370,57 @@ def restore_fixtures(saved):
             node.inputs['Strength'].default_value = value
 
 
+def material_base(mat):
+    return mat.name.split('.')[0]
+
+
+def r6(vals):
+    return tuple(round(v, 6) for v in vals)
+
+
+def apply_pane_bake_emission(materials, room, state):
+    """D1 B: the pane's absolute Emission override, applied AFTER the swap/capture.
+    day/dusk None = skip (the swap removed the emission nodes; nothing to override)."""
+    row = PANE_BAKE_EMISSION.get(room)
+    if row is None:
+        return
+    override = row.get(state)
+    if override is None:
+        return
+    rgb, strength = override
+    for mat in materials:
+        if not mat.use_nodes or not is_pane_material(mat, room):
+            continue
+        for node in mat.node_tree.nodes:
+            if node.type == 'BSDF_PRINCIPLED':
+                node.inputs['Emission Color'].default_value = (*rgb, 1.0)
+                node.inputs['Emission Strength'].default_value = strength
+                break
+
+
+def apply_fixture_bake_strength(materials, room, state):
+    """D1 C: absolute per-material Emission Strength overrides for the table room's glow
+    chips (state -> value). Runs after capture_fixtures, so restore_fixtures still
+    carries the authored strengths the dusk probe needs; the rig state stays as authored."""
+    table = FIXTURE_BAKE_STRENGTH.get(room)
+    if table is None:
+        return
+    for mat in materials:
+        if not mat.use_nodes:
+            continue
+        value = table.get(material_base(mat))
+        if value is None:
+            continue
+        strength = value.get(state)
+        if strength is None:
+            continue
+        for node in mat.node_tree.nodes:
+            if node.type == 'BSDF_PRINCIPLED' and 'Emission Strength' in node.inputs:
+                node.inputs['Emission Strength'].default_value = strength
+            elif node.type == 'EMISSION':
+                node.inputs['Strength'].default_value = strength
+
+
 def add_sun(scene):
     data = bpy.data.lights.new('ZIMNY_SUN', 'SUN')
     data.energy = SUN_STRENGTH
@@ -316,6 +433,180 @@ def add_sun(scene):
     # A sun lamp shines along its local -Z: point it from the sun toward the scene.
     obj.rotation_euler = (-to_sun).to_track_quat('-Z', 'Y').to_euler()
     return obj
+
+
+def octahedron_distance(point, centre, half):
+    """Exact distance from a point to a kit octahedron SOLID (0 when inside): the 6
+    vertices and 12 edges analytically, the 8 faces via closest_point_on_tri (the
+    perpendicular foot may sit inside a triangle for off-axis queries). D3's
+    intersection rule needs the actual solid surface, not the mesh's world AABB."""
+    lx, ly, lz = (point[i] - centre[i] for i in range(3))
+    hx, hy, hz = half
+    if abs(lx) / hx + abs(ly) / hy + abs(lz) / hz <= 1.0:
+        return 0.0
+    best = math.inf
+    apexes = ((0, hy, 0), (0, -hy, 0))
+    ring = ((hx, 0, 0), (0, 0, hz), (-hx, 0, 0), (0, 0, -hz))
+    vertices = apexes + ring
+    for off in vertices:
+        best = min(best, math.dist(point, (centre[0] + off[0], centre[1] + off[1],
+                                            centre[2] + off[2])))
+    edges = [(apex, r) for apex in apexes for r in ring]
+    edges += [(ring[i], ring[(i + 1) % len(ring)]) for i in range(len(ring))]
+    for a, b in edges:
+        a_abs = (centre[0] + a[0], centre[1] + a[1], centre[2] + a[2])
+        b_abs = (centre[0] + b[0], centre[1] + b[1], centre[2] + b[2])
+        ab = Vector(b_abs) - Vector(a_abs)
+        t = max(0.0, min(1.0, (Vector(point) - Vector(a_abs)).dot(ab) / ab.dot(ab)))
+        best = min(best, (Vector(point) - (Vector(a_abs) + ab * t)).length)
+    for apex in apexes:
+        for i in range(len(ring)):
+            j = (i + 1) % len(ring)
+            pa = mathutils.geometry.closest_point_on_tri(
+                Vector(point),
+                Vector((centre[0] + apex[0], centre[1] + apex[1], centre[2] + apex[2])),
+                Vector((centre[0] + ring[i][0], centre[1] + ring[i][1], centre[2] + ring[i][2])),
+                Vector((centre[0] + ring[j][0], centre[1] + ring[j][1], centre[2] + ring[j][2])),
+            )
+            best = min(best, (Vector(point) - pa).length)
+    return best
+
+
+def jordan_fixture_bvhs(meshes):
+    """The D3 clearance set: every rendered object carrying a fixture-vocabulary
+    material, as world-space BVHs (one per object instance; the sconce roster shares
+    mesh data but every instance has its own world matrix)."""
+    bpy.context.view_layer.update()  # the placed instances' matrix_world must be current
+    out = []
+    for obj in meshes:
+        mats = {material_base(slot.material) for slot in obj.material_slots if slot.material}
+        if not mats & set(JORDAN_RIG_FIXTURE_MATERIALS):
+            continue
+        matrix = obj.matrix_world
+        verts = [tuple(matrix @ v.co) for v in obj.data.vertices]
+        polys = [tuple(poly.vertices) for poly in obj.data.polygons]
+        bvh = BVHTree.FromPolygons(verts, polys)
+        out.append((obj.name, bvh))
+    return out
+
+
+def jordan_rig_check_clearance(rows, fixtures, radius, label):
+    """Common rule: every lamp sphere clears every fixture mesh by >= JORDAN_RIG_CLEARANCE
+    (distance to the fixture's surface minus the sphere's radius) or FAIL loud."""
+    for index, position in enumerate(rows):
+        for fixture_name, bvh in fixtures:
+            hit = bvh.find_nearest(Vector(position))
+            distance = hit[3] if hit[0] is not None else math.inf
+            gap = distance - radius
+            if gap < JORDAN_RIG_CLEARANCE - 1e-9:
+                fail(f'jordan rig {label}[{index}] at {position} clears fixture '
+                     f'{fixture_name} by {gap:.4f} m < {JORDAN_RIG_CLEARANCE} m')
+
+
+def add_jordan_rig(scene, namespace, meshes):
+    """D3 verbatim, derived from the builder's own constants (no parsed summary copies):
+    10 sconce lamps on the builder's mount rosters (glow-box WORLD centre + the unit
+    room-facing normal * (half-depth + the front offset)), 8 chandelier drop lamps on the
+    builder's kit_circle drop azimuths, and one core lamp lowered below the core
+    octahedron until D3's lower-to-clear rule passes. Returns the rig rows for the log."""
+    flights = namespace['FLIGHTS']
+    x_w, x_e = namespace['X_W'], namespace['X_E']
+    z_n = namespace['Z_N']
+    above = namespace['SCONCE_ABOVE']
+    glow_depth, glow_height, _glow_width = namespace['SCONCE_GLOW_BOX']
+    # The glow box lives at template depth magnitude 0.22..0.48 along the room-facing
+    # normal (the template projects the prop toward -Z, and rot maps -Z onto n_room):
+    # its WORLD centre sits 0.35 m out from the mount's wall plane, half-depth 0.13, 0.25
+    # m above the mount datum.
+    out = (glow_depth[0] + glow_depth[1]) / 2       # the glow box's centre offset (0.35)
+    half_depth = (glow_depth[1] - glow_depth[0]) / 2  # along the room-facing normal (0.13)
+    up = (glow_height[0] + glow_height[1]) / 2        # above the mount datum (0.25)
+    along = out + half_depth + JORDAN_RIG_FRONT       # 0.35 + 0.13 + 0.15 = 0.63
+    sconces = []
+    for z in namespace['SCONCE_WEST_Z']:
+        mount = (x_w, namespace['flight_datum'](flights[0], z) + above, z)
+        sconces.append((mount[0] + along, mount[1] + up, mount[2]))
+    for x in namespace['SCONCE_NORTH_X']:
+        mount = (x, namespace['flight_datum'](flights[1], x) + above, z_n)
+        sconces.append((mount[0], mount[1] + up, mount[2] + along))
+    for z, y in namespace['SCONCE_EAST']:
+        sconces.append((x_e - along, y + up, z))
+    # D3 sanity: the flight-2 middle sconce's lamp must land near the contract row, room side.
+    sanity = JORDAN_RIG_SANITY
+    probe_index = len(namespace['SCONCE_WEST_Z']) + 1  # north's middle of three
+    distance = math.dist(sconces[probe_index], sanity['point'])
+    if distance > sanity['max_distance_m'] or sconces[probe_index][2] <= sanity['z_above']:
+        fail(f'jordan rig sanity: flight-2 middle sconce lamp at '
+             f'{sconces[probe_index]} misses {sanity["point"]} by {distance:.3f} m')
+    # Chandelier: the drop azimuths ride the builder's own kit_circle count law.
+    cx, cz = namespace['CHAND_C']
+    drop_half = namespace['CHAND_DROP'][1]
+    below = max(JORDAN_RIG_RING_FLOOR,
+                drop_half + JORDAN_RIG_RING['radius_m'] + JORDAN_RIG_RING_GAP)
+    drop_y = namespace['CHAND_DROP_Y'] - below
+    drops = []
+    segments = min(namespace['CHAND_SEG'], 8)
+    for k in range(segments):
+        phi = 2.0 * math.pi * k / segments
+        drops.append((cx + namespace['CHAND_DROP_R'] * math.cos(phi), drop_y,
+                      cz + namespace['CHAND_DROP_R'] * math.sin(phi)))
+    # Core lamp: D3's lower-to-clear rule against the core octahedron's SOLID surface.
+    # Steps are index-based (base - step*i), never accumulated subtraction: the descent
+    # must land on the exact grid point the rule implies (0.005 steps; the boundary is
+    # a signpost, the tolerance makes the boundary step itself pass).
+    core_x, core_z = cx, cz
+    core_half = namespace['CHAND_CORE']
+    core_centre = (core_x, namespace['CHAND_CORE_Y'], core_z)
+    core_y = JORDAN_RIG_CORE_BASE_Y
+    floor_y = core_centre[1] - core_half[1] - 2.0
+    steps = 0
+    while True:
+        gap = (octahedron_distance((core_x, core_y, core_z), core_centre, core_half)
+               - JORDAN_RIG_CORE['radius_m'])
+        if gap >= JORDAN_RIG_CORE_GAP - 1e-9:
+            break
+        steps += 1
+        core_y = JORDAN_RIG_CORE_BASE_Y - JORDAN_RIG_STEP * steps
+        if core_y < floor_y:
+            fail(f'jordan rig core lamp never cleared the core octahedron; last y {core_y}')
+    fixtures = jordan_fixture_bvhs(meshes)
+    if not fixtures:
+        fail('jordan rig clearance found no fixture meshes')
+    jordan_rig_check_clearance(sconces, fixtures, JORDAN_RIG_SCONCE['radius_m'], 'sconce')
+    jordan_rig_check_clearance(drops, fixtures, JORDAN_RIG_RING['radius_m'], 'ring')
+    jordan_rig_check_clearance([(core_x, core_y, core_z)], fixtures,
+                               JORDAN_RIG_CORE['radius_m'], 'core')
+    lamps = (
+        [('ZIMNY_RIG_SCONCE', row, JORDAN_RIG_SCONCE) for row in sconces]
+        + [('ZIMNY_RIG_CHANDRING', row, JORDAN_RIG_RING) for row in drops]
+        + [('ZIMNY_RIG_CHANDCORE', (core_x, core_y, core_z), JORDAN_RIG_CORE)]
+    )
+    for name, position, row in lamps:
+        data = bpy.data.lights.new(name, 'POINT')
+        data.energy = row['power_W']
+        data.shadow_soft_size = row['radius_m']
+        data.color = row['colour']
+        data.use_shadow = True
+        obj = bpy.data.objects.new(name, data)
+        obj.location = gltf_to_blender(position)
+        obj.visible_camera = False
+        obj.visible_glossy = False
+        scene.collection.objects.link(obj)
+    return {
+        'clearance_m': JORDAN_RIG_CLEARANCE,
+        'coreBasePosition': r6((core_x, JORDAN_RIG_CORE_BASE_Y, core_z)),
+        'corePosition': r6((core_x, core_y, core_z)),
+        'coreRule': 'D3 lower-to-clear: 0.05 m sphere-surface gap vs the core octahedron',
+        'dropPositions': [r6(row) for row in drops],
+        'dropRule': ('ring y = drop_centre_y - max(0.35, drop_half + radius + 0.05); '
+                     'azimuths = the builder kit_circle law (8 of CHAND_SEG)'),
+        'fixtures': [name for name, _bvh in fixtures],
+        'sconcePositions': [r6(row) for row in sconces],
+        'sconceRule': 'c_glow + n_room * (h_glow + 0.15) on the builder mount rosters',
+        'totals_W': {'chandelier': len(drops) * JORDAN_RIG_RING['power_W']
+                     + JORDAN_RIG_CORE['power_W'],
+                     'sconces': len(sconces) * JORDAN_RIG_SCONCE['power_W']},
+    }
 
 
 def build_world(scene, state):
@@ -454,12 +745,31 @@ def attach_target(mat, image):
     nodes.active = node
 
 
-def bake_targets(objects):
-    # One representative per mesh datablock, chosen deterministically by object name.
-    by_mesh = {}
+def bake_targets(objects, room):
+    # One representative per mesh datablock, chosen deterministically by object name;
+    # a BAKE_TEMPLATE_INSTANCE row may override the law: jordan's 'centroid' picks the
+    # instance whose location is nearest the roster's centroid (the kit's middle view),
+    # ties broken by object name. Shared mesh data means every instance would ink the
+    # same cells — the representative only chooses WHICH bounce neighbourhood they see.
+    mode = BAKE_TEMPLATE_INSTANCE.get(room, 'first')
+    grouped = {}
     for obj in sorted(objects, key=lambda item: item.name):
-        by_mesh.setdefault(obj.data.name, obj)
-    return [by_mesh[name] for name in sorted(by_mesh)]
+        grouped.setdefault(obj.data.name, []).append(obj)
+    targets = []
+    for name in sorted(grouped):
+        group = grouped[name]
+        if mode == 'centroid' and len(group) > 1:
+            centre_x = sum(obj.location.x for obj in group) / len(group)
+            centre_y = sum(obj.location.y for obj in group) / len(group)
+            centre_z = sum(obj.location.z for obj in group) / len(group)
+            chosen = min(group, key=lambda obj: ((obj.location.x - centre_x) ** 2
+                                                 + (obj.location.y - centre_y) ** 2
+                                                 + (obj.location.z - centre_z) ** 2,
+                                                 obj.name))
+        else:
+            chosen = group[0]
+        targets.append(chosen)
+    return targets
 
 
 def bake_lightmap(scene, meshes, targets, materials, res, margin_px):
@@ -754,9 +1064,22 @@ def main():
     # with no traceback). Capture AFTER the swap, BEFORE the fixtures are zeroed.
     swapped = swap_panes_to_glass(materials, room) if state != 'nightChandeliers' else []
     rig_saved = capture_fixtures(materials)
+    # D1 order law: the state tables apply AFTER the capture (the dusk probe still
+    # restores the same captured nodes) and BEFORE the rig and the sun. The emission
+    # tables carry their own skip laws (day/dusk pane = None); a fixture-table room
+    # replaces the blanket fixtures-off law; the committed day law keeps running for
+    # rooms without a fixture table (the siblings stay byte-identical).
+    apply_pane_bake_emission(materials, room, state)
     fixtures_off = state == 'day' or (state == 'dusk' and not DUSK_FIXTURES[room])
-    if fixtures_off:
+    if room in FIXTURE_BAKE_STRENGTH:
+        apply_fixture_bake_strength(materials, room, state)
+    elif fixtures_off:
         set_fixtures_off(materials)
+    # RIG_STATE_SCALE: the lamp rig exists only where the state's scale is > 0
+    # (jordan day bakes with no rig — its light is the sun).
+    rig = None
+    if RIG_STATE_SCALE.get(room, {}).get(state, 0.0) > 0.0:
+        rig = add_jordan_rig(scene, namespace, meshes)
     if state == 'day':
         add_sun(scene)
     build_world(scene, state)
@@ -786,7 +1109,7 @@ def main():
             fail(f"chart {spec['name']!r} of {room} selected no objects")
         chart_mats = ensure_materials(objects)
         bake_mats = duplicate_chart_materials(objects) if spec['objectPrefixes'] else chart_mats
-        targets = bake_targets(objects)
+        targets = bake_targets(objects, room)
         collapsed = (collapse_frame_backfaces(objects, namespace['_LAYOUT']['frames'])
                      if spec['objectPrefixes'] else [])
         image = bake_lightmap(scene, meshes, targets, bake_mats, spec['res'], margin_px)
@@ -800,6 +1123,25 @@ def main():
         # would ink only one rig term. The 1812 row keeps firing below exactly as committed.
         if paint is not None and not paint.get('atEncode', False) and spec['name'] == 'arch':
             paint_pane_cells(denoised, pane_rects(namespace, paint['part']), paint[state])
+        if white_point == 'percentile':
+            # D1: the lm chart bakes EXR ONLY — no bake-time LDR PNG/ktx2. The stage
+            # deliverables are the denoised EXR + the builder's own cells.json; the
+            # encode pass (tools/lm-percentile.mjs -> reencode --transfer srgb) owns
+            # publication and fills the D1-e encode rows. peak/clipped stay null: the
+            # encoder measures its own clip fraction against the W_s it emits.
+            row = {'clippedFraction': None,
+                   'emitters': len(emitter_names),
+                   'exrSha256': file_sha256(lm_dir / f'{prefix}{file_state}.exr'),
+                   'name': spec['name'],
+                   'objects': len(objects),
+                   'pad': margin_px,
+                   'peak': None,
+                   'res': spec['res'],
+                   'targets': len(targets)}
+            chart_rows.append(row)
+            if spec['name'] == 'arch':
+                arch_row = row
+            continue
         peak, clipped = encode_ldr(
             denoised, white_point, 'ZIMNY_LM_LDR', lm_dir / f'{prefix}{file_state}.png')
         rel = f'lm/{prefix}{file_state}.png'
@@ -840,9 +1182,12 @@ def main():
             'whitePoint': PROBE_WHITE_POINT,
         }
 
+    cells_path = lm_dir / 'cells.json'
+    cells_sha = file_sha256(cells_path) if cells_path.exists() else None
     print_summary({
         'bakedObjects': sum(row['targets'] for row in chart_rows),
         'blender': bpy.app.version_string,
+        'cellsSha256': cells_sha,
         'charts': chart_rows,
         'clippedFraction': arch_row['clippedFraction'],
         'denoiser': DENOISER,
@@ -857,6 +1202,7 @@ def main():
         'preview': preview,
         'probe': probe,
         'res': arch_row['res'],
+        'rig': rig,
         'room': room,
         'samples': samples,
         'seconds': None,

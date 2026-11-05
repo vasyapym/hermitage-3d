@@ -3,56 +3,56 @@
   "files": [
     {
       "path": "jordan.glb",
-      "bytes": 222716,
-      "sha256": "c44e93b97b6f3c87477e0f824441bf63054c16eed37759ecaa26198ecb611210",
+      "bytes": 237648,
+      "sha256": "c8fc2ceb0c6a6bb28437537c74325701728db1d84eaa82b856b782d4a7baf5e9",
       "kind": "glb"
     },
     {
       "path": "lm/day.ktx2",
-      "bytes": 294709,
-      "sha256": "26086ffc8b90eaf6a76342a6f510b38a68eafb4242efc633f8cde68e97a70fc5",
+      "bytes": 304963,
+      "sha256": "284c01b72da0ceda96d3d043fc7401dc3bf213a02159b46079ace6fd391158e5",
       "kind": "ktx2"
     },
     {
       "path": "lm/dusk.ktx2",
-      "bytes": 273632,
-      "sha256": "19d0025524f0fcec6905f8fa73b06c5591b65794b211e13c12f6f1938c69ebd9",
+      "bytes": 324047,
+      "sha256": "7b36773648e634e58f982f20423b8dab4580f7161a1e4367cf7dd817887cc61f",
       "kind": "ktx2"
     },
     {
       "path": "lm/night.ktx2",
-      "bytes": 150352,
-      "sha256": "fb96c40f1e6fc42c62edce47ad1b78af2bbf233dc710f5d85c83abdbf0e630a8",
+      "bytes": 313051,
+      "sha256": "7288c24a2ec3fdfa3388a26c14c0988adea6bf25cac9a38ef20646cc4b2bdf61",
       "kind": "ktx2"
     },
     {
       "path": "probe/dusk.ktx2",
-      "bytes": 4260,
-      "sha256": "399189a35a0b9bd92c1082e1cfe320ce2344ee8c22f00c8b9198861840e98d04",
+      "bytes": 13535,
+      "sha256": "cef3cd4b744f437eed86dc4760a0fcf0bcdab098c695b551424022168557e802",
       "kind": "ktx2"
     },
     {
       "path": "tex/gilt.ktx2",
-      "bytes": 9417,
-      "sha256": "a14f35e841efefff9196675c390b9525640133562a9dc2257255d3dfef982c11",
+      "bytes": 3294,
+      "sha256": "345618bc382fdef67a66f452fdff92b40e7437da79cb41af4641ad0af1b7519c",
       "kind": "ktx2"
     },
     {
       "path": "tex/granite_grey.ktx2",
-      "bytes": 13396,
-      "sha256": "4eef842de0600fcb2666a8bc8e630c1129a61116fc751218131b142b7d22ff91",
+      "bytes": 12728,
+      "sha256": "a2384dbe68e1d6df126c6deb8faf3befa27b3736520b4734f089877406bd71c8",
       "kind": "ktx2"
     },
     {
       "path": "tex/marble_floor.ktx2",
-      "bytes": 36018,
-      "sha256": "f06f3ec51293ef6e749a3c4eda800baed61a1a2cc54d8a5a80458ff68a35486f",
+      "bytes": 15660,
+      "sha256": "474f3965b5e2dbbe4a3623c4c5c296f4a05cffa59ec2afe262af9373e3e8189e",
       "kind": "ktx2"
     },
     {
       "path": "tex/plaster_warm.ktx2",
-      "bytes": 20355,
-      "sha256": "21cf778acd7d5ecf6735d4e3f5e5679fa36b7b563f17bd7f6aabb0e15e3d95ac",
+      "bytes": 8790,
+      "sha256": "bd2f2eb5e9e696947c6281199db7ce77181f160c340a909271345f4f0b6aa377",
       "kind": "ktx2"
     }
   ],
@@ -62,7 +62,7 @@
         "name": "shell",
         "instances": 1,
         "primitives": 2,
-        "triangles": 2770
+        "triangles": 3740
       },
       {
         "name": "pane",
@@ -74,7 +74,7 @@
         "name": "stairs",
         "instances": 1,
         "primitives": 1,
-        "triangles": 864
+        "triangles": 876
       },
       {
         "name": "rail",
@@ -98,7 +98,7 @@
         "name": "cornice",
         "instances": 1,
         "primitives": 1,
-        "triangles": 198
+        "triangles": 190
       },
       {
         "name": "baluster",
@@ -137,8 +137,8 @@
         "triangles": 32
       }
     ],
-    "trianglesUnique": 5262,
-    "trianglesDrawn": 20898,
+    "trianglesUnique": 6236,
+    "trianglesDrawn": 21872,
     "extensionsRequired": [
       "EXT_meshopt_compression",
       "KHR_mesh_quantization",
@@ -153,9 +153,9 @@
     ],
     "res": 2048,
     "intensity": {
-      "day": 0.1,
-      "dusk": 0.1,
-      "nightChandeliers": 3
+      "day": 0.45,
+      "dusk": 1,
+      "nightChandeliers": 1.2
     }
   },
   "budget": {

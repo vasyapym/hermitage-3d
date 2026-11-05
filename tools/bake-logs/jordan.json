@@ -5,61 +5,74 @@
       "blender": "Blender 4.2.23 LTS",
       "charts": [
         {
-          "clippedFraction": 0,
+          "clippedFraction": null,
           "emitters": 0,
-          "exrSha256": "1cf1c0989315f8529273af444bae0e2a66f51ed9c4dcc4a97d4ac7c670164ecf",
+          "exrSha256": "5f5976367f938aba6efc2f0d0958602e6a0bbca3f6a21c685f5c8731987d9242",
           "name": "arch",
           "objects": 214,
           "pad": 2,
-          "peak": 3.0999,
+          "peak": null,
           "res": 2048,
           "targets": 13
         }
       ],
-      "clippedFraction": 0,
+      "clippedFraction": null,
       "command": "node tools/bake.mjs jordan day",
       "denoiser": "OPENIMAGEDENOISE",
       "duskFixtures": null,
       "margin": 2,
-      "peak": 3.0999,
+      "peak": null,
       "probe": null,
       "res": 2048,
       "samples": 128,
-      "seconds": 713,
+      "seconds": 2373.5,
       "state": "day",
-      "whitePoint": 6,
-      "artifacts": [
-        {
+      "whitePoint": "percentile",
+      "artifacts": [],
+      "cellsSha256": "dca79efeac32e922f171706c280003d19bb732be5a0c7835cc899daabfa106a7",
+      "encode": {
+        "mode": "percentile",
+        "percentile": 99.5,
+        "scope": "allocated-interior",
+        "transfer": "srgb",
+        "cellsSha256": "dca79efeac32e922f171706c280003d19bb732be5a0c7835cc899daabfa106a7",
+        "wRaw": 1.02422,
+        "w": 0.45,
+        "gain": 2.22,
+        "kappa": 1,
+        "clipFraction": 0.017272,
+        "haloFraction": 0.000344,
+        "artifact": {
           "rel": "lm/day.ktx2",
-          "bytes": 54649,
-          "sha256": "fb5e9abdfa3686ea7281b55e2b951840355df232aac744a8c38b08a2047d2354"
+          "bytes": 304963,
+          "sha256": "284c01b72da0ceda96d3d043fc7401dc3bf213a02159b46079ace6fd391158e5"
         }
-      ]
+      }
     },
     "dusk": {
       "blender": "Blender 4.2.23 LTS",
       "charts": [
         {
-          "clippedFraction": 0.0003,
+          "clippedFraction": null,
           "emitters": 0,
-          "exrSha256": "2c004d815f86404f8c3426f171313e2845d19bb6e90e7ef589f662708b198717",
+          "exrSha256": "479b8add5f8accdc57e2b23681410e4292aa55b60056677aeb8747ff7482c296",
           "name": "arch",
           "objects": 214,
           "pad": 2,
-          "peak": 23.3192,
+          "peak": null,
           "res": 2048,
           "targets": 13
         }
       ],
-      "clippedFraction": 0.0003,
+      "clippedFraction": null,
       "command": "node tools/bake.mjs jordan dusk",
       "denoiser": "OPENIMAGEDENOISE",
       "duskFixtures": true,
       "margin": 2,
-      "peak": 23.3192,
+      "peak": null,
       "probe": {
-        "clippedFraction": 0.0008,
-        "peak": 5.8943,
+        "clippedFraction": 0.0052,
+        "peak": 36.647,
         "point": [
           79,
           9,
@@ -74,56 +87,339 @@
       },
       "res": 2048,
       "samples": 128,
-      "seconds": 1294.6,
+      "seconds": 3011,
       "state": "dusk",
-      "whitePoint": 6,
+      "whitePoint": "percentile",
       "artifacts": [
         {
-          "rel": "lm/dusk.ktx2",
-          "bytes": 53576,
-          "sha256": "5bf61fcdd19d2ef9d5e8bf8cbf7f992a8c92759100ab1b90733892ef5a8cd7a3"
-        },
-        {
           "rel": "probe/dusk.ktx2",
-          "bytes": 4260,
-          "sha256": "399189a35a0b9bd92c1082e1cfe320ce2344ee8c22f00c8b9198861840e98d04"
+          "bytes": 13535,
+          "sha256": "cef3cd4b744f437eed86dc4760a0fcf0bcdab098c695b551424022168557e802"
         }
-      ]
+      ],
+      "rig": {
+        "clearance_m": 0.03,
+        "coreBasePosition": [
+          86,
+          14.3,
+          -74
+        ],
+        "corePosition": [
+          86,
+          13.15,
+          -74
+        ],
+        "coreRule": "D3 lower-to-clear: 0.05 m sphere-surface gap vs the core octahedron",
+        "dropPositions": [
+          [
+            87.5,
+            14,
+            -74
+          ],
+          [
+            87.06066,
+            14,
+            -72.93934
+          ],
+          [
+            86,
+            14,
+            -72.5
+          ],
+          [
+            84.93934,
+            14,
+            -72.93934
+          ],
+          [
+            84.5,
+            14,
+            -74
+          ],
+          [
+            84.93934,
+            14,
+            -75.06066
+          ],
+          [
+            86,
+            14,
+            -75.5
+          ],
+          [
+            87.06066,
+            14,
+            -75.06066
+          ]
+        ],
+        "dropRule": "ring y = drop_centre_y - max(0.35, drop_half + radius + 0.05); azimuths = the builder kit_circle law (8 of CHAND_SEG)",
+        "fixtures": [
+          "pane",
+          "chandelier",
+          "sconce",
+          "sconce.001",
+          "sconce.002",
+          "sconce.003",
+          "sconce.004",
+          "sconce.005",
+          "sconce.006",
+          "sconce.007",
+          "sconce.008",
+          "sconce.009"
+        ],
+        "sconcePositions": [
+          [
+            66.63,
+            2.666071,
+            -69.5
+          ],
+          [
+            66.63,
+            3.558929,
+            -71.5
+          ],
+          [
+            66.63,
+            4.451786,
+            -73.5
+          ],
+          [
+            66.63,
+            5.344643,
+            -75.5
+          ],
+          [
+            66.63,
+            6.2375,
+            -77.5
+          ],
+          [
+            71.2,
+            7.978571,
+            -85.37
+          ],
+          [
+            75.1,
+            9.719643,
+            -85.37
+          ],
+          [
+            79,
+            11.460714,
+            -85.37
+          ],
+          [
+            91.37,
+            12.65,
+            -82
+          ],
+          [
+            91.37,
+            12.65,
+            -66
+          ]
+        ],
+        "sconceRule": "c_glow + n_room * (h_glow + 0.15) on the builder mount rosters",
+        "totals_W": {
+          "chandelier": 800,
+          "sconces": 800
+        }
+      },
+      "cellsSha256": "dca79efeac32e922f171706c280003d19bb732be5a0c7835cc899daabfa106a7",
+      "encode": {
+        "mode": "percentile",
+        "percentile": 99.5,
+        "scope": "allocated-interior",
+        "transfer": "srgb",
+        "cellsSha256": "dca79efeac32e922f171706c280003d19bb732be5a0c7835cc899daabfa106a7",
+        "wRaw": 2.357531,
+        "w": 1,
+        "gain": 1,
+        "kappa": 1,
+        "clipFraction": 0.028745,
+        "haloFraction": 0.001353,
+        "artifact": {
+          "rel": "lm/dusk.ktx2",
+          "bytes": 324047,
+          "sha256": "7b36773648e634e58f982f20423b8dab4580f7161a1e4367cf7dd817887cc61f"
+        }
+      }
     },
     "nightChandeliers": {
       "blender": "Blender 4.2.23 LTS",
       "charts": [
         {
-          "clippedFraction": 0.0003,
+          "clippedFraction": null,
           "emitters": 0,
-          "exrSha256": "1cd3e25f3a80e4ba4e6c90d8708fabada70c071e92738956f6a431e2d2020750",
+          "exrSha256": "caec72d8aa43d22e7746d2fc6df3e0683cba2d538f9f3fd7bc67bb560f5ee9ec",
           "name": "arch",
           "objects": 214,
           "pad": 2,
-          "peak": 21.9716,
+          "peak": null,
           "res": 2048,
           "targets": 13
         }
       ],
-      "clippedFraction": 0.0003,
+      "clippedFraction": null,
       "command": "node tools/bake.mjs jordan nightChandeliers",
       "denoiser": "OPENIMAGEDENOISE",
       "duskFixtures": null,
       "margin": 2,
-      "peak": 21.9716,
+      "peak": null,
       "probe": null,
       "res": 2048,
       "samples": 128,
-      "seconds": 1297.5,
+      "seconds": 2787.6,
       "state": "nightChandeliers",
-      "whitePoint": 6,
-      "artifacts": [
-        {
-          "rel": "lm/night.ktx2",
-          "bytes": 121104,
-          "sha256": "4744845ee971dc5eea5372bb0b1b906abe0e21848a524236c2fccfab0d98ce13"
+      "whitePoint": "percentile",
+      "artifacts": [],
+      "rig": {
+        "clearance_m": 0.03,
+        "coreBasePosition": [
+          86,
+          14.3,
+          -74
+        ],
+        "corePosition": [
+          86,
+          13.15,
+          -74
+        ],
+        "coreRule": "D3 lower-to-clear: 0.05 m sphere-surface gap vs the core octahedron",
+        "dropPositions": [
+          [
+            87.5,
+            14,
+            -74
+          ],
+          [
+            87.06066,
+            14,
+            -72.93934
+          ],
+          [
+            86,
+            14,
+            -72.5
+          ],
+          [
+            84.93934,
+            14,
+            -72.93934
+          ],
+          [
+            84.5,
+            14,
+            -74
+          ],
+          [
+            84.93934,
+            14,
+            -75.06066
+          ],
+          [
+            86,
+            14,
+            -75.5
+          ],
+          [
+            87.06066,
+            14,
+            -75.06066
+          ]
+        ],
+        "dropRule": "ring y = drop_centre_y - max(0.35, drop_half + radius + 0.05); azimuths = the builder kit_circle law (8 of CHAND_SEG)",
+        "fixtures": [
+          "pane",
+          "chandelier",
+          "sconce",
+          "sconce.001",
+          "sconce.002",
+          "sconce.003",
+          "sconce.004",
+          "sconce.005",
+          "sconce.006",
+          "sconce.007",
+          "sconce.008",
+          "sconce.009"
+        ],
+        "sconcePositions": [
+          [
+            66.63,
+            2.666071,
+            -69.5
+          ],
+          [
+            66.63,
+            3.558929,
+            -71.5
+          ],
+          [
+            66.63,
+            4.451786,
+            -73.5
+          ],
+          [
+            66.63,
+            5.344643,
+            -75.5
+          ],
+          [
+            66.63,
+            6.2375,
+            -77.5
+          ],
+          [
+            71.2,
+            7.978571,
+            -85.37
+          ],
+          [
+            75.1,
+            9.719643,
+            -85.37
+          ],
+          [
+            79,
+            11.460714,
+            -85.37
+          ],
+          [
+            91.37,
+            12.65,
+            -82
+          ],
+          [
+            91.37,
+            12.65,
+            -66
+          ]
+        ],
+        "sconceRule": "c_glow + n_room * (h_glow + 0.15) on the builder mount rosters",
+        "totals_W": {
+          "chandelier": 800,
+          "sconces": 800
         }
-      ]
+      },
+      "cellsSha256": "dca79efeac32e922f171706c280003d19bb732be5a0c7835cc899daabfa106a7",
+      "encode": {
+        "mode": "percentile",
+        "percentile": 99.5,
+        "scope": "allocated-interior",
+        "transfer": "srgb",
+        "cellsSha256": "dca79efeac32e922f171706c280003d19bb732be5a0c7835cc899daabfa106a7",
+        "wRaw": 2.365537,
+        "w": 1.2,
+        "gain": 0.83,
+        "kappa": 1,
+        "clipFraction": 0.020231,
+        "haloFraction": 0.000148,
+        "artifact": {
+          "rel": "lm/night.ktx2",
+          "bytes": 313051,
+          "sha256": "7288c24a2ec3fdfa3388a26c14c0988adea6bf25cac9a38ef20646cc4b2bdf61"
+        }
+      }
     }
   }
 }

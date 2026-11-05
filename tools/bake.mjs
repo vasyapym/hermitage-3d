@@ -141,12 +141,15 @@ function runBlenderBake(room, state, stage) {
   return { summary, command: `node tools/bake.mjs ${room} ${state}` };
 }
 
-function encodeOutputs(summary, stage) {
+function encodeOutputs(summary, stage, percentileMode) {
   const flags = TOKTX_GENMIPMAP ? [...TOKTX_LINEAR_FLAGS, '--genmipmap'] : TOKTX_LINEAR_FLAGS;
   const magic = Buffer.from(KTX2_MAGIC);
   const artifacts = [];
   for (const file of summary.files) {
     if (!file.rel.endsWith('.png')) continue;
+    // D1: a percentile room's lm charts bake EXR ONLY — their PNGs never exist, and a
+    // probe PNG (the unchanged dusk-probe path) is the only bake-time ktx2 left.
+    if (percentileMode && !file.rel.startsWith('probe/')) continue;
     const rel = file.rel.replace(/\.png$/, '.ktx2');
     const input = path.join(stage, file.rel);
     const output = path.join(stage, rel);
@@ -158,7 +161,12 @@ function encodeOutputs(summary, stage) {
     }
     artifacts.push({ rel, abs: output, bytes: bytes.length, sha256: sha256(bytes) });
   }
-  if (artifacts.length === 0) throw new ChainError('bake.py emitted no PNG to encode');
+  // A percentile room legally emits zero artifacts for the sun-only states (day /
+  // nightChandeliers): the EXR + cells.json ARE the deliverables; reencode +
+  // lm-percentile own the publication.
+  if (artifacts.length === 0 && !percentileMode) {
+    throw new ChainError('bake.py emitted no PNG to encode');
+  }
   return artifacts;
 }
 
@@ -180,7 +188,9 @@ async function loadRoom(room) {
   const file = path.join(ROOT, 'tools', 'gltf', `${room}.mjs`);
   const mod = await import(pathToFileURL(file).href);
   if (!mod.ROOM) throw new ChainError(`${path.relative(ROOT, file)} has no ROOM export`);
-  return mod.ROOM;
+  // The module itself (NOT just ROOM): D1/D4 read mod.LM_ENCODE — the encode contract
+  // bake.mjs logs for percentile rooms (mode === 'percentile') and the per-state kappa.
+  return mod;
 }
 
 function logPaths(room) {
@@ -193,9 +203,29 @@ function readLog(room) {
   return JSON.parse(readFileSync(json, 'utf8'));
 }
 
-function record(state, result, artifacts, blenderVersion) {
-  const { summary, command } = result;
+/** D1-e: the per-state encode placeholders a percentile room's log carries; lm-percentile
+ * fills wRaw/w/gain/clipFraction/haloFraction/artifact after its own measurement. */
+function plantEncode(mod, state, summary) {
+  const encode = mod.LM_ENCODE;
   return {
+    artifact: null,
+    cellsSha256: summary.cellsSha256 ?? null,
+    clipFraction: null,
+    gain: null,
+    haloFraction: null,
+    kappa: encode.displayClip[state] ?? null,
+    mode: encode.mode,
+    percentile: encode.percentile,
+    scope: encode.scope,
+    transfer: encode.transfer,
+    w: null,
+    wRaw: null,
+  };
+}
+
+function record(state, result, artifacts, blenderVersion, mod) {
+  const { summary, command } = result;
+  const row = {
     blender: blenderVersion,
     charts: summary.charts ?? null,
     clippedFraction: summary.clippedFraction,
@@ -212,6 +242,14 @@ function record(state, result, artifacts, blenderVersion) {
     whitePoint: summary.whitePoint,
     artifacts: artifacts.map(({ rel, bytes, sha256: digest }) => ({ rel, bytes, sha256: digest })),
   };
+  // Sibling byte-stability: the two new provenance keys land only when a bake EMITS them
+  // (jordan's rig + the builder's cells.json; absent rows on the siblings' paths).
+  if (summary.rig !== null && summary.rig !== undefined) row.rig = summary.rig;
+  if (summary.cellsSha256) row.cellsSha256 = summary.cellsSha256;
+  if (mod.LM_ENCODE?.mode === 'percentile') {
+    row.encode = plantEncode(mod, state, summary); // the D2 retired whitePoint row's +1
+  }
+  return row;
 }
 
 function minutes(seconds) {
@@ -252,6 +290,30 @@ function renderLog(room, log) {
     if (!row) continue;
     for (const artifact of row.artifacts) {
       lines.push(`| ${state} | ${artifact.rel} | ${artifact.bytes} | ${artifact.sha256} |`);
+    }
+  }
+  // D1-e: the encode section mirrors the per-state encode placeholders; a room without
+  // them (the siblings) renders exactly the committed md bytes.
+  const encodedStates = STATES.filter((state) => log.states[state]?.encode !== undefined);
+  if (encodedStates.length > 0) {
+    lines.push(
+      '',
+      '## Encode',
+      '',
+      '| state | mode | transfer | wRaw | w | gain | kappa | clipped | halo | artifact |',
+      '| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |',
+    );
+    for (const state of encodedStates) {
+      const row = log.states[state].encode;
+      const artifact =
+        row.artifact === null || row.artifact === undefined
+          ? null
+          : `${row.artifact.bytes} B ${row.artifact.sha256}`;
+      lines.push(
+        `| ${state} | ${row.mode} | ${row.transfer} | ${row.wRaw} | ${row.w} | ` +
+          `${row.gain} | ${row.kappa} | ${row.clipFraction} | ${row.haloFraction} | ` +
+          `${artifact} |`,
+      );
     }
   }
   lines.push('', '## Borrowed-hardware menu', '');
@@ -325,7 +387,11 @@ function lightmapsRow(descriptor, log, kit) {
       }
       const values = Object.values(committed.intensity ?? {});
       const isPerStateTable = values.length > 0 && !values.every((v) => v === values[0]);
-      if (isPerStateTable && committed.intensity[state] !== rec.whitePoint) {
+      // D1/D2: a 'percentile' bake record carries the SENTINEL, not a white point — the
+      // per-state dict's numbers are owned by the manifest + lm-percentile now, so the
+      // equality gate against the bake-time white point applies to scalar bake rooms only.
+      const isPercentileRecord = rec.whitePoint === 'percentile';
+      if (isPerStateTable && !isPercentileRecord && committed.intensity[state] !== rec.whitePoint) {
         throw new ChainError(
           `bake record ${state}: white point ${rec.whitePoint} !== the descriptor's ` +
             `${committed.intensity[state]}`,
@@ -372,14 +438,14 @@ function lightmapsRow(descriptor, log, kit) {
   };
 }
 
-function verify(room, states) {
+function verify(room, states, percentileMode) {
   const passes = [];
   for (const suffix of ['-verify-a', '-verify-b']) {
     const artifacts = [];
     for (const state of states) {
       const stage = stageDir(room, state, suffix);
       const { summary } = runBlenderBake(room, state, stage);
-      artifacts.push(...encodeOutputs(summary, stage));
+      artifacts.push(...encodeOutputs(summary, stage, percentileMode));
     }
     passes.push(new Map(artifacts.map((artifact) => [artifact.rel, artifact.sha256])));
   }
@@ -402,8 +468,11 @@ async function main() {
   const tc = readToolchain();
   requireTool(BLENDER, ['--version'], requirePinned(tc, 'blender'), BLENDER_INSTALL);
   requireTool('toktx', ['--version'], requirePinned(tc, 'toktx'), TOKTX_INSTALL);
+  const mod = await loadRoom(room);
+  const descriptor = mod.ROOM;
+  const percentileMode = mod.LM_ENCODE?.mode === 'percentile';
   if (verifyMode) {
-    verify(room, states);
+    verify(room, states, percentileMode);
     return;
   }
   const blenderVersion = run(BLENDER, ['--version'], { capture: true }).split('\n')[0].trim();
@@ -411,14 +480,13 @@ async function main() {
   for (const state of states) {
     const stage = stageDir(room, state, '');
     const result = runBlenderBake(room, state, stage);
-    const artifacts = encodeOutputs(result.summary, stage);
-    log.states[state] = record(state, result, artifacts, blenderVersion);
+    const artifacts = encodeOutputs(result.summary, stage, percentileMode);
+    log.states[state] = record(state, result, artifacts, blenderVersion, mod);
     if (result.summary.seconds > SLOW_BAKE_SECONDS) {
       console.log(`bake: ${state} took ${minutes(result.summary.seconds)} min — see the menu`);
     }
   }
   writeLog(room, log);
-  const descriptor = await loadRoom(room);
   // All-or-nothing law (lightmapsRow): publish + manifest rebuild only when EVERY state of
   // the room has a bake record — a partial set would break the artifact fence (manifest must
   // equal the walked directory) and the runtime (it fetches every manifest row).
