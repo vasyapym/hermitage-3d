@@ -5,12 +5,23 @@
 Read order before touching anything: `README.md` → `ROADMAP.md` → `docs/charter.md` → `docs/decisions.md` → `docs/architecture.md`.
 
 **Standing situation to read (any task, any room; the owner's directive).** Before answering
-or planning, read `docs/STATE.md`'s **Standing protocol → "Standing situation — the
-repair-cascade shape"** entry (measured precedent: the rastrelli-gallery RG-F1 round,
+or planning, read `docs/STATE.md`'s **Standing protocol → “Standing situation — the
+repair-cascade shape”** entry (measured precedent: the rastrelli-gallery RG-F1 round,
 2026-11-05/06 — six class rulings in one round; the full 240-row census after them). For
 briefs, agents, and relay replies alike: surface that situation to the creative model with
 the round's own numbers and let it decide the disposition independently — the entry marks
 the situation, not a procedure.
+
+**The wedged-agent stop (any agent orchestrating sub- or relay sessions).** When a helper
+agent wedges (thought-loop; queued messages unread): discover the API —
+`opencode api get /openapi.json` — then stop it:
+`opencode api post /api/session/<sessionID>/interrupt` (→ `{"interrupted": true}`);
+the harness marks the session cancelled. A cancelled session is NOT revived by queued
+messages — treat as terminal: snapshot the working tree, continue on a fresh agent; the
+work state lives on disk (snapshots + probe logs). Never pkill the shared daemon (it kills
+every session incl. the orchestrator's own). Mirror entry: `docs/STATE.md`, transport
+trap 0.
+
 
 
 ## Operating rules

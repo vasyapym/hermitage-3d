@@ -558,7 +558,30 @@ docs/briefs/). Owner reads Russian; briefs and code in English.
   pin every contract explicitly; the orchestrator validates harder.
 - Trivial mechanical work stays orchestrator-direct (no relay at all — the r24b/R006 precedent).
 
+**Standing situation — the repair-cascade shape (measured; the rastrelli-gallery RG-F1
+precedent, 2026-11-05/06).** A verdict-law for a repair/assembly program can be tested, hold,
+and still face an UNENUMERATED task space: each newly measured class then earns its own
+ruling and implementation pass one at a time (that round logged six class rulings), and the
+classes close only when a single full-enumeration probe finally exists — at which point one
+run lists the remainder together (the 240-row census) and the adopted laws apply to all of
+them in one pass. Measured sequencing facts from that round: the enumeration ran AFTER four
+class rulings; the two-frame failure class surfaced only at the assembly stage; a single
+census at admission time would have seen the whole class list before the first class
+ruling. The situation — not a procedure — is recorded here: how such a task advances
+(enumerate-first, rule-per-class, scope reduction, or another disposition) remains the fresh
+creative session's own call; the round's trail: the vault briefs+replies `projects v10`
+(21–38), the `rastrelli-details` branch's docs/STATE rg-details bullet + docs/briefs/ROUNDS
+row 67 (pending merge), and the pinned probe logs in the round's stage dir.
+
 **Transport traps (cost a full relay each when ignored).**
+0. THE WEDGED-SUBAGENT STOP (owner request 2026-11-06, the Brief-39 precedent; works while
+   an agent is in its thought-loop, when queued messages go unread): the orchestrator's
+   kill-switch is the server API — discover via `opencode api get /openapi.json`, then
+   `opencode api post /api/session/<sessionID>/interrupt` (→ `{"interrupted": true}`); the
+   subagent's harness state turns cancelled. A cancelled session is NOT revived by queued
+   messages — treat as terminal: snapshot the working tree, continue on a fresh agent (the
+   work state lives on disk: snapshots + probe logs). Do not pkill the shared daemon (it
+   kills every session incl. the orchestrator's own).
 1. RETIRED (owner, 2026-10-28): the MASKED-marker protocol. The transport masked verbatim
    numbers exactly once — the single incident that wrote this list — so the marker protocol
    (`MASKED-IN-BRIEF: keep the <name> value`) is no longer used in briefs. Numbers still belong
