@@ -4,7 +4,60 @@ One file a new relay session reads at start. Two sections: **Live state** (updat
 integration that changes the facts — same session, never later) and **Standing protocol** (rarely
 changes).
 
-- **2026-11-03 · rg-details OPENED ON THE PARALLEL BRANCH `rastrelli-details` (the worktree
+- **2026-11-03/07 · rg-details — LANDED AS THE MEASURED C″ STOP ON `rastrelli-details` (nothing
+  ships; the C″ law's own fallback: main keeps HEAD a641ec7's room — this Closing record sits
+  above its own opening bullet below).** Work lineage on the branch: Brief 40 v2 relayed → the
+  ruling-40 law (§1 census type-confusion fix REAL; §M log-only battery: M1 domain mixing
+  CONFIRMED 3,369 pairs/113 distinct — x=110 y=545 z=2,714; M2 T-junction 784/near-twin 0/hole
+  1,132; M3 all 1,916 one-face edges S7-introduced; the canon1-pending RAW oneFace=0/over=2/
+  degenerate=6-7) → §2's exact-source law (the line-twin within one exact f32 ulp; rank = the
+  solved-subset length; the S6 belt; the WELD2 anchor) LANDED and REFUTED BY MEASUREMENT (850
+  S4 + 735 WELD2 rank-2 keys hold EXACTLY ZERO candidates; the nearest full-rank line-mates
+  sit ≥ 31,441/104,857,600 ≈ 3.0e-4 away — the exact counterpart lives in the S6-era recorded
+  scalars, not in the S4 mesh population) → Brief 14 v2 → the ruling C′ (ship + research) →
+  the splice A-BORT measurement: the predecessor's OWN conform machinery passes entirely and
+  MANUFACTURES 13 of the 15 bad edges on the closed S3 product (the founding 15-seam class
+  was a tolerance-path artifact; the S3 hand-over is the cleanest state: oneFace=0 wire=0
+  over=2 degenerate=6, verts 5,655) → Brief 16 v2 → the ruling C″ «raw-ship» (v11/16: the
+  tolerance path REMOVED — both conform sites dropped; R3 the counting bar with the
+  orchestrator-banked pins; S4–S7 barred from the shipped bmesh). THE SHIPPED-BAR STATE
+  MEASURED: SHIP_BAR at the hand-over PASSED the gate-law (3) kernel — oneFace=0 wire=0
+  winding=0; over=2/degenerate=7 PIN-EQUAL to RG_F1_SHIP_PINS_CANDIDATE (KISS = the two
+  x≈4.8/y=3.0 verticals = the S4-class over edges 4877/7273 exactly; DEGEN = seven
+  vertex-triple pins, the seventh = the identity-tie-class face the exact solver built
+  collapsed); movedVerts/addedVerts=0; volumeDelta=0.0 (volume 1,696.7619…); dissolve_limit
+  dropped (I1–I3 hold pre-dissolve) — then the lane STOPPED at the pred's own `volume_bvh`
+  ('degenerate reference triangle 736', a D11-class zero-area triangle at the pred's 2e-10
+  reference scale; the C″ narrowing covers the lm stage only ⇒ the pre-authorized fallback
+  governs; no blind repair). DETERMINISM ×2: the shipped pair byte-identical (sha256
+  7c7ecd53…c34788, s45 logs); the earlier pred-refusal pair identical (49ba06f6…); the
+  shipped log carries ZERO Lane-2 rows (the §6 discipline measured). FILES:
+  tools/bpy/rastrelli-gallery.py (the C″ five-region splice: F1″ route 'raw' +
+  prepare_shell_raw/ship_bar/the R3 pins + RAW_TWIN wiring + the D9/D11/VISIBLE/BASELINE_DIFF
+  emitters) and tools/bpy/rastrelli-gallery-exact.py (THE RENAME — the exact/research module
+  with the census lane: the R1/R2 demotions, _EXACT_CENSUS_LEDGER, emit_deviation_rows ×11,
+  run_census with the designed-bar catch; + Lane 2's driver-side A0 additions; the shipped
+  log stays clean of them by construction). **LANE 2 (A′-0, the recorded-node probe,
+  driver-side, banks for the NEXT round):** 9,260 RG_F1_CANON1_NODE_SOURCE_PROBE rows banked
+  (S4 5,655 + WELD2 records) + both HIST rows: S4 rank1 {k0 303, k1 107, k2+ 0} rank2 {361,
+  489, 0} rank3Agree 2372/Disagree 3/NoCell 2020; WELD2 rank1 {269/128/0} rank2 {389/346/0}
+  rank3 1564/3/906; intake coverage 155/160 distinct lineTwinAbsent images via the S4 rank-2
+  k1 set (WELD2's own set covers 71/160); the law's fixed decision rule executed:
+  **A-1 STOP** (k2plus=0 both passes both ranks, but the full coverage condition failed) —
+  per the law A′ stops, the rows bank, B′ stands. THE PROBE'S ×2 PAIR UNPROVEN on this
+  machine and banked as a finding: run3 completed the full chain (82 MB, EXIT=0, the verdict
+  above), but run4 and the re-attempt run5 (different seeds, unbuffered, memory-watched)
+  both WEDGED in the S6 zone (zero log growth 13-15 min at ~370 MB stable rss then killed) —
+  3 of 4 plain-driver attempts reach the same wedge while the census-twin driver passes the
+  identical chain cleanly ×2 ⇒ the wedge is driver-side, not chain-side; the next probe round
+  re-attempts the pair with that fact named. NO merge; NO full gate here — the owner's stack
+  call runs it (the branch carries code+records only; the committed room assets are untouched
+  BY CONSTRUCTION — the browser payload is unaffected). THE NEXT ROUND'S DECISION INPUTS (all
+  in-file/on-disk): (i) the volume_bvh-side D11-consistent zero-area skip (a ruled matter for
+  a fresh law, NOT executed here), (ii) the fallback-ship semantics, (iii) the A′-1 recorded
+  -node law IF a re-scoped rule can exceed the 155/160 coverage the measurement names (the
+  vault briefs 40 + 12–17 + the stage logs carry the full trail).**
+  THE HANDOFF: this session's context is exhausted; a fresh session reads THIS bullet first.
   `~/Documents/hermitage-3d-rastrelli`, off ed25e4b post-R21-ux) — the Rastrelli Gallery's next
   round: the owner's TODAY re-issue that the room «looks very raw / as a draft», PARALLEL to the
   in-flight jordan track. A TWO-PART round in the jordan-slice-2 brief shape (the owner's call
