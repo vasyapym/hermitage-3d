@@ -73,6 +73,35 @@ changes).
   e2e/golden gate run at the owner's stack signal only. (The round opened with the owner's
   framing amendment: the ROLE boilerplate re-phrased as the engineering peer + THE STAGE LAW —
   transport trap 5.) ROUNDS row 67.**
+   THE HANDOFF (this orchestrator's context spent; a fresh session takes over — do not rely
+   on chat, everything is on disk):
+   WHERE WE ARE: S2–S6 landed deterministic (4,376 facets; registry 116/4 families; S6
+   arrangements 86,947 regions/39,900 retained); S7's certificate pass exact (141+99+0;
+   WELD2 clusters=0 moved=3,421; ledger 106,079 rows 0 unexplained; the canonical table
+   5,651/0 ambs; face-448 split @ 1048567/1048575). The moved-frame repair landed
+   (file 6,177 lines, snapshot-b39-inflight-6164.py) but the bar is NOT green: run8's
+   census oneFace=1,916 (holder census: 179+918+689+130) / wire=0 / over=3 / winding=443
+   / degenerate=13; no determinism pair at the current code state; the repair agent was
+   interrupted (context degraded). THE 15-seam class never reproduced (raw product 0/0/0
+   pre-assembly).
+   ON DISK: vault `projects v10` briefs 21–40 (21–39 + replies; 40 = v2 clean rewrite
+   after the first paste degraded) + the stage dir
+   /private/var/folders/8x/yls1cw1d6s3fmbrxhqg0y17w0000gp/T/opencode/rg-assets/
+   (snapshots incl. snapshot-b39-inflight-6164.py, the probes rg-f1-s23.py /
+   rg-f1-s38.py / rg-f1-s38-recon.py / rg-f1-s23-census.py, the run logs
+   s39-run1..8.log ~76 MB each, census-run1/2.log, s38-run9/10.log);
+   kernels/probe heads: probes/kernel-frozen-head.bin.
+   THE FRESH SESSION'S JOB LIST: (1) show the owner the CLEAN Brief 40 from the vault
+   file (do not retype from any chat); the owner relays it to the big-context model;
+   (2) integrate the returned ROUTE law verbatim — route B/C = Brief 35 (S8+tail splice;
+   fill its two [S7-FACT] slots from this bullet + the run logs) then the real build
+   chain (caffeinate pnpm asset:bpy → RG_F1 rows, determinism ×2 → pnpm asset:gltf);
+   route A = one mechanical implementation pass on the 1,916 holder classes per the
+   ruled law, then the bar ×2, then the same build chain; (3) records + push
+   (STATE bullet update, ROUNDS row 67, graph node, ledger sweep; /usr/bin/git push
+   origin rastrelli-details; NO merge, NO full gate — the owner's stack signal);
+   (4) the standing entries (census-first; the wedged-agent API interrupt) live in
+   STATE.md's Standing protocol + AGENTS.md.**
 - **2026-11-02 · Jordan slice 1 LANDED ON THE PARALLEL BRANCH `jordan-details` (the worktree
   `~/Documents/hermitage-3d-jordan`, off d2d3aec) — "the room reads as architecture"; the
   details program's next room, PARALLEL to the luna2 session's in-flight track. MERGE into
@@ -316,7 +345,29 @@ docs/briefs/). Owner reads Russian; briefs and code in English.
   pin every contract explicitly; the orchestrator validates harder.
 - Trivial mechanical work stays orchestrator-direct (no relay at all — the r24b/R006 precedent).
 
+**Standing situation — the repair-cascade shape (measured; the rastrelli-gallery RG-F1
+precedent, 2026-11-05/06).** A verdict-law for a repair/assembly program can be tested, hold,
+and still face an UNENUMERATED task space: each newly measured class then earns its own
+ruling and implementation pass one at a time (that round logged six class rulings), and the
+classes close only when a single full-enumeration probe finally exists — at which point one
+run lists the remainder together (the 240-row census) and the adopted laws apply to all of
+them in one pass. Measured sequencing facts from that round: the enumeration ran AFTER four
+class rulings; the two-frame failure class surfaced only at the assembly stage; a single
+census at admission time would have seen the whole class list before the first class
+ruling. The situation — not a procedure — is recorded here: how such a task advances
+(enumerate-first, rule-per-class, scope reduction, or another disposition) remains the fresh
+creative session's own call; the round's clean trail lives in the rg-details bullet above,
+the vault texts (26/30/32/37-REPLY), and the pinned probe logs.
+
 **Transport traps (cost a full relay each when ignored).**
+0. THE WEDGED-SUBAGENT STOP (owner request 2026-11-06, the Brief-39 precedent; works while
+   an agent is in its thought-loop, when queued messages go unread): the orchestrator's
+   kill-switch is the server API — discover via `opencode api get /openapi.json`, then
+   `opencode api post /api/session/<sessionID>/interrupt` (→ `{"interrupted": true}`); the
+   subagent's harness state turns cancelled. A cancelled session is NOT revived by queued
+   messages — treat as terminal: snapshot the working tree, continue on a fresh agent (the
+   work state lives on disk: snapshots + probe logs). Do not pkill the shared daemon (it
+   kills every session incl. the orchestrator's own).
 1. RETIRED (owner, 2026-10-28): the MASKED-marker protocol. The transport masked verbatim
    numbers exactly once — the single incident that wrote this list — so the marker protocol
    (`MASKED-IN-BRIEF: keep the <name> value`) is no longer used in briefs. Numbers still belong
