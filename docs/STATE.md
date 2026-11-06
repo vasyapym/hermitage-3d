@@ -4,6 +4,158 @@ One file a new relay session reads at start. Two sections: **Live state** (updat
 integration that changes the facts — same session, never later) and **Standing protocol** (rarely
 changes).
 
+- **2026-11-03/07 · rg-details — LANDED AS THE MEASURED C″ STOP ON `rastrelli-details` (nothing
+  ships; the C″ law's own fallback: main keeps HEAD a641ec7's room — this Closing record sits
+  above its own opening bullet below).** Work lineage on the branch: Brief 40 v2 relayed → the
+  ruling-40 law (§1 census type-confusion fix REAL; §M log-only battery: M1 domain mixing
+  CONFIRMED 3,369 pairs/113 distinct — x=110 y=545 z=2,714; M2 T-junction 784/near-twin 0/hole
+  1,132; M3 all 1,916 one-face edges S7-introduced; the canon1-pending RAW oneFace=0/over=2/
+  degenerate=6-7) → §2's exact-source law (the line-twin within one exact f32 ulp; rank = the
+  solved-subset length; the S6 belt; the WELD2 anchor) LANDED and REFUTED BY MEASUREMENT (850
+  S4 + 735 WELD2 rank-2 keys hold EXACTLY ZERO candidates; the nearest full-rank line-mates
+  sit ≥ 31,441/104,857,600 ≈ 3.0e-4 away — the exact counterpart lives in the S6-era recorded
+  scalars, not in the S4 mesh population) → Brief 14 v2 → the ruling C′ (ship + research) →
+  the splice A-BORT measurement: the predecessor's OWN conform machinery passes entirely and
+  MANUFACTURES 13 of the 15 bad edges on the closed S3 product (the founding 15-seam class
+  was a tolerance-path artifact; the S3 hand-over is the cleanest state: oneFace=0 wire=0
+  over=2 degenerate=6, verts 5,655) → Brief 16 v2 → the ruling C″ «raw-ship» (v11/16: the
+  tolerance path REMOVED — both conform sites dropped; R3 the counting bar with the
+  orchestrator-banked pins; S4–S7 barred from the shipped bmesh). THE SHIPPED-BAR STATE
+  MEASURED: SHIP_BAR at the hand-over PASSED the gate-law (3) kernel — oneFace=0 wire=0
+  winding=0; over=2/degenerate=7 PIN-EQUAL to RG_F1_SHIP_PINS_CANDIDATE (KISS = the two
+  x≈4.8/y=3.0 verticals = the S4-class over edges 4877/7273 exactly; DEGEN = seven
+  vertex-triple pins, the seventh = the identity-tie-class face the exact solver built
+  collapsed); movedVerts/addedVerts=0; volumeDelta=0.0 (volume 1,696.7619…); dissolve_limit
+  dropped (I1–I3 hold pre-dissolve) — then the lane STOPPED at the pred's own `volume_bvh`
+  ('degenerate reference triangle 736', a D11-class zero-area triangle at the pred's 2e-10
+  reference scale; the C″ narrowing covers the lm stage only ⇒ the pre-authorized fallback
+  governs; no blind repair). DETERMINISM ×2: the shipped pair byte-identical (sha256
+  7c7ecd53…c34788, s45 logs); the earlier pred-refusal pair identical (49ba06f6…); the
+  shipped log carries ZERO Lane-2 rows (the §6 discipline measured). FILES:
+  tools/bpy/rastrelli-gallery.py (the C″ five-region splice: F1″ route 'raw' +
+  prepare_shell_raw/ship_bar/the R3 pins + RAW_TWIN wiring + the D9/D11/VISIBLE/BASELINE_DIFF
+  emitters) and tools/bpy/rastrelli-gallery-exact.py (THE RENAME — the exact/research module
+  with the census lane: the R1/R2 demotions, _EXACT_CENSUS_LEDGER, emit_deviation_rows ×11,
+  run_census with the designed-bar catch; + Lane 2's driver-side A0 additions; the shipped
+  log stays clean of them by construction). **LANE 2 (A′-0, the recorded-node probe,
+  driver-side, banks for the NEXT round):** 9,260 RG_F1_CANON1_NODE_SOURCE_PROBE rows banked
+  (S4 5,655 + WELD2 records) + both HIST rows: S4 rank1 {k0 303, k1 107, k2+ 0} rank2 {361,
+  489, 0} rank3Agree 2372/Disagree 3/NoCell 2020; WELD2 rank1 {269/128/0} rank2 {389/346/0}
+  rank3 1564/3/906; intake coverage 155/160 distinct lineTwinAbsent images via the S4 rank-2
+  k1 set (WELD2's own set covers 71/160); the law's fixed decision rule executed:
+  **A-1 STOP** (k2plus=0 both passes both ranks, but the full coverage condition failed) —
+  per the law A′ stops, the rows bank, B′ stands. THE PROBE'S ×2 PAIR UNPROVEN on this
+  machine and banked as a finding: run3 completed the full chain (82 MB, EXIT=0, the verdict
+  above), but run4 and the re-attempt run5 (different seeds, unbuffered, memory-watched)
+  both WEDGED in the S6 zone (zero log growth 13-15 min at ~370 MB stable rss then killed) —
+  3 of 4 plain-driver attempts reach the same wedge while the census-twin driver passes the
+  identical chain cleanly ×2 ⇒ the wedge is driver-side, not chain-side; the next probe round
+  re-attempts the pair with that fact named. NO merge; NO full gate here — the owner's stack
+  call runs it (the branch carries code+records only; the committed room assets are untouched
+  BY CONSTRUCTION — the browser payload is unaffected). THE NEXT ROUND'S DECISION INPUTS (all
+  in-file/on-disk): (i) the volume_bvh-side D11-consistent zero-area skip (a ruled matter for
+  a fresh law, NOT executed here), (ii) the fallback-ship semantics, (iii) the A′-1 recorded
+  -node law IF a re-scoped rule can exceed the 155/160 coverage the measurement names (the
+  vault briefs 40 + 12–17 + the stage logs carry the full trail).**
+  THE HANDOFF: this session's context is exhausted; a fresh session reads THIS bullet first.
+  `~/Documents/hermitage-3d-rastrelli`, off ed25e4b post-R21-ux) — the Rastrelli Gallery's next
+  round: the owner's TODAY re-issue that the room «looks very raw / as a draft», PARALLEL to the
+  in-flight jordan track. A TWO-PART round in the jordan-slice-2 brief shape (the owner's call
+  after the combined ask stalled the specialist): PART 1 = the FIND/SPLICE decision brief (the
+  vault `projects v9/2-hermitage-3d-rastrelli-gallery-part1-find.md` — §0 task&freedom / §1 the
+  full state incl. the orchestrator's OWN capture battery `probes/rg-round-shots/` (11 frames:
+  4 stops × day + Gj/G1 × dusk-night + 3 rail cam frames, factual reads written into §1.5) /
+  §2 the record verbatim / §3 pipeline / §4 A&Q / §5 the six-item decision contract + appendix
+  law files; NO code from the specialist in part 1; the workspace is ATTACHED to the specialist
+  chat — it reads the repo itself, read-only) — DONE; the verdict ADOPTED (the RG-F1 «the lit
+  door and the order» slice) and the cheap D-run executed (a doubleSided flip probe: NO change
+  in the black zones → not backface-culling; the end-wall fields exist per bpy:773-843 → the
+  black is atlas/bake-side, covered by the slice's gutter-fill/dead-cell guards + the rebuild).
+  Implementation SPLIT INTO 2a/2b (owner call: the whale brief `3-…-part2-code.md` timed the
+  chat model out; that vault file is retired): 2a = the BUILDER + GATE half (the vault
+  `projects v9/3a-…-part2a-builder.md`, ~79 KB in, the east-end rebuild + the order + the
+  painters + the FACING/WATERTIGHT/PX_PER_M_FLOOR guards + the `lm.cells` map; the huge-file
+  SEGMENT law lets the builder arrive across messages), 2b = the SHARED CHAIN + RECORD half
+  (the vault `projects v9/3b-…-part2b-chain.md`: bake.py keyed rows + the STAGE_SPILL hook +
+  the white-point dict + gutter-fill/DEAD_CELL behind default-off per-room dicts + the
+  register/walkthrough texts; the old builder rides CONTEXT-ONLY). 2A-INTEGRATION: the two
+  files landed + the orchestrator's fixes recorded in the builder (TRANSVERSE_ARCH_CROWN
+  3.38→3.34: the 0.1727<0.18 chord-crossing re-measure → 0.18803; LINE_PERP_MAX 5e-6 NEW:
+  the bmesh float32 noise ~9.5e-7 at 40 m spans skipped the first two roof-row splits; the
+  conform-chain rebuild: per-position weld_verts repair + survivor remap + single-edge
+  materialization + faces.new's edge adoption; the sliver pass RG_F1_SLIVERS 9; the
+  collect-cleanup/inset_arch guard fixes). THE AIR VOLUME + the pocket-niche UNION lane pass
+  WATERTIGHT+FACING ✓; the members DIFFERENCE fails closed_guard with 15 real seam edges
+  (the exact-solver drifts 1e-6..2.5e-4 at the profile/plane meetings). THE CREATIVE
+  CORRECTION RE-SPLIT (owner call: the 78 KB whale could stall the chat again; the
+  `3c-…-part2a-correction.md` vault file retires): 3c = THE WATERTIGHT DECISION DRAW (the
+  vault `projects v9/3c-…-watertight-decision.md` — facts-only, prose contract: THE
+  DIAGNOSIS + THE ROUTE VERDICT (the reply's own named assembler alternative stands) + THE
+  REPAIR SPEC, no code artifacts), 3d = THE WATERTIGHT IMPLEMENTATION DRAW (the
+  vault `projects v9/3d-…-watertight-implementation.md`, 90 KB: the verdict verbatim + both
+  integrated files); 3d's delivery got transport-cut mid-token inside painted_regions; the received prefix
+  (~25 KB through the fragment ` fo`) is saved as the stage-side commit of record and 3e =
+  THE CONTINUATION DRAW (self-sufficient: verdict + prefix + gate embedded; REMAINDER-ONLY
+  law) relays next; THE ADOPTED ROUTE = repair the Boolean chain with SOURCE-DERIVED
+  junction-local boundary reconstruction (the constrained canonicalization + welds, the
+  repair-registry families, source-facet patch restoration, the explicit closure law;
+  tolerance-only healing and the whole-room assembler rejected); the checkpoint inventories
+  (vertex/edge ids, loop sequences, use counts, per-removed-face records) + canonical
+  fingerprints are IN-FILE requirements.
+  THE HANDOFF: THIS ORCHESTRATOR'S CONTEXT IS SPENT; A FRESH SESSION TAKES OVER
+  (cd ~/Documents/hermitage-3d-rastrelli; /usr/bin/git fetch origin; re-read this bullet).
+  The delivery artifacts stand in the stage dir
+  /private/var/folders/8x/yls1cw1d6s3fmbrxhqg0y17w0000gp/T/opencode/rg-assets/:
+  `received-builder-part1.py` (the prefix through the fragment ` fo`),
+  `received-segment1-rest.py` (the kernel, resuming `r piece in outside)`),
+  `received-reply-tail.md` (the adopted S2-S9 mechanical spec + challenges).
+  THE NEW SESSION'S JOB LIST: (1) stitch
+  cat(received-builder-part1.py, received-segment1-rest.py) — the seam concat
+  provably completes ` fo` + `r piece` into ` for piece` — into
+  tools/bpy/rastrelli-gallery.py; (2) the predecessor's construction stages
+  (the pre-3d builder, preserved at git ddd47d7:tools/bpy/rastrelli-gallery.py;
+  its Booleans/registry/conform were the only changed parts) re-wired per the
+  S2 spec into build_operands facet records + SOURCE_ATTRIBUTE attaches, the
+  chain order per S3; (3) implement S4-S8 per the spec file; (4) the S9 tail
+  (finish/shelf/export/summary) unchanged; (5) caffeinate pnpm asset:bpy → the
+  RG_F1_* rows → pnpm asset:gltf; (6) records + push. Owner
+  decisions pending at the
+  integration plate: the value inversion, the door card/stage spill, the capture-band rows. The
+  orchestrator runs the room's bpy/bake/re-encode chain + tsc/biome/vitest + build/budget on the
+  branch; NO merge and NO full e2e/golden gate this session. MERGE into main + the FULL
+  e2e/golden gate run at the owner's stack signal only. (The round opened with the owner's
+  framing amendment: the ROLE boilerplate re-phrased as the engineering peer + THE STAGE LAW —
+  transport trap 5.) ROUNDS row 67.**
+   THE HANDOFF (this orchestrator's context spent; a fresh session takes over — do not rely
+   on chat, everything is on disk):
+   WHERE WE ARE: S2–S6 landed deterministic (4,376 facets; registry 116/4 families; S6
+   arrangements 86,947 regions/39,900 retained); S7's certificate pass exact (141+99+0;
+   WELD2 clusters=0 moved=3,421; ledger 106,079 rows 0 unexplained; the canonical table
+   5,651/0 ambs; face-448 split @ 1048567/1048575). The moved-frame repair landed
+   (file 6,177 lines, snapshot-b39-inflight-6164.py) but the bar is NOT green: run8's
+   census oneFace=1,916 (holder census: 179+918+689+130) / wire=0 / over=3 / winding=443
+   / degenerate=13; no determinism pair at the current code state; the repair agent was
+   interrupted (context degraded). THE 15-seam class never reproduced (raw product 0/0/0
+   pre-assembly).
+   ON DISK: vault `projects v10` briefs 21–40 (21–39 + replies; 40 = v2 clean rewrite
+   after the first paste degraded) + the stage dir
+   /private/var/folders/8x/yls1cw1d6s3fmbrxhqg0y17w0000gp/T/opencode/rg-assets/
+   (snapshots incl. snapshot-b39-inflight-6164.py, the probes rg-f1-s23.py /
+   rg-f1-s38.py / rg-f1-s38-recon.py / rg-f1-s23-census.py, the run logs
+   s39-run1..8.log ~76 MB each, census-run1/2.log, s38-run9/10.log);
+   kernels/probe heads: probes/kernel-frozen-head.bin.
+   THE FRESH SESSION'S JOB LIST: (1) show the owner the CLEAN Brief 40 from the vault
+   file (do not retype from any chat); the owner relays it to the big-context model;
+   (2) integrate the returned ROUTE law verbatim — route B/C = Brief 35 (S8+tail splice;
+   fill its two [S7-FACT] slots from this bullet + the run logs) then the real build
+   chain (caffeinate pnpm asset:bpy → RG_F1 rows, determinism ×2 → pnpm asset:gltf);
+   route A = one mechanical implementation pass on the 1,916 holder classes per the
+   ruled law, then the bar ×2, then the same build chain; (3) records + push
+   (STATE bullet update, ROUNDS row 67, graph node, ledger sweep; /usr/bin/git push
+   origin rastrelli-details; NO merge, NO full gate — the owner's stack signal);
+   (4) the standing entries (census-first; the wedged-agent API interrupt) live in
+   STATE.md's Standing protocol + AGENTS.md.**
+
 - **2026-11-03 · JORDAN SLICE 2 OPEN — PARALLEL to the other agent's in-flight track (worktree
   `~/Documents/hermitage-3d-jordan2`, branch `jordan-slice-2` off ed25e4b; MERGE into main happens
   at the owner's notification that the other agent's round is done — NOT this session; the FULL
@@ -186,7 +338,6 @@ changes).
   block below predates those flips and is kept as-written. Detail lives in `docs/briefs/ROUNDS.md`
   rows and the design docs; this file is the index, not the archive. If a number here contradicts
   a fresh measurement, the measurement wins — fix this file in the same session.
-
 - **2026-11-02 · Jordan slice 1 LANDED ON THE PARALLEL BRANCH `jordan-details` (the worktree
   `~/Documents/hermitage-3d-jordan`, off d2d3aec) — "the room reads as architecture"; the
   details program's next room, PARALLEL to the luna2 session's in-flight track. MERGE into
@@ -569,9 +720,8 @@ class rulings; the two-frame failure class surfaced only at the assembly stage; 
 census at admission time would have seen the whole class list before the first class
 ruling. The situation — not a procedure — is recorded here: how such a task advances
 (enumerate-first, rule-per-class, scope reduction, or another disposition) remains the fresh
-creative session's own call; the round's trail: the vault briefs+replies `projects v10`
-(21–38), the `rastrelli-details` branch's docs/STATE rg-details bullet + docs/briefs/ROUNDS
-row 67 (pending merge), and the pinned probe logs in the round's stage dir.
+creative session's own call; the round's clean trail lives in the rg-details bullet above,
+the vault texts (26/30/32/37-REPLY), and the pinned probe logs.
 
 **Transport traps (cost a full relay each when ignored).**
 0. THE WEDGED-SUBAGENT STOP (owner request 2026-11-06, the Brief-39 precedent; works while
@@ -593,10 +743,22 @@ row 67 (pending merge), and the pinned probe logs in the round's stage dir.
 4. Same-base `page.goto` is a FRAGMENT navigation (no reload), and a mounted room keeps its
    technique until the next exit disposes it — measurement/e2e configs must open a FRESH page
    per configuration (the round-17c measurement's first run silently re-measured config 1).
+5. THE STAGE LAW (owner, 2026-11-03): every relay reply ships as a SEQUENCE of stage messages
+   in the same thread, never one monologue — stage 1 = the assessment/design draw, complete in
+   itself; later stages = implementation batches per file or tight family; every non-final
+   stage ends `TRUNCATED-HERE: <next artifact>`, the final ends `COMPLETE`; no recap
+   transitions, each stage opens on its own facts. The generation dead-air (a passive-framed
+   specialist stalls mid-output with nothing yielded) is the trap this law exists to prevent.
 
 **Brief boilerplate (copy blocks, compose fresh only the task-specific parts).**
-- ROLE line: «You are the specialist of a relay. You have no tools, no repo access and no prior
-  context; the orchestrator integrates your reply into the repository and validates it.»
+- ROLE line (the engineering-peer frame; OWNER AMENDMENT 2026-11-03 — the fresh-session law
+  stands, but never phrase the specialist as «you have no tools / no repo access»; a passive
+  one-shot frame produces one uninterrupted generation — see trap 5): «You are the room's
+  engineering lead for this round. The orchestrator hands you the room's committed source tree
+  inside this brief and takes your work back — it integrates, runs the bake chain, and
+  validates everything against the repository's own gates (build chain, budgets, the tests it
+  writes from your pins). Everything you may consult is inside this brief. Every brief is a
+  fresh session — carry forward whatever the reply itself needs.»
 - HOUSE STYLE (binds every file): leading block comment citing the design sections implemented;
   named exports only, no default exports; no enums; `satisfies` over `as` where a literal object
   is typed; `import type` for type-only imports; strict TS — noUncheckedIndexedAccess (index
