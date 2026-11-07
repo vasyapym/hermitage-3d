@@ -1,6 +1,9 @@
 // docs/design-mobile-tier.md §§4–5: injected facts only; the host owns input and layout.
 export const TOUCH_BUTTON_MIN_INLINE_PX = 72;
-export const TOUCH_BUTTON_MIN_BLOCK_PX = 44;
+/** R25-ux: 44 → 41 by the owner's call — the hit area is the box itself; 41 is chosen knowing
+ * the 44 px touch-target convention (WCAG 2.5.8's 24 px floor stands clear). The bottom edge
+ * stays on slotBottom, so the pair's centre drops 1.5 px — the round's only position change. */
+export const TOUCH_BUTTON_MIN_BLOCK_PX = 41;
 export const TOUCH_RAIL_GAP_PX = 8;
 export const TOUCH_RAIL_INSET_PX = 24;
 /** R21-ux: each box sits this share of the viewport width inside the inset (host writes `%`). */

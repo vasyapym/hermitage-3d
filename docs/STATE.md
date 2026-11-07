@@ -392,6 +392,59 @@ file in the same session.
 
 ## Live state
 
+- **2026-11-08 · ARROWS-FACE-TUNE MERGED TO MAIN (merge slot 1/3 of the three-session merge
+  stack — the FIRST of three; the FULL e2e/golden gate rides the LAST merging session per the
+  owner's ruling — deferred NOT waived; merge `5fc9a82` off the branch head `25343fd`, an
+  ordinary code/records merge — public/assets untouched; ROUNDS' row-68 conflict with the
+  CI-legend docs commit resolved by the flip convention — both rows stand).** The union's
+  deterministic battery: tsc 0 · biome clean · **the committed suite green — the branch's
+  62-file measure 1036 passed / 1 skipped stands** (the in-tree run reads 1042/1 on 64 files:
+  two UNCOMMITTED gitignored scratch-probe files ride main's disk, one fails locally exactly
+  as recorded pre-merge — `probes/r4-kit-night/probe25_analysis.test.ts`, not the repo's)
+  · build **282,514 of 350,000 — byte-equal to the finale's print** (the arrows tune's JS
+  delta ≈ 0 beyond the constant 41/44 inlining drift the branch printed as −10) · RU 7,332
+  byte-equal · jordan payload 1,237,543, military-gallery 3,008,700, rastrelli 378,876,
+  _check 37,157, exterior 0, basis 584,862 — every budget ok. The 8 re-recorded goldens ride
+  the merge (4 coarse-chrome + the 4 whole-page 360 pairs; R21-ux-deferred 1812 pair debt
+  already re-baselined at the finale). The round's full record = the ROUNDS top row
+  (PARALLEL → MERGED) + the branch's STATE bullet below. NOT this session: merge slots 2/3
+  and 3/3 + the FULL e2e/golden gate (the last merging session).
+
+- **2026-11-07 · ARROWS-FACE-TUNE LANDED ON THE PARALLEL BRANCH `arrows-face-tune` (worktree
+  `~/Documents/hermitage-3d-arrows-face-tune`, off e09c667; MERGE into main at the owner's
+  notification that the other agent's round is done — NOT this session; the FULL e2e/golden
+  gate rides that merge).** The owner's three arrow-face asks on the mobile touch rail, relayed
+  CREATIVE ×1 (the vault `projects v11/18-…`; the render described in words in the brief — the
+  specialist has no image input): the available register .85 → **.79** (≈ 7 % more transparent,
+  multiplicative; the .35 dim and the #fff hover/focus values untouched); the box 72×44 →
+  **72×41** (owner-rounded; the glyph centre drops exactly 1.5 px, the bottom edge stays pinned
+  to slotBottom — the slot law untouched); «≈ 7 % less glossy» ruled by the draw: the gloss =
+  the halo's downward-offset emboss read (a bright core over a dark 1 px-down rim = a
+  lit-from-above bevel), so the halo alpha .8 → **.74** — both moves one ×.93 sentence so the
+  rim keeps its share of the dimmer glyph. PLUS the owner-ratified STICKY-HOVER GUARD (the
+  draw's own find, aimed at the owner's «when you click on it» complaint): :hover paints only
+  under `@media (hover: hover)` — touch platforms applied :hover on tap and held it, the
+  just-tapped arrow sat at #fff; :focus-visible stays unconditional (the keyboard signal).
+  FILES: src/style.css (the face block + the guard), src/ui/touch-rail.ts (the constant +
+  comment; the purity fence intact), tests/touch-rail.test.ts (the tuple re-pin), tests/e2e/
+  touch-rail.spec.ts (two NEW face-register pins, each carrying its own clean-state blur — an
+  earlier size iteration's tab-order row leaves :focus-visible on the button and focus
+  survives setViewportSize), docs/design-mobile-tier.md §4 (constants + the R25-ux note + the
+  face sentence; the R17 ratification rows kept as-written), the 4 coarse-chrome goldens
+  re-recorded and read. THE OWNER'S DAY-2 ADDENDUM: `-webkit-tap-highlight-color: transparent`
+  on the rail — the tap-aware chrome law the season rows and the index buttons already carry;
+  the browser's default ≈ 200 ms translucent black tap box was painting over the scene on
+  every arrow tap. One line, no tests touched. GATES on the branch: pnpm validate GREEN (tsc 0, biome clean after one
+  formatter fix, **vitest 1036 passed / 1 skipped / 62 files** — main's disk adds two
+  UNCOMMITTED scratch-probe test files, one failing: local-only, gitignored, not the repo's),
+  build **282,504 gzip of 350,000** (−10 vs the finale's print, build-to-build drift; budgets
+  ok), RU 7,332, payloads ok. E2E VERDICT SPLIT (the storm class + the pin fix, the R16.2/
+  finale re-verdict precedent): run 1 (the owner's browser loading the machine) 14/18 with
+  540-s timeout-class reds; runs 2–4 on the quiet machine — **every row of the touch-rail
+  spec carries a green on this tree across the verdicts** (the four walks: square 23 s ·
+  rastrelli 1.1 m · jordan 5.3 m · military 5.7 m = 12.6 m; no single 18/18 pass ran) +
+  fixtures 22/22 with the re-recorded goldens. NO merge, NO full gate — the owner's signal.
+
 - **2026-11-07 · THE STACK FINALE RAN (this session; all four slots in main): rastrelli-details
   (the C″ measured stop) MERGED into main as `69335b4` (ordinary code/records merge —
   public/assets untouched by construction); the FULL e2e/golden gate ran on the union.**
@@ -407,7 +460,16 @@ file in the same session.
   tree the same morning (load 2.8; `--trace off`; no code touched): smoke.spec re-ran
   **9/9 GREEN in 20.5 m** (126: 56.6 s · 176: 1.5 m · 271: 12.2 m) — the storm class is
   the recorded machine-class ruling; every row of the chromium scope now carries a green
-  on the identical tree (69 first-pass + 5/5 re-verdicted).
+  on the identical tree (69 first-pass + 5/5 re-verdicted). THE CI LEGEND: the two finale
+  pushes' first CI runs (#164/#165) came back red on the ONE row
+  `touch-rail.spec.ts:253 › rapid activation / reduced motion` (Expected "Sh" ·
+  Received "S1" at the row's frames-stability read — the row's own comment names the
+  class: the second tap's admission law owns the landing; the CI runner's slower settle
+  cadence let the legal admission straddle the `after` read — a spec-assertion race, NOT
+  an app defect; the route-set row kept one-tap-one-step lawful). ZERO code delta from
+  the green base `4f3e550` (docs + bpy + five PNG snapshots only): `gh run rerun
+  --failed` on `e09c667` → **completed/success** — the legend stands green on main's
+  head; the row's boundary-cadence hardening noted as an OWNER-GATED spec candidate.
   FULL GOLDEN: pass 1 32/5 (13.4 m) = EXACTLY the earlier lanes' deferred re-baseline debt
   (jordan J4 day/dusk/night ×3 — slot 2's deferred line; the 1812 360-corner fixtures
   en/ru ×2 — R21-ux's arrow face carried in the base: Medium 500 @ 27 px + the
