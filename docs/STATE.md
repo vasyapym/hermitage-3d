@@ -406,7 +406,16 @@ file in the same session.
   tree the same morning (load 2.8; `--trace off`; no code touched): smoke.spec re-ran
   **9/9 GREEN in 20.5 m** (126: 56.6 s · 176: 1.5 m · 271: 12.2 m) — the storm class is
   the recorded machine-class ruling; every row of the chromium scope now carries a green
-  on the identical tree (69 first-pass + 5/5 re-verdicted).
+  on the identical tree (69 first-pass + 5/5 re-verdicted). THE CI LEGEND: the two finale
+  pushes' first CI runs (#164/#165) came back red on the ONE row
+  `touch-rail.spec.ts:253 › rapid activation / reduced motion` (Expected "Sh" ·
+  Received "S1" at the row's frames-stability read — the row's own comment names the
+  class: the second tap's admission law owns the landing; the CI runner's slower settle
+  cadence let the legal admission straddle the `after` read — a spec-assertion race, NOT
+  an app defect; the route-set row kept one-tap-one-step lawful). ZERO code delta from
+  the green base `4f3e550` (docs + bpy + five PNG snapshots only): `gh run rerun
+  --failed` on `e09c667` → **completed/success** — the legend stands green on main's
+  head; the row's boundary-cadence hardening noted as an OWNER-GATED spec candidate.
   FULL GOLDEN: pass 1 32/5 (13.4 m) = EXACTLY the earlier lanes' deferred re-baseline debt
   (jordan J4 day/dusk/night ×3 — slot 2's deferred line; the 1812 360-corner fixtures
   en/ru ×2 — R21-ux's arrow face carried in the base: Medium 500 @ 27 px + the
