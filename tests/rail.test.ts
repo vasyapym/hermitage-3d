@@ -617,7 +617,9 @@ describe('purity', () => {
       .replace(/'(?:\\.|[^'\\\n])*'/g, '')
       .replace(/"(?:\\.|[^"\\\n])*"/g, '');
   it('loads the module source', () => {
-    expect(Object.keys(sources)).toHaveLength(6); // rail + square-rail + cam-param + look + wheel-edge (r21, DEC-031) + door-lean (R-UX2)
+    // rail + square-rail + cam-param + look + look-param (W5, the det ?look= parser) +
+    // wheel-edge (r21, DEC-031) + door-lean (R-UX2) + portrait-frame (brief 19 §A).
+    expect(Object.keys(sources)).toHaveLength(8);
   });
   it('imports nothing from three or node', () => {
     for (const src of Object.values(sources)) {

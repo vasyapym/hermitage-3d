@@ -325,7 +325,9 @@ describe('patchGroundSnowSlot', () => {
     patchGroundSnowSlot(material as unknown as Parameters<typeof patchGroundSnowSlot>[0]);
     expect(material.onBeforeCompile).toBeTypeOf('function');
     expect(material.customProgramCacheKey).toBeTypeOf('function');
-    expect(material.customProgramCacheKey?.()).toBe('Ground/snow-slot@1');
+    // Brief 19 §B.2 (W4c): the paving slot composes INSIDE the snow hook, so the key compounds —
+    // patched and unpatched materials still never share a cache entry.
+    expect(material.customProgramCacheKey?.()).toBe('Ground/snow-slot@1|Ground/paving-slot@1');
   });
 
   it('throws when an anchor is missing', () => {
