@@ -741,6 +741,9 @@ body:has(#caption-title[data-visible="true"]) #touch-rail {
   padding: 0;
   border: 0;
   background: none;
+  /* The tap-aware chrome law (the season rows' and the index buttons' own): the browser's
+     default ~200 ms translucent tap box has no place over the scene. */
+  -webkit-tap-highlight-color: transparent;
   cursor: pointer;
   font-family: inherit;
   font-size: 27px;

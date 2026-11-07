@@ -412,7 +412,10 @@ file in the same session.
   earlier size iteration's tab-order row leaves :focus-visible on the button and focus
   survives setViewportSize), docs/design-mobile-tier.md §4 (constants + the R25-ux note + the
   face sentence; the R17 ratification rows kept as-written), the 4 coarse-chrome goldens
-  re-recorded and read. GATES on the branch: pnpm validate GREEN (tsc 0, biome clean after one
+  re-recorded and read. THE OWNER'S DAY-2 ADDENDUM: `-webkit-tap-highlight-color: transparent`
+  on the rail — the tap-aware chrome law the season rows and the index buttons already carry;
+  the browser's default ≈ 200 ms translucent black tap box was painting over the scene on
+  every arrow tap. One line, no tests touched. GATES on the branch: pnpm validate GREEN (tsc 0, biome clean after one
   formatter fix, **vitest 1036 passed / 1 skipped / 62 files** — main's disk adds two
   UNCOMMITTED scratch-probe test files, one failing: local-only, gitignored, not the repo's),
   build **282,504 gzip of 350,000** (−10 vs the finale's print, build-to-build drift; budgets
