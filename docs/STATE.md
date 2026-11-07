@@ -44,13 +44,16 @@ changes).
   rank3 1564/3/906; intake coverage 155/160 distinct lineTwinAbsent images via the S4 rank-2
   k1 set (WELD2's own set covers 71/160); the law's fixed decision rule executed:
   **A-1 STOP** (k2plus=0 both passes both ranks, but the full coverage condition failed) —
-  per the law A′ stops, the rows bank, B′ stands. THE PROBE'S ×2 PAIR UNPROVEN on this
-  machine and banked as a finding: run3 completed the full chain (82 MB, EXIT=0, the verdict
-  above), but run4 and the re-attempt run5 (different seeds, unbuffered, memory-watched)
-  both WEDGED in the S6 zone (zero log growth 13-15 min at ~370 MB stable rss then killed) —
-  3 of 4 plain-driver attempts reach the same wedge while the census-twin driver passes the
+  per the law A′ stops, the rows bank, B′ stands. THE PROBE'S DETERMINISM — banked at the
+  scoped pairs, open only for the plain driver's FULL chain: the variant-A probe runs
+  (S4+intake facts, the chain stalled zones excluded) are seeded/unseeded BYTE-IDENTICAL
+  (sha d0756ae1…); the refused-HIST pair identical (990bc8a…); the plain-driver FULL-chain ×2
+  is unproven on this machine — run3 completed the full chain (82 MB, EXIT=0, the verdict
+  above), but run4 and re-attempt run5 (different seeds, unbuffered, memory-watched) both
+  wedged in the S6 zone (zero log growth 13-15 min at ~370 MB stable rss then killed) — 3 of
+  4 plain-driver attempts reach the same wedge while the census-twin driver passes the
   identical chain cleanly ×2 ⇒ the wedge is driver-side, not chain-side; the next probe round
-  re-attempts the pair with that fact named. NO merge; NO full gate here — the owner's stack
+  re-attempts the full-chain pair with that fact named. NO merge; NO full gate here — the owner's stack
   call runs it (the branch carries code+records only; the committed room assets are untouched
   BY CONSTRUCTION — the browser payload is unaffected). THE NEXT ROUND'S DECISION INPUTS (all
   in-file/on-disk): (i) the volume_bvh-side D11-consistent zero-area skip (a ruled matter for
