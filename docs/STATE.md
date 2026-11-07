@@ -434,7 +434,12 @@ file in the same session.
   every next stage with "proceed". Brief 21 re-cut per that law: stage 1 = the verify-first
   audit table (+ the F8 profile ruling + the amendment confirmations); stage 2 (on proceed) =
   the part-3 SPEC (no code from the model); stage 3 (on proceed) = the S4 splice specs + pin
-  diffs + the record texts.**
+  diffs + the record texts.** **FINAL STAGE SHAPE (the owner's fold, 2026-11-08): the audit merges
+  INTO the spec stage — stage 1 = the audit section (compact; the F8 ruling first) + THE PART-3
+  SPEC (§3's eight pinned sections, no code from the model; the orchestrator writes the code
+  against the spec + the S1/S2 vocabulary), ends TRUNCATED-HERE-or-COMPLETE (the cut lands at a
+  section boundary and carries the adopted-constants block); stage 2 (on proceed) = the S4 splice
+  specs + pin diffs + the record texts.**
 
 - **2026-11-07 · THE STACK FINALE RAN (this session; all four slots in main): rastrelli-details
   (the C″ measured stop) MERGED into main as `69335b4` (ordinary code/records merge —
