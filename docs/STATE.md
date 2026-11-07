@@ -391,6 +391,24 @@ file in the same session.
 
 ## Live state
 
+- **2026-11-08 · ARROWS-FACE-TUNE MERGED TO MAIN (merge slot 1/3 of the three-session merge
+  stack — the FIRST of three; the FULL e2e/golden gate rides the LAST merging session per the
+  owner's ruling — deferred NOT waived; merge `5fc9a82` off the branch head `25343fd`, an
+  ordinary code/records merge — public/assets untouched; ROUNDS' row-68 conflict with the
+  CI-legend docs commit resolved by the flip convention — both rows stand).** The union's
+  deterministic battery: tsc 0 · biome clean · **the committed suite green — the branch's
+  62-file measure 1036 passed / 1 skipped stands** (the in-tree run reads 1042/1 on 64 files:
+  two UNCOMMITTED gitignored scratch-probe files ride main's disk, one fails locally exactly
+  as recorded pre-merge — `probes/r4-kit-night/probe25_analysis.test.ts`, not the repo's)
+  · build **282,514 of 350,000 — byte-equal to the finale's print** (the arrows tune's JS
+  delta ≈ 0 beyond the constant 41/44 inlining drift the branch printed as −10) · RU 7,332
+  byte-equal · jordan payload 1,237,543, military-gallery 3,008,700, rastrelli 378,876,
+  _check 37,157, exterior 0, basis 584,862 — every budget ok. The 8 re-recorded goldens ride
+  the merge (4 coarse-chrome + the 4 whole-page 360 pairs; R21-ux-deferred 1812 pair debt
+  already re-baselined at the finale). The round's full record = the ROUNDS top row
+  (PARALLEL → MERGED) + the branch's STATE bullet below. NOT this session: merge slots 2/3
+  and 3/3 + the FULL e2e/golden gate (the last merging session).
+
 - **2026-11-07 · ARROWS-FACE-TUNE LANDED ON THE PARALLEL BRANCH `arrows-face-tune` (worktree
   `~/Documents/hermitage-3d-arrows-face-tune`, off e09c667; MERGE into main at the owner's
   notification that the other agent's round is done — NOT this session; the FULL e2e/golden
