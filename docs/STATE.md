@@ -391,6 +391,19 @@ file in the same session.
 
 ## Live state
 
+- **2026-11-07 · RG-LOOK OPEN (PARALLEL to the in-flight `arrows-face-tune` lane) — the Rastrelli
+  Gallery's next visual round on its own branch (worktree `~/Documents/hermitage-3d-rg-look`, branch
+  `rg-look` off main `37f426d`; MERGE into main + the FULL e2e/golden gate at the owner's notification
+  that the in-flight arrows-face-tune round is done — NOT this session; SCOPE-LOCAL gates only:
+  the bpy/bake/encode chain as needed, `pnpm validate`).** The room's committed assets stand untouched
+  since `rg-e1-room` — the last visual change the room received; `rastrelli-details` (row 67) shipped
+  code + records only, zero visual delta the owner can see. The relay opens with a FACTS-ONLY FIND
+  dossier (the vault `projects v12/19-…`): the room's current-state census (what exists — geometry,
+  materials, bake states, fixtures, runtime/budget facts) + the round-record trail, with the
+  repair-cascade standing situation surfaced with its own numbers; the copy-paste specialist (text-only
+  chat — no screenshots; visual reads ride as their recorded text observations) decides what is lacking
+  most and what this round takes. No code yet; state/rounds marks only.
+
 - **2026-11-07 · THE STACK FINALE RAN (this session; all four slots in main): rastrelli-details
   (the C″ measured stop) MERGED into main as `69335b4` (ordinary code/records merge —
   public/assets untouched by construction); the FULL e2e/golden gate ran on the union.**
