@@ -402,7 +402,16 @@ file in the same session.
   materials, bake states, fixtures, runtime/budget facts) + the round-record trail, with the
   repair-cascade standing situation surfaced with its own numbers; the copy-paste specialist (text-only
   chat — no screenshots; visual reads ride as their recorded text observations) decides what is lacking
-  most and what this round takes. No code yet; state/rounds marks only.
+  most and what this round takes. No code yet; state/rounds marks only. **RELAY STATE (same day): the
+  FIND answered (Fable 5.1) and ADOPTED IN FULL by the owner — RG-F2 «the door's light and the order,
+  built by hand»: the builder returns to the rg-e1 direct-assembly lineage (base commit `4d6745c`
+  recovered from git; the fence regen ×2 byte-identical to the committed glb `44bdf1ab…`), the east
+  end rebuilt around the door card + the lunette half-disc with the STAGE_SPILL bake row, the white
+  order/value split, the DEAD_CELL gate + the artifact-log rows, one fresh bake ×3 states + re-encode
+  with the k=4/3 dial; zero shared-JS delta. The implementation brief 20 assembled and handed to the
+  owner (vault `projects v12/20-hermitage-3d-rg-f2-implementation.md`, 266,401 B: the verdict
+  verbatim + the base builder complete + HEAD's 2-D helpers + bake.py/reencode/lm_compose/bake.mjs
+  complete + the black-band cell table + the 15-plate before-battery + the evidence report).
 
 - **2026-11-07 · THE STACK FINALE RAN (this session; all four slots in main): rastrelli-details
   (the C″ measured stop) MERGED into main as `69335b4` (ordinary code/records merge —
