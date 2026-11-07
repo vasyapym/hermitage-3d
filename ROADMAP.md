@@ -65,6 +65,7 @@ Pure modules complete and gate-green: solar (NOAA, four contract vectors at 1e-5
 - [ ] **Neva embankment approach**
 - [ ] **Floodlit facade** — night floodlighting as a facade-material height gradient sharing a custom slot with Phase 4's snow mask; design together (DEC-019 rejected real uplights: day-time fragment tax + shader change on the reference GPU)
 - [ ] **Palace Square lampposts** — the historic cast-iron posts around the column, halos faked; a small accent, not a light source
+- [ ] **Palace Square successors (the ground round, 2026-11-07; DEC-paving's register row carries the detail)** — the column stylobate (steps under the pedestal; sourcing: step count/height), the square lanterns (the 1977 four corner recreations + the 1876 Rachau candelabra at the column; form/height unsourced), the flanking massings (the Guards Corps HQ east first — what the look-right frame misses; architecture, not ground), the facade pavement strip (sub-pixel from S0, ≈9 px at S1; re-visit with S1 captures), the wet-sett sheen (leaves Lambert; lighting goldens); owner flag: snow legibility at wSnow=1 (sky core, outside this lane).
 
 ## Definition of Done — every phase
 
