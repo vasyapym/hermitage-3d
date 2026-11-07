@@ -412,6 +412,20 @@ file in the same session.
   owner (vault `projects v12/20-hermitage-3d-rg-f2-implementation.md`, 266,401 B: the verdict
   verbatim + the base builder complete + HEAD's 2-D helpers + bake.py/reencode/lm_compose/bake.mjs
   complete + the black-band cell table + the 15-plate before-battery + the evidence report).
+  **BRIEF 20 ANSWERED (2026-11-08, stages S1+S2 of 4 received; S3+S4 pending): the specialist's
+  §A12 reading CLOSED the black-band mechanism as COVER (the end wall built twice in the base
+  builder; layer-2 partition slices sit atop the layer-1 tympanum) + the five staging decisions,
+  the element-schedule-as-enumeration law, and four self-consistent constant amendments; the S1/S2
+  transcripts preserved in the vault `replies/rg-f2/s1.md, s2.md`; the assembly machine (amendments
+  → concat → strip markers → py_compile) sits in the orchestrator's scratch, refuses to run until
+  part 3 arrives. The continuation brief 21 assembled for the owner (vault
+  `projects v12/21-hermitage-3d-rg-f2-continuation.md`, 159,030 B — SELF-SUFFICIENT: the
+  orchestrator's fact-pack §2 (the strip-grid no-pin answer, the bake.py/reencode anchors with
+  absolute line numbers, HEAD's profile lists vs the S1 pins, the test-pin map) + the S1/S2
+  transcripts verbatim + the surgical code slices (bake.py 40-170/885-900/1040-1230, reencode
+  1-115/125-300, lm_compose + reencode-paint + lm-recipes full, bake.mjs 140-320, the gltf tool,
+  the test excerpts, the ledger/license rows) + the new relay law (verify-first stage, chat-only
+  output, proceed-gated stages). The model holds NO repo access — everything rides the brief.**
 
 - **2026-11-07 · THE STACK FINALE RAN (this session; all four slots in main): rastrelli-details
   (the C″ measured stop) MERGED into main as `69335b4` (ordinary code/records merge —
