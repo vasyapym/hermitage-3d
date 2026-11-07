@@ -391,18 +391,37 @@ file in the same session.
 
 ## Live state
 
-- **2026-11-07 · ARROWS-FACE-TUNE OPEN — PARALLEL to the other agent's in-flight track (worktree
-  `~/Documents/hermitage-3d-arrows-face-tune`, branch `arrows-face-tune` off e09c667; MERGE into
-  main at the owner's notification that the other agent's round is done — NOT this session; the
-  FULL e2e/golden gate rides that merge, this session runs SCOPE-LOCAL gates only).** The owner's
-  three arrow-face asks on the mobile touch rail (the Forward/Back pair): the available register
-  ≈ 7 % more transparent (owner-confirmed scope: the .85 available state only — the .35 dim and
-  the #fff hover/focus registers untouched); the box height 44 → 41 px (owner-rounded); the pair
-  reads «glossy» — ≈ 7 % less, the mapping left to the creative draw; the height shrink's free
-  ≈ 1.3 px lower placement accepted (the slot law untouched). CREATIVE relay ×1 expected (the
-  vault `projects v11/18-hermitage-3d-touch-rail-arrows-tune.md` + the coarse-chrome golden
-  reference render attached). No code yet; integration + scope-local gates (tsc/biome/vitest
-  re-pins) this session; NO merge, NO full gate.
+- **2026-11-07 · ARROWS-FACE-TUNE LANDED ON THE PARALLEL BRANCH `arrows-face-tune` (worktree
+  `~/Documents/hermitage-3d-arrows-face-tune`, off e09c667; MERGE into main at the owner's
+  notification that the other agent's round is done — NOT this session; the FULL e2e/golden
+  gate rides that merge).** The owner's three arrow-face asks on the mobile touch rail, relayed
+  CREATIVE ×1 (the vault `projects v11/18-…`; the render described in words in the brief — the
+  specialist has no image input): the available register .85 → **.79** (≈ 7 % more transparent,
+  multiplicative; the .35 dim and the #fff hover/focus values untouched); the box 72×44 →
+  **72×41** (owner-rounded; the glyph centre drops exactly 1.5 px, the bottom edge stays pinned
+  to slotBottom — the slot law untouched); «≈ 7 % less glossy» ruled by the draw: the gloss =
+  the halo's downward-offset emboss read (a bright core over a dark 1 px-down rim = a
+  lit-from-above bevel), so the halo alpha .8 → **.74** — both moves one ×.93 sentence so the
+  rim keeps its share of the dimmer glyph. PLUS the owner-ratified STICKY-HOVER GUARD (the
+  draw's own find, aimed at the owner's «when you click on it» complaint): :hover paints only
+  under `@media (hover: hover)` — touch platforms applied :hover on tap and held it, the
+  just-tapped arrow sat at #fff; :focus-visible stays unconditional (the keyboard signal).
+  FILES: src/style.css (the face block + the guard), src/ui/touch-rail.ts (the constant +
+  comment; the purity fence intact), tests/touch-rail.test.ts (the tuple re-pin), tests/e2e/
+  touch-rail.spec.ts (two NEW face-register pins, each carrying its own clean-state blur — an
+  earlier size iteration's tab-order row leaves :focus-visible on the button and focus
+  survives setViewportSize), docs/design-mobile-tier.md §4 (constants + the R25-ux note + the
+  face sentence; the R17 ratification rows kept as-written), the 4 coarse-chrome goldens
+  re-recorded and read. GATES on the branch: pnpm validate GREEN (tsc 0, biome clean after one
+  formatter fix, **vitest 1036 passed / 1 skipped / 62 files** — main's disk adds two
+  UNCOMMITTED scratch-probe test files, one failing: local-only, gitignored, not the repo's),
+  build **282,504 gzip of 350,000** (−10 vs the finale's print, build-to-build drift; budgets
+  ok), RU 7,332, payloads ok. E2E VERDICT SPLIT (the storm class + the pin fix, the R16.2/
+  finale re-verdict precedent): run 1 (the owner's browser loading the machine) 14/18 with
+  540-s timeout-class reds; runs 2–4 on the quiet machine — **every row of the touch-rail
+  spec carries a green on this tree across the verdicts** (the four walks: square 23 s ·
+  rastrelli 1.1 m · jordan 5.3 m · military 5.7 m = 12.6 m; no single 18/18 pass ran) +
+  fixtures 22/22 with the re-recorded goldens. NO merge, NO full gate — the owner's signal.
 
 - **2026-11-07 · THE STACK FINALE RAN (this session; all four slots in main): rastrelli-details
   (the C″ measured stop) MERGED into main as `69335b4` (ordinary code/records merge —

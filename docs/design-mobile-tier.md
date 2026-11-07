@@ -160,9 +160,14 @@ bottom edge of the chrome above either button column (the wordmark block, plus a
 reaching the right column) plus TOUCH_RAIL_CLEARANCE_PX. It is not a corner-stack member or
 clock row. Constants defined
 here, in CSS px unless stated: TOUCH_BUTTON_MIN_INLINE_PX = 72; TOUCH_BUTTON_MIN_BLOCK_PX =
-44; TOUCH_RAIL_GAP_PX = 8 (the minimum gap between the two buttons); TOUCH_RAIL_INSET_PX =
+41; TOUCH_RAIL_GAP_PX = 8 (the minimum gap between the two buttons); TOUCH_RAIL_INSET_PX =
 24 (both edges); TOUCH_RAIL_CLEARANCE_PX = 16; TOUCH_RAIL_MAX_WIDTH_PX = 767.98;
-TOUCH_RAIL_PROMPT_LINES = 3 (the door prompt's reserved band, in its own lines);
+TOUCH_RAIL_PROMPT_LINES = 3 (the door prompt's reserved band, in its own lines); R25-ux: the
+block minimum is 41 px by the owner's decision (from 44). The hit area is the button box
+itself; 41 is taken knowing the 44 px touch-target convention and stays well above WCAG
+2.5.8's 24 px floor. The box's bottom edge remains pinned to the slot line, so the shorter
+box frees its 3 px above the arrows and the glyph centre sits 1.5 px lower; the slot law
+(R19-ux A.1 / R20-ux) is not re-opened.
 Measure layout only on layout changes, not in
 the render loop. Insufficient space is a failed layout gate, not permission to hide
 essential navigation. Insufficient space means either the box on its slot runs into the
@@ -170,8 +175,11 @@ ceiling, or the two buttons stand closer than TOUCH_RAIL_GAP_PX; both cases warn
 moves the pair. A door label that outgrows its reserved band warns as well, and the layout
 that measures it stands the pair above the label. Face: two arrow glyphs — «↓» for Back, «↑» for Forward (the notes link's own arrow family;
 nothing drawn) — in the chrome typeface's medium (500, the subset's only step above regular) at
-27 px, the title card's ink (.85), a faint register for a dead direction (aria-disabled), ink
-on hover/focus, no underline; the accessible names stay the words
+27 px, the rail's own ink (.79 — R25-ux, a step under the title card's .85 so the pair reads
+as controls, not a second title), a faint register for a dead direction (aria-disabled), ink
+on hover (hover-capable pointers only — R25-ux: touch platforms paint :hover on tap and hold
+it, so the just-tapped arrow no longer jumps to full ink) / focus-visible, no underline; the
+accessible names stay the words
 (chrome.touchRailBack/Forward as aria-label). R20-ux: the glyphs point along the route's
 depth — «↑» into the scene, «↓» back out of it — because the route never strafes, and each
 glyph stays flush with its box's outer edge and centred on its box's block axis, so the hit

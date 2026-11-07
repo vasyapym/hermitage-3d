@@ -620,6 +620,19 @@ for (const lang of ['ru', 'en']) {
               return { size: style.fontSize, weight: style.fontWeight };
             });
             expect(face).toEqual({ size: '27px', weight: '500' });
+            // The face registers (R25-ux): the rail's own ink (.79, a step under the caption
+            // title's .85) and the halo dimmed in step (.74). Pinned loosely: engines agree on
+            // the alpha text, not on text-shadow's serialization order. The pin carries its own
+            // clean state: the tab-order row of an EARLIER size iteration leaves the keyboard
+            // focus on this very button (:focus-visible paints #fff), and focus survives
+            // setViewportSize — release it before reading the register.
+            await p.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
+            expect(await button(p, 1).evaluate((el) => getComputedStyle(el).color)).toBe(
+              'rgba(255, 255, 255, 0.79)',
+            );
+            expect(await button(p, 1).evaluate((el) => getComputedStyle(el).textShadow)).toContain(
+              'rgba(0, 0, 0, 0.74)',
+            );
             // Row 6: elementFromPoint at the group's centre returns the canvas — the group's
             // own box passes pointer input through (the verdict-1 layout law).
             expect(
