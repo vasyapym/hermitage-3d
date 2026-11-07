@@ -391,6 +391,19 @@ file in the same session.
 
 ## Live state
 
+- **2026-11-07 · ARROWS-FACE-TUNE OPEN — PARALLEL to the other agent's in-flight track (worktree
+  `~/Documents/hermitage-3d-arrows-face-tune`, branch `arrows-face-tune` off e09c667; MERGE into
+  main at the owner's notification that the other agent's round is done — NOT this session; the
+  FULL e2e/golden gate rides that merge, this session runs SCOPE-LOCAL gates only).** The owner's
+  three arrow-face asks on the mobile touch rail (the Forward/Back pair): the available register
+  ≈ 7 % more transparent (owner-confirmed scope: the .85 available state only — the .35 dim and
+  the #fff hover/focus registers untouched); the box height 44 → 41 px (owner-rounded); the pair
+  reads «glossy» — ≈ 7 % less, the mapping left to the creative draw; the height shrink's free
+  ≈ 1.3 px lower placement accepted (the slot law untouched). CREATIVE relay ×1 expected (the
+  vault `projects v11/18-hermitage-3d-touch-rail-arrows-tune.md` + the coarse-chrome golden
+  reference render attached). No code yet; integration + scope-local gates (tsc/biome/vitest
+  re-pins) this session; NO merge, NO full gate.
+
 - **2026-11-07 · THE STACK FINALE RAN (this session; all four slots in main): rastrelli-details
   (the C″ measured stop) MERGED into main as `69335b4` (ordinary code/records merge —
   public/assets untouched by construction); the FULL e2e/golden gate ran on the union.**
