@@ -391,6 +391,32 @@ file in the same session.
 
 ## Live state
 
+- **2026-11-07 · THE STACK FINALE RAN (this session; all four slots in main): rastrelli-details
+  (the C″ measured stop) MERGED into main as `69335b4` (ordinary code/records merge —
+  public/assets untouched by construction); the FULL e2e/golden gate ran on the union.**
+  Union gates pre-gate: tsc 0 · biome clean under validate (the Mobile-C-era 15
+  noAssignInExpressions reds absent under this invocation — not chased) · vitest 1043/1/0
+  (64 files) · JS 282,514/350,000 byte-equal pre/post merge · RU 7,332 · jordan payload
+  1,237,543 · exterior 0 · basis unchanged. FULL E2E: pass 1 69/5 (all five timeout-class;
+  ROOT CAUSE found: the disk sat at 934 MiB free — the verdict rows starved on
+  `ENOSPC: no space left on device`); after the regenerable-cache reap (worktree
+  node_modules + .cache + test-results + store prune, 2.9 GiB freed) and two re-verdicts
+  (pass 2 traced-off 28/4; pass 3 28/3): entrance-title + touch-rail GREEN, the three
+  smoke-walk rows RED — PARKED verbatim in ROUNDS row 68 per the owner's letter (the C″
+  pre-authorizes nothing beyond the measured state; the row's own class precedent:
+  the slot-1 storm-reds ×3 finding — machine class, not code, awaiting a quiet re-verdict).
+  FULL GOLDEN: pass 1 32/5 (13.4 m) = EXACTLY the earlier lanes' deferred re-baseline debt
+  (jordan J4 day/dusk/night ×3 — slot 2's deferred line; the 1812 360-corner fixtures
+  en/ru ×2 — R21-ux's arrow face carried in the base: Medium 500 @ 27 px + the
+  `--touch-shift` positions, diff zones = the arrows only); re-baselined ×5, read by eye,
+  confirm **37/37 (13.6 m)**. THE FENCE FIND: the five S0 fence goldens DEC-038 declared
+  re-baseline due PASSED UN-REBASELINED — the fence band ≈0.7 % sits inside the 1.0
+  maxDiffPixelRatio; the declaration retires as over-cautious; `golden-s1-noon` HELD
+  byte-identical (the fence behind S1, the unit geometry proof rides). The dev-only
+  `pnpm dev` TDZ left as the documented red (built-preview gate only). Docs-only commits:
+  `b4aa194` (the standing-protocol additions landed verbatim), `69335b4` (the merge), and
+  the finale record (row 68 + this bullet + the ledger line).
+
 - **2026-11-05 · THE COLUMN'S BRONZE FENCE MERGED TO MAIN (stack slot 3/4 of the four-session
   stack — the owner's solo-merge ruling; MERGE commit 18eedd8 off 5793299 from the worktree
   `~/Documents/hermitage-3d-square-env2`, branch `square-env2`; the FULL e2e/golden gate + the five
