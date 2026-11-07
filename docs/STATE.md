@@ -401,10 +401,12 @@ file in the same session.
   ROOT CAUSE found: the disk sat at 934 MiB free — the verdict rows starved on
   `ENOSPC: no space left on device`); after the regenerable-cache reap (worktree
   node_modules + .cache + test-results + store prune, 2.9 GiB freed) and two re-verdicts
-  (pass 2 traced-off 28/4; pass 3 28/3): entrance-title + touch-rail GREEN, the three
-  smoke-walk rows RED — PARKED verbatim in ROUNDS row 68 per the owner's letter (the C″
-  pre-authorizes nothing beyond the measured state; the row's own class precedent:
-  the slot-1 storm-reds ×3 finding — machine class, not code, awaiting a quiet re-verdict).
+  (pass 2 traced-off 28/4; pass 3 28/3): entrance-title + touch-rail GREEN; the three
+  smoke-walk rows' stranded-red story CLOSED THE QUIET WAY — the re-verdict on the same
+  tree the same morning (load 2.8; `--trace off`; no code touched): smoke.spec re-ran
+  **9/9 GREEN in 20.5 m** (126: 56.6 s · 176: 1.5 m · 271: 12.2 m) — the storm class is
+  the recorded machine-class ruling; every row of the chromium scope now carries a green
+  on the identical tree (69 first-pass + 5/5 re-verdicted).
   FULL GOLDEN: pass 1 32/5 (13.4 m) = EXACTLY the earlier lanes' deferred re-baseline debt
   (jordan J4 day/dusk/night ×3 — slot 2's deferred line; the 1812 360-corner fixtures
   en/ru ×2 — R21-ux's arrow face carried in the base: Medium 500 @ 27 px + the
