@@ -17,12 +17,15 @@ import {
   type LeanState,
   leanPose,
 } from './camera/door-lean';
-import { toPointerType } from './camera/look';
+import { clampLook, type LookOffset, toPointerType } from './camera/look';
+import { parseLookParam } from './camera/look-param';
+import { CAMERA_VFOV_DEG, squareRailForAspect } from './camera/portrait-frame';
 import {
   advance,
   drag,
   nearestStopIndex,
   type RailState,
+  sampleLimits,
   samplePose,
   samplePosition,
   scroll,
@@ -192,6 +195,7 @@ import { SUN_SHADOW_FIT } from './world/column';
 import { snowBounceGround } from './world/ground-snow';
 import { parseLmParam } from './world/lm-mode';
 import { WINDOW_WARM_LINEAR, warmGround } from './world/night-facade';
+import { GROUND_PLANE_SIZE_M } from './world/paving';
 import {
   emptyPrefetchState,
   noteManifest,
@@ -559,7 +563,7 @@ queueMicrotask(() => {
 });
 
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(55, 1, 0.5, 2000);
+const camera = new THREE.PerspectiveCamera(CAMERA_VFOV_DEG, 1, 0.5, 2000); // fov law: portrait-frame
 camera.position.set(-24, 1.7, 230); // = SQUARE_RAIL S0 (DEC-037: west of the gate axis)
 camera.lookAt(0, 11, 0);
 
@@ -676,7 +680,10 @@ const groundMaterial = new THREE.MeshLambertMaterial({
 });
 // R12: the ground-snow slot — the one onBeforeCompile on the ground material (design-ground-snow.md §2).
 patchGroundSnowSlot(groundMaterial);
-const ground = new THREE.Mesh(new THREE.PlaneGeometry(600, 600), groundMaterial);
+const ground = new THREE.Mesh(
+  new THREE.PlaneGeometry(GROUND_PLANE_SIZE_M, GROUND_PLANE_SIZE_M),
+  groundMaterial,
+);
 ground.rotation.x = -Math.PI / 2;
 palace.add(
   ground,
@@ -748,6 +755,14 @@ let requestedStop: string | null = stopParams.stop;
 const camParams = parseCamParam(new URLSearchParams(queryOf(location.hash)));
 for (const issue of camParams.issues) console.warn(`zimny: cam issue — ${issue}`);
 let requestedCam: number | null = camParams.cam;
+// The ?look= deep link shares that lifecycle: det-gated at boot and on every hashchange; it
+// applies to the square's seeded state only (the capture battery's right-look injection;
+// square-entry-ground W5). Non-det boots never parse it.
+const lookParams = isDeterministic(timeState)
+  ? parseLookParam(new URLSearchParams(queryOf(location.hash)))
+  : { look: null, issues: [] };
+for (const issue of lookParams.issues) console.warn(`zimny: look issue — ${issue}`);
+let requestedLook: LookOffset | null = lookParams.look;
 const applyHudBinding = (): void => {
   hud.hidden = !hudOpen;
   if (!hudOpen) return;
@@ -1049,12 +1064,34 @@ const INTERIOR_EXPOSURE = 1.0;
 // camera and the re-seed on every node change. Seed precedence: ?stop= > ?cam= > entry;
 // a backward entry (through an airlock whose home side is the node being entered) seeds the
 // far stop so the journey continues in the direction of travel unless the URL pins a seed.
+// Brief 19 §A (W2): every square rail assignment derives from the live viewport; a degenerate
+// window (w or h ≤ 0) falls back to aspect 1 — SQUARE_RAIL itself. Rooms keep their contract data.
+const railForViewport = (w: number, h: number): Rail =>
+  squareRailForAspect(w > 0 && h > 0 ? w / h : 1);
 const railFor = (node: NodeHandle): Rail =>
-  node === 'square' ? SQUARE_RAIL : roomEntryOf(node).contract.rail;
+  node === 'square'
+    ? railForViewport(window.innerWidth, window.innerHeight)
+    : roomEntryOf(node).contract.rail;
 
 let railNode: NodeHandle = 'square';
-let rail: Rail = SQUARE_RAIL;
+let rail: Rail = railForViewport(window.innerWidth, window.innerHeight);
 let railState: RailState = seedState(rail, { stop: requestedStop, cam: requestedCam }).state;
+// The capture battery's look injection (brief 19 W5 + the §3.5 battery fact, square-entry-ground):
+// det-only deep links ?look=<yaw>,<pitch>, clamped through the CURRENT square stop's look row —
+// the same limit function the drag path feeds. Both look fields land at once, so the presented
+// frame is already at the injected look (the ease would otherwise animate ~5 TAU; det pixels
+// must be frozen). Applied at EVERY state-replacing square re-seed a boot can produce: (1) the
+// boot seed, (2) the language-activation re-seed inside onLangChange (the async RU/en
+// activateLang fires AFTER module init and REPLAYS the seed — without that site the boot
+// injection dies with it), and (3) the hashchange re-parse. The helper guards the square rail,
+// a parsed value and det itself: a room re-seed never receives a look; non-det boots never
+// parse it at all.
+const applyInjectedLook = (): void => {
+  if (requestedLook === null || !isDeterministic(timeState) || railNode !== 'square') return;
+  const look = clampLook(requestedLook, sampleLimits(rail, railState));
+  railState = { ...railState, look, lookTarget: look };
+};
+applyInjectedLook(); // site 1: immediately after the boot seed sets the initial state
 let seedAtFarStop = false; // beginTransitTo sets this for backward entries
 
 // One seed law, two consumers: seedRail applies it on a node change; dwellStop derives the
@@ -1161,6 +1198,7 @@ window.matchMedia('(prefers-reduced-motion: reduce)').addEventListener('change',
 onLangChange(() => {
   bindChrome();
   seedRail(railNode);
+  applyInjectedLook(); // site 2: the language activation replays the seed — the injected look must survive it
   layoutTouchRail(); // the language swap relays a layout change (the text-mass swap)
 });
 void activateLang(langResolution.lang).then(() => {
@@ -2644,6 +2682,9 @@ function applyViewport(): void {
   const width = window.innerWidth;
   const height = window.innerHeight;
   if (width <= 0 || height <= 0) return; // nothing renderable — skip silently this frame
+  // Brief 19 §A (W2): the aspect's law re-derives the square's rail on every layout read — the
+  // same derivation every square rail assignment routes through. Rooms keep their contract rail.
+  if (railNode === 'square') rail = railForViewport(width, height);
   camera.aspect = width / height;
   camera.updateProjectionMatrix();
   // §11 fit generalized per tier: scale = min(dprCap, sqrt(bufferPixelsCap / (w·h))).
@@ -3245,6 +3286,16 @@ window.addEventListener('hashchange', () => {
   const camNext = parseCamParam(new URLSearchParams(queryOf(location.hash)));
   for (const issue of camNext.issues) console.warn(`zimny: cam issue — ${issue}`);
   requestedCam = camNext.cam;
+  // The ?look= deep link re-parses with the ?stop=/?cam= lifecycle (det-gated; brief 19 W5): a
+  // non-det navigation never parses it. Site 3 of applyInjectedLook — applied to the resting
+  // square state only; the transit gate stays here at the call site (a queued or in-flight
+  // transit re-seeds on arrival, so an injected look never rides backwards into a room).
+  const lookNext = isDeterministic(timeState)
+    ? parseLookParam(new URLSearchParams(queryOf(location.hash)))
+    : { look: null, issues: [] };
+  for (const issue of lookNext.issues) console.warn(`zimny: look issue — ${issue}`);
+  requestedLook = lookNext.look;
+  if (transit === null) applyInjectedLook();
   // Room route: adjacent-or-cold target transits start once the tier settled; mid-transit
   // navigation re-targets after the current transit completes (the departing room always
   // disposes first — §2.4).

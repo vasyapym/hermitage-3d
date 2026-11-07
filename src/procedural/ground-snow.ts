@@ -9,6 +9,11 @@
  *
  * At uSnow = 0 the fragment's mix is exactly diffuseColor.rgb in IEEE, so
  * out-of-season frames are analytically unchanged. No early-out branch, by design.
+ *
+ * Brief 19 §B.2: the paving slot composes INSIDE this hook — one hook, one material, the slot
+ * list Ground/paving-slot@1 (the paving call runs before the snow mix; at uSnow=1 the snow mix
+ * fully replaces the paved base, so every committed winter golden's field pixels are unchanged
+ * by construction; the June golden re-baselines via the DEC-paving request).
  */
 import type { Material } from 'three';
 import {
@@ -18,6 +23,7 @@ import {
   GROUND_SNOW_TRAMPLED_LINEAR,
   GROUND_TRAMPLE_BASE,
 } from '../world/ground-snow';
+import { PAVING_SLOT, pavingGlsl } from './ground-paving';
 
 export type GroundSnowUniforms = Readonly<{ uSnow: { value: number } }>;
 
@@ -49,6 +55,7 @@ const FAR_Z = glslFloat(GROUND_LANE_LINE.farZ);
  * mirror laneCentreX / laneValue operation for operation (vGroundXZ.y is world Z).
  */
 export const GROUND_SNOW_FRAGMENT_BODY = `#include <color_fragment>
+diffuseColor.rgb = pavingAlbedo( vGroundXZ, diffuseColor.rgb );
 {
 float groundLaneZ = clamp( vGroundXZ.y, ${NEAR_Z}, ${FAR_Z} );
 float groundLaneX = ${NEAR_X} + ( ${FAR_X} - ${NEAR_X} ) * ( ( groundLaneZ - ${NEAR_Z} ) / ( ${FAR_Z} - ${NEAR_Z} ) );
@@ -85,7 +92,7 @@ export function patchGroundSnowSlot(
     shader.fragmentShader = spliceChunk(
       shader.fragmentShader,
       '#include <common>',
-      FRAGMENT_COMMON,
+      `${FRAGMENT_COMMON}\n${pavingGlsl()}`,
     );
     shader.fragmentShader = spliceChunk(
       shader.fragmentShader,
@@ -93,5 +100,5 @@ export function patchGroundSnowSlot(
       GROUND_SNOW_FRAGMENT_BODY,
     );
   };
-  material.customProgramCacheKey = (): string => GROUND_SNOW_CACHE_KEY;
+  material.customProgramCacheKey = (): string => `${GROUND_SNOW_CACHE_KEY}|${PAVING_SLOT}`;
 }
