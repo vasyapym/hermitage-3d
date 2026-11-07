@@ -426,6 +426,15 @@ file in the same session.
   1-115/125-300, lm_compose + reencode-paint + lm-recipes full, bake.mjs 140-320, the gltf tool,
   the test excerpts, the ledger/license rows) + the new relay law (verify-first stage, chat-only
   output, proceed-gated stages). The model holds NO repo access — everything rides the brief.**
+  **THE RELAY LAW AMENDED (the owner's 2026-11-08 find): the chat model carries a HARD ~12-16-min
+  generation window (the timeout kills un-gracefully, progress lost) — so the STAGE assignment
+  comes from the ORCHESTRATOR as a minimal instruction above the brief content, not from the
+  model; the model outputs fast (specs over code — the mechanical writing lands on the
+  orchestrator/mechanical lane), in chat only, and STOPS at its stage sentinel; the owner gates
+  every next stage with "proceed". Brief 21 re-cut per that law: stage 1 = the verify-first
+  audit table (+ the F8 profile ruling + the amendment confirmations); stage 2 (on proceed) =
+  the part-3 SPEC (no code from the model); stage 3 (on proceed) = the S4 splice specs + pin
+  diffs + the record texts.**
 
 - **2026-11-07 · THE STACK FINALE RAN (this session; all four slots in main): rastrelli-details
   (the C″ measured stop) MERGED into main as `69335b4` (ordinary code/records merge —
