@@ -439,7 +439,28 @@ file in the same session.
   SPEC (§3's eight pinned sections, no code from the model; the orchestrator writes the code
   against the spec + the S1/S2 vocabulary), ends TRUNCATED-HERE-or-COMPLETE (the cut lands at a
   section boundary and carries the adopted-constants block); stage 2 (on proceed) = the S4 splice
-  specs + pin diffs + the record texts.**
+  specs + pin diffs + the record texts.** **THE MECHANICAL TAIL RAN ON THE SUBAGENT LANE
+  (2026-11-08, the owner's ratified re-route after the Fable stage-1 timeouts): part 3 authored
+  by the orchestrator against its own spec (the owner's F8 ruling via the question tool: the
+  S1-amended constants ride — CORNICE_PROUD 0.18 / RESSAUT 0.56×0.10 / ARCH_HALF 2.72 /
+  SILL_LEDGE_L 2.00 — zero cascade); NINE DOCUMENTED AMENDMENTS (the gate's boundary slack
+  TOUCH_EPS 1e-4 vs the real-double-cover floor 2.5e-3; the per-segment Sutherland-Hodgman
+  mitre clips; the ressaut-burial corner cap; the vault-reveal trim; the span clamps; the
+  missing corner-return calls; the cells law; the 4-tuple unpack; the 12-bays vault formula)
+  + the packer-shape upgrade (the deterministic leftover-width fill; the CELL law green at
+  pxPerM 16, occupancy 0.8302, faces 4,551, lm.cells 4,551 entries arming DEAD_CELL);
+  determinism ×2 byte-equal (raw.glb c877c65f…); gltf green (the 4-name gate); the manifest
+  re-run: 9 rows, payload 592,486 ≤ 2,000,000, textures 333,546 ≤ 1,000,000 (stone_band
+  29,510 new), shell 9,932 tris/5 primitives + sconce 66/2, drawn 10,856 ≤ 110,000, draws 7
+  ≤ 25, glb 258,940 B sha 214c007…; the lm ktx2s untouched (they rebake next). The bake-chain
+  splices landed (bake.py: the 0.8 dict + the STAGE_SPILL row + the post-EMitter-scan
+  application, target-set law intact; reencode.mjs: PATCH_PAINTS two-patch + the part-keyed
+  patchRect cache + the DEAD_CELL pre-ETC1S arming + the post-encode artifact rows 8/8;
+  reencode-paint.py: the check mode with the p99/owned-cells law). THE CODE STAYS UNCOMMITTED
+  in the worktree until the round's landing. The review brief 22 (the vault
+  projects v12/22-…-sol-review.md, 186,724 B — the mechanical lane) handed to the owner for
+  the Sol 6.1 relay; the bakes ×3 + the capture battery + the validate + the doc landing =
+  the next phase after Sol returns.**
 
 - **2026-11-07 · THE STACK FINALE RAN (this session; all four slots in main): rastrelli-details
   (the C″ measured stop) MERGED into main as `69335b4` (ordinary code/records merge —
