@@ -23,17 +23,17 @@ import { CAMERA_VFOV_DEG, squareRailForAspect } from './camera/portrait-frame';
 import {
   advance,
   drag,
+  moving,
   nearestStopIndex,
   type RailState,
   sampleLimits,
   samplePose,
   samplePosition,
-  scroll,
   seedState,
-  stepStop,
+  walkPress,
+  walkRelease,
 } from './camera/rail';
 import { SQUARE_RAIL } from './camera/square-rail';
-import { WHEEL_EDGE_START, type WheelEdgeState, wheelEdge } from './camera/wheel-edge';
 import { SOUTH_FACADE, WINDOW_ROWS } from './content/facade-spec';
 import { TIME } from './content/sky-time';
 import { createLedger } from './engine/ledger';
@@ -170,7 +170,6 @@ import {
 } from './ui/load-line';
 import { createSeasonMenu } from './ui/season-menu';
 import {
-  admitTouchKey,
   admitTouchTravel,
   canvasContact,
   TOUCH_BUTTON_MIN_BLOCK_PX,
@@ -182,7 +181,6 @@ import {
   TOUCH_RAIL_SHIFT_PCT,
   touchRailCenter,
   touchRailSlotBottom,
-  touchRailVisible,
 } from './ui/touch-rail';
 import {
   advanceTransit,
@@ -400,12 +398,9 @@ const layoutTouchRail = (): void => {
   // R21-ux: percent, not vw — CSS calc() resolves a % length against the fixed element's
   // containing block (the viewport), the same base the e2e probe reads as clientWidth.
   touchRail.style.setProperty('--touch-shift', `${TOUCH_RAIL_SHIFT_PCT}%`);
-  const visible = touchRailVisible({
-    coarsePointer,
-    widthCssPx: document.documentElement.clientWidth,
-  });
-  touchRail.dataset.visible = String(visible);
-  if (!visible) return;
+  // The movement-ux ruling: ONE mechanism — the pair is visible and clickable at every
+  // pointer type and width (touchRailVisible's coarse/narrow law retired).
+  touchRail.dataset.visible = 'true';
   // R19-ux A.1 (design-mobile-tier §4): the pair's box stands one stack gap above the highest
   // top any corner-stack member but the entry title can reach (touchRailSlotBottom): in-flow
   // members count up from the stack's bottom edge, the door prompt at its reserved band of
@@ -502,7 +497,7 @@ const showSceneFailure = (kind: 'unsupported' | 'interrupted'): void => {
   sceneUnavailable = true;
   if (kind === 'interrupted') {
     cancelGesture();
-    railState = { ...railState, glide: null };
+    railState = { ...railState, walk: null, dwellMs: 0 };
     seasonMenu.closeIfOpen();
     if (indexDialog.open) indexDialog.close();
     syncTouchRail();
@@ -889,9 +884,10 @@ const roomModules = new Map<RoomId, RoomModule>();
 
 // The threshold beat's host side (design-walkthrough-ux.md §4, R-UX1): the pure FSM owns the
 // phases, this host owns the camera pose and the exposure over them. The door pose and the
-// rail's end tangent lock on the FIRST depart frame — a wheel-through may fire mid-glide, and
-// the locked pose keeps the switch continuous (the rail's own glide is absorbed into the beat's).
-// The exposure endpoints capture at begin: the drain starts from the view the visitor sees.
+// rail's end tangent lock on the FIRST depart frame — a press at a settled end (the prompt's
+// click or an arrow) may fire mid-walk, and the locked pose keeps the switch continuous (the
+// walk's motion is absorbed into the beat's). The exposure endpoints capture at begin: the
+// drain starts from the view the visitor sees.
 let beatDoor: BeatPose | null = null;
 let beatTangent: Vec3 | null = null;
 let beatFromExposure = 1;
@@ -1059,8 +1055,9 @@ const interiorFar = (id: RoomId): number => {
 const INTERIOR_EXPOSURE = 1.0;
 
 // --- Camera rail (design-staircase.md §6.1; r18a) --------------------------------------------
-// The pure rail core (src/camera/rail.ts) owns the path, the glide/cut motion, the look
-// limits and the seed law; this host owns the DOM inputs (wheel/drag/arrows), the three.js
+// The pure rail core (src/camera/rail.ts) owns the path, the walk/cut motion, the look
+// limits and the seed law; this host owns the DOM inputs (drag/arrows — the wheel listener
+// only keeps the scene from scrolling), the three.js
 // camera and the re-seed on every node change. Seed precedence: ?stop= > ?cam= > entry;
 // a backward entry (through an airlock whose home side is the node being entered) seeds the
 // far stop so the journey continues in the direction of travel unless the URL pins a seed.
@@ -1243,8 +1240,8 @@ const doorTangent = (pose: BeatPose, u: number): Vec3 => {
 };
 const applyRailPose = (): void => {
   const pose = samplePose(rail, railState);
-  // R-UX2 (§2): the wheel pass's lean dollies the resting camera a fraction of a metre into
-  // the door; at 0 leanPose hands back the pose object — the never-pushed poses stay
+  // R-UX2 (§2): the boundary press's lean dollies the resting camera a fraction of a metre
+  // into the door; at 0 leanPose hands back the pose object — the never-pushed poses stay
   // bit-identical (the golden fence).
   const leaned =
     leanState.metres > 0 ? leanPose(pose, doorTangent(pose, railState.u), leanState.metres) : pose;
@@ -2886,43 +2883,21 @@ scrub.addEventListener('keydown', (event) => {
 });
 scrub.addEventListener('focusout', cancelGesture);
 
-// --- Rail inputs (§6.1: scroll travels, drag looks, arrows step) -----------------------------
+// --- Rail inputs (the movement-ux law: the arrows walk, the drag looks) -----------------------
 // The pure core owns every law; these listeners only translate DOM events into intents.
 // Gates: the arrival beats own the pre-settle frames and an open airlock owns the camera
 // (its swap re-seeds the rail), so inputs act only when settled and transit-free.
 const railInputReady = (): boolean =>
   !sceneUnavailable && arrival.phase === 'settled' && transit === null;
+// The wheel no longer moves the camera (the movement-ux ruling: ONE mechanism — the arrows).
+// The listener stays passive:false only to keep today's wheel behavior: the scene never
+// page-scrolls or pinch-zooms, and the browser's Ctrl+wheel zoom stays blocked as before.
+// A wheel event now records nothing: not travel, not the hint's dismissal, not the boundary
+// pass (the DEC-031 sustained-scroll gesture is retired with the wheel).
 canvas.addEventListener(
   'wheel',
   (event) => {
-    hintTravel(); // §9: the wheel IS travel — the first intent dismisses the hint
-    if (!railInputReady()) {
-      wheelEdgeState = WHEEL_EDGE_START;
-      return;
-    }
-    event.preventDefault(); // the rail owns travel; no page scroll or pinch-zoom leaks through
-    railState = scroll(rail, railState, event.deltaY, reducedMotion);
-    // §6.1 amendment (DEC-031): a deliberate sustained scroll past a rail end fires that
-    // end's airlock; a momentum burst restarts the pass (the pure law's three thresholds).
-    const boundary = railPushBoundary();
-    if (boundary === null) {
-      wheelEdgeState = WHEEL_EDGE_START; // the pass lives only at the boundary
-      return;
-    }
-    const direction = event.deltaY > 0 ? 'forward' : 'backward';
-    if (direction !== boundary) {
-      wheelEdgeState = WHEEL_EDGE_START; // one pass, one direction by intent
-      return;
-    }
-    const step = wheelEdge(wheelEdgeState, {
-      pastBoundary: true,
-      deltaPx: event.deltaY,
-      nowMs: performance.now(),
-    });
-    wheelEdgeState = step.state;
-    lastBoundaryWheelAtMs = performance.now(); // the lean's freshness read (R-UX2)
-    framePush = direction; // §2: the push the door answers (the label + the lean's target)
-    if (step.fire) enterBoundary(direction);
+    event.preventDefault();
   },
   { passive: false },
 );
@@ -3053,28 +3028,35 @@ const RAIL_CHAIN: readonly NodeHandle[] = [
 const menuOwnsInput = (): boolean => indexDialog.open || !seasonList.hidden || gesture !== null;
 const chainNext = (boundary: 'forward' | 'backward'): NodeHandle | undefined =>
   RAIL_CHAIN[RAIL_CHAIN.indexOf(railNode) + (boundary === 'forward' ? 1 : -1)];
-/** ONE route resolution for the arrows and the touch buttons (§5: no second graph). */
-const performRailStep = (direction: 1 | -1): void => {
-  const result = stepStop(rail, railState, direction, reducedMotion);
+/** ONE route resolution for the arrows and the touch buttons (§5: no second graph): the
+ * aggregate press (the walk law's intent edge) and, at a settled rail end, the door chain.
+ * A press toward the end that the pair or the keys make is a push — the lean's pulse rides
+ * every boundary press edge (the press-edge law that replaced the R-UX2 wheel freshness). */
+const performRailPress = (direction: 1 | -1, repeat: boolean): void => {
+  const result = walkPress(rail, railState, direction, repeat, reducedMotion);
   railState = result.state;
   if (result.boundary === null) return;
   const next = chainNext(result.boundary);
   framePush = result.boundary; // §2: a boundary step is a push (the same door law)
+  lastBoundaryPressAtMs = performance.now(); // the lean's pulse read (the press-edge law)
   if (next !== undefined) beginTransitTo(next);
 };
-// The buttons' joint admission facts (§5): the no-glide gate here is STRICTER than the
-// arrows' established mid-glide retarget law — that difference lives here and only here.
+/** The aggregate release: the source let go (hold → intent ends now; tap → the lease drains). */
+const performRailRelease = (direction: 1 | -1): void => {
+  railState = walkRelease(railState, direction);
+};
+// The pair's joint admission facts (§5): ONE law everywhere now — a press is admitted
+// mid-walk (it extends the run), so admitTouchTravel lost its glideNull field (§5 NOTE).
 const touchAdmitted = (): boolean =>
   admitTouchTravel({
     settled: !sceneUnavailable && arrival.phase === 'settled',
     transitNull: transit === null,
-    glideNull: railState.glide === null,
     canvasGestureFree: dragAnchor === null,
     menuOwningInput: menuOwnsInput(),
   }) === 'accept';
 const touchAvailable = (direction: 1 | -1): boolean => {
   if (!touchAdmitted()) return false;
-  const boundary = stepStop(rail, railState, direction, reducedMotion).boundary;
+  const boundary = walkPress(rail, railState, direction, false, reducedMotion).boundary;
   return boundary === null || chainNext(boundary) !== undefined;
 };
 const syncTouchRail = (): void => {
@@ -3090,46 +3072,109 @@ for (const [buttonEl, direction] of [
   [touchBack, -1],
   [touchForward, 1],
 ] as const) {
-  const held = new Set<string>();
+  // THIS pair's activation lifecycle (the walk law's adapter, R6/R7): pointerdown/up and the
+  // keyboard activation drive the press/release edges; the click stays the assistive fallback,
+  // suppressed when it belongs to an activation we just drove (browsers synthesize it).
+  let active: 'pointer' | 'key' | null = null;
+  let lastActivationAtMs = -Infinity; // the click-suppression read (R7): one activation, one tap
+  const endActivation = (): void => {
+    if (active === null) return;
+    active = null;
+    lastActivationAtMs = performance.now();
+    performRailRelease(direction);
+    syncTouchRail();
+  };
+  buttonEl.addEventListener('pointerdown', (event) => {
+    if (active !== null) return; // one activation at a time per button (the aggregate law)
+    if (event.pointerType === 'mouse' && event.button !== 0) return;
+    active = 'pointer';
+    buttonEl.setPointerCapture(event.pointerId);
+    hintTravel(); // §9: dropped intents record travel too — hint BEFORE admission
+    if (!touchAdmitted()) {
+      syncTouchRail();
+      return;
+    }
+    performRailPress(direction, false);
+    syncTouchRail();
+  });
+  const pointerEnd = (event: PointerEvent): void => {
+    if (active !== 'pointer') return;
+    if (buttonEl.hasPointerCapture(event.pointerId)) {
+      buttonEl.releasePointerCapture(event.pointerId);
+    }
+    endActivation();
+  };
+  buttonEl.addEventListener('pointerup', pointerEnd);
+  buttonEl.addEventListener('pointercancel', pointerEnd);
+  buttonEl.addEventListener('lostpointercapture', () => {
+    if (active === 'pointer') endActivation(); // the capture left us: the intent lifts
+  });
   buttonEl.addEventListener('keydown', (event) => {
     if (event.key !== 'Enter' && event.key !== ' ') return;
     if (event.isComposing || event.keyCode === 229) {
       event.preventDefault();
       return;
     }
-    if (admitTouchKey({ repeat: event.repeat, accepted: held.has(event.key) }) === 'drop') {
-      event.preventDefault();
-    } else {
-      held.add(event.key);
+    const first = active === null;
+    if (first) active = 'key';
+    hintTravel(); // §9: dropped intents record travel too — hint BEFORE admission
+    if (!touchAdmitted()) {
+      if (first) syncTouchRail();
+      return;
     }
+    performRailPress(direction, !first); // repeats are meaningful refills now (the walk law)
+    syncTouchRail();
   });
   buttonEl.addEventListener('keyup', (event) => {
-    held.delete(event.key);
+    if ((event.key !== 'Enter' && event.key !== ' ') || active !== 'key') return;
+    event.preventDefault();
+    endActivation();
   });
-  buttonEl.addEventListener('blur', () => {
-    held.clear();
-  });
+  buttonEl.addEventListener('blur', endActivation);
   buttonEl.addEventListener('click', () => {
-    hintTravel(); // §9: dropped intents record travel too — hint BEFORE admission
-    if (!touchAvailable(direction)) return;
-    performRailStep(direction);
+    // The AT fallback only: a click whose activation we drove is suppressed (its tap already
+    // made a press+release). An un-preceded click IS a tap: one press + one release.
+    if (active !== null || performance.now() - lastActivationAtMs < 250) return;
+    hintTravel();
+    if (!touchAdmitted()) return;
+    performRailPress(direction, false);
+    performRailRelease(direction);
     syncTouchRail();
   });
 }
+// The arrow keys' press edges run the SAME funnel the buttons run. Repeats are meaningful
+// refills now (the walk law). Releases are processed UNGATED — even when the dialog opens or
+// focus lands on the scrub mid-hold, a stale hold must never outlive its owner.
+const arrowDirection = (event: KeyboardEvent): 1 | -1 | 0 =>
+  event.key === 'ArrowRight' || event.key === 'ArrowUp'
+    ? 1
+    : event.key === 'ArrowLeft' || event.key === 'ArrowDown'
+      ? -1
+      : 0;
 document.addEventListener('keydown', (event) => {
   if (event.target === scrub) return; // the scrub owns its keys
   if (indexDialog.open) return; // §6.4: the index dialog owns the arrows while open
-  const direction =
-    event.key === 'ArrowRight' || event.key === 'ArrowUp'
-      ? 1
-      : event.key === 'ArrowLeft' || event.key === 'ArrowDown'
-        ? -1
-        : 0;
+  const direction = arrowDirection(event);
   if (direction === 0) return;
-  hintTravel(); // §9: an arrow step (incl. a boundary step that fires an airlock) is travel
+  hintTravel(); // §9: an arrow press (incl. a boundary press that fires an airlock) is travel
   if (!railInputReady()) return;
   event.preventDefault();
-  performRailStep(direction); // the SAME step + chain resolution the buttons run
+  performRailPress(direction, event.repeat); // the SAME press + chain resolution the buttons run
+});
+document.addEventListener('keyup', (event) => {
+  const direction = arrowDirection(event);
+  if (direction === 0) return;
+  performRailRelease(direction); // a release never owns a gate
+});
+window.addEventListener('blur', () => {
+  performRailRelease(1);
+  performRailRelease(-1);
+});
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    performRailRelease(1);
+    performRailRelease(-1);
+  }
 });
 
 // --- The room index (design-gallery §6.2–6.4; §10 R5) -----------------------------------------
@@ -3154,27 +3199,27 @@ bindIndexDialog({
   jump: jumpToRoute,
 });
 
-// --- The boundary prompt + the wheel-through (2026-10-21, DEC-031; laws in
-// src/ui/edge-prompt.ts and src/camera/wheel-edge.ts). The owner's reachability
-// report: a trackpad visitor scrolled to a rail end and stalled — the rail's own
-// wheel is travel-only (§6.1), so the doors were arrows-only. Now a boundary has
-// TWO roads into the same beginTransitTo call the arrows use: the chrome prompt
-// ("Keep scrolling to enter", click to travel) and a sustained deliberate wheel
-// past the clamp — the momentum-immunity thresholds are declared tuning constants.
-let wheelEdgeState: WheelEdgeState = WHEEL_EDGE_START;
+// --- The boundary prompt (2026-10-21, DEC-031, amended by the movement-ux ruling; laws
+// in src/ui/edge-prompt.ts and src/camera/door-lean.ts). The owner's reachability
+// report: a trackpad visitor scrolled to a rail end and stalled — the doors were
+// arrows-only. DEC-031 AMENDED (the movement-ux ruling): the sustained-wheel pass is
+// retired WITH the wheel — a room hand-over fires from a settled end's fresh press edge
+// or the chrome prompt, the same beginTransitTo road the arrows always used.
 let edgePromptShown = false;
 // R-UX2 (§2): the push memory the label answers, the frame's push-intent slot (set by the
-// wheel/arrow/click listeners, consumed by the tick's boundary block and cleared), and the
+// press/click listeners, consumed by the tick's boundary block and cleared), and the
 // lean's state + the magnitude captured when a transit begins (folded into the depart's
-// locked door pose — the glide starts where the lean left the camera). The freshness read:
-// the pass's budget persists across silent gaps (the fire law survives a scroll stream's
-// glide), so the lean reads the LAST boundary wheel event's age itself — past
-// LEAN_FRESH_MS the lean releases even though the pass keeps its budget.
+// locked door pose — the walk starts where the lean left the camera). The freshness read
+// is the lean's own: the host stamps the pulse clock on every boundary press edge, and
+// the spring reads the LAST press edge's age — past LEAN_FRESH_MS the lean releases.
 let pushedBoundary: DoorBoundary | null = null;
 let framePush: DoorBoundary | null = null;
 let leanState: LeanState = LEAN_START;
 let leanAtFireM = 0;
-let lastBoundaryWheelAtMs = 0;
+/** The lean's pulse clock (the press-edge law): every boundary press edge stamps it; the
+ * spring reads the pulse while it is younger than LEAN_FRESH_MS. (The wheel's budget/EDGE
+ * freshness retired with the wheel — the sustained-scroll gesture does not exist anymore.) */
+let lastBoundaryPressAtMs = 0;
 const EDGE_SETTLE_EPS = 1e-9; // the rail's snapped stops sit at parameters 0 and 1 exactly
 const boundaryNext = (direction: 'forward' | 'backward'): NodeHandle | null => {
   const at = RAIL_CHAIN.indexOf(railNode);
@@ -3186,7 +3231,7 @@ const boundaryNext = (direction: 'forward' | 'backward'): NodeHandle | null => {
  * The prompt's road: it must show once the visitor STOPS at the door — a glide means
  * the camera is still moving and the chrome stays quiet. */
 const railSettledBoundary = (): 'backward' | 'forward' | null => {
-  if (railState.glide !== null) return null; // mid-flight is nowhere to prompt
+  if (moving(railState)) return null; // mid-walk is nowhere to prompt
   if (railState.u >= 1 - EDGE_SETTLE_EPS) {
     return boundaryNext('forward') === null ? null : 'forward';
   }
@@ -3195,12 +3240,10 @@ const railSettledBoundary = (): 'backward' | 'forward' | null => {
   }
   return null;
 };
-/** The rail end the wheel is pushing into, glide included: a scroll stream keeps a
- * glide alive indefinitely (every event re-creates it), so the wheel-through law reads
- * the CLAMPED scroll target, not the settled parameter — the pass must survive the stream. */
+/** The rail end the current intent pushes into: the walk never passes an end, so the read is
+ * the settled parameter (EDGE_SETTLE_EPS covers the float dust around the exact stop ends). */
 const railPushBoundary = (): 'backward' | 'forward' | null => {
-  const g = railState.glide;
-  const param = g !== null ? g.to : railState.u;
+  const param = railState.u;
   if (param >= 1 - EDGE_SETTLE_EPS) {
     return boundaryNext('forward') === null ? null : 'forward';
   }
@@ -3211,18 +3254,17 @@ const railPushBoundary = (): 'backward' | 'forward' | null => {
 };
 const enterBoundary = (direction: 'forward' | 'backward'): void => {
   const next = boundaryNext(direction);
-  wheelEdgeState = WHEEL_EDGE_START; // both roads clear the accumulator
-  if (next === null || !railInputReady()) return;
+  if (next === null || !railInputReady() || moving(railState)) return; // never mid-walk
   beginTransitTo(next);
 };
 edgePrompt.addEventListener('click', () => {
-  // The push law, not the settled one: a click lands while the wheel's glide is still
-  // finishing, and the prompt's intent is unambiguous — travel now (the transit owns
-  // the camera; the arrival re-seeds the rail at the destination's entry stop).
+  // The push law (§2): the click is a push into the boundary it names — travel now (the
+  // transit owns the camera; the arrival re-seeds the rail at the destination's entry stop).
   const boundary = railPushBoundary();
   hintTravel(); // a prompt click IS travel (§9: the one definition)
   if (boundary === null) return;
   framePush = boundary; // §2: the click is a push under the same law
+  lastBoundaryPressAtMs = performance.now(); // the lean's pulse read (the press-edge law)
   enterBoundary(boundary);
 });
 function returnToNow(): void {
@@ -3421,7 +3463,7 @@ const tick = (timeMs: number): void => {
       transit = null;
       syncTouchRail(); // the airlock released the camera — the buttons re-sync (the discrete point)
       // The URL is the state (architecture.md): the room change lands in the hash at the
-      // transit's completion — a human-entered transit (prompt/arrow/wheel) shares the
+      // transit's completion — a human-entered transit (prompt or arrow) shares the
       // room from the address bar the moment it arrives. replaceState: no history spam
       // per transit; the browser's back walks the last WRITTEN URL (a deep link) and
       // the hashchange path transits home.
@@ -3473,17 +3515,15 @@ const tick = (timeMs: number): void => {
     applyEpoch(Date.now());
   }
 
-  // The boundary laws' per-frame reads (R-UX2, §2): the lean follows the pass's budget only
-  // while the last boundary wheel event is fresh (the pass's budget persists across silent
-  // gaps — the fire law survives a scroll stream's glide — so the lean reads the event age
-  // itself and releases past the freshness window); inputs act only when idle (a transit
+  // The boundary laws' per-frame reads (R-UX2, §2): the lean's target holds while the last
+  // boundary press edge is fresh (the pulse clock is stamped per press edge — past
+  // LEAN_FRESH_MS the lean releases); inputs act only when idle (a transit
   // owns the camera — the lean it captured rides into the depart's locked pose); the push
-  // memory survives a scroll stream (the glide-tolerant clamped-target read) and drops when
-  // the target leaves the end. The frame's push intent (the listeners) is consumed + cleared.
+  // memory drops when the settled state leaves the end (the walk never leaves it in motion:
+  // an arrival rests exactly, so the read is clean).
   if (railInputReady()) {
     leanState = advanceLean(leanState, {
-      budget: wheelEdgeState.budget,
-      fresh: timeMs - lastBoundaryWheelAtMs <= LEAN_FRESH_MS,
+      pulse: timeMs - lastBoundaryPressAtMs <= LEAN_FRESH_MS,
       deltaMs,
       reducedMotion,
     });
@@ -3494,7 +3534,10 @@ const tick = (timeMs: number): void => {
   // Camera rail (§6.1): advance the glide (a cut already settled) and apply the pose — the
   // rail owns position and gaze every frame; the inputs below mutate its state in listeners.
   // During an open threshold beat the beat owns the pose and the exposure instead (§4).
-  railState = advance(rail, railState, deltaMs);
+  // The host clamps the frame the WALK consumes (the hard-destination law): a hidden tab's
+  // resume must not step past a stop with the intent dead. The other deltaMs consumers (the
+  // transit machine, the HUD cadence, the arrival beats) keep the real frame delta.
+  railState = advance(rail, railState, Math.min(deltaMs, 100));
   if (!applyBeatPose()) applyRailPose();
 
   // §11 permits camera-ray uniforms per visible frame; cheap and rotation-correct.
@@ -3558,7 +3601,7 @@ const tick = (timeMs: number): void => {
   const captionNext = presentCaption(captionView, {
     stops: captionStops,
     stopIndex: nearestStopIndex(rail, railState.u),
-    gliding: railState.glide !== null,
+    gliding: moving(railState),
     dwell: dwellStop(),
     dwellTitle: dwellTitle(),
     suppressed: arrival.phase !== 'settled',
@@ -3691,7 +3734,7 @@ const tick = (timeMs: number): void => {
   // (the fade keeps its words). The language swap re-composes on the next visible frame.
   const edgeNext = edgePromptView({
     settled: arrival.phase === 'settled' && transit === null,
-    atRest: railState.glide === null,
+    atRest: !moving(railState),
     boundary: railSettledBoundary(),
     pushed: pushedBoundary,
   });

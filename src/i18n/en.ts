@@ -20,7 +20,7 @@ export const en = {
   // target language's name.
   // The travel hint (design-walkthrough-ux §2, D1: the verb is the gesture) and the door label
   // verbs (§2: «Enter · <room>» / «Back out · <room>», composed in src/ui/edge-prompt.ts).
-  'chrome.travelHint': 'Scroll to walk · drag to look around',
+  'chrome.travelHint': 'Press the arrow keys to walk · drag to look around',
   'chrome.doorEnter': 'Enter',
   'chrome.doorBack': 'Back out',
   'chrome.toggleLabel': 'RU',

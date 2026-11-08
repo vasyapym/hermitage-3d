@@ -464,9 +464,10 @@ body {
 }
 /* ≤767.98: no travel hint (the owner's V2 verdict — the corner's text mass goes
    minimal-or-gone, and the hint is the heaviest repeated member). The verbs describe
-   wheel-and-pointer input either way; on a phone the sentence is wrong before it is
-   long. The dismissal state machine still runs — it just has nothing to fade; the
-   reserved slot goes with the display:none (nothing else in the stack references it). */
+   the arrows and the look drag on desktop; on mobile the pair is self-evident and the
+   hint stays retired. The dismissal state machine still runs — it just has nothing to
+   fade; the reserved slot goes with the display:none (nothing else in the stack
+   references it). */
 @media (max-width: 767.98px) {
   #travel-hint {
     display: none;
@@ -669,23 +670,26 @@ body {
   }
 }
 
-/* Mobile-B (design-mobile-tier.md §4, R19-ux A + A.1): the touch rail — the separate navigation
-   surface, a pair of ARROWS standing one stack gap above the corner stack's tallest door
-   state: «↓» inside the left inset + its shift, «↑» inside the right inset + its shift (the
-   notes link's own glyph — one chrome vocabulary, nothing drawn). Position host-owned from JS
+/* Mobile-B (design-mobile-tier.md §4, R19-ux A + A.1), amended by the movement-ux ruling
+   (2026-11-08/09): the touch rail is the separate navigation surface, a pair of ARROWS
+   standing one stack gap above the corner stack's tallest door state: «↓» inside the left
+   inset + its shift, «↑» inside the right inset + its shift (the notes link's own glyph —
+   one chrome vocabulary, nothing drawn). The pair now shows at EVERY pointer type and
+   width (the old coarse/narrow gate is retired in src/ui/touch-rail.ts; only this block's
+   placement and slot laws stand unchanged). Position host-owned from JS
    (layoutTouchRail sets --touch-center from the stack's stable facts — its bottom edge, its
    members' boxes, the door prompt's reserved three-line band — never its content-sized top, so
    no door label rises into the pair); the inset is the larger of the law's 24 px and the
    applicable safe-area inset via max(). R21-ux: each side additionally gains
    var(--touch-shift) — TOUCH_RAIL_SHIFT_PCT of the viewport width, added OUTSIDE the
    safe-area max() so a notch still pushes the pair further in, and scaling with the device so
-   the placement reads the same at the 320 floor and at 844 landscape. Absence is display:none
-   (the #season-list[hidden] precedent: out of layout, focus and the a11y tree); the geometry
-   is reserved while busy. While the black card's room title shows (#caption-title
-   data-visible) the arrows yield by opacity only — the title surfaces in their band and they
-   return as it fades («arrows replace them»); the box never moves. A slot that runs into the
-   chrome above, or a door label past its band, warns loudly in the repo's
-   zimny: convention and never hides navigation (§4's failed layout gate). */
+   the placement reads the same at the 320 floor and at 844 landscape. The absent state stays
+   display:none (the #season-list[hidden] precedent: out of layout, focus and the a11y
+   tree); the geometry is reserved while busy. While the black card's room title shows
+   (#caption-title data-visible) the arrows yield by opacity only — the title surfaces in
+   their band and they return as it fades («arrows replace them»); the box never moves. A
+   slot that runs into the chrome above, or a door label past its band, warns loudly in
+   the repo's zimny: convention and never hides navigation (§4's failed layout gate). */
 #touch-rail {
   position: fixed;
   display: flex;

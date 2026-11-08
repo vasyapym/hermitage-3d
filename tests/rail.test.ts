@@ -6,15 +6,16 @@ import type { RailState } from '../src/camera/rail';
 import {
   advance,
   drag,
+  moving,
+  REDUCED_DWELL_MS,
   restingAt,
-  STEP_GLIDE_MS,
   sampleLimits,
   samplePose,
   samplePosition,
-  scroll,
   seedState,
-  stepStop,
   stopParameter,
+  walkPress,
+  walkRelease,
 } from '../src/camera/rail';
 import {
   SQUARE_RAIL,
@@ -56,20 +57,27 @@ const STAIR: Rail = {
 };
 const LINE: Rail = { stops: [stop('p', [0, 0, 0]), stop('q', [0, 0, -10])] };
 const POINT: Rail = { stops: [stop('only', [1, 2, 3])] };
-
 const GALLERY: Rail = galleryContract.rail;
 const GALLERY_1812: Rail = contract1812.rail;
 // The unflagged rails only: the two committed rails that carry a corner flag (the gallery's
 // Gj and the 1812's M3) take the D3 run path by design and re-shape their flagged segments.
 const UNFLAGGED: readonly Rail[] = [SQUARE_RAIL, jordanContract.rail];
 
-const run = (rail: Rail, s: ReturnType<typeof restingAt>): ReturnType<typeof restingAt> => {
+const FRAME = 16 + 2 / 3; // the walk rows' cadence — no real timers, advance() splits the frame
+
+const runToRest = (rail: Rail, s: RailState): RailState => {
   let state = s;
-  while (state.glide !== null) state = advance(rail, state, 16);
+  let guard = 0;
+  while (moving(state) && guard++ < 2000) state = advance(rail, state, FRAME);
   return state;
 };
+/** A tap: one press lifted below the hold bar — the lease keeps draining from the press. */
+const tap = (rail: Rail, s: RailState, direction: 1 | -1): RailState =>
+  walkRelease(walkPress(rail, s, direction, false, false).state, direction);
+/** The stop-index coordinate k of a state's u (one stop gap = 1). */
+const stateK = (rail: Rail, s: RailState): number => s.u * (rail.stops.length - 1);
 
-/** R18-ux verdict 2: a state overridden into a backward-heading pose (glide-free sampling). */
+/** R18-ux verdict 2: a state overridden into a backward-heading pose (walk-free sampling). */
 const back = (rail: Rail, u: number): RailState =>
   rail.stops.length < 2 ? restingAt(u) : { ...restingAt(u), heading: -1 };
 
@@ -194,7 +202,7 @@ describe('authored subjects (R-UX5 §8, D6)', () => {
 });
 
 describe('the travel law (B9 field, superseding the R18/R19 departure turns)', () => {
-  it('a Back glide from i+1 to i holds subject i at the backward destination framing (B9)', () => {
+  it('a Back-heading state from i+1 to i holds subject i at the backward destination framing (B9)', () => {
     // The fence at the arrival: the backward destination stop's framing object. Mid-segment
     // the aim travels the arc between the framings — no point hold exists.
     const pose = samplePose(AIMED, back(AIMED, 0));
@@ -212,11 +220,12 @@ describe('the travel law (B9 field, superseding the R18/R19 departure turns)', (
       'O(ε) at the departure',
     ).toBeLessThan(0.0013);
   });
-  it('arrival exactness: the run lands on the destination stop’s committed object', () => {
+  it('arrival exactness: the walk lands on the destination stop’s committed object', () => {
     // The destination's held target IS the stop's committed target (continuous with the
     // fence): arriving at b, the pose looks at c's committed object.
-    const done = advance(STAIR, stepStop(STAIR, restingAt(0), 1, false).state, STEP_GLIDE_MS);
-    expect(done.glide).toBeNull();
+    const done = runToRest(STAIR, tap(STAIR, restingAt(0), 1));
+    expect(done.walk).toBeNull();
+    expect(done.u).toBe(stopParameter(STAIR, 1));
     const pose = samplePose(STAIR, done);
     expect(pose.target).toEqual(STAIR.stops[2]?.position);
   });
@@ -231,54 +240,75 @@ describe('the travel law (B9 field, superseding the R18/R19 departure turns)', (
     const g0 = samplePose(GALLERY, back(GALLERY, 0));
     expect(g0.target).toBe(GALLERY.stops[0]?.subject); // the G0 fence pose
   });
-  it('a mid-glide reversal re-anchors and keeps the per-16ms gaze change ≤ 3° (the step world)', () => {
+  it('a mid-walk reversal re-anchors at the turnaround and keeps the per-16ms gaze change ≤ 3° (the step world)', () => {
     // The widest committed turn (θ = 90° at the widened span 0.36 ≈ 1034 ms of 2800) peaks
     // ≈ 2.6°/frame — 90° · smootherstep's 1.875× peak slope / 1034 ms · 16 ms. The bound 3°
-    // is the step world's catch-all; measured worst on the STAIR reversal ≈ 1.2°.
-    const firstStep = stepStop(STAIR, restingAt(0), 1, false).state;
-    let state = advance(STAIR, firstStep, 1200); // well into the first glide
-    const reversed = stepStop(STAIR, state, -1, false).state; // the mid-glide reversal
-    expect(reversed.glide).not.toBeNull();
-    expect(reversed.anchor).not.toBeNull(); // the look in force at the reversal
+    // is the step world's catch-all; measured worst on the STAIR reversal ≈ 1.2°. The re-anchor
+    // instant is the TURNAROUND (the heading flip), not the press.
+    const press = walkPress(STAIR, restingAt(0), 1, false, false).state;
+    const inFlight = advance(STAIR, press, 1200); // well into the first cruise (k ≈ 0.66)
+    const reversed = walkPress(STAIR, inFlight, -1, false, false).state; // the opposite press
+    expect(reversed.walk).not.toBeNull();
+    expect(reversed.walk?.phase).toBe('brake');
+    expect(reversed.walk?.reversalTo).toBe(-1);
+    expect(reversed.heading).toBe(1); // the heading flips at the turnaround, not at the press
+    expect(reversed.anchor).toBeNull();
     let guard = 0;
-    let prevPose = samplePose(STAIR, state);
-    state = reversed;
-    while (state.glide !== null && guard++ < 400) {
-      state = advance(STAIR, state, 16);
+    let prevPose = samplePose(STAIR, inFlight);
+    let state = reversed;
+    let turned: RailState | null = null;
+    // The reversal press stays held: the live intent departs backward at the turnaround and
+    // the hard end stop 0 ends the walk there.
+    while ((state.walk !== null || turned === null) && guard++ < 400) {
+      state = advance(STAIR, state, FRAME);
+      if (turned === null && state.heading === -1) {
+        turned = state;
+        expect(state.anchor).not.toBeNull(); // the look in force at the turnaround
+        expect(state.anchor?.u0).toBeCloseTo(0.8, 6); // press k 0.66 + the 0.14 turnaround shift
+        expect(state.walk?.phase).toBe('accel');
+      }
       const pose = samplePose(STAIR, state);
       expect(aimStepDeg(prevPose, pose), `frame ${guard}`).toBeLessThanOrEqual(3);
       prevPose = pose;
     }
-    expect(state.glide).toBeNull();
-    expect(state.u).toBe(0); // the reversal lands at a
+    expect(turned).not.toBeNull();
+    expect(state.walk).toBeNull();
+    expect(state.u).toBe(0); // the walk rests back at a
   });
-  it('bounds the 544-ms scroll approach and retains the corner barrier', () => {
-    let state = scroll(GALLERY, restingAt(0), 20_000, false);
-    expect(state.glide?.kind).toBe('scroll');
-    expect(state.glide?.durationMs).toBe(544);
-    expect(state.glide?.to).toBe(stopParameter(GALLERY, 1)); // the corner barrier clamps at Gj
-    expect(state.heading).toBe(1);
-    let previous = samplePose(GALLERY, state);
+  it('a held walk into the Gj corner never passes it and bounds the per-16ms gaze change', () => {
+    // The walk replaces the retired 544-ms scroll approach into the corner: the corner stop
+    // is HARD under the walk too — the brake lands ON Gj and live intent re-departs at once.
+    // The wide 83° turn now rides the walk's pace law (83° over the ≥1500 ms cruise leg), so
+    // the per-16ms aim step keeps the same 6.3° bound class the old 544 ms escape measured.
+    let state = walkPress(GALLERY, restingAt(0), 1, false, false).state;
+    let prevPose = samplePose(GALLERY, state);
     let worst = 0;
-    for (let frame = 0; frame < 34; frame++) {
-      state = advance(GALLERY, state, 16);
+    let crossed = false;
+    let guard = 0;
+    const corner = stopParameter(GALLERY, 1);
+    while (state.walk !== null && guard++ < 1200) {
+      const prevU = state.u;
+      state = advance(GALLERY, state, FRAME);
       const pose = samplePose(GALLERY, state);
-      const ax = previous.target[0] - previous.position[0];
-      const ay = previous.target[1] - previous.position[1];
-      const az = previous.target[2] - previous.position[2];
-      const bx = pose.target[0] - pose.position[0];
-      const by = pose.target[1] - pose.position[1];
-      const bz = pose.target[2] - pose.position[2];
-      const cosine =
-        (ax * bx + ay * by + az * bz) / (Math.hypot(ax, ay, az) * Math.hypot(bx, by, bz));
-      const degrees = (Math.acos(Math.min(1, Math.max(-1, cosine))) * 180) / Math.PI;
-      expect(Number.isFinite(degrees)).toBe(true);
+      const degrees = aimStepDeg(prevPose, pose);
+      expect(Number.isFinite(degrees), `frame ${guard}`).toBe(true);
       worst = Math.max(worst, degrees);
-      previous = pose;
+      prevPose = pose;
+      // The corner's exact landing happens inside the event splitting: the first returned
+      // frame past Gj proves the brake landed ON the corner — anchor cleared, walk alive
+      // (the atomic re-depart: no rest frame while the intent lives), and never skipped.
+      if (!crossed && prevU < corner && state.u >= corner) {
+        crossed = true;
+        expect(state.anchor).toBeNull(); // the exact landing cleared the look anchor
+        expect(state.walk?.phase).toBe('accel'); // the re-depart, already gone from Gj
+        expect(state.u).toBeLessThan(corner + 1e-6); // one frame of the ramp at most
+        expect(state.u).toBeGreaterThan(corner - 1e-9);
+      }
     }
+    expect(crossed, 'the walk met the corner exactly').toBe(true);
     expect(worst).toBeLessThanOrEqual(6.3);
-    expect(state.glide).toBeNull();
-    expect(state.u).toBe(stopParameter(GALLERY, 1));
+    expect(state.walk).toBeNull();
+    expect(state.u).toBe(stopParameter(GALLERY, 3)); // the far hard end rests
   });
   it('the Back Gj→G0 pitch climbs linearly in distance, monotonically to its 3.06° settle (B9)', () => {
     // B9: the framings carry the WHOLE segment — the blend weight IS the distance fraction
@@ -306,7 +336,7 @@ describe('the travel law (B9 field, superseding the R18/R19 departure turns)', (
     expect(settle).toBeCloseTo(3.0591, 3);
   });
 
-  it('Back Gj→G0 spans the whole glide: the framings’ 83° pan half at mid-segment (B9)', () => {
+  it('Back Gj→G0 spans the whole heading: the framings’ 83° pan half at mid-segment (B9)', () => {
     // B9: the yaw reads the arc between the two framings — 82.98° off +x — with the same
     // distance weight: 33.19° at w = 0.4 (u0·0.6), 41.49° at w = 0.5, and the fence's
     // 82.98° only once at G0. (The recorded numbers coincide with the old row's: the old
@@ -347,17 +377,27 @@ describe('the travel law (B9 field, superseding the R18/R19 departure turns)', (
 
 describe('look limits', () => {
   it('moves limits with the distance weight, then holds the destination rows (B9)', () => {
-    // B9: the limits blend over the WHOLE remaining segment with s(τ) = smootherstep's
-    // travelled distance. G0's rows yaw 20 → Gj's yaw 30; pitch rows equal (15/15).
-    const started = stepStop(GALLERY, restingAt(0), 1, false).state;
-    const fifth = advance(GALLERY, started, STEP_GLIDE_MS * 0.2);
-    expect(sampleLimits(GALLERY, fifth).yaw).toBeCloseTo(20 + 10 * 0.05792, 6);
-    expect(sampleLimits(GALLERY, fifth).pitchUp).toBe(15);
-    expect(sampleLimits(GALLERY, fifth).pitchDown).toBe(15);
-    const held = advance(GALLERY, started, STEP_GLIDE_MS * 0.4);
-    expect(sampleLimits(GALLERY, held).yaw).toBeCloseTo(20 + 10 * 0.31744, 6);
+    // B9: the limits blend over the WHOLE remaining segment with the travelled-distance
+    // weight — walk-driven now: the walk reaches the same mid-segment positions the old
+    // glide row sampled, and the weight is position-only, so the pins read the blend at
+    // the actual k. G0's rows yaw 20 → Gj's yaw 30; pitch rows equal (15/15).
+    const press = walkPress(GALLERY, restingAt(0), 1, false, false).state;
+    const walkTo = (targetK: number): RailState => {
+      let state = press;
+      while (state.u * (GALLERY.stops.length - 1) < targetK) {
+        state = advance(GALLERY, state, FRAME);
+      }
+      return state;
+    };
+    const fifth = walkTo(0.05792);
+    const wFifth = stateK(GALLERY, fifth) - 0;
+    expect(sampleLimits(GALLERY, fifth).yaw).toBeCloseTo(20 + 10 * wFifth, 6);
+    const held = walkTo(0.31744);
+    expect(sampleLimits(GALLERY, held).yaw).toBeCloseTo(20 + 10 * (stateK(GALLERY, held) - 0), 6);
+    expect(sampleLimits(GALLERY, held).pitchUp).toBe(15);
+    expect(sampleLimits(GALLERY, held).pitchDown).toBe(15);
     // the arrival holds the destination rows exactly
-    const done = advance(GALLERY, started, STEP_GLIDE_MS);
+    const done = runToRest(GALLERY, tap(GALLERY, restingAt(0), 1));
     expect(sampleLimits(GALLERY, done)).toEqual({ yaw: 30, pitchUp: 15, pitchDown: 15 });
   });
   it('clamp drag offsets', () => {
@@ -367,10 +407,12 @@ describe('look limits', () => {
       pitch: -10,
     });
   });
-  it('re-clamp when a glide narrows them', () => {
+  it('re-clamp when a walk narrows them', () => {
+    // r21: the mid-segment drag is wide (2/3 of the STAIR's k range is stop c's ±60 row);
+    // the backward walk re-clamps both fields at the rest stop's rows (yaw 30).
     const wide = drag(STAIR, restingAt(2 / 3), 2000, 0, 800, 'mouse');
     expect(wide.lookTarget.yaw).toBe(60);
-    const backState = run(STAIR, stepStop(STAIR, wide, -1, false).state);
+    const backState = runToRest(STAIR, tap(STAIR, wide, -1));
     expect(backState.look.yaw).toBe(30);
   });
   it('leave the never-dragged state bit-identical at rest (the r21 golden gate)', () => {
@@ -379,91 +421,103 @@ describe('look limits', () => {
   });
 });
 
-describe('keyboard stepping', () => {
-  it('glides stop to stop monotonically and bounds the far end', () => {
+describe('walk law (presses assert intent, the walk owns the pace)', () => {
+  it('a tap walks one gap monotonically and lands exactly; a fresh edge at the far end is the boundary', () => {
     let state = restingAt(0);
     for (let i = 1; i < STAIR.stops.length; i++) {
-      const r = stepStop(STAIR, state, 1, false);
-      expect(r.boundary).toBeNull();
-      let prev = r.state.u;
-      state = r.state;
-      while (state.glide !== null) {
-        state = advance(STAIR, state, 16);
+      const press = walkPress(STAIR, state, 1, false, false);
+      expect(press.boundary).toBeNull();
+      // A tap: ~33 ms of hold (below the hold bar), then the lift — the lease keeps draining.
+      state = advance(STAIR, press.state, FRAME * 2);
+      expect(state.walk).not.toBeNull();
+      state = walkRelease(state, 1);
+      let prev = state.u;
+      while (state.walk !== null) {
+        state = advance(STAIR, state, FRAME);
         expect(state.u).toBeGreaterThanOrEqual(prev);
         prev = state.u;
       }
       expect(state.u).toBe(stopParameter(STAIR, i));
     }
-    const end = stepStop(STAIR, state, 1, false);
+    const end = walkPress(STAIR, state, 1, false, false);
     expect(end.boundary).toBe('forward');
     expect(end.state).toBe(state);
   });
   it('bounds the near end and both ends of a single-stop node', () => {
-    expect(stepStop(STAIR, restingAt(0), -1, false).boundary).toBe('backward');
-    expect(stepStop(POINT, restingAt(0), 1, false).boundary).toBe('forward');
-    expect(stepStop(POINT, restingAt(0), -1, false).boundary).toBe('backward');
+    expect(walkPress(STAIR, restingAt(0), -1, false, false).boundary).toBe('backward');
+    expect(walkPress(POINT, restingAt(0), 1, false, false).boundary).toBe('forward');
+    expect(walkPress(POINT, restingAt(0), -1, false, false).boundary).toBe('backward');
   });
-  it('retargets a glide in flight to the following stop', () => {
-    const mid = advance(STAIR, stepStop(STAIR, restingAt(0), 1, false).state, 300);
-    const second = stepStop(STAIR, mid, 1, false).state;
-    expect(second.glide?.to).toBeCloseTo(2 / 3);
-    expect(second.glide?.from).toBe(mid.u);
+  it('a repeat press rests and does nothing on a single-stop node (a hold never opens a door)', () => {
+    const rest = restingAt(0);
+    expect(walkPress(POINT, rest, 1, true, false)).toEqual({ state: rest, boundary: null });
+    expect(walkPress(POINT, rest, 1, true, false).state).toBe(rest);
+  });
+  it('a press mid-walk never picks a destination: the walk keeps its heading, one leg per tap', () => {
+    // The old retarget row picked the FOLLOWING stop; the walk law replaces destination
+    // picking with intent. The mid-walk press refills the lease and the leg still ends at
+    // the NEXT stop in the heading (one stop gap), never two.
+    const press = walkPress(STAIR, restingAt(0), 1, false, false).state;
+    const mid = advance(STAIR, press, 300); // mid-accel
+    expect(mid.walk).not.toBeNull();
+    const again = walkPress(STAIR, mid, 1, false, false).state;
+    expect(again.walk?.heading).toBe(1);
+    const landed = runToRest(STAIR, walkRelease(again, 1));
+    expect(landed.walk).toBeNull();
+    expect(landed.u).toBe(stopParameter(STAIR, 1)); // one gap, exactly
   });
 });
 
-describe('advance and reduced motion', () => {
-  it('cuts instead of gliding', () => {
-    const r = stepStop(STAIR, restingAt(0), 1, true);
-    expect(r.state.glide).toBeNull();
+describe('reduced motion (the cut law)', () => {
+  it('cuts instead of walking', () => {
+    const r = walkPress(STAIR, restingAt(0), 1, false, true);
+    expect(r.boundary).toBeNull();
+    expect(r.state.walk).toBeNull();
     expect(r.state.u).toBe(stopParameter(STAIR, 1));
+    expect(r.state.dwellMs).toBe(REDUCED_DWELL_MS);
+  });
+  it('a press during the dwell is dropped; repeats are ignored', () => {
+    const cut = walkPress(STAIR, restingAt(0), 1, false, true).state;
+    const during = walkPress(STAIR, cut, 1, false, true).state;
+    expect(during).toBe(cut); // the dwell drops the press — not queued
+    const repeat = walkPress(STAIR, cut, 1, true, true).state;
+    expect(repeat).toBe(cut);
+  });
+  it('the boundary fires before the dwell check (a door press is not a cut storm)', () => {
+    // A cut seeds the dwell at the settled END (stop 3); the follow-up press then meets the
+    // end's no-next-stop branch — the boundary wins over the dwell.
+    const cut = walkPress(STAIR, restingAt(stopParameter(STAIR, 2)), 1, false, true).state;
+    expect(cut.dwellMs).toBe(REDUCED_DWELL_MS); // the cut planted the dwell
+    expect(cut.u).toBe(1);
+    const fired = walkPress(STAIR, cut, 1, false, true);
+    expect(fired.boundary).toBe('forward');
+    expect(fired.state.walk).toBeNull();
   });
   it('rejects bad deltas', () => {
     for (const d of [-1, Number.NaN, Number.POSITIVE_INFINITY]) {
       expect(() => advance(STAIR, restingAt(0), d)).toThrow(RangeError);
     }
   });
-  it('settles exactly after the R19-ux 2380-ms step duration', () => {
-    expect(STEP_GLIDE_MS).toBe(2380);
-    const started = stepStop(STAIR, restingAt(0), 1, false).state;
-    expect(started.glide?.durationMs).toBe(2380);
-    const before = advance(STAIR, started, 2379);
-    expect(before.glide).not.toBeNull();
-    const done = advance(STAIR, before, 1);
-    expect(done.glide).toBeNull();
-    expect(done.u).toBe(stopParameter(STAIR, 1));
-  });
 });
 
-describe('scroll', () => {
-  it('clamps at both ends without a boundary', () => {
-    expect(scroll(LINE, restingAt(1), 10_000, true).u).toBe(1);
-    expect(scroll(LINE, restingAt(0), -10_000, true).u).toBe(0);
+describe('corner barriers under the walk', () => {
+  it('a tap rests AT the corner stop: the Forward walk from G0 never passes Gj', () => {
+    const rested = runToRest(GALLERY, tap(GALLERY, restingAt(0), 1));
+    expect(rested.walk).toBeNull();
+    expect(rested.u).toBe(stopParameter(GALLERY, 1)); // the corner, never past it
+    expect(rested.heading).toBe(1);
   });
-  it('extends a scroll glide in flight', () => {
-    // 120 px = 0.1 segment at SCROLL_PX_PER_SEGMENT 1200 over one segment (the two-stop LINE).
-    const first = scroll(LINE, restingAt(0), 120, false);
-    const second = scroll(LINE, advance(LINE, first, 50), 120, false);
-    expect(second.glide?.to).toBeCloseTo(0.2);
-    expect(second.glide?.from).toBe(0);
+  it('the next delta after the corner walks on from it (its own barrier excludes itself)', () => {
+    const rested = runToRest(GALLERY, tap(GALLERY, restingAt(0), 1));
+    const onward = tap(GALLERY, rested, 1);
+    expect(onward.walk).not.toBeNull(); // a walk departs the corner (the corner is no wall)
+    const landed = runToRest(GALLERY, onward);
+    expect(landed.u).toBe(stopParameter(GALLERY, 2)); // the next stop past the corner
   });
-  it('does nothing on a single-stop node', () => {
-    const rest = restingAt(0);
-    expect(scroll(POINT, rest, 500, false)).toBe(rest);
-  });
-  it('never crosses a corner stop: the target clamps at Gj and the next delta walks on', () => {
-    const blocked = scroll(GALLERY, restingAt(0), 20_000, false);
-    expect(blocked.glide?.to).toBe(stopParameter(GALLERY, 1));
-    expect(blocked.glide?.kind).toBe('scroll');
-    expect(blocked.heading).toBe(1);
-    const arrived = run(GALLERY, blocked);
-    expect(arrived.u).toBe(stopParameter(GALLERY, 1));
-    // The next delta starts a new glide from the corner (its own barrier excludes itself).
-    const onward = scroll(GALLERY, arrived, 20_000, false);
-    expect(onward.glide?.to).toBe(1);
-  });
-  it('never crosses a corner stop going back either', () => {
-    const blocked = scroll(GALLERY_1812, restingAt(1), -20_000, false);
-    expect(blocked.glide?.to).toBe(stopParameter(GALLERY_1812, 3));
+  it('never crosses a corner stop going back either: the 1812 backward tap rests at M3', () => {
+    const rested = runToRest(contract1812.rail, tap(contract1812.rail, restingAt(1), -1));
+    expect(rested.walk).toBeNull();
+    expect(rested.u).toBe(stopParameter(contract1812.rail, 3));
   });
 });
 
@@ -532,7 +586,7 @@ describe('corner runs and the approach field (R18-ux D3)', () => {
       expect(x, `chord x at u ${u.toFixed(4)}`).toBeLessThanOrEqual(1.6 + 1e-9);
     }
   });
-  it('a Forward glide into the approach stop reads the committed framings on both headings (B9)', () => {
+  it('a Forward approach into Gj reads the committed framings on both headings (B9)', () => {
     // B9: GALLERY_MOUTH stays recorded but no longer steers — the aim travels the arc
     // between G0's JUNCTION framing and Gj's EAST_DOOR framing, identical at both
     // headings on the same rail point (the field law), and the arrival meets EAST_DOOR.
@@ -545,7 +599,7 @@ describe('corner runs and the approach field (R18-ux D3)', () => {
     const arrived = samplePose(GALLERY, restingAt(stopParameter(GALLERY, 1)));
     expect(arrived.target).toBe(GALLERY.stops[1]?.subject); // EAST_DOOR at the ex-approach stop
   });
-  it('a Back glide into the approach stop (and its own pose) keeps the subject', () => {
+  it('a Back approach into the approach stop (and its own pose) keeps the subject', () => {
     const pose = samplePose(GALLERY, back(GALLERY, stopParameter(GALLERY, 1) + 0.05));
     expect(pose.target).toEqual(GALLERY.stops[1]?.subject); // EAST_DOOR on both sides
   });
@@ -618,8 +672,9 @@ describe('purity', () => {
       .replace(/"(?:\\.|[^"\\\n])*"/g, '');
   it('loads the module source', () => {
     // rail + square-rail + cam-param + look + look-param (W5, the det ?look= parser) +
-    // wheel-edge (r21, DEC-031) + door-lean (R-UX2) + portrait-frame (brief 19 §A).
-    expect(Object.keys(sources)).toHaveLength(8);
+    // door-lean (R-UX2, the press-edge pulse) + portrait-frame (brief 19 §A). The wheel-edge
+    // module is retired with the wheel (the movement-ux ruling).
+    expect(Object.keys(sources)).toHaveLength(7);
   });
   it('imports nothing from three or node', () => {
     for (const src of Object.values(sources)) {

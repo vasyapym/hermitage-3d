@@ -12,6 +12,12 @@ export const smootherstep = (x: number): number => {
   return t * t * t * (6 * t * t - 15 * t + 10);
 };
 
+/** C¹ smoothstep (3τ² − 2τ³): zero slope at both ends — the walk ramps' speed law (rail.ts). */
+export const smoothstep = (x: number): number => {
+  const t = clamp01(x);
+  return t * t * (3 - 2 * t);
+};
+
 export const mixScalar = (a: number, b: number, k: number): number => a + (b - a) * k;
 
 export const mixRgb = (a: Rgb3, b: Rgb3, k: number): [number, number, number] => [

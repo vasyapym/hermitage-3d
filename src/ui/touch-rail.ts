@@ -1,4 +1,7 @@
-// docs/design-mobile-tier.md §§4–5: injected facts only; the host owns input and layout.
+// docs/design-mobile-tier.md §§4–5 (as amended by the movement-ux round): injected facts only;
+// the host owns input and layout. The pair is visible at EVERY pointer type and width (the old
+// coarse/narrow law is retired — touchRailVisible + TOUCH_RAIL_MAX_WIDTH_PX no longer exist);
+// the admission law is ONE law everywhere (mid-walk presses extend the walk).
 export const TOUCH_BUTTON_MIN_INLINE_PX = 72;
 /** R25-ux: 44 → 41 by the owner's call — the hit area is the box itself; 41 is chosen knowing
  * the 44 px touch-target convention (WCAG 2.5.8's 24 px floor stands clear). The bottom edge
@@ -9,7 +12,6 @@ export const TOUCH_RAIL_INSET_PX = 24;
 /** R21-ux: each box sits this share of the viewport width inside the inset (host writes `%`). */
 export const TOUCH_RAIL_SHIFT_PCT = 7;
 export const TOUCH_RAIL_CLEARANCE_PX = 16;
-export const TOUCH_RAIL_MAX_WIDTH_PX = 767.98;
 
 export const TOUCH_RAIL_PROMPT_LINES = 3;
 
@@ -52,31 +54,19 @@ export function touchRailCenter(
   return { center, fits: center - height / 2 >= bandTop };
 }
 
-export function touchRailVisible(
-  f: Readonly<{ coarsePointer: boolean; widthCssPx: number }>,
-): boolean {
-  return f.coarsePointer || f.widthCssPx <= TOUCH_RAIL_MAX_WIDTH_PX;
-}
-
 export function admitTouchTravel(
   f: Readonly<{
     settled: boolean;
     transitNull: boolean;
-    glideNull: boolean;
     canvasGestureFree: boolean;
     menuOwningInput: boolean;
   }>,
 ): 'accept' | 'drop' {
-  // Deliberately stricter than arrows: their mid-glide retargeting remains unchanged.
-  return f.settled && f.transitNull && f.glideNull && f.canvasGestureFree && !f.menuOwningInput
+  // ONE admission law everywhere (the §5 NOTE's amendment): a press is admitted mid-walk —
+  // it extends the walk; the walk law owns idempotency (a refill never multiplies the pace).
+  return f.settled && f.transitNull && f.canvasGestureFree && !f.menuOwningInput
     ? 'accept'
     : 'drop';
-}
-
-export function admitTouchKey(
-  f: Readonly<{ repeat: boolean; accepted: boolean }>,
-): 'accept' | 'drop' {
-  return !f.repeat && !f.accepted ? 'accept' : 'drop';
 }
 
 export function canvasContact(

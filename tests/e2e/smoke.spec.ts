@@ -173,14 +173,13 @@ test('smoke walk: the graph returns the ledger to boot values', async ({ page })
   await expect(hud).toHaveAttribute('data-hold-ms', '0', { timeout: 60_000 });
 });
 
-test('wheel walk: the boundary prompt and the sustained wheel enter both airlocks', async ({
+test('arrow walk: the prompt click and a fresh ArrowRight at a settled end enter both airlocks', async ({
   page,
 }) => {
-  // The owner's reachability report (2026-10-21): a trackpad visitor scrolled to a rail
-  // end and stalled — the doors were arrows-only. Two roads must reach the same
-  // beginTransitTo call the arrows use: the chrome prompt (click) and a sustained
-  // deliberate wheel past the clamp (the momentum-immunity law, DEC-031). Fresh page:
-  // a mounted room keeps its technique (the round-17 measurement trap).
+  // The movement-ux ruling (DEC-031 amended) retired the wheel: the two roads that reach
+  // the same beginTransitTo call the arrows use are the chrome prompt's click (road 1)
+  // and a fresh ArrowRight press made at a settled rail end (road 2). Fresh page: a
+  // mounted room keeps its technique (the round-17 measurement trap).
   test.slow();
   const query = `${AT}&det=1&hud=1&lang=en`;
   const hud = await bootDeterministic(page, query);
@@ -188,27 +187,43 @@ test('wheel walk: the boundary prompt and the sustained wheel enter both airlock
   const edgePrompt = page.locator('#edge-prompt');
   // Mid-room at the start: the prompt is hidden (the UI-nearly-absent law).
   await expect(edgePrompt).toHaveAttribute('data-visible', 'false');
-  await page.mouse.move(640, 360);
-  // The deliberate walk: 80 px per event at ~45 ms — every event under the speed gate.
-  // Dispatched inside the page: a trusted-input round-trip per event makes a 50-event
-  // walk crawl under SwiftShader (the hint spec sends one event; this walk needs a stream).
-  const wheel = async (events: number): Promise<void> => {
-    await page.evaluate((n) => {
-      const canvas = document.querySelector('#scene');
-      for (let i = 0; i < n; i += 1) {
-        setTimeout(() => {
-          canvas?.dispatchEvent(
-            new WheelEvent('wheel', { deltaY: 80, cancelable: true, bubbles: true }),
-          );
-        }, i * 45);
-      }
-    }, events);
-    await page.waitForTimeout(events * 45 + 120);
+  type HudSample = Readonly<{ stop: string | null; holdMs: string | null }>;
+  const sampleKey = (s: HudSample): string => `${s.stop} | hold ${s.holdMs}`;
+  // One press per leg; the walk settles at the NEXT stop (the walk law's ≈2060 ms leg —
+  // never asserted). The settle read is a HUD poll made STABLE: two samples an interval
+  // apart must show the same coherent (stop | hold 0) tick, because a walk passes THROUGH
+  // the destination's nearest reading mid-flight (mid-walk presses lawfully extend the
+  // walk — never a retarget — so a coalesced read still lands where the legs aimed).
+  const legTo = async (stop: string): Promise<void> => {
+    await page.keyboard.press('ArrowRight'); // the leg's only press
+    await expect
+      .poll(
+        async () => {
+          const first = await hud.evaluate((el) => ({
+            stop: el.getAttribute('data-stop'),
+            holdMs: el.getAttribute('data-hold-ms'),
+          }));
+          if (first.holdMs !== '0') return 'in transit';
+          await page.waitForTimeout(700);
+          const second = await hud.evaluate((el) => ({
+            stop: el.getAttribute('data-stop'),
+            holdMs: el.getAttribute('data-hold-ms'),
+          }));
+          return second.holdMs === '0' && second.stop === first.stop && second.stop === stop
+            ? sampleKey(second)
+            : `moving ${sampleKey(first)} → ${sampleKey(second)}`;
+        },
+        {
+          message: `leg: a stable coherent HUD sample at ${stop}`,
+          timeout: 90_000,
+          intervals: [400, 800],
+        },
+      )
+      .toBe(`${stop} | hold 0`);
   };
-  // The square's two segments into S1's clamp (R18-ux D1: S0→Sh→S1); the glide settles at
-  // the far end and the prompt appears. 32 events = 2560 px ≥ the 2400-px road
-  // (SCROLL_PX_PER_SEGMENT 1200) with the settle margin.
-  await wheel(32);
+  // The square's two gap legs to its far end S1 (R18-ux D1: S0 → Sh → S1); the walk rests
+  // there and the edge prompt appears.
+  for (const stop of ['Sh', 'S1']) await legTo(stop);
   await expect(edgePrompt).toHaveAttribute('data-visible', 'true', { timeout: 30_000 });
   // The label names the room through the door (§2/D1): verb + ' · ' + the room's NAME.
   await expect(edgePrompt).toHaveText('Enter · Rastrelli Gallery', { timeout: 30_000 });
@@ -230,24 +245,16 @@ test('wheel walk: the boundary prompt and the sustained wheel enter both airlock
   await expect(hud).toHaveAttribute('data-hold-ms', '0', { timeout: 60_000 });
   await expectWithinBudgets(hud);
   // The entry stop's first settled frame shows the caption only (§9): the door label waits
-  // for a backward push.
+  // for a backward push, and a forward press at a mid-room settle walks one gap instead.
   await expect(edgePrompt).toHaveAttribute('data-visible', 'false');
-  // The backward push — the door answers (§2/§9): one event latches it, the text names home.
-  await page.evaluate(() => {
-    document
-      .querySelector('#scene')
-      ?.dispatchEvent(new WheelEvent('wheel', { deltaY: -80, cancelable: true, bubbles: true }));
-  });
-  await expect(edgePrompt).toHaveAttribute('data-visible', 'true');
-  await expect(edgePrompt).toHaveText('Back out · Palace Square');
-  // Road 2 — the sustained wheel: the gallery's three segments into G2's clamp, then the
-  // pass spans its sustain window; the airlock fires mid-batch. wheel() emits 80 px events:
-  // 1200 / 80 = 15 per segment (SCROLL_PX_PER_SEGMENT), three gallery segments
-  // (G0→Gj→G1→G2) + the same 4-event sustain window the two-segment road used.
-  await wheel(49);
+  // The gallery's three gap legs to its far end G2 (G0 → Gj → G1 → G2): the walk law
+  // brakes into the corner stop Gj (hard for the walk), re-departs live, then rests at G2.
+  for (const stop of ['Gj', 'G1', 'G2']) await legTo(stop);
   await expect(edgePrompt).toHaveAttribute('data-visible', 'true', { timeout: 30_000 });
   await expect(edgePrompt).toHaveText('Enter · Jordan Staircase', { timeout: 30_000 });
-  await wheel(14);
+  // Road 2 — the fresh ArrowRight at the settled end: the same boundary chain the arrows
+  // always used; no sustained gesture exists anymore.
+  await page.keyboard.press('ArrowRight');
   await expect(hud).toHaveAttribute('data-room', 'jordan', { timeout: 60_000 });
   await expect(hud).toHaveAttribute('data-hold-ms', '0', { timeout: 60_000 });
   await expect(page).toHaveURL(/#\/jordan/, { timeout: 60_000 });

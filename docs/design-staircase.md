@@ -247,7 +247,7 @@ Eye height 1.7 m above the local floor; `t` on the room rail; look limits yaw/pi
 > the subjects untouched, the perpendicular Column clearance 14.57449 m. Supersedes this
 > section's on-axis S0/S1 rows only.
 
-Rail: Catmull-Rom through stop positions with two helper points per flight for the turns; `cam` float as today. Inputs unchanged (scroll/drag/arrows). `prefers-reduced-motion`: glides become cuts stop→stop; airlocks force `transit:'cut'`.
+Rail: Catmull-Rom through stop positions with two helper points per flight for the turns; `cam` float as today. INPUTS AMENDED (the movement-ux ruling, 2026-11-08/09; the full law lives in walkthrough-ux §8): the wheel is retired — the inputs are the ARROWS ONLY, one WALK law (press = intent edge, walkPress; release = walkRelease; taps ≤ 600 ms apart never brake; a hold settles at the next stop; ends and corners are HARD; the walk never passes them); drag stays the look. `prefers-reduced-motion`: a fresh press edge cuts to the next stop under REDUCED_DWELL_MS; airlocks force `transit:'cut'`.
 
 > **r18a adjudication (binding).** Path: centripetal Catmull-Rom (α = ½) through the stop
 > positions with end phantoms only — mid-segment turn helpers are rejected: centripetal
@@ -268,8 +268,9 @@ Rail: Catmull-Rom through stop positions with two helper points per flight for t
 > override lives with the square data, S1's target host-resolved to the gallery entry stop.
 > Seed precedence on node entry: `?stop=` (known id) > `?cam=` (clamped) > entry; a backward
 > entry (through the airlock's home side) seeds the far stop so travel continues in its
-> direction. Scroll clamps at the rail ends silently; only arrow steps surface boundary
-> intents — the keyboard's airlock across the §1.1 chain. The HUD `data-stop` row (nearest
+> direction. AMENDED (movement-ux): the scroll clamp line is retired with the wheel; the
+> rail's ends are HARD knots the walk never passes, and only a settled end's fresh press
+> edge surfaces boundary intents — the keyboard's airlock across the §1.1 chain. The HUD `data-stop` row (nearest
 > stop id) is the e2e reachability instrument: a cut transit's `data-hold-ms` reads 0 by
 > contract, so the hold row cannot gate a reduced-motion walk.
 
@@ -362,7 +363,7 @@ Re-marked at r19 (the phase-2 exit device pass: headed Chromium on the reference
 | r18 camera rail | src/camera (spline, stops, look limits, inputs, reduced-motion cuts), captions + a11y; may split r18a rail / r18b stops+captions — pre-split further to rail+inputs vs stops+captions+a11y if scopes crowd | all 10 stops reachable by keyboard; reduced-motion cuts verified; goldens J1/J4/G1 stable | src/world, src/assets, materials |
 | r19 phase-2 exit | contract check per room, device gates headed, disposal verified, devlog #0002 with hero frame, URL updated, ATTRIBUTIONS/artistic-license synced, ROADMAP line closed | deployed URL; all §9 rows re-marked measured | everything except docs and gate-failure fixes |
 | r20 phase-2b night windows | the DEC-019 lattice: pure level law (hash/split/intensity/visibility/ground-warm) + the pane builder (3 InstancedMesh, stock materials), unit tests, the Dec-21 21:00 golden; main.ts wiring by the orchestrator | facade reads from the lattice alone at 21 Dec 21:00; +≤3 draws, +≤~4k tris, 0 custom slots, +0 lights; day/dusk and room goldens bit-identical; reference-device frame time within +0.2 ms | the three-state contract, facade kit materials and geometry (the slot is reserved for snow), the day/dusk sky palette, light counts, UI |
-| r21 look response | the free-look feel (owner report: drag too fast, nauseating): a new pure look law — damped target/current split, viewport-normalized sensitivity, touch-safe deltas — + tests; the rail/main.ts patches applied by the orchestrator | drag-to-look feels slow and organic on desktop and mobile; at rest the rendered pose is bit-identical (goldens gate); reduced-motion keeps the damping; the keyboard walk e2e unchanged | the committed stop data, pose law and look limits (§6.1); glide durations; wheel/scroll/arrow semantics; captions/a11y; the HUD contract |
+| r21 look response | the free-look feel (owner report: drag too fast, nauseating): a new pure look law — damped target/current split, viewport-normalized sensitivity, touch-safe deltas — + tests; the rail/main.ts patches applied by the orchestrator | drag-to-look feels slow and organic on desktop and mobile; at rest the rendered pose is bit-identical (goldens gate); reduced-motion keeps the damping; the keyboard walk e2e unchanged | the committed stop data, pose law and look limits (§6.1); glide durations (retired with the walk law); wheel/scroll semantics (retired); arrow semantics (the walk law); captions/a11y; the HUD contract |
 | r22 Russian voice + /notes redesign | DESIGN relay: the specialist decides the language model (RU-default + toggle), the Cyrillic-capable self-hosted typography replacing system-ui, and the /notes redesign (senior-minimalist, stands out); delivers docs/design-i18n-notes.md with the EN→RU text inventory + the implementation plan; the owner dispositions, code rounds follow | the design doc merged after owner disposition; no code | any src/ (code rounds come after the disposition) |
 
 If the r16 initial-JS headroom (+60 KB) proves optimistic, pre-split r16 into r16a (registry + airlock + loaders) and r16b (ledger + smoke walk). — Happened as advised: measured r16a is 235,960 gzip (the +60 KB estimate missed by ~11 KB), the 350,000 cap holds.

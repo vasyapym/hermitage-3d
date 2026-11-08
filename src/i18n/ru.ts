@@ -25,7 +25,7 @@ export const ru = {
     'освещённая настоящим петербургским небом.',
   'chrome.wordmark': 'Зимний дворец',
   'chrome.notesLink': 'Как это устроено\u00A0→',
-  'chrome.travelHint': 'Прокрутите, чтобы идти · потяните, чтобы осмотреться',
+  'chrome.travelHint': 'Нажимайте стрелки, чтобы идти · потяните, чтобы осмотреться',
   'chrome.doorEnter': 'Войти',
   'chrome.doorBack': 'Назад',
   'chrome.toggleLabel': 'EN',

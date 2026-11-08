@@ -9,10 +9,10 @@
  *   ever requested (det/golden pixels stay frozen; deep links never see the hint).
  * - armed → shown only at the arrival-settle beat, and only if nothing dismissed the hint
  *   first: travel before the beat wins and the hint never flashes.
- * - shown → gone on the first travel intent of any kind (wheel, pointer drag start of any
- *   pointer type, arrow step, boundary step that fires an airlock — one definition, the
- *   rail's own travel-intent entry point) or when the hold timer fires; the cause is kept
- *   for data-dismissed.
+ * - shown → gone on the first travel intent of any kind (a press on the pair or the arrows,
+ *   pointer drag start of any pointer type, a boundary press that fires an airlock — one
+ *   definition, the rail's own travel-intent entry point) or when the hold timer fires; the
+ *   cause is kept for data-dismissed. (The wheel's dismissal retired with the wheel.)
  * - gone is absorbing: no event brings the hint back for the page lifetime. Time scrubbing
  *   and the language toggle are not events of this law — the host swaps the text in place
  *   and leaves the timers alone.

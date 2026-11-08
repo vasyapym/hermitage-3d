@@ -85,6 +85,30 @@ async function frames(p: Page): Promise<void> {
   );
 }
 
+/** A settle read for a walk (never a transit): three coherent position reads 600 ms apart
+ * must agree — a mid-walk nearest reading can agree twice (a walk's cruise covers one
+ * stop's nearest window for ~750 ms) but never three times across 1.2 s. */
+async function settledRoute(p: Page): Promise<void> {
+  await expect
+    .poll(
+      async () => {
+        const first = await position(p);
+        if ((await p.locator('#hud').getAttribute('data-hold-ms')) !== '0') return 'transit-open';
+        await p.waitForTimeout(600);
+        const second = await position(p);
+        if (second.room !== first.room || second.stop !== first.stop) return 'moving1';
+        await p.waitForTimeout(600);
+        const third = await position(p);
+        return third.room === second.room && third.stop === second.stop
+          ? `${first.room}|${first.stop}`
+          : 'moving2';
+      },
+      { message: 'a stable three-reader settle read', timeout: 90_000, intervals: [250, 600] },
+    )
+    .toMatch(/^[a-z0-9-]+\|[a-zA-Z0-9-]+$/);
+  expect(await p.locator('#hud').getAttribute('data-hold-ms')).toBe('0');
+}
+
 async function rawTap(p: Page, d: number): Promise<void> {
   const b = await button(p, d).boundingBox();
   expect(b).not.toBeNull();
@@ -261,13 +285,14 @@ test('rapid activation / reduced motion', async ({ browser, baseURL }) => {
         await rawTap(p, 1);
         await rawTap(p, 1);
         await roomReady(p);
-        // The admission law owns the outcome, and it reads the SECOND tap's arrival time:
-        // a tap landing mid-glide or mid-hold is dropped (one step: S1), one landing after
-        // the settle is admitted — and S1 IS the square's boundary stop, so that step
-        // crosses (two steps: G0). Both outcomes are one-tap-one-step holding (the
-        // battery's trace: the second CDP tap arrived ~1.5 s after the first, post-settle,
-        // and the old per-room +1 arithmetic read the S1→G0 wrap as a regression). Assert
-        // the legal set on the route order, plus stability across frames.
+        // The walk law owns the outcome (the one admission rule admits a press MID-WALK —
+        // it extends the walk; there is no drop gate anymore). Reduced: tap two lands
+        // inside the 600 ms dwell and is dropped (one cut: Sh); normal: tap two refills
+        // the walk's lease, and the walk rests where the refilled intent's brake lands
+        // (the trace's ~1.5 s second CDP tap runs its own leg: two steps: G0) — so the
+        // legal set [before+1, before+2] holds in both modes (the documented law change;
+        // the old mid-glide-drop wording is gone with the walk). Assert the legal set on
+        // the route order, plus stability across frames.
         const after = (await position(p)).stop;
         expect([before + 1, before + 2]).toContain(routeIndex(after));
         await frames(p);
@@ -467,7 +492,10 @@ for (const lang of ['ru', 'en']) {
           for (const [width, height] of sizes) {
             await p.setViewportSize({ width, height });
             const rail = p.locator('#touch-rail');
-            const visible = hasTouch || width === 767;
+            // The movement-ux ruling: the pair shows at EVERY pointer type and width —
+            // the old hasTouch || width ≤ 767.98 law is retired (TOUCH_RAIL_MAX_WIDTH_PX
+            // is gone), so the fine-pointer 767 read flipped from false here to true.
+            const visible = true;
             await expect(rail).toHaveAttribute('data-visible', String(visible));
             await expect(hud).toHaveAttribute('data-tier-source', source);
             await expect(hud).toHaveAttribute('data-probe-count', probes);
@@ -657,7 +685,7 @@ for (const lang of ['ru', 'en']) {
   });
 }
 
-// Row 9 (R18-ux verdict 1 + D2): while busy, the geometry doesn't change. The glide needs
+// Row 9 (R18-ux verdict 1 + D2): while busy, the geometry doesn't change. The walk needs
 // motion, so this rides its own no-preference contexts at the phone size.
 for (const lang of ['ru', 'en']) {
   test(`R18-ux ${lang.toUpperCase()} busy reserved geometry`, async ({ browser, baseURL }) => {
@@ -686,11 +714,11 @@ for (const lang of ['ru', 'en']) {
         };
         const before = await read();
         await rawTap(p, 1);
-        // Mid-glide (the 2800-ms step still running): the box is where it was.
+        // Mid-walk (the walk law's cruise still running): the box is where it was.
         await p.waitForTimeout(600);
         const mid = await read();
         for (const key of ['ax', 'ay', 'aw', 'bx', 'by', 'rx', 'ry', 'rw', 'rh'] as const) {
-          expect(Math.abs(mid[key] - before[key]), `${key} mid-glide`).toBeLessThanOrEqual(0.5);
+          expect(Math.abs(mid[key] - before[key]), `${key} mid-walk`).toBeLessThanOrEqual(0.5);
         }
         await roomReady(p);
         const after = await read();
@@ -703,3 +731,55 @@ for (const lang of ['ru', 'en']) {
     );
   });
 }
+
+// The movement-ux desktop row: at a FINE pointer and 1280×720 the pair is visible (the
+// ruling shows it at every pointer/width), a click moves one stop, and a held keyboard
+// walk passes stops mid-hold and rests at the NEXT stop after the lift (the walk law's
+// own invariant: the rest stop is one past the pass-through). Durations are never
+// asserted — the reads are position-based, on the route order: the pair and the keyboard
+// share the one rail graph, so the desktop chrome exercises both roads here.
+test('desktop 1280×720 (fine pointer): the pair is visible, a click steps one stop, a held walk rests one past its pass', async ({
+  browser,
+  baseURL,
+}) => {
+  test.setTimeout(300_000);
+  const context = await browser.newContext({
+    baseURL: baseURL ?? 'http://127.0.0.1:4173',
+    viewport: { width: 1280, height: 720 },
+    hasTouch: false,
+    deviceScaleFactor: 1,
+    reducedMotion: 'no-preference',
+  });
+  try {
+    const p = await context.newPage();
+    await p.goto('/#/?at=2026-06-21T12:00:00Z&lang=en&hud=1');
+    await roomReady(p);
+    const rail = p.locator('#touch-rail');
+    await expect(rail).toHaveAttribute('data-visible', 'true');
+    // The pair answers clicks at the desk: a click = one press = one leg (the walk law's
+    // lease ends → the brake lands at the next stop). Route-order arithmetic: the leg
+    // can cross a room boundary (S1 → G0), so +1 on the route, not the per-room index.
+    const before = routeIndex((await position(p)).stop);
+    await button(p, 1).click();
+    await settledRoute(p);
+    const afterClick = routeIndex((await position(p)).stop);
+    expect(afterClick).toBe(before + 1);
+    // A keyboard hold: down at t0; the read at +2.2 s sits mid-segment past the FIRST
+    // stop to cross (k ≈ 1.33, the nearest read = Sh, floor(k) = 1); the lift at +2.5 s
+    // keeps floor(k) = 1 (the next crossing needs ~3.2 s at v_c). The lift ends the
+    // intent → the walk brakes to the NEXT stop in its heading → the rest stop is
+    // EXACTLY one past the pass-through.
+    const holdStart = routeIndex((await position(p)).stop);
+    await p.keyboard.down('ArrowRight');
+    await p.waitForTimeout(2200);
+    const mid = routeIndex((await position(p)).stop);
+    expect(mid, 'at least one stop passed mid-hold').toBeGreaterThanOrEqual(holdStart + 1);
+    await p.keyboard.up('ArrowRight');
+    await p.waitForTimeout(300);
+    await settledRoute(p);
+    const rest = routeIndex((await position(p)).stop);
+    expect(rest, 'the rest stop is one past the pass-through').toBe(mid + 1);
+  } finally {
+    await context.close();
+  }
+});

@@ -6,20 +6,20 @@
  *
  * The chrome line at a rail end is the door's answer to a push: it names what lies through
  * the door («Enter · Rastrelli Gallery», «Back out · Palace Square») and shows only when the
- * camera is settled AT the end — the rail at rest (no glide), the arrival beats done, no
+ * camera is settled AT the end — the rail at rest (no walk), the arrival beats done, no
  * transit — AND the door has been asked. The far end (u = 1) asks by being reached; the entry
  * end (u = 0) asks only after a push INTO its clamp, so a fresh arrival shows the caption
  * alone, a backward push shows «Back out», and forward travel walks in silently.
  *
  * Three pure pieces, fed by the host:
- * - pushMemory (once per frame): the remembered push into the CLAMPED end (the wheel-through's
- *   glide-tolerant read — a scroll stream keeps a glide alive, so the memory survives it). Set
- *   by a push in the end's direction, held while the clamped target stays on that end, dropped
- *   the frame the target leaves it. Wheel, arrow boundary step and label click are all pushes.
+ * - pushMemory (once per frame): the remembered push into the clamped end. Set by a push in
+ *   the end's direction, held while the settled parameter stays on that end, dropped the
+ *   frame the state leaves it. Boundary press edge (arrows or the pair) and label click are
+ *   both pushes. (The wheel-through push retired with the wheel — the movement-ux ruling.)
  * - edgePromptView (once per frame): visible ⇔ settled ∧ atRest ∧ boundary ≠ null ∧
  *   (boundary = 'forward' ∨ pushed = boundary). «No frame shows the label while the camera
- *   moves»: atRest is the rail's own glide === null — a forward approach shows on its settle
- *   frame; a backward push at a resting clamp creates no glide and shows on the push frame.
+ *   moves»: atRest is the walk law's moving() === false — a forward approach shows on its
+ *   settle frame; a backward push at a resting clamp shows on the push frame.
  * - doorLabel (on change): the room's NAME is the head of its sentence title before the em
  *   dash («Rastrelli Gallery — the way in» → «Rastrelli Gallery»; a bare title is its own
  *   name). The card keeps the sentence; the door says the name. Separator: the ruled « · ».

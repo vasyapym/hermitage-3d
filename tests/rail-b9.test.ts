@@ -12,19 +12,20 @@ import {
   committedTarget,
   type RailState,
   restingAt,
-  SCROLL_GLIDE_MS,
-  STEP_GLIDE_MS,
   sampleLimits,
   samplePose,
-  stepStop,
   stopParameter,
+  WALK_BRAKE_MS,
+  WALK_CRUISE_MS,
+  walkPress,
+  walkRelease,
 } from '../src/camera/rail';
 import { SQUARE_RAIL } from '../src/camera/square-rail';
 import type { Rail, Vec3 } from '../src/world/registry';
 
 const DEG = 180 / Math.PI;
+const FRAME = 16 + 2 / 3; // the walk rows' cadence — no real timers, event-split slices
 const S = [1e-10, 0.05, 0.25, 0.5, 0.75, 0.95, 1 - 1e-10] as const;
-const smootherstep = (x: number): number => x * x * x * (x * (x * 6 - 15) + 10);
 const EPS_DEG = 1e-7;
 
 const aimOf = (position: Vec3, target: Vec3): { yaw: number; pitch: number } => {
@@ -100,39 +101,65 @@ describe('B9 field: between two stops the look is the arc between their framings
 });
 
 describe('B9 pacing: the look turns with the travel', () => {
-  // The peak per-second pan of yaw(t) along a glide: s(τ) is smootherstep, whose slope peaks
-  // 1.875 at τ = 0.5, so the pan peaks there at 1.875 × arc / duration. The share left after
-  // 62% of the time is 1 − s(0.62) — exactly the distance the remaining travel covers.
+  // The walk replaces the glide: the aim is a LINEAR function of the travelled distance
+  // (position-only), so the cruise pan rate is CONSTANT — arc · v_c — with none of the
+  // old smootherstep's 1.875 spike. The share left after 62 % OF THE SEGMENT is travelled
+  // is exactly 1 − 0.62 of the arc (the old 1 − s(0.62) pin, retimed to position).
+  const VC = 1 / WALK_CRUISE_MS;
+  const k = (rail: Rail, s: RailState): number => s.u * (rail.stops.length - 1);
+  const yawOf = (pose: ReturnType<typeof samplePose>): number =>
+    aimOf(pose.position, pose.target).yaw;
   const cases: readonly (readonly [string, Rail, number])[] = [
     ['gallery G0→Gj', galleryContract.rail, 0],
     ['jordan J2b→J3', jordanContract.rail, 4],
   ];
   for (const [label, rail, i] of cases) {
-    for (const T of [STEP_GLIDE_MS, SCROLL_GLIDE_MS]) {
-      it(`${label} @${T} ms: peak 1.875·arc/T at mid-glide; late share = 1−s(0.62)`, () => {
-        const end = framings(rail, i);
-        const arc = Math.abs(wrapDeg(end.b.yaw - end.a.yaw));
-        const yawAt = (tau: number): number => {
-          const pose = samplePose(rail, midState(rail, i, smootherstep(tau), 1));
-          return aimOf(pose.position, pose.target).yaw;
-        };
-        let peak = 0;
-        let peakTau = 0;
-        for (let ms = 0; ms < T; ms += 1) {
-          const rate = Math.abs(wrapDeg(yawAt((ms + 1) / T) - yawAt(ms / T))) * 1000;
-          if (rate > peak) {
-            peak = rate;
-            peakTau = (ms + 0.5) / T;
+    it(`${label}: the walk pan never turns faster per unit of rail than the arc`, () => {
+      const end = framings(rail, i);
+      const arc = Math.abs(wrapDeg(end.b.yaw - end.a.yaw));
+      let state = walkPress(rail, restingAt(stopParameter(rail, i)), 1, false, false).state;
+      let prevPose = samplePose(rail, state);
+      let prevK = k(rail, state);
+      let worstPerRail = 0;
+      let sawCruise = false;
+      let lastCruiseRate = Number.NaN;
+      let guard = 0;
+      // The hold keeps the intent alive; the observation stops where the segment's
+      // destination stop is met (soft on jordan, the hard corner on the gallery).
+      while (state.walk !== null && k(rail, state) < i + 1 - 1e-9 && guard++ < 400) {
+        state = advance(rail, state, FRAME);
+        const pose = samplePose(rail, state);
+        const dk = k(rail, state) - prevK;
+        const dyaw = Math.abs(wrapDeg(yawOf(pose) - yawOf(prevPose)));
+        if (Math.floor(prevK) === Math.floor(k(rail, state)) && dk > 1e-6) {
+          worstPerRail = Math.max(worstPerRail, dyaw / dk);
+          if (state.walk?.phase === 'cruise') {
+            sawCruise = true;
+            lastCruiseRate = dyaw / FRAME;
           }
         }
-        expect(peak / ((1.875 * arc * 1000) / T)).toBeCloseTo(1, 3);
-        expect(Math.abs(peakTau - 0.5)).toBeLessThan(0.01);
-        expect(Math.abs(wrapDeg(yawAt(1) - yawAt(0.62))) / arc).toBeCloseTo(
-          1 - smootherstep(0.62),
-          6,
-        );
-      });
-    }
+        prevPose = pose;
+        prevK = k(rail, state);
+      }
+      expect(sawCruise, 'the walk reached its cruise').toBe(true);
+      // The B9 field law at the averaged pace: never faster per unit of rail than the
+      // segment's own arc (the accel ramp's slope peak stays inside the closed forms).
+      expect(worstPerRail).toBeLessThanOrEqual(arc * 1.001);
+      expect(lastCruiseRate, 'the cruise pan at arc·v_c per millisecond').toBeCloseTo(arc * VC, 3);
+    });
+    it(`${label}: 62 % of the segment's travel leaves exactly 38 % of the arc`, () => {
+      const end = framings(rail, i);
+      const arc = Math.abs(wrapDeg(end.b.yaw - end.a.yaw));
+      let state = walkPress(rail, restingAt(stopParameter(rail, i)), 1, false, false).state;
+      let guard = 0;
+      while (state.walk !== null && k(rail, state) < i + 0.62 - 0.005 && guard++ < 400) {
+        state = advance(rail, state, FRAME);
+      }
+      const at = Math.min(k(rail, state), i + 0.62 + 0.005);
+      const share = Math.abs(wrapDeg(end.b.yaw - yawOf(samplePose(rail, state)))) / arc;
+      expect(Math.abs(at - (i + 0.62))).toBeLessThanOrEqual(0.005); // the sampled frame's span
+      expect(share, `the share left at k ${at.toFixed(4)}`).toBeCloseTo(1 - 0.62, 2);
+    });
   }
 });
 
@@ -155,19 +182,35 @@ describe('B9 keeps the recorded rows', () => {
     }
   });
 
-  it('a mid-glide reversal re-anchors on the field: the Back leg retraces the Forward look', () => {
+  it('a mid-walk reversal re-anchors AT THE TURNAROUND on the field: the Back leg retraces the Forward look', () => {
     const rail = galleryContract.rail;
     const uA = stopParameter(rail, 0);
     const uB = stopParameter(rail, 1);
-    const inFlight: RailState = {
-      ...restingAt(uA + (uB - uA) * 0.4),
-      heading: 1,
-      anchor: null,
-      glide: { kind: 'step', from: uA, to: uB, durationMs: STEP_GLIDE_MS, elapsedMs: 1100 },
-    };
-    const reversed = stepStop(rail, inFlight, -1, false).state;
-    expect(reversed.heading).toBe(-1);
-    expect(reversed.anchor).not.toBeNull();
+    // The walk drives to k ≈ 0.4 of the first segment (accel 0.14 + 260 ms of cruise).
+    const press = walkPress(rail, restingAt(uA), 1, false, false).state;
+    const inFlight = advance(rail, press, 810);
+    expect(inFlight.u).toBeCloseTo(uA + (uB - uA) * 0.4, 6);
+    const reversed = walkPress(rail, inFlight, -1, false, false).state;
+    expect(reversed.walk?.phase).toBe('brake'); // the reversal, braking to the turnaround
+    expect(reversed.walk?.reversalTo).toBe(-1);
+    expect(reversed.heading).toBe(1); // the heading flips AT the turnaround, not at the press
+    expect(reversed.anchor).toBeNull();
+    // The reversal press stays held: the intent departs at the turnaround, walks back
+    // through B0's framings, and the hard rail end rests it at G0.
+    let state = reversed;
+    let flipped: RailState | null = null;
+    let guard = 0;
+    while (state.walk !== null && guard++ < 400) {
+      state = advance(rail, state, 16);
+      if (flipped === null && state.heading === -1) {
+        flipped = state;
+        expect(state.anchor).not.toBeNull();
+        expect(state.walk?.phase).toBe('accel');
+      }
+    }
+    expect(flipped).not.toBeNull();
+    expect(state.walk).toBeNull();
+    expect(state.u).toBe(uA); // G0
     for (const s of [0.39, 0.3, 0.2, 0.1, 0.01]) {
       // The field reads the same look DIRECTION at the same rail point on both headings —
       // the reversal's re-anchor lands on the field. The target POINT carries the reach of
@@ -183,8 +226,8 @@ describe('B9 keeps the recorded rows', () => {
 
   it('reduced motion still cuts to the destination fence', () => {
     const rail = jordanContract.rail;
-    const cut = stepStop(rail, restingAt(stopParameter(rail, 3)), 1, true).state;
-    expect(cut.glide).toBeNull();
+    const cut = walkPress(rail, restingAt(stopParameter(rail, 3)), 1, false, true).state;
+    expect(cut.walk).toBeNull();
     expect(samplePose(rail, cut).target).toEqual(committedTarget(rail, 4));
   });
 
@@ -199,14 +242,37 @@ describe('B9 keeps the recorded rows', () => {
     expect(mid.target === committedTarget(rail, 1)).toBe(false); // no point hold mid-flight
   });
 
-  it('advance settles the step at the committed duration (the timing law kept)', () => {
+  it('the walk rests AT the arrival: release timing controls T = 2r/v (brake ≤ the cruise bar)', () => {
+    // On the square rail the walk's next stop (Sh) is SOFT: a held walk coasts past the
+    // horizon, and only the intent's end starts the brake. On the gallery the next stop
+    // Gj is a CORNER — hard regardless of intent — so the pinned T comes from the square.
     const rail = galleryContract.rail;
-    const started = stepStop(rail, restingAt(0), 1, false).state;
-    const notYet = advance(rail, started, STEP_GLIDE_MS - 1);
-    expect(notYet.glide).not.toBeNull();
-    const done = advance(rail, notYet, 1);
-    expect(done.glide).toBeNull();
-    expect(done.u).toBe(stopParameter(rail, 1));
+    // Tap: press, the lift inside the lease, then the settle: the intent dies, the brake
+    // enters, and the walk rests AT Gj exactly.
+    const pressed = walkPress(rail, restingAt(0), 1, false, false).state;
+    let state = advance(rail, pressed, 80); // the tap's flight
+    state = walkRelease(state, 1);
+    let guard = 0;
+    while (state.walk !== null && guard++ < 400) state = advance(rail, state, 16);
+    expect(state.walk).toBeNull();
+    expect(state.u).toBe(stopParameter(rail, 1));
+    // An early hold-release inside the horizon (the square rail, n = 3): the intent ends
+    // at 1500 ms with r = 1 − 0.86 = 0.14, so T = 2r/v = 420 < WALK_BRAKE_MS — the walk
+    // still rests AT Sh, never past it.
+    const square = SQUARE_RAIL;
+    const held = walkPress(square, restingAt(0), 1, false, false).state;
+    let short = advance(square, held, 1500);
+    short = walkRelease(short, 1);
+    const kAtRelease = short.u * (square.stops.length - 1); // the closed form: 0.86, r = 0.14
+    short = advance(square, short, FRAME);
+    expect(short.walk?.phase).toBe('brake');
+    const rAtEntry = 1 - kAtRelease; // the entry r, not the current position's
+    expect(short.walk?.phaseDurationMs).toBeCloseTo((2 * rAtEntry) / (1 / WALK_CRUISE_MS), 6);
+    expect(short.walk?.phaseDurationMs).toBeLessThan(WALK_BRAKE_MS);
+    guard = 0;
+    while (short.walk !== null && guard++ < 400) short = advance(square, short, 16);
+    expect(short.walk).toBeNull();
+    expect(short.u).toBe(stopParameter(square, 1));
   });
 });
 

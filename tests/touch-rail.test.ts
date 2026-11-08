@@ -13,6 +13,8 @@ const column = (module: Record<string, unknown>): Record<string, string> => {
 
 describe('touch rail', () => {
   it('pins the adopted geometry', () => {
+    // The movement-ux ruling: the pair is visible at EVERY pointer/width, so the old
+    // TOUCH_RAIL_MAX_WIDTH_PX (767.98) is retired — the tuple keeps the geometry values.
     expect([
       law.TOUCH_BUTTON_MIN_INLINE_PX,
       law.TOUCH_BUTTON_MIN_BLOCK_PX,
@@ -20,9 +22,8 @@ describe('touch rail', () => {
       law.TOUCH_RAIL_INSET_PX,
       law.TOUCH_RAIL_SHIFT_PCT,
       law.TOUCH_RAIL_CLEARANCE_PX,
-      law.TOUCH_RAIL_MAX_WIDTH_PX,
       law.TOUCH_RAIL_PROMPT_LINES,
-    ]).toEqual([72, 41, 8, 24, 7, 16, 767.98, 3]);
+    ]).toEqual([72, 41, 8, 24, 7, 16, 3]);
   });
 
   it('stands the box one stack gap above the reserved door band, whatever the label', () => {
@@ -66,53 +67,23 @@ describe('touch rail', () => {
     expect(law.touchRailCenter(570, 613, 44)).toEqual({ center: 591, fits: false });
   });
 
-  it('exhausts coarse/narrow visibility combinations, including the boundary', () => {
-    for (const coarsePointer of [false, true]) {
-      for (const widthCssPx of [0, 320, 767, law.TOUCH_RAIL_MAX_WIDTH_PX, 768, 844]) {
-        expect(law.touchRailVisible({ coarsePointer, widthCssPx })).toBe(
-          coarsePointer || widthCssPx <= law.TOUCH_RAIL_MAX_WIDTH_PX,
-        );
-      }
-    }
-  });
-
-  it('exhausts all 32 admission combinations without queueing', () => {
-    for (let mask = 0; mask < 32; mask++) {
-      const [settled, transitNull, glideNull, canvasGestureFree, menuOwningInput] = [
-        0, 1, 2, 3, 4,
-      ].map((bit) => Boolean(mask & (1 << bit))) as [boolean, boolean, boolean, boolean, boolean];
+  it('exhausts all 16 admission combinations without queueing', () => {
+    // The ONE admission law everywhere (the §5 NOTE's amendment): a press is admitted
+    // mid-walk — it extends the walk; there is no glide gate anymore. The walk law owns
+    // its own idempotency (tests/rail-walk.test.ts law A), so no repeat tuple lives here.
+    for (let mask = 0; mask < 16; mask++) {
+      const [settled, transitNull, canvasGestureFree, menuOwningInput] = [0, 1, 2, 3].map((bit) =>
+        Boolean(mask & (1 << bit)),
+      ) as [boolean, boolean, boolean, boolean];
       expect(
         law.admitTouchTravel({
           settled,
           transitNull,
-          glideNull,
           canvasGestureFree,
           menuOwningInput,
         }),
-      ).toBe(
-        settled && transitNull && glideNull && canvasGestureFree && !menuOwningInput
-          ? 'accept'
-          : 'drop',
-      );
+      ).toBe(settled && transitNull && canvasGestureFree && !menuOwningInput ? 'accept' : 'drop');
     }
-  });
-
-  it('exhausts repeat facts; one hold accepts once, a new press may accept again', () => {
-    for (const repeat of [false, true]) {
-      for (const accepted of [false, true]) {
-        expect(law.admitTouchKey({ repeat, accepted })).toBe(
-          !repeat && !accepted ? 'accept' : 'drop',
-        );
-      }
-    }
-    expect(
-      [
-        { repeat: false, accepted: false },
-        { repeat: true, accepted: true },
-        { repeat: true, accepted: true },
-      ].filter((f) => law.admitTouchKey(f) === 'accept'),
-    ).toHaveLength(1);
-    expect(law.admitTouchKey({ repeat: false, accepted: false })).toBe('accept');
   });
 
   it('exhausts contact decisions; shadowed contact never replaces the anchor', () => {
@@ -135,7 +106,7 @@ describe('touch rail', () => {
     }
   });
 
-  it('pins both columns and preserves the original travel hint byte-for-byte', () => {
+  it('pins both columns and the travel hint copy byte-for-byte', () => {
     const ru = column(ruModule);
     const en = column(enModule);
     for (const key of [
@@ -150,8 +121,12 @@ describe('touch rail', () => {
       expect(ru[`chrome.${key}`]?.trim()).toBeTruthy();
       expect(en[`chrome.${key}`]?.trim()).toBeTruthy();
     }
-    expect(ru['chrome.travelHint']).toBe('Прокрутите, чтобы идти · потяните, чтобы осмотреться');
-    expect(en['chrome.travelHint']).toBe('Scroll to walk · drag to look around');
+    // The movement-ux ruling renamed the verbs (src/i18n updated on the branch): the hint
+    // names the ARROWS now — the scroll-and-look copy is retired.
+    const ruHint = 'Нажимайте стрелки, чтобы идти · потяните, чтобы осмотреться';
+    const enHint = 'Press the arrow keys to walk · drag to look around';
+    expect(ru['chrome.travelHint']).toBe(ruHint);
+    expect(en['chrome.travelHint']).toBe(enHint);
   });
 });
 

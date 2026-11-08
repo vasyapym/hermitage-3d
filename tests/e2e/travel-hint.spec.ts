@@ -16,19 +16,22 @@ test('(a) S0 en: the hint shows at the settle beat with the EN copy', async ({ p
   await settled(page, `${AT}&lang=en`);
   const hint = page.locator(HINT);
   await expect(hint).toHaveAttribute('data-visible', 'true', { timeout: 10_000 });
-  await expect(hint).toHaveText('Scroll to walk · drag to look around');
+  // The movement-ux ruling renamed the verbs: the hint names the ARROWS now.
+  await expect(hint).toHaveText('Press the arrow keys to walk · drag to look around');
   await expect(hint).toHaveAttribute('data-dismissed', 'none');
 });
 
-test('(b) S0 ru: «Прокрутите, чтобы идти · потяните, чтобы осмотреться»', async ({ page }) => {
+test('(b) S0 ru: «Нажимайте стрелки, чтобы идти · потяните, чтобы осмотреться»', async ({
+  page,
+}) => {
   await settled(page, `${AT}&lang=ru`);
   const hint = page.locator(HINT);
   await expect(hint).toHaveAttribute('data-visible', 'true', { timeout: 10_000 });
-  await expect(hint).toHaveText('Прокрутите, чтобы идти · потяните, чтобы осмотреться');
+  await expect(hint).toHaveText('Нажимайте стрелки, чтобы идти · потяните, чтобы осмотреться');
 });
 
 test('(c) the first travel intent dismisses with data-dismissed=travel', async ({ page }) => {
-  // Three legs, three FRESH pages: the goto on the same base is a fragment navigation (no
+  // Two legs, two FRESH pages: the goto on the same base is a fragment navigation (no
   // reload — the round-17c trap), and the hint's law is once per page lifetime.
   const freshSettled = async (query: string): Promise<Page> => {
     const fresh = await page.context().newPage();
@@ -40,25 +43,12 @@ test('(c) the first travel intent dismisses with data-dismissed=travel', async (
   // (the settle beat fired: shown → gone, the hold is cancelled) or still armed (armed →
   // gone, it never flashes); §9 makes the FIRST travel intent the dismissal either way.
   // Waiting for data-visible=true here would race the 6 s hold against a janked main
-  // thread (the watch: a slow protocol round-trip pushed the wheel past the hold and the
+  // thread (the watch: a slow protocol round-trip pushed the press past the hold and the
   // unprompted timeout won).
-  // Wheel (the smoke walk's dispatchEvent law — one protocol round-trip: the CDP wheel
-  // sequence of page.mouse can land a full protocol cycle past the hold under load —
-  // the recorded r11 watch; a synthetic in-page event fires synchronously and the first
-  // intent is the dismissal either way):
-  let p = await freshSettled(`${AT}&lang=en`);
-  const hint = p.locator(HINT);
-  await p.locator('#scene').dispatchEvent('wheel', {
-    deltaY: 120,
-    cancelable: true,
-    bubbles: true,
-  });
-  await expect(hint).toHaveAttribute('data-visible', 'false');
-  await expect(hint).toHaveAttribute('data-dismissed', 'travel');
-  await p.close();
-
+  // The wheel leg is retired with the wheel (the movement-ux ruling): the arrows and the
+  // drag already assert the same first-intent dismissal data-attributes.
   // Arrow step:
-  p = await freshSettled(`${AT}&lang=en`);
+  let p = await freshSettled(`${AT}&lang=en`);
   await p.locator('#scene').focus();
   await p.keyboard.press('ArrowRight');
   await expect(p.locator(HINT)).toHaveAttribute('data-visible', 'false');
@@ -120,14 +110,15 @@ test('the language toggle flips the overlay and the page (§1.2)', async ({ page
   await expect(toggle).toHaveText('EN'); // the TARGET language in its own script
   await expect(toggle).toHaveAttribute('lang', 'en');
   await expect(page.locator(HINT)).toHaveText(
-    'Прокрутите, чтобы идти · потяните, чтобы осмотреться',
+    'Нажимайте стрелки, чтобы идти · потяните, чтобы осмотреться',
   );
   await toggle.click();
   await expect(page.locator('html')).toHaveAttribute('lang', 'en', {
     timeout: 10_000,
   });
   await expect(page).toHaveTitle('Winter Palace in the browser');
-  await expect(page.locator(HINT)).toHaveText('Scroll to walk · drag to look around'); // swaps in place
+  // Swaps in place:
+  await expect(page.locator(HINT)).toHaveText('Press the arrow keys to walk · drag to look around');
   await expect(page.locator('#notes-link')).toHaveText('How it’s built →');
   // The URL carries the written lang= (replaceState, no history entry) and the toggle
   // now names the OTHER language.

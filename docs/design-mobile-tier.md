@@ -136,10 +136,12 @@ probe.
 
 ## §4 Touch rail surface — amendment R17-B (rewritten by R18-ux verdict 1 + D6; placement and face re-ruled by R19-ux A; the slot re-ruled by R19-ux A.1; the face re-glyphed and the slot certified the lowest clean line by R20-ux; the face set in medium 27 px and the pair shifted inward by the viewport-share inset (TOUCH_RAIL_SHIFT_PCT) by R21-ux)
 
-«Add one separate navigation group, `#touch-rail`, with native Back and Forward buttons. Show
-it when any coarse pointer is available OR viewport width is at most 767.98 CSS px. Visibility
-is independent of quality; a narrow mouse window gets controls, not forced T0. When absent,
-the group is absent from layout, focus order and the accessibility tree. The group spans the
+«Add one separate navigation group, `#touch-rail`, with native Back and Forward buttons.
+AMENDED by the movement-ux ruling (2026-11-08/09): the pair is VISIBLE and clickable at
+EVERY pointer type and width — the coarse/narrow visibility law (coarse pointer OR width
+≤ 767.98 px; TOUCH_RAIL_MAX_WIDTH_PX) is retired: ONE movement mechanism means ONE always-
+available navigation surface. When hidden by the caption-title yield below, the group is
+absent from layout, focus order and the accessibility tree as before. The group spans the
 viewport's inline extent between two insets: its left edge uses the larger of
 TOUCH_RAIL_INSET_PX and the left safe-area inset, its right edge the larger of
 TOUCH_RAIL_INSET_PX and the right safe-area inset. Back sits at the group's left edge (its
@@ -161,7 +163,7 @@ reaching the right column) plus TOUCH_RAIL_CLEARANCE_PX. It is not a corner-stac
 clock row. Constants defined
 here, in CSS px unless stated: TOUCH_BUTTON_MIN_INLINE_PX = 72; TOUCH_BUTTON_MIN_BLOCK_PX =
 41; TOUCH_RAIL_GAP_PX = 8 (the minimum gap between the two buttons); TOUCH_RAIL_INSET_PX =
-24 (both edges); TOUCH_RAIL_CLEARANCE_PX = 16; TOUCH_RAIL_MAX_WIDTH_PX = 767.98;
+24 (both edges); TOUCH_RAIL_CLEARANCE_PX = 16;
 TOUCH_RAIL_PROMPT_LINES = 3 (the door prompt's reserved band, in its own lines); R25-ux: the
 block minimum is 41 px by the owner's decision (from 44). The hit area is the button box
 itself; 41 is taken knowing the 44 px touch-target convention and stays well above WCAG
@@ -225,15 +227,16 @@ hold-repeat or swipe momentum. Suppress repeat-key activation on these buttons; 
 Enter/Space. Reduced motion uses the existing immediate step law; two distinct taps remain
 two intents.
 
-NOTE (the integration's named difference, §0.1-6): the existing arrows admit input
-mid-glide (the wheel retargets an open glide; `stepStop` steps FROM a glide's target); the
-button gate above is stricter. If the owner prefers one admission law everywhere, the
-design accepts that amendment without changes elsewhere.
+NOTE (RESOLVED by the movement-ux ruling, 2026-11-08/09): ONE admission law everywhere — a
+press is admitted MID-WALK and extends it; the walk law owns idempotency (a press never
+multiplies the pace). The arrows' retarget law and the button's no-glide gate are both
+retired with the glides.
 
 Canvas drag remains look-only. Preserve 30°, touch ×1.15 and τ=100 ms; preserve mouse/pen
-sensitivity, 2,800-ms steps (R18-ux D2, «around 50% slower» = half the speed) and 640-ms
-scroll glides, and the 1,200-px wheel segment budget.
-Wheel-edge's 650/120/420 thresholds and existing keyboard travel are not retuned. Track
+sensitivity. THE MOVEMENT PACING IS THE WALK LAW (design-walkthrough-ux §8 amendment):
+WALK_CRUISE_MS 1500 / WALK_ACCEL_MS 420 / WALK_BRAKE_MS 700 / lease 600 / hold 300 —
+the 2,800-ms / 640-ms / 1,200-px wheel rows above are historical (the wheel and the glides
+are retired); the wheel-edge thresholds are retired with the sustained-scroll pass. Track
 client coordinates, never `movementX/Y` (the r21 lesson). Admit one primary contact; mouse
 starts require its primary button (new: today's pointerdown checks none — §0.1-6). A second
 touch cancels looking and cannot replace the anchor; re-arm only after the touch sequence

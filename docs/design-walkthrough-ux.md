@@ -97,13 +97,18 @@ chrome stays nearly absent; two text lines change; no icons, no spinner.
 - Appearance law: the label is the door's answer to a push — it shows when settled
   at a rail end with an airlock AND (a push into the clamp in the door's direction
   OR a settle at the far end u=1). It never shows at an entry stop until a backward
-  push. Click, arrows and wheel-through all pass through the same law.
-- The sustained-wheel pass gets **feedback**: the camera leans toward the portal by
-  a small fraction of a metre ∝ budget/EDGE_BUDGET_PX, springs back when the pass
-  resets, and the lean continues seamlessly into the departure glide (§4). Thresholds stay declared constants; re-tune against a measured time-to-fire
-  (target: a calm two-finger roll fires ≤ ~0.7 s; a flick never fires) [declared].
-- The travel hint copy fixes its verb: EN "Scroll to walk · drag to look around" /
-  RU «Прокрутите, чтобы идти · потяните, чтобы осмотреться» [declared; D1].
+  push. The prompt, the arrows and the pair all pass through the same law (the
+  wheel-through's wording was retired with the wheel — the movement-ux amendment).
+- Feedback (AMENDED, the movement-ux ruling): the lean feeds PRESS EDGES — a settled
+  end's fresh press edge (the pair, the arrows) or the prompt's click stamps the host's
+  pulse clock; the camera leans toward the portal at ONE declared magnitude
+  (LEAN_MAX_M 0.35 m), springs back when the pulse goes stale, and the lean continues
+  seamlessly into the departure glide (§4). (The wheel's budget-proportional readout
+  is retired with the sustained-scroll pass.)
+- The travel hint copy (AMENDED, the movement-ux ruling): EN "Press the arrow keys to
+  walk · drag to look around" / RU «Нажимайте стрелки, чтобы идти · потяните, чтобы
+  осмотреться» (the pair is self-evident wherever it shows; the copy needs only the
+  keys). The travelHintTouch fork is unchanged. [declared; D1 + the amendment]
 - Reduced motion: the lean is absent; the enter still fires.
 - Keyboard stays silent chrome (nearly-absent). Touches: DEC-031 amended (copy,
   appearance law, feedback — an amendment, its minimap/sidebar rejection stands);
@@ -300,6 +305,42 @@ The transit beat, in order:
 
 Verdict: the rail stays; free roam stays rejected; the two defect laws are fixed
 inside the promise.
+
+Movement-law amendment (the movement-ux ruling, 2026-11-08/09): the movement is ONE WALK —
+a signed motion along the rail at a declared cruise pace, alive while INTENT is alive,
+braking to the next stop in its heading when intent ends. Presses assert intent and never
+pick destinations; the wheel's travel (and its sustained-scroll boundary pass) is retired.
+- Inputs (ONE funnel): `walkPress`/`walkRelease`. Keys: keydown = press (an OS repeat is a
+  refill), keyup/window-blurness/hidden = release. Both pairs — desktop AND mobile, one
+  law — bind pointerdown/up + keyboard activation, with the click kept as the assistive
+  fallback (suppressed once per activation). Admission: settled ∧ transit-free ∧
+  gesture-free ∧ menu-free — the old no-glide gate is GONE (a press is admitted mid-walk:
+  it extends the run). The pair is VISIBLE and clickable at every pointer type and width.
+- Intent: WALK_LEASE_MS 600 (refilled by every press; taps ≤ 600 ms apart never brake),
+  WALK_HOLD_MS 300 (a hold's release ends intent NOW). Idempotency: repeated presses never
+  multiply the pace (|Δk|/Δt ≤ 1/WALK_CRUISE_MS holds every frame); every stop is passed
+  in order, exactly once per pass.
+- Pacing: WALK_CRUISE_MS 1500 ms per stop gap at cruise; WALK_ACCEL_MS 420 (0.14 gap — a
+  single tap from rest ≈ 2060 ms total, −13 % vs the 2380 ms leg; 10 % of the gap at
+  ≈ 360 ms); WALK_BRAKE_MS 700 (T = 2r/v when intent dies early). The walk rests at the
+  NEXT stop in heading, never beyond; non-hard stops are passed THROUGH at cruise — the
+  pace never dips mid-walk.
+- Hard knots: rail ends and corner stops are never passed; a corner with live intent
+  re-departs atomically (speed touches zero; D3's runs unchanged). A reversal brakes to a
+  mid-segment turnaround, flips the heading THERE (the look re-anchors at the turnaround,
+  not at the press), and departs toward the stop just left; it may rest mid-segment when
+  its intent dies first.
+- Boundary (DEC-031 amended): a door fires from a SETTLED end's fresh press edge (a hold
+  never opens a door) via the same chain, or the prompt's click; the lean pulses at
+  LEAN_MAX_M per press edge.
+- Reduced motion: a fresh press edge cuts to the next stop under REDUCED_DWELL_MS 600 (a
+  press during the dwell is dropped, repeats are ignored; the boundary is checked before
+  the dwell — a door press opens even inside it).
+- The B9 gaze law below is UNCHANGED (position-only): the walk re-times u, not the look;
+  pass-through stops are met on their committed framings and the arrival poses stay exact
+  (the golden fence holds by construction). Known consequence, accepted: cruising through
+  a stop makes the gaze-turn RATE discontinuous there — today's zero-speed arrivals hid
+  the kink; review at capture.
 - **Gaze law (B9, supersedes R19-ux C's departure turn)**: authored SUBJECTS and the
   subjectless next/back fallback remain unchanged; stop poses remain bit-identical. Between
   two stops the base gaze travels the arc between their two committed framings and nothing
@@ -309,22 +350,22 @@ inside the promise.
   the anchor's remaining segment. The look therefore turns with the travel: it starts and
   stops with the position, never turns faster per unit of rail than the segment's own
   average, and no held point's parallax reaches the gaze. The base gaze is a function of
-  rail position alone: Forward and Back, step and scroll glides, partial scrolls, retargets
+  rail position alone: Forward and Back, walks, partial intents, retargets
   and reversals read the same look at the same point; pass-through stops are met on their
   committed poses. Equal source and destination points remain a locked dolly throughout
   (the point is held). There is no turn span, no TURN_REF_DEG widening and no near-field
   exemption: the former exemption's distance weight is now the rule. An APPROACH point
   remains authored data on its stop's committed gaze ray and no longer steers a glide
   (at the stop it is direction-identical to the subject). Position stays on the unchanged
-  spline. Measured (derived) at STEP_GLIDE_MS 2380: a step's pan peaks at mid-glide at
+  spline. Measured (derived at the R19-ux 2380-ms leg; the pacing is superseded by the walk law, the gaze law shape kept): a step's pan peaks at mid-glide at
   1.875 × arc ÷ duration — G0→Gj and Back Gj→G0, 83.0° → 65.4°/s (286°/s at
   SCROLL_GLIDE_MS); Back Gj→G0's pitch rises linearly from 0° to its 3.06° settle.
 - **Corner stops (R18-ux D3)**: a stop may be flagged `corner`. The position spline is
   evaluated per RUN — the stop list split after each corner stop — so a corner knot
   inherits no tangent from across the turn. Each run uses the committed spline and end
   rule unchanged; a rail with no corner flag is one run and samples bit-identically to
-  before. A scroll glide never crosses a corner stop: its target clamps there and the
-  next delta starts a new glide from the corner. Step glides are unaffected.
+  before. A walk never crosses a corner stop: it brakes into the knot and, with live intent,
+  re-departs at once (a hard knot; the movement-ux amendment).
 - **Corner stops**: the path turns only at stops. Corridor: the junction stop (§7).
   Stairs: a stop on the REAL mezzanine turn — near (67.5, 6.7, −81.7) between the
   flights [declared] — the switchback becomes two right-angle turns on the mezzanine
@@ -345,11 +386,15 @@ inside the promise.
   reversal) into destination rows over the whole remaining segment. Limits are manual offsets around the
   base gaze. Existing offsets are re-clamped, never silently reset; zero-offset stop poses
   and the stop inventory remain unchanged.
-- Reduced motion (R18-ux, verdict 2): glides become cuts stop→stop; a cut lands on the
+- Reduced motion (R18-ux, verdict 2; amended movement-ux): a fresh press edge cuts to the next
+  stop under REDUCED_DWELL_MS 600 (a press during the dwell is dropped, repeats are ignored; the
+  boundary is checked before the dwell); a cut lands on the
   destination's committed pose. There is no departure turn.
-- Speed laws (R19-ux B): step glides 2380 ms, scroll glides 544 ms, both retaining smootherstep
-  position easing: 15% less elapsed time in each family. Wheel distance, reduced-motion cuts,
-  the touch no-glide admission and the threshold-beat timing are unchanged.
+- Speed laws (movement-ux, superseding R19-ux B): ONE walk pacing — WALK_CRUISE_MS 1500 ms per
+  stop gap at cruise, WALK_ACCEL_MS 420, WALK_BRAKE_MS 700 (T = 2r/v when intent dies early),
+  WALK_LEASE_MS 600 / WALK_HOLD_MS 300, REDUCED_DWELL_MS 600. The scroll family is retired
+  with the wheel; the touch no-glide admission is retired with it (one admission law); the
+  threshold-beat timing is unchanged.
 - Touches: the committed gaze law (owner D6), the Stop type gains an optional
   authored-gaze field (src/world/registry.ts — a type extension; DEC-013
   unaffected), stop counts (new stop ids + captions in both languages — the RU
@@ -357,8 +402,9 @@ inside the promise.
   keep bit-identical poses where the authored target equals the old implicit one
   (parameter shifts at stops keep poses exact), re-baseline only where
   re-composed (S1, G0, G1-day, J0 + any newly composed views).
-- D8 (the reply's fork): scroll travel stays CONTINUOUS (not stop-stepped) — with
-  authored subjects the between-frames stop being random; control is part of the visit.
+- D8 (AMENDED, movement-ux): the wheel's continuous travel is retired WITH the wheel; the
+  walk IS the one continuous idiom — a cruise runs through every non-hard stop, the arrows
+  (keys + the pair) are the only movement affordance, and control stays part of the visit.
 - The military gallery of 1812 stop table (R18-ux D5; positions in the committed
   frame; EYE 11.65):
 
@@ -400,6 +446,10 @@ inside the promise.
 
 ## 9. Felt-experience acceptance criteria (the reviewer script; reply §4 verbatim)
 
+Reviewer-script amendment (movement-ux): the wheel verbs below (the roll/flick lines)
+read as the walk verbs — a hold or a tap stream — with the same felt targets; the lean's
+readout is the fixed press-edge pulse; the invitation's affordances are the arrows, the pair
+and the prompt.
 - **Invitation:** a first-time visitor at S0 who reads the hint and scrolls arrives
   at the gate; the door label appears as the camera settles and names the room;
   clicking it enters. No frame shows the label while the camera moves or during a
@@ -499,8 +549,9 @@ after a 1.0/0.5/2.0 s pause FIRES the door with the lean **0.008 / 0.057 / 0.000
   roam still rejected. Rec: yes, as one authoring pass with captures. Default: yes.
 - **D7 — S1 re-composition:** move back to frame the gate pavilion (its golden
   re-baselines). Rec: yes. Default: yes.
-- **D8 — Wheel travel:** keep continuous scroll travel (vs stop-to-step). Rec:
-  keep continuous. Default: keep.
+- **D8 — Wheel travel** (AMENDED, movement-ux 2026-11-08/09): the wheel itself is retired
+  (ONE mechanism — the arrows); the *continuous-idiom* ruling survives as the WALK (cruise
+  through non-hard stops). Default: keep-the-idiom, retire-the-wheel.
 
 ## 11. How each touch re-baselines the gates
 
@@ -510,7 +561,7 @@ after a 1.0/0.5/2.0 s pause FIRES the door with the lean **0.008 / 0.057 / 0.000
   stop pose is unchanged (parameterisation at stops is id-exact).
 - e2e: the r18 stop walk extends to the new stop ids; any test pinning ?cam=
   numbers or stop INDICES (not ids) audits list at implementation.
-- Unit fences: the purity gate (rail/look/wheel-edge/edge-prompt stay pure); the
+- Unit fences: the purity gate (rail/look/door-lean/edge-prompt stay pure; wheel-edge retired with the wheel); the
   new throat + beat machinery live on the host/three-free law modules it needs.
 - Budgets: throat = a few hundred triangles (declared ≤ ~500), zero textures, zero
   custom slots; the beat/glides add no per-frame allocations; the RU chunk counts
