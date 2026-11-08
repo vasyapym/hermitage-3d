@@ -3,50 +3,56 @@
   "files": [
     {
       "path": "lm/day.ktx2",
-      "bytes": 93345,
-      "sha256": "9614135b6eaedc4c5c3a120ed2f3a4a5dde6f50eb64e096a8c66976a60d3e129",
+      "bytes": 187652,
+      "sha256": "d114702be5c1c28c723da81569cb8df1f7128b036e83b8959115f43f59b46c74",
       "kind": "ktx2"
     },
     {
       "path": "lm/dusk.ktx2",
-      "bytes": 82714,
-      "sha256": "041eed0456e7afa5833b70d77d2018288c99a6edd3932d2080f4cd58dbe6bef0",
+      "bytes": 169305,
+      "sha256": "97f7192713c8cc2a36bb789b8cccad0e0332b07563748bb109d4416c64ed56bb",
       "kind": "ktx2"
     },
     {
       "path": "lm/night.ktx2",
-      "bytes": 77609,
-      "sha256": "53a888d6fc0cc8171bbfc84ebfaf23bf729a1c2b2dcabaccd91a1ee8bc2409c9",
+      "bytes": 167355,
+      "sha256": "951e9e35fd0baf7383e82f80838e5de06bfdac51c76c7d3cb5c90b39da97b726",
       "kind": "ktx2"
     },
     {
       "path": "probe/dusk.ktx2",
-      "bytes": 2206,
-      "sha256": "f2e64c2f8379754bf711e83644f87f20f5ca0815cff0638122ba3dc1d1593a8e",
+      "bytes": 1755,
+      "sha256": "2f849f82fa8e6ffa0a314dea7ec481c9fc4cd60187a95e6ea36f02dd211b3f2f",
       "kind": "ktx2"
     },
     {
       "path": "rastrelli-gallery.glb",
-      "bytes": 87748,
-      "sha256": "44bdf1ab845eba9cbc36b43ec19cdf794db0a0b1e2cb1260cea5e1c45da93887",
+      "bytes": 250752,
+      "sha256": "4953f776ec0413c58b7e5d9d0029f3387d742ab32a769580a457f5d85c98274b",
       "kind": "glb"
     },
     {
       "path": "tex/plaster_pale.ktx2",
-      "bytes": 10728,
-      "sha256": "71f6e0eeb622e461ddaa4e5c4afc3dca6d1b8c2331485d463f21199f2a751e88",
+      "bytes": 30804,
+      "sha256": "79a1b8c3b470a7c54768f2137900cf16a329bbc05de76b21fc1a1799d89a091a",
+      "kind": "ktx2"
+    },
+    {
+      "path": "tex/stone_band.ktx2",
+      "bytes": 29510,
+      "sha256": "97d3a4c8b77106416d70b89dc71d4a4d833634e208685264b22df25dac203997",
       "kind": "ktx2"
     },
     {
       "path": "tex/stone_flags.ktx2",
-      "bytes": 15313,
-      "sha256": "940111ee8cd6f525c4a5d7e09db9c306b76671f78a1e5a5a6b0c636eb69296e7",
+      "bytes": 15464,
+      "sha256": "e1e681a217075ac81a0d7e3516f77b3095ce4f493aff4490f536161d5008a561",
       "kind": "ktx2"
     },
     {
       "path": "tex/stucco_grey.ktx2",
-      "bytes": 6846,
-      "sha256": "5fb21b89e026576ea688eb9c9a6e228567c4144d0c62bb2bbdb71c6e9a620237",
+      "bytes": 1894,
+      "sha256": "3fc2002fa637c218bd875f819bb29317440deef16f9e60f8f90acaed20820aa4",
       "kind": "ktx2"
     }
   ],
@@ -55,18 +61,18 @@
       {
         "name": "shell",
         "instances": 1,
-        "primitives": 4,
-        "triangles": 3044
+        "primitives": 5,
+        "triangles": 9944
       },
       {
         "name": "sconce",
         "instances": 14,
         "primitives": 2,
-        "triangles": 42
+        "triangles": 66
       }
     ],
-    "trianglesUnique": 3086,
-    "trianglesDrawn": 3632,
+    "trianglesUnique": 10010,
+    "trianglesDrawn": 10868,
     "extensionsRequired": [
       "EXT_meshopt_compression",
       "KHR_mesh_quantization",
@@ -79,7 +85,7 @@
       "dusk",
       "nightChandeliers"
     ],
-    "res": 1024,
+    "res": 1536,
     "intensity": {
       "day": 0.8,
       "dusk": 0.8,

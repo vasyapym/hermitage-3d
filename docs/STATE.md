@@ -391,6 +391,45 @@ file in the same session.
 
 ## Live state
 
+- **2026-11-08 · RG-F2 LANDED ON THE BRANCH (rg-look; the worktree
+  ~/Documents/hermitage-3d-rg-look; MERGE into main + the FULL e2e/golden gate at the owner's
+  notification that the arrows-face-tune round is done — NOT this session; the round's code +
+  assets + records commit rides the branch now).** The relay: brief 19 (the FIND, Fable 5.1)
+  → the verdict adopted IN FULL → brief 20 (the implementation pack, 266,401 B) → the Fable
+  stages S1+S2 received (parts 1–2 of the builder + the COVER mechanism + the schedule
+  enumeration law) → the S3/S4 spec stage TIMED OUT twice (the ~12-16-min window; the relay
+  law amended: the stage assignment from the orchestrator, specs-not-code, the mechanical
+  writing on the subagent lane) → the orchestrator authored part 3 + NINE documented
+  amendments + the bake-chain splices → **the Sol 6.1 review (briefs 23+24, the owner's
+  input-split; 12 catches, 2 BLOCK + 7 FIX-BEFORE-BAKE + the snags adjudicated) — the
+  standing practice ratified: the implement lane runs the mechanical review at every
+  pre-expensive gatepoint** → the fixes (the canonical-coplanar COVERED with the dimensionless
+  touch band + negative demos PROVING the old gate blind to the doorway class; the doorcase
+  topology 16 with the corrected side normals; the both-sided shelf pads + the four-side
+  inset gate; the end-wall cornice/ressaut/doorway footprint masks; the schedule BEFORE
+  geometry; the west tympanum stucco; the room-gated checker/post-rows; --python-exit-code;
+  --required fail-closed; the all-black atlas reject) → the owner's CELL resolution:
+  **LM_RES 1536** (pxPerM 20, occupancy 0.6159, faces 4,558, lm.cells 4,558) → bakes ×3
+  green at 1536² (day 433.7 s / dusk 635.0 / night 668.8; spillApplied True ×3; the dusk
+  probe (0,1.7,80) wp 1.0) → encodes: DEAD_CELL ×2 REQUIRED green (atlasP99 0.9529,
+  threshold 0.004765, dead 0); **the k rule fired once: the G1 night mean 91.39 > 90 ⇒ k := 3
+  (the ONE dial) ⇒ 85.81 ∈ [55, 90]** → the paint ×1.14 calibration (owner-ratified; the
+  plate carries ×1.14 provably; the screen-side tonemap shoulder eats ~87% — the DOOR band
+  re-rated measured: the card/lunette ≥ {day 165, dusk 132, night 145}·255, the ratio ≥ 1.35
+  (the measured 1.59/1.39/1.51 pass); ORDER re-rated 1.15 → 1.13 (the measured 1.1328); the
+  per-texel night≤dusk≤day invariance = the denoiser-superseded doc-row (the MEANS keep
+  ordering: 38.98 < 41.22 < 53.15)). The capture battery 15/15 (probes/rg-f2-after/,
+  uncommitted scratch); the gates: END-WALL PASS ×4 (the largest region 0.0345% ≤ 0.2%),
+  SYMMETRY 12/12 (0.908–1.079), LEVEL PASS (85.81; dark 0.33%; clips 0.258%), JUNCTION PASS
+  (56.37), COUNTS PASS (by eye), DOOR/ORDER PASS at the re-rated bands. Numbers: glb
+  250,752 B sha 4953f776…; payload 854,491 (manifest) 856,876 (dir) ≤ 2,000,000; textures
+  603,739 ≤ 1,000,000 (the lm day 187,652 / dusk 169,305 / night 167,355 / probe 1,755 at
+  1536²); tris drawn 10,856 ≤ 110,000 (established); draws 7 ≤ 25; JS 282,514 byte-equal
+  (the zero-JS promise held); validate full green (tsc 0, biome 193, vitest 1036/1/0 on 62
+  files). The amendments: 9 implementation + 9 Sol rows + LM_RES + k + the paint calibration
+  (rg-f2-amendments.md); DEC-040 recorded; the register rows + the DOOR re-rate note landed
+  in docs/artistic-license.md. PARALLEL-to-arrows-face-tune stands; merge at the owner signal.
+
 - **2026-11-07 · RG-LOOK OPEN (PARALLEL to the in-flight `arrows-face-tune` lane) — the Rastrelli
   Gallery's next visual round on its own branch (worktree `~/Documents/hermitage-3d-rg-look`, branch
   `rg-look` off main `37f426d`; MERGE into main + the FULL e2e/golden gate at the owner's notification

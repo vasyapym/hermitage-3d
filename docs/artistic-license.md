@@ -30,6 +30,21 @@ A stylized recreation, not a survey. Every deliberate deviation from the real pa
 - **The fence's staffs, ties and closed gate leaves (DEC-038):** the staffs are r 0.025 m / 4 segments and clear 0.12 m above the ground — no base or kerb is sourced, so none is modelled; two square ties per side 0.06 m at y 0.15 / 1.35 are declared (not sourced); each gate is centred on its side as two closed leaves of three staff cells (6 cells) — the leaves' form and the locks are not sourced; the finish is not sourced (BRONZE_PATINA_LINEAR borrowed by reference).
 - **The fence's staff-centred pitch (DEC-038):** the staffs stand at a derived centre-to-centre pitch of 0.45 m on the 8.1 m railing line; the sourced 136 double-headed eagles read as one crowned staff each, and the sourced alternation of spears and banner-staffs is carried by the staffs alone — the eagle and pike forms and the spears' own count are not sourced and not modelled.
 - **Snow (Phase 4, R8; square amended R12; lane re-centred DEC-037)** — snow follows the mean season (climatology), not the weather; the square carries trampled snow with a trodden lane along the viewer's rail line (the rail now runs west of the gate axis; the real square is machine-cleared); the roof stays bare; the cornices carry the lip.
+- **The white order (RG-F2, branch `rg-look`):** the order and the vaults in white stucco
+  (0.88/0.86/0.82) over a warm limewash field (0.72/0.67/0.58) with a dark stone base
+  (0.42/0.40/0.37) — declared value split for a palace ground-floor gallery; verify against
+  the axial photograph when the evidence pass runs.
+- **The door's light (RG-F2, branch `rg-look`):** the gallery-airlock opening closes with a
+  door card (the 1.6 m rectangle) and the lunette's half-disc — two exact faces at the
+  end-wall plane, painted per published state at encode (day (0.627, 0.661, 0.707) · dusk
+  (0.513, 0.365, 0.194) · night (0.684, 0.479, 0.251) — the law's triples ×1.14, the
+  owner-ratified DOOR-gate calibration: the screen-side tonemap shoulder measured +3.3%
+  display per +14% plate) with the bake-side stage spill reading for the lamp-lit stair
+  beyond (dusk/night (1.0, 0.80, 0.58) ×0.4, day (0.82, 0.86, 0.92) ×0.6, the glb export
+  0.0); the black hole and the accidental day floor-wedge are gone — declared stage light
+  (the card is a declared painting, not a door leaf); the DOOR bands re-rated measured
+  ({165, 132, 145}/255 card+lunette, the contrast ratio ≥ 1.35 — measured 1.59/1.39/1.51
+  pass); verify against the axial photograph when the evidence pass runs.
 - **The pale gallery (RG-E1, branch `rg-e1-room`):** the Rastrelli Gallery's surfaces repainted pale (limewash-class vault/walls above dado, pale stucco pilasters/trim, lighter grey stone floor) — declared look targets for a palace ground-floor vaulted gallery (verify against the axial photograph when the evidence pass runs; the committed chocolate plaster was the no-source draft read).
 - **Bay articulation (RG-E1):** 22 wall niches (blind arches, one per bay) and 11 transverse ribs stand in for the interior bay rhythm (the piers now answer in three places: pier, arch, panel); the exact vault treatment (barrel-with-ribs vs groin bays) verifies against the axial photo.
 - **Niche backs ship blind (RG-E1):** the window variant (the §1.4-declared «courtyard-side slit windows», never built; the 2026-10-17 «windows | none visible» row never reconciled) is a constants-level material swap on the niche geometry awaiting the real-object evidence (an axial photograph toward the Jordan Staircase + a courtyard-wall view); this register row is the deferral record.

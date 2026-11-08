@@ -5,34 +5,34 @@
       "blender": "Blender 4.2.23 LTS",
       "charts": [
         {
-          "clippedFraction": 0,
+          "clippedFraction": 0.0019,
           "emitters": 0,
-          "exrSha256": "43fa51573e5c3f5eefe0441673c78ba9de0c8a2d10c1a2a4cea17ab236fc06c2",
+          "exrSha256": "d9c27de3be0eccc8c1df88ae43b53899c53964e1a87b3bc249b271e07e20a22c",
           "name": "arch",
           "objects": 15,
           "pad": 2,
-          "peak": 4.2241,
-          "res": 1024,
+          "peak": 2.5239,
+          "res": 1536,
           "targets": 2
         }
       ],
-      "clippedFraction": 0,
+      "clippedFraction": 0.0019,
       "command": "node tools/bake.mjs rastrelli-gallery day",
       "denoiser": "OPENIMAGEDENOISE",
       "duskFixtures": null,
       "margin": 2,
-      "peak": 4.2241,
+      "peak": 2.5239,
       "probe": null,
-      "res": 1024,
+      "res": 1536,
       "samples": 128,
-      "seconds": 408.4,
+      "seconds": 433.7,
       "state": "day",
-      "whitePoint": 4,
+      "whitePoint": 0.8,
       "artifacts": [
         {
           "rel": "lm/day.ktx2",
-          "bytes": 20319,
-          "sha256": "0a397615ded1105677c4a30570243fd857dcdb120bd65f243c8d53291343bf65"
+          "bytes": 65121,
+          "sha256": "442b0a356117c9a9deaeaa8997c631d8e7397d933c8316b342a1f6ffb863479c"
         }
       ]
     },
@@ -40,26 +40,26 @@
       "blender": "Blender 4.2.23 LTS",
       "charts": [
         {
-          "clippedFraction": 0,
+          "clippedFraction": 0.0015,
           "emitters": 14,
-          "exrSha256": "84220fb55de60d1d431569bd045b64a9e00330b615792b41bdf88599980f9c29",
+          "exrSha256": "f9e278f0ffb655bcd7a4fc3c2bc3513f6a2d55274b05ed66a12be98bb94a02be",
           "name": "arch",
           "objects": 1,
           "pad": 2,
-          "peak": 2.227,
-          "res": 1024,
+          "peak": 2.0999,
+          "res": 1536,
           "targets": 1
         }
       ],
-      "clippedFraction": 0,
+      "clippedFraction": 0.0015,
       "command": "node tools/bake.mjs rastrelli-gallery dusk",
       "denoiser": "OPENIMAGEDENOISE",
       "duskFixtures": true,
       "margin": 2,
-      "peak": 2.227,
+      "peak": 2.0999,
       "probe": {
         "clippedFraction": 0.0003,
-        "peak": 6.0403,
+        "peak": 6.0572,
         "point": [
           0,
           1.7,
@@ -72,21 +72,21 @@
         "samples": 256,
         "whitePoint": 1
       },
-      "res": 1024,
+      "res": 1536,
       "samples": 128,
-      "seconds": 640.4,
+      "seconds": 635,
       "state": "dusk",
-      "whitePoint": 4,
+      "whitePoint": 0.8,
       "artifacts": [
         {
           "rel": "lm/dusk.ktx2",
-          "bytes": 18674,
-          "sha256": "ff89e11e8decaad67eb157719bf9ae3aa8195f51035806d19c7e9ccef1e97c25"
+          "bytes": 92709,
+          "sha256": "dad0d191d633bc3982d22b2bc674d34a4675821aec98bb0ebb5b3732c55eeeea"
         },
         {
           "rel": "probe/dusk.ktx2",
-          "bytes": 2206,
-          "sha256": "f2e64c2f8379754bf711e83644f87f20f5ca0815cff0638122ba3dc1d1593a8e"
+          "bytes": 1755,
+          "sha256": "2f849f82fa8e6ffa0a314dea7ec481c9fc4cd60187a95e6ea36f02dd211b3f2f"
         }
       ]
     },
@@ -94,36 +94,59 @@
       "blender": "Blender 4.2.23 LTS",
       "charts": [
         {
-          "clippedFraction": 0,
+          "clippedFraction": 0.0015,
           "emitters": 14,
-          "exrSha256": "68a5fd29e2bd1ed6c9131fb9389fb93d2030093b94a76df4980122e8bd16bfa8",
+          "exrSha256": "b4f626878e0a265f30d3ffc1e5e64e9381b2b7d309004a7f1ff8a997e222eed5",
           "name": "arch",
           "objects": 1,
           "pad": 2,
-          "peak": 2.1981,
-          "res": 1024,
+          "peak": 2.1329,
+          "res": 1536,
           "targets": 1
         }
       ],
-      "clippedFraction": 0,
+      "clippedFraction": 0.0015,
       "command": "node tools/bake.mjs rastrelli-gallery nightChandeliers",
       "denoiser": "OPENIMAGEDENOISE",
       "duskFixtures": null,
       "margin": 2,
-      "peak": 2.1981,
+      "peak": 2.1329,
       "probe": null,
-      "res": 1024,
+      "res": 1536,
       "samples": 128,
-      "seconds": 574.4,
+      "seconds": 668.8,
       "state": "nightChandeliers",
-      "whitePoint": 4,
+      "whitePoint": 0.8,
       "artifacts": [
         {
           "rel": "lm/night.ktx2",
-          "bytes": 14032,
-          "sha256": "de80902f10581d79664594ec86957cb6b5a37cea2592b31d057ddd3d56281e13"
+          "bytes": 88381,
+          "sha256": "84c095a08c6ce7338aeab31c36c214723ab58915cb8828d6ae71fba0e6b357bf"
         }
       ]
     }
+  },
+  "postEncode": {
+    "day": [
+      {
+        "bytes": 187652,
+        "rel": "lm/day.ktx2",
+        "sha256": "d114702be5c1c28c723da81569cb8df1f7128b036e83b8959115f43f59b46c74"
+      }
+    ],
+    "dusk": [
+      {
+        "bytes": 169305,
+        "rel": "lm/dusk.ktx2",
+        "sha256": "97f7192713c8cc2a36bb789b8cccad0e0332b07563748bb109d4416c64ed56bb"
+      }
+    ],
+    "nightChandeliers": [
+      {
+        "bytes": 167355,
+        "rel": "lm/night.ktx2",
+        "sha256": "951e9e35fd0baf7383e82f80838e5de06bfdac51c76c7d3cb5c90b39da97b726"
+      }
+    ]
   }
 }

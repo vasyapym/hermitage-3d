@@ -52,21 +52,38 @@ const ALIAS = { night: 'nightChandeliers' };
 const FILE_BY_STATE = { day: 'day', dusk: 'dusk', nightChandeliers: 'night' };
 const KIT_PREFIX = 'kit-';
 
-// RG-E1 so-called stairlight paint — the D-4/D-23 patch-paint law applied per PUBLISHED
-// state at ENCODE time for rooms whose states are COMPOSED of rig EXRs (a bake-time paint
-// would ink only one rig term; see tools/bpy/bake.py's PANE_PAINT — this table mirrors its
-// declared published-state colours). The atlas rect comes from the bpy stage summary's
-// lm.patches (the builder's shelf cells for the `stairlight` part). Keyed by manifest
-// state (day/dusk/nightChandeliers) + room; rooms not named here are untouched.
-const STAIRLIGHT_PAINT = {
-  'rastrelli-gallery': {
-    part: 'stairlight',
-    colours: {
-      day: [0.55, 0.58, 0.62], // cool daylight through the door
-      dusk: [0.45, 0.32, 0.17], // the warm dim evening stair
-      nightChandeliers: [0.6, 0.42, 0.22], // the lamp-lit stair (night reads strongest)
+// RG-E1 so-called stairlight paint, RG-F2 the both-patch law — the D-4/D-23 patch-paint
+// law applied per PUBLISHED state at ENCODE time for rooms whose states are COMPOSED of
+// rig EXRs (a bake-time paint would ink only one rig term; see tools/bpy/bake.py's
+// PANE_PAINT — this table mirrors its declared published-state colours; the numbers are
+// BY LAW, the verdict's three triples ride BOTH patches). Each room maps to an ARRAY of
+// paints; every named part's atlas rect comes from the bpy stage summary's lm.patches
+// (the builder's shelf cells for the named part) and its rect MUST be present — both
+// parts fail loud when the summary block lacks the patch rect. Keyed by manifest state
+// (day/dusk/nightChandeliers) + room; rooms not named here are untouched.
+const PATCH_PAINTS = {
+  // The law's triples × 1.14 — the Sol-DOOR calibration (owner-ratified 2026-11-08): the
+  // screen-side door read sat ~30 codes under the 180 band with the law's own values, so the
+  // room-scoped paint row rises ×1.14 (plate +~14%; no encode clip lead: 0.707 < 1.0). Both
+  // patches carry the SAME multiplier; the calibration proof rides the landing record.
+  'rastrelli-gallery': [
+    {
+      part: 'stairlight',
+      colours: {
+        day: [0.627, 0.661, 0.707],
+        dusk: [0.513, 0.365, 0.194],
+        nightChandeliers: [0.684, 0.479, 0.251],
+      },
     },
-  },
+    {
+      part: 'doorcard',
+      colours: {
+        day: [0.627, 0.661, 0.707], // the verdict's both-patch law: the card paints the same
+        dusk: [0.513, 0.365, 0.194], // ×1.14 triples as the stairlight
+        nightChandeliers: [0.684, 0.479, 0.251],
+      },
+    },
+  ],
 };
 
 // Pinned transcode flags — the same ETC1S economics as the bake (§5: linear irradiance data).
@@ -188,18 +205,21 @@ function assertStagedExr(room, state, chart, exrPath) {
   }
 }
 
-/** The named part's patch rect (chart coords, px, y-from-top) from the bpy stage summary. */
+/** The named part's patch rect (chart coords, px, y-from-top) from the bpy stage summary.
+ * RG-F2: now keyed by room AND part — a room paints multiple parts per state, so the old
+ * room-only cache would hand the first part's rect to every later part. */
 function patchRect(room, part) {
+  const key = `${room}/${part}`;
   if (!patchRect.cache) patchRect.cache = new Map();
-  if (!patchRect.cache.has(room)) {
+  if (!patchRect.cache.has(key)) {
     const path = join(STAGE_ROOT, room, 'summary.json');
     if (!existsSync(path)) {
       fail(`no bpy summary at ${path}`, 'regenerate the bpy stage first');
     }
     const lm = JSON.parse(readFileSync(path, 'utf8')).lm;
-    patchRect.cache.set(room, lm?.patches?.[part] ?? null);
+    patchRect.cache.set(key, lm?.patches?.[part] ?? null);
   }
-  return patchRect.cache.get(room);
+  return patchRect.cache.get(key);
 }
 
 /** D1: the sRGB branch swaps the OETF ASSIGN only — encode etc1s, threads 1, no
@@ -240,21 +260,26 @@ function reencodeChart(room, state, chart, whitePoint, manifest, work, transfer)
     ]);
     exr = composed;
   }
-  // RG-E1: the stairlight's cells are painted per PUBLISHED state, after the compose and
-  // before the per-state LDR encode (the composed EXR carries one published state); the
-  // paint happens per chart — the stairlight is an architecture-chart patch.
-  const paint = chart === 'arch' ? STAIRLIGHT_PAINT[room] : undefined;
-  if (paint !== undefined) {
-    const rect = patchRect(room, paint.part);
-    if (!Array.isArray(rect) || rect.length !== 4) {
-      fail(
-        `${room}: summary lm block lacks the ${paint.part} patch rect`,
-        'regenerate the bpy stage',
-      );
-    }
+  // RG-E1/RG-F2: the named parts' cells are painted per PUBLISHED state, after the
+  // compose and before the per-state LDR encode (the composed EXR carries one published
+  // state); the paint happens per chart — these are architecture-chart patches. One
+  // combined payload, one reencode-paint run; every listed part's rect must exist
+  // (fail loud exactly as the single-patch law did).
+  const paints = chart === 'arch' ? (PATCH_PAINTS[room] ?? []) : [];
+  if (paints.length > 0) {
+    const rows = paints.map((paint) => {
+      const rect = patchRect(room, paint.part);
+      if (!Array.isArray(rect) || rect.length !== 4) {
+        fail(
+          `${room}: summary lm block lacks the ${paint.part} patch rect`,
+          'regenerate the bpy stage',
+        );
+      }
+      return { rect, colour: paint.colours[state] };
+    });
     const painted = join(STAGE_ROOT, `${room}.${file}.paint.exr`);
     const payload = join(work, `paint-${file}.json`);
-    writeFileSync(payload, `${JSON.stringify([{ rect, colour: paint.colours[state] }])}\n`);
+    writeFileSync(payload, `${JSON.stringify(rows)}\n`);
     run(BLENDER, [
       '-b',
       '--factory-startup',
@@ -286,6 +311,30 @@ function reencodeChart(room, state, chart, whitePoint, manifest, work, transfer)
     String(whitePoint),
     ...(transfer === 'srgb' ? ['--transfer', 'srgb'] : []),
   ]);
+  // RG-F2 the DEAD_CELL gate (verdict 2.4), pre-ETC1S: the day atlas's owned lm.cells
+  // must not read dead-black. Only day + arch; the checker exits non-zero and the
+  // failure propagates (all-or-nothing per the publish law). CROSS-ROOM BYTE-SAFETY
+  // (the standing law): an RG-only gate — the siblings' day/arch chain must not open
+  // or parse its own stage summary here. RG-F2 fail-closed (`--required`): a missing
+  // cells block is a "regenerate the bpy stage" error, never a silent pass.
+  // `--python-exit-code 1` (read AFTER -P, BEFORE the script) propagates ordinary
+  // Python exceptions' exit codes, so an unreadable png / invalid summary JSON aborts.
+  if (room === 'rastrelli-gallery' && state === 'day' && chart === 'arch') {
+    run(BLENDER, [
+      '-b',
+      '--factory-startup',
+      '-noaudio',
+      '--python-exit-code',
+      '1',
+      '-P',
+      PAINT_PY,
+      '--',
+      'check',
+      png,
+      join(STAGE_ROOT, room, 'summary.json'),
+      '--required',
+    ]);
+  }
   run('toktx', [...toktxFlagsFor(transfer), ktx2, png]);
   if (!existsSync(ktx2)) fail(`toktx produced no file at ${ktx2}`);
   // Publish only now: encode + transcode both succeeded (all-or-nothing per state).
@@ -306,6 +355,66 @@ function reencodeState(room, state, manifest, work, charts, transfer) {
   for (const chart of charts) {
     reencodeChart(room, state, chart, whitePoint, manifest, work, transfer);
   }
+}
+
+const POST_ENCODE_HEADING =
+  '## Post-encode artifacts (the RG-F2 re-encode; the committed bytes = the manifest)';
+
+/** F11: the committed lm bytes' provenance joins the bake log. The log's existing
+ * `## Artifacts` rows record the DRIVER's pre-reencode output (the driver's prerogative —
+ * untouched); the re-encode adds its own postEncode record: {<state>: [{rel, bytes,
+ * sha256}]} read from the PUBLISHED files (the same rows the manifest now carries), then
+ * regenerates ONLY the .md's post-encode section (idempotent on a double run; the driver
+ * does not know this section — a fresh bake rewrites the log and the next reencode run
+ * regenerates the states it publishes). */
+function splicePostEncodeRows(room, manifest, states) {
+  const logPath = join(LOG_DIR, `${room}.json`);
+  const mdPath = join(LOG_DIR, `${room}.md`);
+  if (!existsSync(logPath) || !existsSync(mdPath)) {
+    console.log('post-encode rows: no committed bake log — nothing spliced');
+    return;
+  }
+  const log = JSON.parse(readFileSync(logPath, 'utf8'));
+  const rowsByState = {};
+  for (const state of states) {
+    const rels = [`lm/${FILE_BY_STATE[state]}.ktx2`];
+    const kitRel = `lm/${KIT_PREFIX}${FILE_BY_STATE[state]}.ktx2`;
+    if (manifest.files.some((row) => row.path === kitRel)) rels.push(kitRel);
+    const rows = rels
+      .filter((rel) => manifest.files.some((row) => row.path === rel))
+      .map((rel) => {
+        const bytes = readFileSync(join(ASSETS_DIR, room, rel));
+        return { bytes: bytes.length, rel, sha256: sha256(bytes) };
+      });
+    if (rows.length > 0) rowsByState[state] = rows;
+  }
+  if (Object.keys(rowsByState).length === 0) {
+    console.log('post-encode rows: no published lm rows for this run — log untouched');
+    return;
+  }
+  log.postEncode = { ...(log.postEncode ?? {}), ...rowsByState };
+  writeFileSync(logPath, `${JSON.stringify(log, null, 2)}\n`);
+  const table = [POST_ENCODE_HEADING, '| state | file | bytes | sha256 |', '|---|---|---|---|'];
+  for (const state of STATES) {
+    for (const row of log.postEncode[state] ?? []) {
+      table.push(`| ${state} | ${row.rel} | ${row.bytes} | ${row.sha256} |`);
+    }
+  }
+  const raw = readFileSync(mdPath, 'utf8');
+  const body = raw.endsWith('\n') ? raw.slice(0, -1) : raw;
+  const lines = body.split('\n');
+  const at = lines.indexOf(POST_ENCODE_HEADING);
+  let out;
+  if (at !== -1) {
+    // Replace the section: from its heading to the next markdown heading or EOF.
+    let end = at + 1;
+    while (end < lines.length && !lines[end].startsWith('#')) end++;
+    out = [...lines.slice(0, at), ...table, ...lines.slice(end)];
+  } else {
+    out = [...lines, '', '---', ...table];
+  }
+  writeFileSync(mdPath, `${out.join('\n')}\n`);
+  console.log(`post-encode rows: spliced ${Object.keys(rowsByState).join(', ')} into the bake log`);
 }
 
 async function main() {
@@ -330,6 +439,14 @@ async function main() {
     );
     writeFileSync(path, `${JSON.stringify(manifest, null, 2)}\n`);
     console.log(`\nmanifest rewritten: ${path}`);
+    // F11: the published lm rows' provenance joins the committed bake log (after the
+    // states loop, so every published file of the run exists on disk).
+    // CROSS-ROOM BYTE-SAFETY (the standing law): the splice re-merges `postEncode` into
+    // the committed bake-log JSON and rewrites the .md — RG-only; a sibling run must
+    // leave its committed log bytes exactly as it wrote them.
+    if (room === 'rastrelli-gallery') {
+      splicePostEncodeRows(room, manifest, states);
+    }
   } finally {
     rmSync(work, { recursive: true, force: true });
   }
