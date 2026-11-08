@@ -393,6 +393,19 @@ file in the same session.
 
 ## Live state
 
+- **2026-11-08 · PARALLEL square-palace OPENED (branch `square-palace` off main `742bb3d`; worktree
+  `~/Documents/hermitage-3d-palace-square`; MERGE into main + the FULL e2e/golden gate at the owner's
+  notification that the other agent's round is done — NOT this lane; scope-local gates only).** The
+  owner's directive: a new Palace Square round. Opening move, the square-entry-ground precedent: a
+  FACTS-ONLY current-state FIND dossier (vault `projects v13/1-hermitage-3d-palace-square-find.md`;
+  census compiled by a delegated subagent at `742bb3d` — the scene stops S0 `[−24,1.7,230]` / Sh
+  `[−12,1.7,177]` / S1 `[0,1.7,124]` + subjects, DEC-037 column 676 tris + DEC-038 fence 1,568 tris +
+  DEC-041 paving/ground plane 2000² + throat + night lattice + snow cap; budgets JS 284,041/350,000
+  (headroom 1,666 to the operating ceiling 285,707), RU 7,332/12,000, exterior payload 0/4,000,000;
+  the successor register stylobate/lanterns/flanking massings/facade strip/wet-sett sheen + the
+  class-I snow-legibility owner flag) — the copy-paste text-only specialist (Fable 5.1) decides what
+  is lacking the most and what the round takes; ZERO STEERING.
+
 - **2026-11-08 · THE MERGE FINALE RAN (the rg-look slot 3/3 = the last-merging session; merge 5c242e3 = the three-session union: arrows-face-tune + square-entry-ground + rg-look).** validate ×2 on the union: tsc 0 · biome clean with 2 NON-FAILING noApproximativeNumericConstant warnings on the authored 0.707 paint bytes (tools/reencode.mjs:73/81 — the auto-fix WOULD change the authored paint; rejected, the owner row rides) · vitest repo-scope 1052/1/0 + the committed scope 64 files, both exit 0 the FULL chromium e2e: pass 1 = 73 passed / 1 failed in 1.3h — the single failure the storm-class timeout row (entrance-title-duration:57 the square jump, the row-68 class) — re-verdicted single-spec: 4/4 green in 1.6m; NO boolean failures anywhere the golden battery: EXACTLY the expected flips — the gallery G1 ×3 re-baselined by eye (the RG-F2 landed look) + the square's June-S0 noon (slot 2/3's carried R-ground-1 request) → 15/15 GREEN on the re-baselined set (5.4 m); every other golden held byte-identically (the fixtures-verify row: jordan ×3, the 1812 set, the square's other seasons, military) the cross-room guard: git diff HEAD~1 --stat for public/assets/{jordan,military-gallery,_check} = EMPTY — the sibling assets byte-equal through the merge the disk: 2.7 GiB free at the close — above the floor, no ENOSPC (the cache reap held)
 
 - **2026-11-08 · ARROWS-FACE-TUNE MERGED TO MAIN (merge slot 1/3 of the three-session merge
