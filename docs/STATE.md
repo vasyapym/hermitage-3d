@@ -393,6 +393,37 @@ file in the same session.
 
 ## Live state
 
+- **2026-11-09 · THE WINTER SQUARE LANDED ON THE BRANCH (square-palace; worktree
+  `~/Documents/hermitage-3d-palace-square`; MERGE into main + the FULL e2e/golden gate at the
+  owner's notification that the other agent's round is done — NOT this lane).** The round: the
+  DEC-041 class-I snow-legibility item, from the Fable-5.1 decision draw (vault
+  `projects v13/1-…`; the owner's three ratifications: the round as drawn · the conditional sky
+  grant · the caption copy). THE CAUSE BATTERY FIRST (dec-noon S0 desktop; local
+  `probes/palace-snow-battery/`, five single-toggle renders): P1 baseline **0.275** field/sky
+  linearized with the WHOLE lower half of the frame reading the lane (≈87/255 — the ±10/±22 m
+  trampled zone sat UNDER the camera at every stop, ~9/10 of the ground pixels the [0.38,0.39,0.41]
+  tone); P2 all-fresh albedo **0.576 < 0.6** → the LIGHT bounds it (the owner's grant condition
+  fires); P3 hemi ×2 lifts above; P4 `sun.castShadow=false` byte-neutral; P5 no haze term exists.
+  LANDED: **2a** the narrow path (core ±2.5 / edge ±7 m; TRAMPLED [0.55,0.56,0.58]; BASE 0.1;
+  cache key `snow-slot@1`→`@2`; the wSnow=0 identity and the full-cover law hold) + **2b** the
+  measured wSnow-gated sky gain `snowSkyGain` K = 1.5 (exactly 1.0 at wSnow = 0 AND at
+  wNight = 1 — dec-night byte-identical by construction; under 2a+K the far-fresh boxes measured
+  0.692/0.640 ≥ the 0.6 target, near 0.512 the path-dominated zone as drawn) + **2c** the Sh
+  caption 'past the column' / «колонна позади» (NEW `caption.sh`; the smoke BEATS row + the rail
+  pins + the i18n fence retitled to fourteen). THE UNENUMERATED CLASS (the standing shape): the
+  fence round's cooperation pin («the lane under the west railing») re-stated to the narrow-path
+  facts — the fence's west face sits at the falloff tail (6.69 m east of the path's line at
+  COLUMN_Z), the east face full fresh (23.19 m). GATES on the branch: validate GREEN (tsc 0 ·
+  biome 2 authored reencode warnings · **vitest 64 files 1057 passed / 1 skipped** · build JS
+  **284,110 of 350,000** — +69 of the declared ≤ +400 · RU **7,339** of 12,000 (+7) · exterior 0 ·
+  basis 584,862). The expected golden flips at the merge finale: **the square's dec-noon ONLY**.
+  Records: budget-ledger reservation row · decisions.md class-I closure note + the stylobate
+  clarification (COLUMN_PLINTH already models the sourced three rows) · design-ground-snow §12 ·
+  artistic-license ×2 rows · the ROADMAP successors re-stated (+2 NEW: paving show-through in the
+  path; the winter edge cue windrows) + the sourcing hunt facts recorded (the Guards Corps HQ:
+  Brullov, 1837–1843, four floors, a 12-column ionic portico; NO facade-height figures in the
+  sources). REMAINING in this lane: the Sol 6.1 review; the merge waits for the owner's signal.
+
 - **2026-11-08 · PARALLEL square-palace OPENED (branch `square-palace` off main `742bb3d`; worktree
   `~/Documents/hermitage-3d-palace-square`; MERGE into main + the FULL e2e/golden gate at the owner's
   notification that the other agent's round is done — NOT this lane; scope-local gates only).** The

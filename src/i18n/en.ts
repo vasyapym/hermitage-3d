@@ -67,6 +67,7 @@ export const en = {
 
   'caption.s0': 'the facade and the hour',
   'caption.s1': 'the arch opens',
+  'caption.sh': 'past the column',
   'caption.g0': 'dark; the square behind',
   'caption.gj': 'The turn east: pilaster after pilaster, forty metres to the far door.',
   'caption.g1': 'compression',
