@@ -393,6 +393,8 @@ file in the same session.
 
 ## Live state
 
+- **2026-11-08 · THE MERGE FINALE RAN (the rg-look slot 3/3 = the last-merging session; merge 5c242e3 = the three-session union: arrows-face-tune + square-entry-ground + rg-look).** validate ×2 on the union: tsc 0 · biome clean with 2 NON-FAILING noApproximativeNumericConstant warnings on the authored 0.707 paint bytes (tools/reencode.mjs:73/81 — the auto-fix WOULD change the authored paint; rejected, the owner row rides) · vitest repo-scope 1052/1/0 + the committed scope 64 files, both exit 0 the FULL chromium e2e: pass 1 = 73 passed / 1 failed in 1.3h — the single failure the storm-class timeout row (entrance-title-duration:57 the square jump, the row-68 class) — re-verdicted single-spec: 4/4 green in 1.6m; NO boolean failures anywhere the golden battery: EXACTLY the expected flips — the gallery G1 ×3 re-baselined by eye (the RG-F2 landed look) + the square's June-S0 noon (slot 2/3's carried R-ground-1 request) → 15/15 GREEN on the re-baselined set (5.4 m); every other golden held byte-identically (the fixtures-verify row: jordan ×3, the 1812 set, the square's other seasons, military) the cross-room guard: git diff HEAD~1 --stat for public/assets/{jordan,military-gallery,_check} = EMPTY — the sibling assets byte-equal through the merge the disk: 2.7 GiB free at the close — above the floor, no ENOSPC (the cache reap held)
+
 - **2026-11-08 · ARROWS-FACE-TUNE MERGED TO MAIN (merge slot 1/3 of the three-session merge
   stack — the FIRST of three; the FULL e2e/golden gate rides the LAST merging session per the
   owner's ruling — deferred NOT waived; merge `5fc9a82` off the branch head `25343fd`, an
