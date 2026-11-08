@@ -86,7 +86,7 @@ BAKE_MARGIN_PX = None     # FILL — None = the chart's own pad; MASKED-IN-BRIEF
 # per-state dict (1812's r17c law; Block 2's WHITE_POINT_1812), or the jordan slice 2's
 # 'percentile' SENTINEL (D1: the sentinel says the encoder is lm-percentile, not this bake).
 WHITE_POINT = {
-    'rastrelli-gallery': 4.0,
+    'rastrelli-gallery': {'day': 0.8, 'dusk': 0.8, 'nightChandeliers': 0.8},
     'jordan': 'percentile',
     'military-gallery': {'day': 1.5, 'dusk': 0.15, 'nightChandeliers': 0.3},
 }
@@ -135,6 +135,23 @@ PANE_PAINT = {
         'day': (0.55, 0.58, 0.62),
         'dusk': (0.45, 0.32, 0.17),
         'nightChandeliers': (0.60, 0.42, 0.22),
+    },
+}
+# RG-F2 verdict 2.2: the bake-only stage spill on the shell's stairlight slot — applied
+# in ALL THREE rigs regardless of fixtures_off; the glb export stays strength 0.0
+# (the builder's flat emission) — this is the declared record + the rig source.
+STAGE_SPILL = {
+    'rastrelli-gallery': {
+        'colours': {
+            'day': (0.82, 0.86, 0.92),
+            'dusk': (1.0, 0.80, 0.58),
+            'nightChandeliers': (1.0, 0.80, 0.58),
+        },
+        'strengths': {
+            'day': 0.6,
+            'dusk': 0.4,
+            'nightChandeliers': 0.4,
+        },
     },
 }
 CYCLES_SEED = 0
@@ -419,6 +436,53 @@ def apply_fixture_bake_strength(materials, room, state):
                 node.inputs['Emission Strength'].default_value = strength
             elif node.type == 'EMISSION':
                 node.inputs['Strength'].default_value = strength
+
+
+def apply_stage_spill(materials, room, state):
+    """RG-F2 verdict 2.2: the bake-only stage spill on the shell's stairlight slot — set
+    the named material's emission (colour + strength) per state. Applied in ALL THREE
+    rigs regardless of fixtures_off, and AFTER the emitter scan in main (the shell object
+    carries the stairlight slot beside its other slots — a pre-scan live emission would
+    exclusion-reclassify the WHOLE shell object; the verdict's 'target sets unchanged'
+    law + the card's cells being painted over at re-encode keep this blind to the scan).
+    The capture/restore law is untouched: the spill rides past it, so the dusk probe
+    renders with the spill still live (it is part of that rig). Rooms without a row are
+    untouched: absent = unchanged behaviour. The function VERIFIES its own work and the
+    summary row carries the proof: spillApplied = at least one material matched the
+    'stairlight' slot AND an emission node actually reads back a non-zero strength;
+    a declared spill with NO matching material must not silently zero out — the row
+    records spillApplied: False and the bake continues (the log row is the proof; this
+    path must not raise)."""
+    spec = STAGE_SPILL.get(room)
+    if spec is None:
+        return None
+    colours = spec['colours']
+    strengths = spec['strengths']
+    if state not in colours or state not in strengths:
+        fail(f'the stage-spill row of {room} lacks state {state}')
+    rgb, strength = colours[state], strengths[state]
+    found = []
+    lit_nodes = 0
+    for mat in materials:
+        if not mat.use_nodes or material_base(mat) != 'stairlight':
+            continue
+        found.append(mat.name)
+        for node in mat.node_tree.nodes:
+            if node.type == 'BSDF_PRINCIPLED' and 'Emission Strength' in node.inputs:
+                node.inputs['Emission Color'].default_value = (*rgb, 1.0)
+                node.inputs['Emission Strength'].default_value = strength
+                if node.inputs['Emission Strength'].default_value > 0.0:
+                    lit_nodes += 1
+            elif node.type == 'EMISSION':
+                node.inputs['Color'].default_value = (*rgb, 1.0)
+                node.inputs['Strength'].default_value = strength
+                if node.inputs['Strength'].default_value > 0.0:
+                    lit_nodes += 1
+    return {'colour': list(rgb),
+            'litNodes': lit_nodes,
+            'materials': sorted(found),
+            'spillApplied': bool(found) and lit_nodes > 0,
+            'strength': strength}
 
 
 def add_sun(scene):
@@ -1094,6 +1158,10 @@ def main():
     exclude_emitters = EMITTER_EXCLUSION.get(room, False)
     emitter_names = ({obj.name for obj in emissive_objects(meshes)}
                      if exclude_emitters else set())
+    # RG-F2 2.2: the stage spill rides AFTER the emitter scan (so the target sets stay
+    # exactly as committed — verdict "target sets unchanged") and after the fixtures-off
+    # law (so day cannot zero it): it applies in ALL THREE rigs.
+    spill = apply_stage_spill(materials, room, state)
     for spec in charts:
         prefix = '' if spec['name'] == 'arch' else 'kit-'
         configure_cycles(scene, samples)
@@ -1184,7 +1252,7 @@ def main():
 
     cells_path = lm_dir / 'cells.json'
     cells_sha = file_sha256(cells_path) if cells_path.exists() else None
-    print_summary({
+    summary = {
         'bakedObjects': sum(row['targets'] for row in chart_rows),
         'blender': bpy.app.version_string,
         'cellsSha256': cells_sha,
@@ -1208,7 +1276,12 @@ def main():
         'seconds': None,
         'state': state,
         'whitePoint': white_point,
-    })
+    }
+    # The stage-spill row exists ONLY for rooms that declare one (RG-F2 2.2): an absent
+    # spill must not add a `"stageSpill": null` byte-diff to the siblings' summaries.
+    if spill is not None:
+        summary['stageSpill'] = spill
+    print_summary(summary)
 
 
 def run():

@@ -31,18 +31,21 @@ export const ROOM = {
     textureBytesMax: 1_000_000,
     payloadBytesMax: 2_000_000,
   },
-  // r17a filled the row (three states at LM_RES 1024, baked by tools/bake.mjs). The
+  // r17a filled the row (three states at LM_RES 1024, baked by tools/bake.mjs); the RG-F2
+  // round re-bakes at the ratified LM_RES 1536 (tools/bpy/rastrelli-gallery.py's CELL stop,
+  // Sol-9 ruling) — the descriptor row rides the bake records by the lightmapsRow agreement
+  // gate (the driver refuses a res mismatch), so this row now states 1536. The
   // intensity record is the manifest's per-state white point — the re-encode law's single
   // source of truth (tools/reencode.mjs): RG-D1 set 0.8 in every state and the round that
   // follows (RG-E1) keeps it; the retune knob is the compose scale k, never this table.
   lightmaps: {
     states: ['day', 'dusk', 'nightChandeliers'],
-    res: 1024,
+    res: 1536,
     intensity: { day: 0.8, dusk: 0.8, nightChandeliers: 0.8 },
   },
 };
 
-const TEXTURES = ['stone_flags', 'plaster_pale', 'stucco_grey'];
+const TEXTURES = ['stone_flags', 'plaster_pale', 'stucco_grey', 'stone_band'];
 // textureBytesMax 1.0 MB = r17 lightmaps 0.6 MB + this atlas <= 0.4 MB. Hard gate here.
 const ATLAS_BYTES_MAX = 400_000;
 // RG-E1 kit: the merged shell (shell geometry + 24 inline pilasters + folded doorcase + ribs

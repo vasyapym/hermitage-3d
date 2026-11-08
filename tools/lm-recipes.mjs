@@ -51,6 +51,12 @@ export const DUSK_CANDELABRA_SCALE = 1 / 3;
  * (= k with wp fixed), never a paired law. The acceptance band: design-walkthrough-ux.md §5
  * (RG-D1 record).
  *
+ * RG-F2 (2026-11-08, the bake phase): the fresh 1536 bake's pale room re-dials k to 3 by
+ * THE ONE RULE: the post-encode G1-night frame mean was 91.39/255 at k = 4 (> 90/255), so
+ * ONE full re-encode ran at k = 3 (wp HELD at 0.8; the compose law's per-state ordering
+ * night <= dusk <= day holds by construction). The k=4 mean is recorded in the round's
+ * bake log/report; the dial lives ONLY here.
+ *
  * RG-E1 (round e1, the pale gallery) re-tunes k to 4. The fresh rig's plate came out far
  * dimmer than RG-D1's in the raw-plate statistics (full-atlas linear mean 0.00926 lum vs the
  * old rig's 0.2324) — RG-E1's EMITTER_EXCLUSION True empties the old bake's self-lit sconce
@@ -68,7 +74,7 @@ export const DUSK_CANDELABRA_SCALE = 1 / 3;
  * (clip 4.94 %), dusk 0.2691 (clip 1.62 %) — the published day/dusk still encode at k = 4
  * via the same recipe terms (day = k·night + 1·day; dusk = 1·dusk + (k−1)·night).
  */
-export const GALLERY_LAMP_SCALE = 4;
+export const GALLERY_LAMP_SCALE = 3;
 
 /** @type {Readonly<Record<string, Readonly<Partial<Record<LightState, readonly ComposeTerm[]>>>>>} */
 export const LIGHTMAP_COMPOSE_RECIPES = Object.freeze({
