@@ -457,8 +457,9 @@ file in the same session.
   application, target-set law intact; reencode.mjs: PATCH_PAINTS two-patch + the part-keyed
   patchRect cache + the DEAD_CELL pre-ETC1S arming + the post-encode artifact rows 8/8;
   reencode-paint.py: the check mode with the p99/owned-cells law). THE CODE STAYS UNCOMMITTED
-  in the worktree until the round's landing. The review brief 22 (the vault
-  projects v12/22-…-sol-review.md, 186,724 B — the mechanical lane) handed to the owner for
+  in the worktree until the round's landing. The review TWO self-sufficient
+  Sol-6.1 review briefs (the input-context split): the vault
+  projects v12/23-…-sol-review-1-builder.md (78,913 B) + 24-…-sol-review-2-splices.md (43,403 B) handed to the owner for
   the Sol 6.1 relay; the bakes ×3 + the capture battery + the validate + the doc landing =
   the next phase after Sol returns.**
 
