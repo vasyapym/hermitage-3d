@@ -338,10 +338,16 @@ The `square-palace` round closed it with ONE enumeration battery + a two-term re
   **K = 1.5**, the smallest of the drawn {1.5, 2, 3} meeting the 0.6 target at the measured
   boxes (far-left 0.692 / far-right 0.640 under 2a+K; the near-field box reads 0.512 — the
   path-dominated zone, as drawn). Exactly 1.0 at wSnow = 0 (every June/October frame
-  IEEE-identical) and at wNight = 1 (dec-night IEEE-identical by construction — the draw's
-  conditional (1−wNight) gate applied unconditionally, so the night re-read need dissolves;
-  docs/design-sky-time.md §7's palette stays untouched out of the winter window).
-- **Goldens:** expected flips at the merge finale — the square's **dec-noon only**.
-  The DEC-033 §6 gate («December becomes legible in daylight») is measured against the
-  batteries, not just re-baselined. Budget: JS +69 gz of the declared ≤ +400 (284,110 of
-  350,000 at the branch), RU +7, 0 draws / 0 tris / 0 texture bytes.
+  IEEE-identical) and at wNight = 1 (the gain introduces no sky-colour change at night;
+  docs/design-sky-time.md §7's palette stays untouched out of the winter window). THE SOL
+  REVIEW's 4.1 RECTIFICATION: an earlier wording claimed dec-night byte-identical by
+  construction — RETRACTED: the (1−wNight) gate bounds the SKY contribution only; the 2a
+  ground albedo still applies at wSnow=1 at night.
+- **Goldens:** expected flips at the merge finale — the square's **dec-noon AND dec-night**
+  (4.1 as above). The DEC-033 §6 gate («December becomes legible in daylight») is measured
+  against the batteries, not just re-baselined. Budget: JS +69 gz of the declared ≤ +400
+  (284,110 of 350,000 at the branch), RU +7, 0 draws / 0 tris / 0 texture bytes.
+  Probe-transfer note (the Sol review's 4.6): the q15 ×1.5 probe scaled the setRGB terms;
+  the landed law scales the post-mix composite — the landed-state capture (landed-dec-noon)
+  re-measured under the FINAL law and returned the same box means at the recorded precision,
+  so the read transfers empirically; the merge goldens certify the bytes.

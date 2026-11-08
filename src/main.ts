@@ -823,8 +823,10 @@ const applyEpoch = (nextEpochMs: number): void => {
   hemi.groundColor.setRGB(...warmGround(snowBounceGround(h, wSnow), WINDOW_WARM_LINEAR, wNight));
   // The winter-square round's class-I grant (owner-conditional on the dec-noon battery): a
   // wSnow-gated winter sky gain on the hemisphere's SKY colour — the pure law snowSkyGain is
-  // exactly 1.0 at wSnow = 0 and at wNight = 1, so every June/October frame and dec-night stay
-  // byte-identical; no branch cost out of season (the gain short-circuits at 1).
+  // exactly 1.0 at wSnow = 0 and at wNight = 1, so the multiply SKIPS at those endpoints and
+  // the gain introduces no sky-colour change there; out of season the short-circuit costs
+  // nothing. NOTE (the Sol review): the 2a ground albedo still applies at night — dec-night
+  // re-baselines at the merge beside dec-noon (the (1 − wNight) gate bounds the sky term only).
   const skyGain = snowSkyGain(wSnow, wNight);
   if (skyGain !== 1) {
     hemi.color.multiplyScalar(skyGain);

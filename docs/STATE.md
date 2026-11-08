@@ -407,8 +407,9 @@ file in the same session.
   LANDED: **2a** the narrow path (core ±2.5 / edge ±7 m; TRAMPLED [0.55,0.56,0.58]; BASE 0.1;
   cache key `snow-slot@1`→`@2`; the wSnow=0 identity and the full-cover law hold) + **2b** the
   measured wSnow-gated sky gain `snowSkyGain` K = 1.5 (exactly 1.0 at wSnow = 0 AND at
-  wNight = 1 — dec-night byte-identical by construction; under 2a+K the far-fresh boxes measured
-  0.692/0.640 ≥ the 0.6 target, near 0.512 the path-dominated zone as drawn) + **2c** the Sh
+  wNight = 1 — the multiply SKIPS at those endpoints, so the gain itself introduces no
+  sky-colour change there; under 2a+K the far-fresh boxes measured 0.692/0.640 ≥ the 0.6
+  target, near 0.512 the path-dominated zone as drawn) + **2c** the Sh
   caption 'past the column' / «колонна позади» (NEW `caption.sh`; the smoke BEATS row + the rail
   pins + the i18n fence retitled to fourteen). THE UNENUMERATED CLASS (the standing shape): the
   fence round's cooperation pin («the lane under the west railing») re-stated to the narrow-path
@@ -416,13 +417,29 @@ file in the same session.
   COLUMN_Z), the east face full fresh (23.19 m). GATES on the branch: validate GREEN (tsc 0 ·
   biome 2 authored reencode warnings · **vitest 64 files 1057 passed / 1 skipped** · build JS
   **284,110 of 350,000** — +69 of the declared ≤ +400 · RU **7,339** of 12,000 (+7) · exterior 0 ·
-  basis 584,862). The expected golden flips at the merge finale: **the square's dec-noon ONLY**.
+  basis 584,862). The expected golden flips at the merge finale: **the square's dec-noon AND
+  dec-night** (the Sol 6.1 review, brief 2: the initial «dec-noon only» reading RETRACTED —
+  the (1−wNight) gate bounds the SKY contribution only, while the 2a ground albedo applies at
+  wSnow=1 at night too; the source comments + the records were corrected, the rail.test's Sh
+  caption key pinned exactly (the t() fallback would have masked a missing caption), and the
+  probe-transfer question settled by the landed-state re-measure (the landed-dec-noon box
+  means equal the q15 probe at recorded precision; the merge goldens certify the bytes)).
+  The probe battery recorded: P1 0.275 · P2 0.576 (the LIGHT bounds it) · P3 lifts · P4
+  byte-neutral · P5 N/A. The ANTI-NIT rows (4.2 twins/f32, 4.3 the «fourteen» counting
+  basis, 4.4 the fence-pin arithmetic incl. the exact west-lane ≈ 0.0133) noted without
+  patches.
   Records: budget-ledger reservation row · decisions.md class-I closure note + the stylobate
   clarification (COLUMN_PLINTH already models the sourced three rows) · design-ground-snow §12 ·
   artistic-license ×2 rows · the ROADMAP successors re-stated (+2 NEW: paving show-through in the
   path; the winter edge cue windrows) + the sourcing hunt facts recorded (the Guards Corps HQ:
   Brullov, 1837–1843, four floors, a 12-column ionic portico; NO facade-height figures in the
-  sources). REMAINING in this lane: the Sol 6.1 review; the merge waits for the owner's signal.
+  sources). THE SOL 6.1 REVIEW ROUND LANDED (brief 2; the relay's reply 2026-11-09): 3
+  FIX-BEFORE-MERGE rows adopted — (4.1) the dec-night whole-round identity retracted (the
+  gate bounds the sky term only; the ground term moves under night snow — the expected
+  flips are dec-noon + dec-night, the comments/records repinned), (4.7) the
+  design-staircase residue (already landed at 0e46310), (4.9) the rail.test key pinned
+  exactly; 4 ANTI-NIT rows + 3 NOTE rows noted without patches. REMAINING: the merge + the
+  FULL e2e/golden gate at the owner's signal.
 
 - **2026-11-08 · PARALLEL square-palace OPENED (branch `square-palace` off main `742bb3d`; worktree
   `~/Documents/hermitage-3d-palace-square`; MERGE into main + the FULL e2e/golden gate at the owner's

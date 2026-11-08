@@ -54,9 +54,11 @@ export const SNOW_ALBEDO_LINEAR = [0.82, 0.86, 0.92] as const satisfies LinearRg
  *
  * Laws, stated once:
  *   snowSkyGain(wSnow, wNight) = 1 + wSnow·(1 − wNight)·(K − 1)
- *   exactly 1.0 at wSnow = 0 (every June/October frame IEEE-identical)
- *   exactly 1.0 at wNight = 1 (dec-night and every night frame IEEE-identical — the draw's
- *   (1 − wNight) gate applied unconditionally, so the night re-read need dissolves)
+ *   exactly 1.0 at wSnow = 0: the gain introduces no sky-colour change (June/October frames
+ *   stay byte-identical — the ground term sits behind the zero-weight mix)
+ *   exactly 1.0 at wNight = 1: the gain introduces no sky-colour change at night; the 2a
+ *   ground albedo still applies at night, so dec-night re-baselines at the merge beside
+ *   dec-noon (the Sol review: the (1 − wNight) gate bounds the sky contribution only)
  */
 export const SNOW_SKY_GAIN_K = 1.5;
 

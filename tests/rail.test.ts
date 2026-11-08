@@ -589,6 +589,8 @@ describe('square rail (design §6.1, declared data; R18-ux D1)', () => {
     expect(SQUARE_RAIL.stops[1]?.position).toEqual([-12, 1.7, 177]);
     expect(SQUARE_RAIL.stops[1]?.subject).toEqual(SQUARE_SH_GAZE);
     expect(SQUARE_RAIL.stops[1]?.look).toEqual({ yaw: 30, pitchUp: 25, pitchDown: 20 });
+    // The key is pinned exactly (the Sol review: the t() fallback would mask a MISSING caption).
+    expect(SQUARE_RAIL.stops[1]?.caption).toBe('caption.sh');
     expect(t(SQUARE_RAIL.stops[1]?.caption ?? 'caption.sh')).toBe('past the column');
     expect(SQUARE_RAIL.stops[2]?.position).toEqual([0, 1.7, 124]);
     expect(SQUARE_RAIL.stops[2]?.look).toEqual({ yaw: 25, pitchUp: 20, pitchDown: 10 });
