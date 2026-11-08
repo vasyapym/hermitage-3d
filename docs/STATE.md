@@ -438,7 +438,7 @@ file in the same session.
   gate bounds the sky term only; the ground term moves under night snow — the expected
   flips are dec-noon + dec-night, the comments/records repinned), (4.7) the
   design-staircase residue (already landed at 0e46310), (4.9) the rail.test key pinned
-  exactly; 4 ANTI-NIT rows + 3 NOTE rows noted without patches. REMAINING: the merge + the
+  exactly; 3 ANTI-NIT + 3 NOTE rows noted without patches. REMAINING: the merge + the
   FULL e2e/golden gate at the owner's signal.
 
 - **2026-11-08 · PARALLEL square-palace OPENED (branch `square-palace` off main `742bb3d`; worktree
