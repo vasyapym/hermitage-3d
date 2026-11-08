@@ -231,7 +231,7 @@ Eye height 1.7 m above the local floor; `t` on the room rail; look limits yaw/pi
 | stop | position (declared) | look limits | caption beat |
 |---|---|---|---|
 | S0 | (−24, 1.7, 230) — exists today, west of the Column's axis (DEC-037) | ±35/±35 | the facade and the hour |
-| Sh | (−12, 1.7, 177) — halfway on the west rail (R18-ux D1; DEC-037) | ±30 / +25…−20 | the arch beat (caption.s1 reused; no Sh caption authored) |
+| Sh | (−12, 1.7, 177) — halfway on the west rail (R18-ux D1; DEC-037) | ±30 / +25…−20 | past the column (caption.sh — the winter-square round's own beat) |
 | S1 | (0, 1.7, 124) — arch approach, on the gate axis | ±25 / +20…−10 | the arch opens |
 | G0 | (0, 1.7, 86) — inside the arch plane | ±20/±15 | dark; the square behind |
 | G1 | (24, 1.7, 73) — gallery mid | ±30/±15 | compression |
