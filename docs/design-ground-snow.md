@@ -308,3 +308,46 @@ while the facade dusting differs from its own record risks tuning the wrong term
 
 Docs at ship: DEC-035, artistic-license row 21 (§5), design-winter §9/§4 staleness fixes + a
 pointer to this doc, ROUNDS row, STATE row. README untouched (no user-facing surface).
+
+## §12 The winter-square round — the class-I closure (2026-11-09, branch `square-palace`)
+
+The ground round's own census flagged the winter legibility (class I) as «the sky's side of the
+fence»; the DEC-041 follow-on round named the fix's home the sky lane and left the flag parked.
+The `square-palace` round closed it with ONE enumeration battery + a two-term re-declaration:
+
+- **The battery (dec-noon `at=2026-12-21T10:00:00Z&det=1`, desktop 1280×720 at S0; local
+  `probes/palace-snow-battery/`):** P1 baseline **0.275** field/sky (linearized) — and the
+  straddle reads (≈86–87/255 across the whole lower half of the frame) proved the P1
+  foreground IS the lane by construction: the ±10/±22 m lane centred on the rail sits under
+  the camera at every stop, so ~9/10 of the visible ground pixels read the TRAMPLED tone.
+  P2 all-fresh albedo (TRAMPLED→FRESH, BASE→0) **0.576** — still below the declared 0.6
+  target → **the LIGHT bounds the winter ground; the authored albedo was the louder half of
+  the class-I story** (the old «sky core» attribution held only under the old constants).
+  P3 the hemi sky ×2 moved the far field above target; P4 `sun.castShadow=false` returned
+  byte-identical ground boxes (no shadow-term factor at this instant); P5 — no haze/fog term
+  exists in `src/sky/appearance.ts` (verified; N/A toggle).
+- **2a — the lane re-declared**: core ×10 → ±**2.5** m, edge ×22 → ±**7** m; TRAMPLED
+  [0.38,0.39,0.41] → **[0.55,0.56,0.58]** (packed snow, not slush); BASE 0.3 → **0.1**
+  (the off-lane field reads mix(0.82, 0.56, 0.1) ≈ 0.794 albedo); cache key
+  `Ground/snow-slot@1` → `@2`. The laws (§2) are unchanged — the constants re-enter the same
+  TS/GLSL twins; the pin rows follow (tests/ground-snow.test.ts; the fence's cooperation pin
+  re-stated: at COLUMN_Z the fence's west face sits 6.69 m east of the narrow path's line —
+  the falloff tail — and the east face 23.19 m — full fresh).
+- **2b — the measured sky term** (the owner's CONDITIONAL grant, silently gated): the pure
+  law `snowSkyGain(wSnow, wNight) = 1 + wSnow·(1−wNight)·(K−1)` in src/world/snow-season.ts;
+  **K = 1.5**, the smallest of the drawn {1.5, 2, 3} meeting the 0.6 target at the measured
+  boxes (far-left 0.692 / far-right 0.640 under 2a+K; the near-field box reads 0.512 — the
+  path-dominated zone, as drawn). Exactly 1.0 at wSnow = 0 (every June/October frame
+  IEEE-identical) and at wNight = 1 (the gain introduces no sky-colour change at night;
+  docs/design-sky-time.md §7's palette stays untouched out of the winter window). THE SOL
+  REVIEW's 4.1 RECTIFICATION: an earlier wording claimed dec-night byte-identical by
+  construction — RETRACTED: the (1−wNight) gate bounds the SKY contribution only; the 2a
+  ground albedo still applies at wSnow=1 at night.
+- **Goldens:** expected flips at the merge finale — the square's **dec-noon AND dec-night**
+  (4.1 as above). The DEC-033 §6 gate («December becomes legible in daylight») is measured
+  against the batteries, not just re-baselined. Budget: JS +69 gz of the declared ≤ +400
+  (284,110 of 350,000 at the branch), RU +7, 0 draws / 0 tris / 0 texture bytes.
+  Probe-transfer note (the Sol review's 4.6): the q15 ×1.5 probe scaled the setRGB terms;
+  the landed law scales the post-mix composite — the landed-state capture (landed-dec-noon)
+  re-measured under the FINAL law and returned the same box means at the recorded precision,
+  so the read transfers empirically; the merge goldens certify the bytes.

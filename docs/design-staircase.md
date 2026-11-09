@@ -50,7 +50,7 @@ Deep link to a room: fetch its manifest first, then everything; the reviewed roo
 ### 1.4 How the hour moves along the beats (frozen §8, consumed not changed)
 
 - Square: live sky + exposure E(h) — exists.
-- Gallery: artificial light dominates at every hour → the three bakes differ little (declared: day adds a cool bounce from the arch mouth and the courtyard-side slit windows; night is sconces only). Visual delta small by design — compression should feel timeless.
+- Gallery (the §1.4 contract, re-recorded at RG-F3 — the stale «artificial light dominates at every hour; the three bakes differ little» read is superseded): "RG-F3 declares a courtyard-window-led day along z=70, with reduced pane contribution at dusk and none at night. Artificial light retains the night reading, and the east door must remain the leading destination at Gj/G1/G2. Delivery of this hierarchy requires the recorded after-battery and owner look; it is not established by constants alone."
 - Jordan: the hero of the phase. Day — tall windows flood the flights; dusk — low warm cross-light, chandeliers warming up; nightChandeliers — gilding and crystal carry the room. The ascent is where `w_day/w_dusk/w_night` reads as narrative.
 
 ---
@@ -88,7 +88,7 @@ All values declared, marked `[measure r15/r17]` where bpy or the bake decides.
 | bounds Y | 0 … 3.6 (ground-floor rooms ≈3–4 m, declared) | 0 … 20 (stair-hall height ≈20 m declared; under the cornice) |
 | landing | — | Y ≈ +10 (first-floor landing, declared) |
 | floor materials | stone flags, painted plaster, sconce bronze | grey granite columns, white marble, gilt stucco (sourced: materials; stylized) |
-| windows | none visible; slit light sources baked only | two tiers on the Neva side + mirrored portholes opposite (sourced) |
+| Windows | Eleven courtyard-side niche backs at z=70 are declared painted daylight panes under artistic-license row 52; opposite backs remain blind. Axial-photo verification remains outstanding. | two tiers on the Neva side + mirrored portholes opposite (sourced) |
 | hero meshes (≤3) | shell+vaults (1), sconce set (2), end portal (3) | shell+flights+balustrade (1), twin-column gallery + portal with niches (2), chandelier (3) |
 | rail length | ~44 m | ~48 m (two flights + half-landing) |
 | stops | G0 arch mouth · G1 mid · G2 east door | J0 ground entry · J1 mid first flight · J2 mezzanine turn · J3 upper flight · J4 landing |
@@ -231,7 +231,7 @@ Eye height 1.7 m above the local floor; `t` on the room rail; look limits yaw/pi
 | stop | position (declared) | look limits | caption beat |
 |---|---|---|---|
 | S0 | (−24, 1.7, 230) — exists today, west of the Column's axis (DEC-037) | ±35/±35 | the facade and the hour |
-| Sh | (−12, 1.7, 177) — halfway on the west rail (R18-ux D1; DEC-037) | ±30 / +25…−20 | the arch beat (caption.s1 reused; no Sh caption authored) |
+| Sh | (−12, 1.7, 177) — halfway on the west rail (R18-ux D1; DEC-037) | ±30 / +25…−20 | past the column (caption.sh — the winter-square round's own beat) |
 | S1 | (0, 1.7, 124) — arch approach, on the gate axis | ±25 / +20…−10 | the arch opens |
 | G0 | (0, 1.7, 86) — inside the arch plane | ±20/±15 | dark; the square behind |
 | G1 | (24, 1.7, 73) — gallery mid | ±30/±15 | compression |

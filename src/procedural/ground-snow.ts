@@ -30,7 +30,9 @@ export type GroundSnowUniforms = Readonly<{ uSnow: { value: number } }>;
 /** The one uniform the host writes each frame (main.ts applyEpoch). */
 export const GROUND_SNOW_UNIFORMS: GroundSnowUniforms = { uSnow: { value: 0 } };
 
-const GROUND_SNOW_CACHE_KEY = 'Ground/snow-slot@1';
+// The winter-square round bumps the snow slot to @2 (the emitted body changed —
+// the re-declared lane/tone/base constants are interpolated into the fragment).
+const GROUND_SNOW_CACHE_KEY = 'Ground/snow-slot@2';
 
 const glslFloat = (x: number): string => (Number.isInteger(x) ? `${x}.0` : `${x}`);
 

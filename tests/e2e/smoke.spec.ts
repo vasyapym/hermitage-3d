@@ -327,7 +327,7 @@ test('keyboard walk: every stop reachable, reduced-motion cuts', async ({ page }
   // R-UX5 §7/§8 stop authoring: Gj, J1b, J2b new; J2, J3 re-authored).
   const BEATS: Readonly<Record<string, string>> = {
     S0: 'the facade and the hour',
-    Sh: 'the arch opens', // R18-ux D1: Sh rides the arch beat (the committed caption.s1 reuse)
+    Sh: 'past the column', // the winter-square round: the close pass gets its own caption
     S1: 'the arch opens',
     G0: 'dark; the square behind',
     Gj: 'The turn east: pilaster after pilaster, forty metres to the far door.',

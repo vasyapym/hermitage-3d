@@ -2,10 +2,18 @@
 //
 // R-UX4 (walkthrough-UX pass, corridor light): the declared composite recipes, consulted by
 // tools/reencode.mjs before the single-input encode. Room contract rastrelli-gallery
-// (design-staircase §1.4: artificial light dominates at every hour; the three bakes differ
-// little) — the published day state is the night lamp field plus the day rig's daylight,
-// scaled by GALLERY_LAMP_SCALE: by linearity of light transport this is the bake a single
+// (design-staircase §1.4 as RG-F3 re-records it: day is window-led along the declared
+// courtyard panes at reduced dusk contribution and none at night; the artificial light
+// retains the night reading, and the east door must remain the leading destination at
+// Gj/G1/G2 — the hierarchy's delivery rides the recorded after-battery and owner look,
+// not the constants alone; the stale "artificial light dominates at every hour; the
+// three bakes differ little" read is superseded) — the published day state is the night
+// lamp field plus the day rig's daylight, scaled by GALLERY_LAMP_SCALE: by linearity of
+// light transport this is the bake a single
 // rig with fixtures ON at k × SCONCE_EMISSION plus the day sun/world would produce.
+// RG-F3 (the ruling's lm-recipes record): RG-F3 supplies declared courtyard panes. Their
+// day/dusk/zero-night rig terms publish at weights 1/1/0 under the unchanged k=3
+// composition.
 // A later re-bake may fold the lamp power into tools/bpy/rastrelli-gallery.py SCONCE_EMISSION
 // (× k, back to k = 1) — equivalent up to denoise with the white point re-derived to hold C.
 //
@@ -17,8 +25,10 @@
 // difference (src/content/lightmap-look.ts carries one gain for the room). The scale is the
 // recorded slow path («re-bake with higher lamp power») executed at encode from the surviving
 // denoised EXRs — byte-deterministic, no re-bake. The daylight term stays at 1.0 (physical
-// sun, strength 4.0): it is under-represented until the courtyard-side windows exist in the
-// model — the next evidence item, not a tuning knob.
+// sun, strength 4.0). RG-F3: the day/dusk daylight NOW also carries the eleven declared
+// panes (bake.py STAGE_SPILL_PARTS + the reencode PATCH_PAINTS raw triple) — the weights
+// are the compose law's, never a per-state gain; the k=3 / recipes / white-point law is
+// untouched by this round.
 //
 // R4 (design-gallery.md §4.6, D-3): the Military Gallery's dusk is COMPOSED, not baked at a
 // third — the dusk rig bakes sky only (bake.py's DUSK_FIXTURES False for this room), and the

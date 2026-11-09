@@ -413,9 +413,14 @@ describe('10 · the golden declarations', () => {
   });
 });
 
-describe('11 · the trodden lane under the west railing (the recorded AMBI)', () => {
-  it('the west side stands in the lane core, the east side outside the lane', () => {
-    expect(laneValue(B.minX, COLUMN_Z)).toBe(1);
+describe('11 · the trodden lane and the west railing (the recorded AMBI; re-stated by the winter-square round)', () => {
+  it('the west side brushes the narrow path’s falloff tail, the east side stands in fresh snow', () => {
+    // The winter-square draw re-declared the lane a narrow path (core 2.5 / edge 7): the fence
+    // no longer strides the lane core. At COLUMN_Z the path's centre is laneCentreX(z) ≈ −14.94,
+    // so the fence's west face sits 6.69 m east of it — inside the falloff band, near its end —
+    // and the east face 23.19 m east — full fresh.
+    expect(laneValue(B.minX, COLUMN_Z)).toBeGreaterThan(0);
+    expect(laneValue(B.minX, COLUMN_Z)).toBeLessThanOrEqual(0.05);
     expect(laneValue(B.maxX, COLUMN_Z)).toBe(0);
   });
 });

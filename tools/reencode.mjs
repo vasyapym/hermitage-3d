@@ -61,6 +61,17 @@ const KIT_PREFIX = 'kit-';
 // (the builder's shelf cells for the named part) and its rect MUST be present — both
 // parts fail loud when the summary block lacks the patch rect. Keyed by manifest state
 // (day/dusk/nightChandeliers) + room; rooms not named here are untouched.
+// RG-F3: the declared panes' RAW encode paint — one shared triple record the eleven
+// pane01..pane11 patch entries are GENERATED from (named *_RAW to mirror the builder's
+// own declared record and keep the no-×1.14 law legible beside the door's calibration).
+const PANE_PAINT_RAW = {
+  day: [0.55, 0.65, 0.74],
+  dusk: [0.36, 0.4, 0.46],
+  nightChandeliers: [0, 0, 0],
+};
+// k order = the builder's NICHE_CENTRES order (k=1 the EAST-most bay x 42.3065, k=11 the
+// WEST-most x 8.4365); zero-padded so lexical = numeric.
+const PANE_PARTS = Array.from({ length: 11 }, (_v, i) => `pane${String(i + 1).padStart(2, '0')}`);
 const PATCH_PAINTS = {
   // The law's triples × 1.14 — the Sol-DOOR calibration (owner-ratified 2026-11-08): the
   // screen-side door read sat ~30 codes under the 180 band with the law's own values, so the
@@ -83,6 +94,13 @@ const PATCH_PAINTS = {
         nightChandeliers: [0.684, 0.479, 0.251],
       },
     },
+    // RG-F3: the eleven declared panes' RAW encode paint, generated from ONE shared
+    // triple record (the ruling's constants block). NO ×1.14: that ratio is the DOOR's
+    // measured screen-side calibration, not a pane value (transferring it would put the
+    // day blue above the 0.8 bake-linear no-clip roof). Dusk ≤ day in every channel (the
+    // X4 ordering constraint); night paints black (zero encoded pane light). One payload
+    // / run per state — the thirteen rects ride the same reencode-paint run unchanged.
+    ...PANE_PARTS.map((part) => ({ part, colours: PANE_PAINT_RAW })),
   ],
 };
 
@@ -367,6 +385,65 @@ const POST_ENCODE_HEADING =
  * regenerates ONLY the .md's post-encode section (idempotent on a double run; the driver
  * does not know this section — a fresh bake rewrites the log and the next reencode run
  * regenerates the states it publishes). */
+/** The pane proof carried through the post-encode merge (RG-F3): read from the staged
+ * bake summary beside this tool's staged EXRs (bake-<file-state>/summary.json — the
+ * ZIMNY_SUMMARY record, not a new input). STRICT acceptance (the Sol-14 hardening):
+ * the summary's own `state` must BE the canonical state (a poisoned stage dir fails
+ * loud, never a mis-bound proof); the pane rows must match bake.py's written schema
+ * (paneApplied boolean; paneProof rows with a material, a status of 'applied' or
+ * 'declared-zero-verified', and the declared/readBack rgb triples + strengths); when
+ * present, the consumed PRE-PAINT identity binds to the staged denoised arch EXR (the
+ * same file assertStagedExr binds to the bake log). Returns null when the staged bake
+ * carries NO pane keys at all (the fresh-bootstrap / sibling default keeps the old way
+ * out — a state then has its previously carried proof REMOVED by the merge, the
+ * stale-poison guard). Carry limitation, recorded once (comment, not a claim): the
+ * compose/paint mid-step EXRs are work-tmp payloads inside reencodeChart and are not
+ * bound here; the bound identity is the bake's own denoised staged plate. The splice
+ * is rastrelli-gallery-only, so siblings never enter. */
+function stagedPaneProof(room, state) {
+  const dirName = `bake-${FILE_BY_STATE[state]}`;
+  const stagePath = join(STAGE_ROOT, room, dirName, 'summary.json');
+  if (!existsSync(stagePath)) return null;
+  const summary = JSON.parse(readFileSync(stagePath, 'utf8'));
+  if (!('paneApplied' in summary) || !('paneProof' in summary)) return null;
+  if (summary.state !== state) {
+    fail(
+      `staged pane proof at ${stagePath}: summary.state ${JSON.stringify(summary.state)} ` +
+        `is not the canonical state ${state} — a poisoned stage dir fails loud`,
+    );
+  }
+  const isTriple = (value) =>
+    Array.isArray(value) && value.length === 3 && value.every((n) => Number.isFinite(n) && n >= 0);
+  if (
+    typeof summary.paneApplied !== 'boolean' ||
+    !Array.isArray(summary.paneProof) ||
+    summary.paneProof.length === 0 ||
+    !summary.paneProof.every(
+      (row) =>
+        row &&
+        typeof row.material === 'string' &&
+        (row.status === 'applied' || row.status === 'declared-zero-verified') &&
+        isTriple(row.declaredColour) &&
+        Number.isFinite(row.declaredStrength) &&
+        row.declaredStrength >= 0 &&
+        isTriple(row.readBackColour) &&
+        Number.isFinite(row.readBackStrength) &&
+        row.readBackStrength >= 0,
+    )
+  ) {
+    fail(
+      `staged pane proof at ${stagePath}: malformed paneApplied/paneProof rows (the ` +
+        'schema is {paneApplied boolean, paneProof: [{material, status, declaredColour, ' +
+        'declaredStrength, readBackColour, readBackStrength}]}) — fail loud',
+    );
+  }
+  const exrPath = join(STAGE_ROOT, room, dirName, 'lm', `${FILE_BY_STATE[state]}.exr`);
+  const stagedExr = existsSync(exrPath)
+    ? { path: `${dirName}/lm/${FILE_BY_STATE[state]}.exr`, sha256: sha256(readFileSync(exrPath)) }
+    : null;
+  return { paneApplied: summary.paneApplied, paneProof: summary.paneProof, stagedExr };
+}
+
 function splicePostEncodeRows(room, manifest, states) {
   const logPath = join(LOG_DIR, `${room}.json`);
   const mdPath = join(LOG_DIR, `${room}.md`);
@@ -393,12 +470,48 @@ function splicePostEncodeRows(room, manifest, states) {
     return;
   }
   log.postEncode = { ...(log.postEncode ?? {}), ...rowsByState };
+  // RG-F3: the pane proof rides the post-encode merge — the states this run published
+  // carry their staged bake's paneApplied/paneProof beside the artifact hashes, so the
+  // committed bake log alone exposes the pane gate. STALE-PROOF POISON GUARD: a state
+  // REPUBLISHED without proof in its staged summary (or with the staged summary absent)
+  // has its previously carried proof REMOVED — a carried proof must never describe an
+  // artifact this run did not prove. Earlier carried states are otherwise untouched; a
+  // double run is idempotent (same staged rows, same merge result).
+  const paneByState = {};
+  const removedPaneStates = [];
+  for (const state of states) {
+    const pane = stagedPaneProof(room, state);
+    if (pane !== null) paneByState[state] = pane;
+    else if (log.postEncode?.paneProof?.[state] !== undefined) removedPaneStates.push(state);
+  }
+  if (removedPaneStates.length > 0) {
+    const carried = { ...(log.postEncode?.paneProof ?? {}) };
+    for (const state of removedPaneStates) delete carried[state];
+    log.postEncode.paneProof = carried;
+  }
+  if (Object.keys(paneByState).length > 0) {
+    log.postEncode.paneProof = { ...(log.postEncode?.paneProof ?? {}), ...paneByState };
+  }
   writeFileSync(logPath, `${JSON.stringify(log, null, 2)}\n`);
   const table = [POST_ENCODE_HEADING, '| state | file | bytes | sha256 |', '|---|---|---|---|'];
   for (const state of STATES) {
     for (const row of log.postEncode[state] ?? []) {
       table.push(`| ${state} | ${row.rel} | ${row.bytes} | ${row.sha256} |`);
     }
+  }
+  // The pane proof's md rows ride inside the post-encode section (only where carried).
+  const paneProof = log.postEncode.paneProof ?? {};
+  for (const state of STATES) {
+    const pane = paneProof[state];
+    if (pane === undefined) continue;
+    const statuses = pane.paneProof.map((row) => row.status).join(' / ') || 'carried';
+    const bound = pane.stagedExr
+      ? `; pre-paint exr ${pane.stagedExr.path} ${pane.stagedExr.sha256}`
+      : '';
+    table.push(
+      `paneApplied (${state}) = ${pane.paneApplied} — ` +
+        `${pane.paneProof.length} proof row(s): ${statuses}${bound}`,
+    );
   }
   const raw = readFileSync(mdPath, 'utf8');
   const body = raw.endsWith('\n') ? raw.slice(0, -1) : raw;
