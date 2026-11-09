@@ -1,4 +1,4 @@
-# Zimny RG-F2 ("the door's light and the order, built by hand") - rastrelli-gallery kit
+# Zimny RG-F3 ("the courtyard's light and the order") - rastrelli-gallery kit
 # (Blender 4.2 LTS, headless). Run by tools/asset.mjs `bpy rastrelli-gallery` (stem = room id
 # verbatim). Deterministic: no randomness, every dimension is a constant below. World axes
 # are glTF axes: +X east, +Z south (Palace Square side), -Z north, +Y up. Geometry is
@@ -21,6 +21,9 @@
 # RG-F2 EAST END: the x = 44 plane is one partition; 'stairlight' = the lunette half-disc
 # (8 segs) and 'doorcard' = the 1.6 m x 2.40 m rectangle, both AT x = 44.0, both painted per
 # published state at encode (tools/lm_compose.py + reencode); the bake world no longer enters.
+# RG-F3 (the ruling's builder-header record): existing courtyard niche backs become declared
+# panes without new faces. 'pane' and 'stairlight' ship non-emissive; bake.py supplies their
+# separate bake-only terms.
 
 import json
 import math
@@ -75,8 +78,8 @@ IRON_ROUGHNESS = 0.55
 GLOW_TINT_RGB = (0.38, 0.29, 0.22)
 TEXTURE_NAMES = ('stone_flags', 'plaster_pale', 'stucco_grey', 'stone_band')
 
-# shell material slots (5 primitives) / sconce slots (2)
-M_PALE, M_FLAGS, M_STUCCO, M_BAND, M_STAIR = 0, 1, 2, 3, 4
+# shell material slots (6 primitives - RG-F3 adds the flat 'pane' slot) / sconce slots (2)
+M_PALE, M_FLAGS, M_STUCCO, M_BAND, M_STAIR, M_PANE = 0, 1, 2, 3, 4, 5
 S_IRON, S_GLOW = 0, 1
 
 # ---- gallery proper (east of the arch passage), metres -------------------------------------
@@ -164,6 +167,9 @@ NICHE_PEAK = NICHE_SPRING + NICHE_HEAD_R      # 2.50
 NICHE_RECESS = 0.22
 NICHE_HEAD_SEGS = 8
 NICHE_CENTRES = tuple(G_X1 - BAY_PITCH * (k - 0.5) for k in range(1, PILASTERS_PER_SIDE + 1))
+# (RG-F3) the NICHE_CENTRES order runs EAST -> WEST: k=1 x 42.3065 (the bay nearest the
+# door) ... k=11 x 8.4365, one bay pitch 3.387 apart. The pane tags pane01..pane11 keep
+# this k order (k=1 = the EAST-most bay).
 
 # ---- east doorcase + stairlight lunette + door card, around the UNCHANGED opening ----------
 PORTAL_X0, PORTAL_X1 = 43.2, 44.0
@@ -175,6 +181,16 @@ LUNETTE_SEGS = 8
 ARCHIVOLT_W, ARCHIVOLT_D = 0.07, 0.04
 STAIRLIGHT_PAINT = {  # declared record (the machine source is bake.py PANE_PAINT / lm_compose)
     'day': (0.55, 0.58, 0.62), 'dusk': (0.45, 0.32, 0.17), 'night': (0.60, 0.42, 0.22),
+}
+# (RG-F3) the declared panes' RAW paint record beside STAIRLIGHT_PAINT (the machine
+# sources: tools/reencode.mjs PATCH_PAINTS - the encode paint; tools/bpy/bake.py
+# STAGE_SPILL_PARTS - the spill rows). RAW triples are pane-specific: the door's x1.14
+# calibration is NOT transferred (the stated largest value 0.740 stays under the
+# bake-linear no-clip roof 0.8); night black = zero encoded pane light. Named *_RAW
+# after bake.py's PANE_PAINT-style table so the exec namespace never shadows bake.py's
+# own room-keyed PANE_PAINT record.
+PANE_PAINT_RAW = {
+    'day': (0.550, 0.650, 0.740), 'dusk': (0.360, 0.400, 0.460), 'night': (0.0, 0.0, 0.0),
 }
 CONTRACT_BOUNDS = ((-4.0, 0.0, 63.5), (44.0, 5.0, 87.5))
 
@@ -821,8 +837,10 @@ def material(name, image):
 
 def flat_material(name, rgb, roughness, emission=None):
     """A Principled with no texture: base colour + roughness (+ optional glow emission).
-    'stairlight' ships NON-emissive (strength 0.0); bake.py's STAGE_SPILL row drives the
-    bake-only emission on this slot by name (verdict 2.2)."""
+    The declared bake-painted slots ship NON-emissive (strength 0.0) and their separate
+    bake-only terms are supplied by bake.py by material name: 'stairlight' via the
+    STAGE_SPILL row (RG-F2, verdict 2.2), 'pane' via the parallel STAGE_SPILL_PARTS rows
+    applied post-scan (RG-F3 - the builder-header record's flat-material sentence)."""
     mat = bpy.data.materials.new(name)
     mat.use_nodes = True
     bsdf = mat.node_tree.nodes['Principled BSDF']
@@ -1048,8 +1066,12 @@ def build_long_wall(b, plane):
     for x_c in PILASTER_X:
         build_pilaster(b, plane, x_c)
         build_ressaut(b, plane, x_c, arch=True)
-    for x_c in NICHE_CENTRES:
-        build_niche(b, plane, x_c)
+    # (RG-F3) the pane tags' ONLY call site: the z=70 courtyard wall (WALL_S, owner-confirmed;
+    # the wall at z=70 whose backs the census enumerated) passes pane01..pane11 in k order
+    # (k=1 the EAST-most bay x 42.3065 -> k=11 the WEST-most x 8.4365); the z=76 wall's
+    # backs stay blind (no tag -> M_PALE, untagged).
+    for k, x_c in enumerate(NICHE_CENTRES, 1):
+        build_niche(b, plane, x_c, pane_tag=f'pane{k:02d}' if plane is WALL_S else None)
 
 
 # ---- the order ---------------------------------------------------------------------------------
@@ -1127,14 +1149,21 @@ def build_ressaut(b, plane, t_c, arch):
 
 
 # ---- niches: pocket + surround band + sill ledge ---------------------------------------------
-def build_niche(b, plane, x_c):
+def build_niche(b, plane, x_c, pane_tag=None):
+    """One bay niche. RG-F3: pane_tag (assigned ONLY by the z=70 courtyard wall caller)
+    turns the back face into a declared pane - M_PANE + the zero-padded single-face tag;
+    the z=76 wall's backs keep M_PALE blind. Geometry, order and the 'niche' element
+    label are unchanged either way (the schedule equality holds)."""
     el = 'niche'
     P = plane.world
     back_d = -NICHE_RECESS
     band_d = NICHE_SURROUND_D
     inner = head_arc(x_c, NICHE_SPRING, NICHE_HALF_W, NICHE_HEAD_SEGS)
     outer = head_arc(x_c, NICHE_SPRING, NICHE_OUTER_R, NICHE_HEAD_SEGS)
-    b.polygon(plane, niche_polygon(x_c, NICHE_HALF_W), M_PALE, el, d=back_d)
+    # (RG-F3) the declared pane's back face: M_PANE with the caller's zero-padded tag on
+    # the z=70 wall; blind M_PALE without a tag (the z=76 backs stay untagged).
+    b.polygon(plane, niche_polygon(x_c, NICHE_HALF_W), M_PANE if pane_tag else M_PALE,
+              el, d=back_d, tag=pane_tag)
     # reveals: sill (+y), jambs (toward the axis), head (toward the arc centre)
     b.face([P(x_c - NICHE_HALF_W, NICHE_SILL, back_d), P(x_c + NICHE_HALF_W, NICHE_SILL, back_d),
             P(x_c + NICHE_HALF_W, NICHE_SILL, 0.0), P(x_c - NICHE_HALF_W, NICHE_SILL, 0.0)],
@@ -1276,7 +1305,11 @@ def build_passage(b):
 # F8 stays with the S1-amended constants (owner-ratified): CORNICE_PROUD 0.18, RESSAUT_PROUD
 # 0.28 = the arch foot.
 DOORCASE_FACES = 16
-PATCH_PARTS = ('stairlight', 'doorcard')
+# (RG-F3) the two door patches join the eleven declared pane tags: THIRTEEN single-rect
+# parts, one rect per part on the shelf, the SAME schema as before (one face per tag).
+PATCH_PARTS = ('stairlight', 'doorcard',
+               'pane01', 'pane02', 'pane03', 'pane04', 'pane05', 'pane06',
+               'pane07', 'pane08', 'pane09', 'pane10', 'pane11')
 DOOR_JAMB_PROUD = ARCHIVOLT_D          # the applied-band depth (0.04) — pinned here
 
 
@@ -1779,10 +1812,12 @@ def main():
     mat_stucco = material('stucco_grey', img_stucco)
     mat_band = material('stone_band', img_band)
     mat_stair = flat_material('stairlight', (1.0, 1.0, 1.0), 1.0)
+    mat_pane = flat_material('pane', (1.0, 1.0, 1.0), 1.0)   # (RG-F3) flat white, roughness 1.0
     mat_iron = flat_material('iron_dark', IRON_RGB, IRON_ROUGHNESS)
     mat_glow = flat_material('sconce_glow', GLOW_TINT_RGB, 0.92, emission=SCONCE_GLOW_RGB)
     me_shell, t_shell, lm_shell = finish(
-        'shell', b, [mat_pale, mat_stone, mat_stucco, mat_band, mat_stair], mode='shelf')
+        'shell', b, [mat_pale, mat_stone, mat_stucco, mat_band, mat_stair, mat_pane],
+        mode='shelf')
     sconce_b = build_sconce()
     me_sconce, t_sconce, lm_strip = finish(
         'sconce', sconce_b, [mat_iron, mat_glow], mode='strip')
@@ -1813,7 +1848,7 @@ def main():
         export_morph=False,
     )
     meshes = {
-        'shell': {'triangles': t_shell, 'instances': 1, 'primitives': 5},
+        'shell': {'triangles': t_shell, 'instances': 1, 'primitives': 6},
         'sconce': {'triangles': t_sconce, 'instances': SCONCE_COUNT, 'primitives': 2},
     }
     lm_block = dict(lm_shell)

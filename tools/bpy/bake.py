@@ -101,8 +101,11 @@ PROBE_POINT = {
     'military-gallery': (86.25, 11.7, -12.5),
 }
 PROBE_YAW_DEG = 0.0       # FILL — aligned against three's equirect convention in 17b
-# FILL — per-room pane material names for the committed swap law (D-13's table; the empty
-# row = the gallery has no pane geometry). MASKED-IN-BRIEF: keep the committed names
+# FILL — per-room pane material names for the committed swap law (D-13's table;
+# MASKED-IN-BRIEF: keep the committed names). RG-F3 (the ruling's pane-family record):
+# RG deliberately retains an empty PANE_MATERIALS row: its declared pane geometry bypasses
+# pane swapping and pre-scan emission. Material 'pane' receives its separate emission only
+# after emitter classification and fixtures-off.
 PANE_MATERIALS = {
     'rastrelli-gallery': (),
     'jordan': ('pane',),
@@ -151,6 +154,25 @@ STAGE_SPILL = {
             'day': 0.6,
             'dusk': 0.4,
             'nightChandeliers': 0.4,
+        },
+    },
+}
+# RG-F3 (the ruling's spill record): the legacy door STAGE_SPILL record above is
+# unchanged. Parallel per-material rows add pane spill post-scan; pane proof distinguishes
+# nonzero application from declared-and-verified zero. Applied at the SAME insertion
+# point as apply_stage_spill (AFTER the emitter scan, AFTER the fixtures-off law) in all
+# three rigs; never registered in the pre-scan PANE_BAKE_EMISSION path, never fed to the
+# swap or the pane_rects machinery (the room's PANE_PAINT row keeps 'atEncode': True).
+# First-bake constants are FIXED (the ruling's constants block): every colour and the
+# strength decrease day -> dusk, so every effective emitted channel decreases too; night
+# is the declared zero. The published pane-cast weights stay 1/1/0 under the unchanged
+# compose law.
+STAGE_SPILL_PARTS = {
+    'rastrelli-gallery': {
+        'pane': {
+            'day': ((0.82, 0.86, 0.92), 0.020),
+            'dusk': ((0.70, 0.55, 0.38), 0.006),
+            'nightChandeliers': ((0.0, 0.0, 0.0), 0.0),
         },
     },
 }
@@ -483,6 +505,84 @@ def apply_stage_spill(materials, room, state):
             'materials': sorted(found),
             'spillApplied': bool(found) and lit_nodes > 0,
             'strength': strength}
+
+
+def apply_stage_spill_parts(materials, room, state):
+    """RG-F3: the declared panes' bake-only emission, by MATERIAL NAME at the door
+    spill's insertion point — the same post-scan, post-fixtures-off law as
+    apply_stage_spill (the shell object carries the 'pane' slot beside its other slots,
+    so a pre-scan live emission would exclusion-reclassify the WHOLE shell object; this
+    runs only after emitter_names is built). Rooms without a row are untouched: absent =
+    unchanged behaviour, keeps the door's no-raise default for the siblings.
+    Proof law (stricter than the door's, per the ruling): the pane rows are the RATED
+    look, so a declared row with NO matching material, a partial application, or a
+    read-back mismatch fails the bake (fail(); no re-raise-free path). paneApplied =
+    the row's assignment AND read-back verification succeeded — a declared zero
+    (nightChandeliers) that reads back zero is a successful verified application
+    ('declared-zero-verified'), not a failure; a nonzero state reads back equal to the
+    declaration ('applied'). paneProof carries material, declared and read-back rgb +
+    strength, and the status per material."""
+    rows = STAGE_SPILL_PARTS.get(room)
+    if rows is None:
+        return None
+    proofs = []
+    for material_name, per_state in sorted(rows.items()):
+        if state not in per_state:
+            fail(f'the stage-spill-parts row of {room}/{material_name} lacks state {state}')
+        rgb, strength = per_state[state]
+        found = [mat for mat in materials
+                 if mat.use_nodes and material_base(mat) == material_name]
+        if not found:
+            fail(f'the stage-spill-parts row of {room} declares material '
+                 f'{material_name!r} with no matching material in the scene — the pane '
+                 'rows are rated look, a silent miss would publish an unpainted pane '
+                 'sky (the door no-raise law covers only rooms with no pane row)')
+        for mat in found:
+            # The FLAT contract (finding: read-back checks were on "the last
+            # emission-capable node"; linked inputs can keep an effective value from
+            # another node): the pane material must carry EXACTLY one BSDF_PRINCIPLED
+            # node, NO stray EMISSION nodes, and UNLINKED Emission Color/Strength
+            # inputs — the row is verified directly on that node.
+            principled = [node for node in mat.node_tree.nodes
+                          if node.type == 'BSDF_PRINCIPLED'
+                          and 'Emission Strength' in node.inputs]
+            strays = [node for node in mat.node_tree.nodes if node.type == 'EMISSION']
+            if len(principled) != 1 or strays:
+                fail(f'the {material_name!r} material is not the declared flat contract '
+                     f'({len(principled)} BSDF_PRINCIPLED node(s) with an Emission '
+                     f'Strength input, {len(strays)} stray EMISSION node(s)) — the '
+                     f'{room} pane spill rows verify the flat node directly')
+            node = principled[0]
+            for socket_name in ('Emission Color', 'Emission Strength'):
+                if node.inputs[socket_name].is_linked:
+                    fail(f"the {material_name!r} material's {socket_name!r} input is "
+                         'LINKED — the flat pane contract requires the direct unlinked '
+                         'inputs (a linked value would silently override the written '
+                         'default and the proof would not be the effective emission)')
+            node.inputs['Emission Color'].default_value = (*rgb, 1.0)
+            node.inputs['Emission Strength'].default_value = strength
+            read_rgb = node.inputs['Emission Color'].default_value[:3]
+            read_strength = node.inputs['Emission Strength'].default_value
+            # f32 node storage: verify at the record's 6-decimal precision.
+            status = 'applied' if strength > 0.0 else 'declared-zero-verified'
+            if r6(read_rgb) != r6(rgb) or round(read_strength, 6) != round(strength, 6):
+                fail(f'the {material_name!r} pane emission read back '
+                     f'{(list(r6(read_rgb)), round(read_strength, 6))} against the '
+                     f'declared {(list(rgb), strength)} — the {room} pane spill rows '
+                     'must read back exactly as declared')
+            proofs.append({
+                'declaredColour': list(rgb),
+                'declaredStrength': round(strength, 6),
+                'material': material_name,
+                'readBackColour': list(r6(read_rgb)),
+                'readBackStrength': round(read_strength, 6),
+                'status': status,
+            })
+    # Non-declared-state guard: the row family is all-rig by law; reaching this line means
+    # every declared material applied and verified (any gap failed above), so the
+    # paneApplied boolean is exactly the door's spillApplied semantics with the declared
+    # zero admitted as a SUCCESS (the night outcome = verified zero, not failed nonzero).
+    return {'paneApplied': True, 'paneProof': proofs}
 
 
 def add_sun(scene):
@@ -1162,6 +1262,10 @@ def main():
     # exactly as committed — verdict "target sets unchanged") and after the fixtures-off
     # law (so day cannot zero it): it applies in ALL THREE rigs.
     spill = apply_stage_spill(materials, room, state)
+    # RG-F3: the declared panes' parallel STAGE_SPILL_PARTS rows apply at the SAME
+    # insertion point (post-emit-scan, post-fixtures-off; never the pre-scan emission
+    # path) — the door's row above is untouched and still the only STAGE_SPILL row.
+    pane_spill = apply_stage_spill_parts(materials, room, state)
     for spec in charts:
         prefix = '' if spec['name'] == 'arch' else 'kit-'
         configure_cycles(scene, samples)
@@ -1281,6 +1385,11 @@ def main():
     # spill must not add a `"stageSpill": null` byte-diff to the siblings' summaries.
     if spill is not None:
         summary['stageSpill'] = spill
+    # RG-F3 (the proof-law rows): paneApplied + paneProof land only for rooms that declare
+    # pane spill rows; the door's spillApplied rows above are untouched.
+    if pane_spill is not None:
+        summary['paneApplied'] = pane_spill['paneApplied']
+        summary['paneProof'] = pane_spill['paneProof']
     print_summary(summary)
 
 

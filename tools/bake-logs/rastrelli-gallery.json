@@ -5,34 +5,34 @@
       "blender": "Blender 4.2.23 LTS",
       "charts": [
         {
-          "clippedFraction": 0.0019,
+          "clippedFraction": 0.0018,
           "emitters": 0,
-          "exrSha256": "d9c27de3be0eccc8c1df88ae43b53899c53964e1a87b3bc249b271e07e20a22c",
+          "exrSha256": "8018c13a5cf87244bf0c7ab350e390b9fdda98386dbcbd4504604065220e95ea",
           "name": "arch",
           "objects": 15,
           "pad": 2,
-          "peak": 2.5239,
+          "peak": 2.4771,
           "res": 1536,
           "targets": 2
         }
       ],
-      "clippedFraction": 0.0019,
+      "clippedFraction": 0.0018,
       "command": "node tools/bake.mjs rastrelli-gallery day",
       "denoiser": "OPENIMAGEDENOISE",
       "duskFixtures": null,
       "margin": 2,
-      "peak": 2.5239,
+      "peak": 2.4771,
       "probe": null,
       "res": 1536,
       "samples": 128,
-      "seconds": 433.7,
+      "seconds": 396.5,
       "state": "day",
       "whitePoint": 0.8,
       "artifacts": [
         {
           "rel": "lm/day.ktx2",
-          "bytes": 65121,
-          "sha256": "442b0a356117c9a9deaeaa8997c631d8e7397d933c8316b342a1f6ffb863479c"
+          "bytes": 67856,
+          "sha256": "83189dc474cc05123caa20a0d2f4a07a22ad30c9210cddf1351075c91657e10a"
         }
       ]
     },
@@ -42,11 +42,11 @@
         {
           "clippedFraction": 0.0015,
           "emitters": 14,
-          "exrSha256": "f9e278f0ffb655bcd7a4fc3c2bc3513f6a2d55274b05ed66a12be98bb94a02be",
+          "exrSha256": "ffd65d165a6ce780ea80d2123da3aefc32caa3d6ab6221ba86457adf66a7076b",
           "name": "arch",
           "objects": 1,
           "pad": 2,
-          "peak": 2.0999,
+          "peak": 2.111,
           "res": 1536,
           "targets": 1
         }
@@ -56,10 +56,10 @@
       "denoiser": "OPENIMAGEDENOISE",
       "duskFixtures": true,
       "margin": 2,
-      "peak": 2.0999,
+      "peak": 2.111,
       "probe": {
         "clippedFraction": 0.0003,
-        "peak": 6.0572,
+        "peak": 6.0587,
         "point": [
           0,
           1.7,
@@ -74,19 +74,19 @@
       },
       "res": 1536,
       "samples": 128,
-      "seconds": 635,
+      "seconds": 626.6,
       "state": "dusk",
       "whitePoint": 0.8,
       "artifacts": [
         {
           "rel": "lm/dusk.ktx2",
-          "bytes": 92709,
-          "sha256": "dad0d191d633bc3982d22b2bc674d34a4675821aec98bb0ebb5b3732c55eeeea"
+          "bytes": 93548,
+          "sha256": "1c60d73c5e536719e1d635f91776df919ec97985bc952887e36d92c3c0851803"
         },
         {
           "rel": "probe/dusk.ktx2",
-          "bytes": 1755,
-          "sha256": "2f849f82fa8e6ffa0a314dea7ec481c9fc4cd60187a95e6ea36f02dd211b3f2f"
+          "bytes": 1734,
+          "sha256": "487556b1ae801c1c1432dae3d428ea18aa38134069132478e2afcf957c1e1479"
         }
       ]
     },
@@ -96,11 +96,11 @@
         {
           "clippedFraction": 0.0015,
           "emitters": 14,
-          "exrSha256": "b4f626878e0a265f30d3ffc1e5e64e9381b2b7d309004a7f1ff8a997e222eed5",
+          "exrSha256": "f460a0e2c8977e00028aaf4157b9d1f95163562b32cfd966fd5918351b88c66d",
           "name": "arch",
           "objects": 1,
           "pad": 2,
-          "peak": 2.1329,
+          "peak": 2.1324,
           "res": 1536,
           "targets": 1
         }
@@ -110,18 +110,18 @@
       "denoiser": "OPENIMAGEDENOISE",
       "duskFixtures": null,
       "margin": 2,
-      "peak": 2.1329,
+      "peak": 2.1324,
       "probe": null,
       "res": 1536,
       "samples": 128,
-      "seconds": 668.8,
+      "seconds": 451.2,
       "state": "nightChandeliers",
       "whitePoint": 0.8,
       "artifacts": [
         {
           "rel": "lm/night.ktx2",
-          "bytes": 88381,
-          "sha256": "84c095a08c6ce7338aeab31c36c214723ab58915cb8828d6ae71fba0e6b357bf"
+          "bytes": 89631,
+          "sha256": "433182fcf3dd9fabcf7a3d17843fa2edaaed560eb0bd540c54f4437f84fee0e9"
         }
       ]
     }
@@ -129,24 +129,101 @@
   "postEncode": {
     "day": [
       {
-        "bytes": 187652,
+        "bytes": 185659,
         "rel": "lm/day.ktx2",
-        "sha256": "d114702be5c1c28c723da81569cb8df1f7128b036e83b8959115f43f59b46c74"
+        "sha256": "658fd27133c3f1f681bc90a499cb27b212b8be5e2f56336aa1e2f702ae76fa71"
       }
     ],
     "dusk": [
       {
-        "bytes": 169305,
+        "bytes": 167986,
         "rel": "lm/dusk.ktx2",
-        "sha256": "97f7192713c8cc2a36bb789b8cccad0e0332b07563748bb109d4416c64ed56bb"
+        "sha256": "483b43514f97166182c8332605643cffc8b31930ad7e8bcc3a8cae77234c9194"
       }
     ],
     "nightChandeliers": [
       {
-        "bytes": 167355,
+        "bytes": 165959,
         "rel": "lm/night.ktx2",
-        "sha256": "951e9e35fd0baf7383e82f80838e5de06bfdac51c76c7d3cb5c90b39da97b726"
+        "sha256": "064ea1dfe914bb3e01d273e2bfb7ceaa0ef023b9be98b9d079666c07c1b50474"
       }
-    ]
+    ],
+    "paneProof": {
+      "day": {
+        "paneApplied": true,
+        "paneProof": [
+          {
+            "declaredColour": [
+              0.82,
+              0.86,
+              0.92
+            ],
+            "declaredStrength": 0.02,
+            "material": "pane",
+            "readBackColour": [
+              0.82,
+              0.86,
+              0.92
+            ],
+            "readBackStrength": 0.02,
+            "status": "applied"
+          }
+        ],
+        "stagedExr": {
+          "path": "bake-day/lm/day.exr",
+          "sha256": "8018c13a5cf87244bf0c7ab350e390b9fdda98386dbcbd4504604065220e95ea"
+        }
+      },
+      "dusk": {
+        "paneApplied": true,
+        "paneProof": [
+          {
+            "declaredColour": [
+              0.7,
+              0.55,
+              0.38
+            ],
+            "declaredStrength": 0.006,
+            "material": "pane",
+            "readBackColour": [
+              0.7,
+              0.55,
+              0.38
+            ],
+            "readBackStrength": 0.006,
+            "status": "applied"
+          }
+        ],
+        "stagedExr": {
+          "path": "bake-dusk/lm/dusk.exr",
+          "sha256": "ffd65d165a6ce780ea80d2123da3aefc32caa3d6ab6221ba86457adf66a7076b"
+        }
+      },
+      "nightChandeliers": {
+        "paneApplied": true,
+        "paneProof": [
+          {
+            "declaredColour": [
+              0,
+              0,
+              0
+            ],
+            "declaredStrength": 0,
+            "material": "pane",
+            "readBackColour": [
+              0,
+              0,
+              0
+            ],
+            "readBackStrength": 0,
+            "status": "declared-zero-verified"
+          }
+        ],
+        "stagedExr": {
+          "path": "bake-night/lm/night.exr",
+          "sha256": "f460a0e2c8977e00028aaf4157b9d1f95163562b32cfd966fd5918351b88c66d"
+        }
+      }
+    }
   }
 }
