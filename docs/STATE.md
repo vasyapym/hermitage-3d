@@ -395,6 +395,65 @@ file in the same session.
 
 ## Live state
 
+- **2026-11-09 · MERGED square-palace (the winter square — the DEC-041 class-I closure; the FIRST slot of this merge wave; the FULL e2e/golden gate rides the LAST merging session — deferred NOT waived; worktree
+  `~/Documents/hermitage-3d-palace-square`).** The round: the
+  DEC-041 class-I snow-legibility item, from the Fable-5.1 decision draw (vault
+  `projects v13/1-…`; the owner's three ratifications: the round as drawn · the conditional sky
+  grant · the caption copy). THE CAUSE BATTERY FIRST (dec-noon S0 desktop; local
+  `probes/palace-snow-battery/`, five single-toggle renders): P1 baseline **0.275** field/sky
+  linearized with the WHOLE lower half of the frame reading the lane (≈87/255 — the ±10/±22 m
+  trampled zone sat UNDER the camera at every stop, ~9/10 of the ground pixels the [0.38,0.39,0.41]
+  tone); P2 all-fresh albedo **0.576 < 0.6** → the LIGHT bounds it (the owner's grant condition
+  fires); P3 hemi ×2 lifts above; P4 `sun.castShadow=false` byte-neutral; P5 no haze term exists.
+  LANDED: **2a** the narrow path (core ±2.5 / edge ±7 m; TRAMPLED [0.55,0.56,0.58]; BASE 0.1;
+  cache key `snow-slot@1`→`@2`; the wSnow=0 identity and the full-cover law hold) + **2b** the
+  measured wSnow-gated sky gain `snowSkyGain` K = 1.5 (exactly 1.0 at wSnow = 0 AND at
+  wNight = 1 — the multiply SKIPS at those endpoints, so the gain itself introduces no
+  sky-colour change there; under 2a+K the far-fresh boxes measured 0.692/0.640 ≥ the 0.6
+  target, near 0.512 the path-dominated zone as drawn) + **2c** the Sh
+  caption 'past the column' / «колонна позади» (NEW `caption.sh`; the smoke BEATS row + the rail
+  pins + the i18n fence retitled to fourteen). THE UNENUMERATED CLASS (the standing shape): the
+  fence round's cooperation pin («the lane under the west railing») re-stated to the narrow-path
+  facts — the fence's west face sits at the falloff tail (6.69 m east of the path's line at
+  COLUMN_Z), the east face full fresh (23.19 m). GATES on the branch: validate GREEN (tsc 0 ·
+  biome 2 authored reencode warnings · **vitest 64 files 1057 passed / 1 skipped** · build JS
+  **284,110 of 350,000** — +69 of the declared ≤ +400 · RU **7,339** of 12,000 (+7) · exterior 0 ·
+  basis 584,862). The expected golden flips at the merge finale: **the square's dec-noon AND
+  dec-night** (the Sol 6.1 review, brief 2: the initial «dec-noon only» reading RETRACTED —
+  the (1−wNight) gate bounds the SKY contribution only, while the 2a ground albedo applies at
+  wSnow=1 at night too; the source comments + the records were corrected, the rail.test's Sh
+  caption key pinned exactly (the t() fallback would have masked a missing caption), and the
+  probe-transfer question settled by the landed-state re-measure (the landed-dec-noon box
+  means equal the q15 probe at recorded precision; the merge goldens certify the bytes)).
+  The probe battery recorded: P1 0.275 · P2 0.576 (the LIGHT bounds it) · P3 lifts · P4
+  byte-neutral · P5 N/A. The ANTI-NIT rows (4.2 twins/f32, 4.3 the «fourteen» counting
+  basis, 4.4 the fence-pin arithmetic incl. the exact west-lane ≈ 0.0133) noted without
+  patches.
+  Records: budget-ledger reservation row · decisions.md class-I closure note + the stylobate
+  clarification (COLUMN_PLINTH already models the sourced three rows) · design-ground-snow §12 ·
+  artistic-license ×2 rows · the ROADMAP successors re-stated (+2 NEW: paving show-through in the
+  path; the winter edge cue windrows) + the sourcing hunt facts recorded (the Guards Corps HQ:
+  Brullov, 1837–1843, four floors, a 12-column ionic portico; NO facade-height figures in the
+  sources). THE SOL 6.1 REVIEW ROUND LANDED (brief 2; the relay's reply 2026-11-09): 3
+  FIX-BEFORE-MERGE rows adopted — (4.1) the dec-night whole-round identity retracted (the
+  gate bounds the sky term only; the ground term moves under night snow — the expected
+  flips are dec-noon + dec-night, the comments/records repinned), (4.7) the
+  design-staircase residue (already landed at 0e46310), (4.9) the rail.test key pinned
+  exactly; 3 ANTI-NIT + 3 NOTE rows noted without patches. THE MERGE (2026-11-09, the integrating act): origin/main's `7fa4892` (the CI-legend amend) merged into the lane at `2968ef0`; the merged tree's validate GREEN (tsc 0 · biome 2 authored warnings · **vitest 64 files 1057 passed / 1 skipped** · build JS **284,110 of 350,000** · RU **7,339** · exterior 0 · basis 584,862); DEC-043 assigned by this merge (the register line in decisions.md); NO e2e and NO golden re-baselines here — **the FULL e2e/golden gate + the square's dec-noon AND dec-night golden re-baselines ride the LAST merging session** (deferred NOT waived; the R-ground-1 precedent).
+
+- **2026-11-08 · PARALLEL square-palace OPENED (branch `square-palace` off main `742bb3d`; worktree
+  `~/Documents/hermitage-3d-palace-square`; MERGE into main + the FULL e2e/golden gate at the owner's
+  notification that the other agent's round is done — NOT this lane; scope-local gates only).** The
+  owner's directive: a new Palace Square round. Opening move, the square-entry-ground precedent: a
+  FACTS-ONLY current-state FIND dossier (vault `projects v13/1-hermitage-3d-palace-square-find.md`;
+  census compiled by a delegated subagent at `742bb3d` — the scene stops S0 `[−24,1.7,230]` / Sh
+  `[−12,1.7,177]` / S1 `[0,1.7,124]` + subjects, DEC-037 column 676 tris + DEC-038 fence 1,568 tris +
+  DEC-041 paving/ground plane 2000² + throat + night lattice + snow cap; budgets JS 284,041/350,000
+  (headroom 1,666 to the operating ceiling 285,707), RU 7,332/12,000, exterior payload 0/4,000,000;
+  the successor register stylobate/lanterns/flanking massings/facade strip/wet-sett sheen + the
+  class-I snow-legibility owner flag) — the copy-paste text-only specialist (Fable 5.1) decides what
+  is lacking the most and what the round takes; ZERO STEERING.
+
 - **2026-11-08 · THE MERGE FINALE RAN (the rg-look slot 3/3 = the last-merging session; merge 5c242e3 = the three-session union: arrows-face-tune + square-entry-ground + rg-look).** validate ×2 on the union: tsc 0 · biome clean with 2 NON-FAILING noApproximativeNumericConstant warnings on the authored 0.707 paint bytes (tools/reencode.mjs:73/81 — the auto-fix WOULD change the authored paint; rejected, the owner row rides) · vitest repo-scope 1052/1/0 + the committed scope 64 files, both exit 0 the FULL chromium e2e: pass 1 = 73 passed / 1 failed in 1.3h — the single failure the storm-class timeout row (entrance-title-duration:57 the square jump, the row-68 class) — re-verdicted single-spec: 4/4 green in 1.6m; NO boolean failures anywhere the golden battery: EXACTLY the expected flips — the gallery G1 ×3 re-baselined by eye (the RG-F2 landed look) + the square's June-S0 noon (slot 2/3's carried R-ground-1 request) → 15/15 GREEN on the re-baselined set (5.4 m); every other golden held byte-identically (the fixtures-verify row: jordan ×3, the 1812 set, the square's other seasons, military) the cross-room guard: git diff HEAD~1 --stat for public/assets/{jordan,military-gallery,_check} = EMPTY — the sibling assets byte-equal through the merge the disk: 2.7 GiB free at the close — above the floor, no ENOSPC (the cache reap held)
 
 - **2026-11-08 · ARROWS-FACE-TUNE MERGED TO MAIN (merge slot 1/3 of the three-session merge

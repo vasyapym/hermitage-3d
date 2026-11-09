@@ -44,6 +44,29 @@ export const SNOW_ANCHORS = {
  */
 export const SNOW_ALBEDO_LINEAR = [0.82, 0.86, 0.92] as const satisfies LinearRgb;
 
+/**
+ * The winter-square round's measured sky gain (the DEC-041 class-I owner grant, conditional
+ * on the dec-noon P1–P4 battery: P2's all-fresh albedo still fell short of the declared
+ * field/sky ≥ 0.6 target at 0.576, so the LIGHT bounded the field, not the albedo). K = the
+ * smallest of the drawn {1.5, 2, 3} meeting the target — the probe under the re-declared
+ * 2a constants measured BOTH far-fresh boxes passing at K = 1.5 (far-left 0.692, far-right
+ * 0.640 vs the 0.3372 sky; probes/palace-snow-battery/reads.md).
+ *
+ * Laws, stated once:
+ *   snowSkyGain(wSnow, wNight) = 1 + wSnow·(1 − wNight)·(K − 1)
+ *   exactly 1.0 at wSnow = 0: the gain introduces no sky-colour change (June/October frames
+ *   stay byte-identical — the ground term sits behind the zero-weight mix)
+ *   exactly 1.0 at wNight = 1: the gain introduces no sky-colour change at night; the 2a
+ *   ground albedo still applies at night, so dec-night re-baselines at the merge beside
+ *   dec-noon (the Sol review: the (1 − wNight) gate bounds the sky contribution only)
+ */
+export const SNOW_SKY_GAIN_K = 1.5;
+
+/** The hemisphere sky gain: a pure number the host multiplies the sky colour by. */
+export function snowSkyGain(wSnow: number, wNight: number): number {
+  return 1 + wSnow * (1 - wNight) * (SNOW_SKY_GAIN_K - 1);
+}
+
 /** TUNING TARGET (DEC-033): snow roughness — the cap's material and the slot's target. */
 export const SNOW_ROUGHNESS = 0.9;
 

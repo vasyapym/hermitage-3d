@@ -584,10 +584,14 @@ describe('square rail (design §6.1, declared data; R18-ux D1)', () => {
     expect(SQUARE_RAIL.stops[0]?.position).toEqual([-24, 1.7, 230]);
     expect(SQUARE_RAIL.stops[0]?.look).toEqual({ yaw: 35, pitchUp: 35, pitchDown: 35 });
     expect(t(SQUARE_RAIL.stops[0]?.caption ?? 'caption.s0')).toBe('the facade and the hour');
-    // DEC-037: Sh moved off the axis with the west rail (z 177 unchanged).
+    // DEC-037: Sh moved off the axis with the west rail (z 177 unchanged). The winter-square
+    // round gives the close pass its own caption (owner-ratified copy).
     expect(SQUARE_RAIL.stops[1]?.position).toEqual([-12, 1.7, 177]);
     expect(SQUARE_RAIL.stops[1]?.subject).toEqual(SQUARE_SH_GAZE);
     expect(SQUARE_RAIL.stops[1]?.look).toEqual({ yaw: 30, pitchUp: 25, pitchDown: 20 });
+    // The key is pinned exactly (the Sol review: the t() fallback would mask a MISSING caption).
+    expect(SQUARE_RAIL.stops[1]?.caption).toBe('caption.sh');
+    expect(t(SQUARE_RAIL.stops[1]?.caption ?? 'caption.sh')).toBe('past the column');
     expect(SQUARE_RAIL.stops[2]?.position).toEqual([0, 1.7, 124]);
     expect(SQUARE_RAIL.stops[2]?.look).toEqual({ yaw: 25, pitchUp: 20, pitchDown: 10 });
     expect(t(SQUARE_RAIL.stops[2]?.caption ?? 'caption.s1')).toBe('the arch opens');

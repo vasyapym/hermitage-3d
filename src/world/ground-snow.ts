@@ -1,5 +1,8 @@
 /**
  * R12 — the ground-snow look (design-ground-snow.md §§1–4); DEC-037 re-centres the lane.
+ * The winter-square round re-declares the constants (2026-11 draw, the P1–P4 battery):
+ * the lane is a narrow walked PATH, the trampled tone reads packed snow, and the off-lane
+ * trample floor drops to 0.1 — the tests and the GLSL twins follow the same constants.
  *
  * The pure half: constants and the TS twins of the GLSL laws. No three, no DOM,
  * no clock, no randomness — this file is regex-scanned by tests/ground-snow.test.ts.
@@ -19,14 +22,22 @@ import { SNOW_ALBEDO_LINEAR } from './snow-season';
 /** Fresh snow albedo — the SAME array reference the season law publishes, never a copy. */
 export const GROUND_SNOW_FRESH_LINEAR = SNOW_ALBEDO_LINEAR;
 
-/** Aged, packed, urban snow — what the lane grinds fresh snow down to. */
-export const GROUND_SNOW_TRAMPLED_LINEAR: LinearRgb = [0.38, 0.39, 0.41];
+/** Aged, packed, urban snow — what the lane grinds fresh snow down to.
+ * The winter-square round's re-declaration (the dec-noon P1–P4 battery): packed clean
+ * snow reads well above the old slush — the path is trodden, not dirty. */
+export const GROUND_SNOW_TRAMPLED_LINEAR: LinearRgb = [0.55, 0.56, 0.58];
 
-/** 0–1: the trample floor away from the lane. Nothing on the ground is pristine. */
-export const GROUND_TRAMPLE_BASE = 0.3;
+/** 0–1: the trample floor away from the lane. Nothing on the ground is pristine,
+ * but the field stays near-fresh: the old 0.3 capped every whiteness at 0.69 albedo,
+ * the single largest surface in the boot frame (battery P2 proved the light, not this,
+ * is the remaining bound — the DEC-041 class-I sky grant carries it). */
+export const GROUND_TRAMPLE_BASE = 0.1;
 
-/** The walked lane, in metres across its centre line: solid to coreHalfM, gone by edgeHalfM. */
-export const GROUND_LANE = { coreHalfM: 10, edgeHalfM: 22 } satisfies Readonly<{
+/** The walked lane, in metres across its centre line: solid to coreHalfM, gone by edgeHalfM.
+ * Re-declared a narrow PATH (the P1 reads: the old ±10/±22 m lane sat under the camera at
+ * every stop — the whole foreground read trampled). A walked path on a snowed square is a
+ * few metres wide: ±2.5 m solid, gone by 7 m (±7.1°/±19.3° at 20 m vs the frame's ±42.8°). */
+export const GROUND_LANE = { coreHalfM: 2.5, edgeHalfM: 7 } satisfies Readonly<{
   coreHalfM: number;
   edgeHalfM: number;
 }>;

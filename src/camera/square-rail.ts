@@ -44,7 +44,10 @@ export const SQUARE_RAIL = {
       position: [-12, 1.7, 177],
       subject: SQUARE_SH_GAZE,
       look: { yaw: 30, pitchUp: 25, pitchDown: 20 },
-      caption: 'caption.s1', // the arch beat; no Sh caption was authored this round
+      // The winter-square round's draw: the close pass of the monument gets its own words
+      // (Sh stands ≈3.75 m west / 4.75 m north of the fence's NW corner — just past the
+      // Column it swept through the S0→Sh glide). Owner-ratified copy.
+      caption: 'caption.sh',
     },
     {
       id: 'S1',

@@ -4,8 +4,10 @@ import { describe, expect, it } from 'vitest';
 import {
   SEASON_DAYS,
   SNOW_ANCHORS,
+  SNOW_SKY_GAIN_K,
   seasonDay,
   seasonDayOfCalendar,
+  snowSkyGain,
   snowVisible,
   snowWeight,
 } from '../src/world/snow-season';
@@ -161,5 +163,39 @@ describe('snow season — visibility law', () => {
     expect(snowVisible(0)).toBe(false);
     expect(snowVisible(Number.MIN_VALUE)).toBe(true);
     expect(snowVisible(1)).toBe(true);
+  });
+});
+
+describe('snow sky gain — the winter-square round (the DEC-041 class-I grant, measured)', () => {
+  it('is exactly 1.0 at wSnow = 0 for every wNight (the June/October IEEE identity)', () => {
+    for (const wNight of [0, 0.25, 0.5, 0.75, 1]) {
+      expect(snowSkyGain(0, wNight)).toBe(1);
+    }
+  });
+
+  it('is exactly 1.0 at wNight = 1 for every wSnow (dec-night stays byte-identical)', () => {
+    for (const wSnow of [0, 0.25, 0.5, 0.75, 1]) {
+      expect(snowSkyGain(wSnow, 1)).toBe(1);
+    }
+  });
+
+  it('is exactly K at wSnow = 1, wNight = 0 (the measured constant)', () => {
+    expect(snowSkyGain(1, 0)).toBe(SNOW_SKY_GAIN_K);
+    expect(SNOW_SKY_GAIN_K).toBe(1.5);
+  });
+
+  it('is monotone non-decreasing in wSnow at wNight = 0 and ranges over [1, K]', () => {
+    let previous = snowSkyGain(0, 0);
+    for (let w = 0; w <= 1; w += 0.05) {
+      const gain = snowSkyGain(w, 0);
+      expect(gain).toBeGreaterThanOrEqual(previous);
+      expect(gain).toBeGreaterThanOrEqual(1);
+      expect(gain).toBeLessThanOrEqual(SNOW_SKY_GAIN_K);
+      previous = gain;
+    }
+  });
+
+  it('is pure: repeated calls agree', () => {
+    expect(snowSkyGain(0.75, 0.5)).toBe(snowSkyGain(0.75, 0.5));
   });
 });

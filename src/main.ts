@@ -219,7 +219,7 @@ import {
   resolveRoute,
   type Vec3,
 } from './world/registry';
-import { snowWeight } from './world/snow-season';
+import { snowSkyGain, snowWeight } from './world/snow-season';
 import { parseStopParam } from './world/stop-param';
 import { arrivePose, type BeatPose, beatExposure, departPose } from './world/threshold-beat';
 import { THROAT_VOID } from './world/throat';
@@ -821,6 +821,16 @@ const applyEpoch = (nextEpochMs: number): void => {
   FACADE_SURFACE_UNIFORMS.uSnow.value = wSnow;
   GROUND_SNOW_UNIFORMS.uSnow.value = wSnow;
   hemi.groundColor.setRGB(...warmGround(snowBounceGround(h, wSnow), WINDOW_WARM_LINEAR, wNight));
+  // The winter-square round's class-I grant (owner-conditional on the dec-noon battery): a
+  // wSnow-gated winter sky gain on the hemisphere's SKY colour — the pure law snowSkyGain is
+  // exactly 1.0 at wSnow = 0 and at wNight = 1, so the multiply SKIPS at those endpoints and
+  // the gain introduces no sky-colour change there; out of season the short-circuit costs
+  // nothing. NOTE (the Sol review): the 2a ground albedo still applies at night — dec-night
+  // re-baselines at the merge beside dec-noon (the (1 − wNight) gate bounds the sky term only).
+  const skyGain = snowSkyGain(wSnow, wNight);
+  if (skyGain !== 1) {
+    hemi.color.multiplyScalar(skyGain);
+  }
   // Label churn guard: the DOM text only changes when the minute actually changes.
   if (nextEpochMs !== lastLabelEpochMs) {
     lastLabelEpochMs = nextEpochMs;

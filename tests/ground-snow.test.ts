@@ -113,8 +113,8 @@ describe('trampleField', () => {
       const c = laneCentreX(z);
       for (const [x, zz] of [
         [c, z],
-        [c + 3, z],
-        [c + 9.5, z],
+        [c + 1, z],
+        [c + 2, z],
         [c + GROUND_LANE.coreHalfM, z],
         [c - GROUND_LANE.coreHalfM, z],
       ] as const) {
@@ -173,7 +173,7 @@ describe('groundSnowAlbedo', () => {
     for (const [x, z] of [
       [0, 124], // the centre at S1
       [-12, 177], // the centre at Sh
-      [-12, 190], // the centre at z 190
+      [laneCentreX(190), 190], // the centre at z 190 (the narrow path: ON the rail line)
       [-24, 230], // the centre at S0
     ] as const) {
       const out = groundSnowAlbedo(x, z, 1, asphalt);
@@ -327,7 +327,7 @@ describe('patchGroundSnowSlot', () => {
     expect(material.customProgramCacheKey).toBeTypeOf('function');
     // Brief 19 §B.2 (W4c): the paving slot composes INSIDE the snow hook, so the key compounds —
     // patched and unpatched materials still never share a cache entry.
-    expect(material.customProgramCacheKey?.()).toBe('Ground/snow-slot@1|Ground/paving-slot@1');
+    expect(material.customProgramCacheKey?.()).toBe('Ground/snow-slot@2|Ground/paving-slot@1');
   });
 
   it('throws when an anchor is missing', () => {
