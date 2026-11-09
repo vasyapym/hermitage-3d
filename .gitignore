@@ -7,6 +7,13 @@ playwright-report/
 .env*
 *.local
 probes/
+# RG-F3: the capture/gate INSTRUMENTS under tools/probes/ are committed code (the
+# capture frames stay local-only — the root probes/ rule above covers them).
+!tools/probes/
+tools/probes/**
+!tools/probes/*.py
+!tools/probes/*.mjs
+!tools/probes/*.md
 *.blend1
 *.blend2
 tools/fonts/.venv/

@@ -49,10 +49,30 @@ const TEXTURES = ['stone_flags', 'plaster_pale', 'stucco_grey', 'stone_band'];
 // textureBytesMax 1.0 MB = r17 lightmaps 0.6 MB + this atlas <= 0.4 MB. Hard gate here.
 const ATLAS_BYTES_MAX = 400_000;
 // RG-E1 kit: the merged shell (shell geometry + 24 inline pilasters + folded doorcase + ribs
-// + niches) is ONE datablock, x1; the sconce template x14 (the reserved atlas strip).
+// + niches + the declared panes' 11 back faces) is ONE datablock, x1; the sconce template
+// x14 (the reserved atlas strip). RG-F3 (the ruling's glTF record): two datablocks: shell
+// and instanced sconce. The shell now has six primitives, including the flat non-emissive
+// pane material; geometry and instance counts are unchanged.
 const EXPECTED_INSTANCES = { shell: 1, sconce: 14 };
 const GLOW_MATERIAL = 'sconce_glow';
 const GLOW_STRENGTH = 6;
+// RG-F3 Sol-17: the published-material census — exactly 8 published materials (6 shell
+// + 2 sconce), names asserted; the 'pane' material must be present with emissive
+// strength 0 (an absent KHR_materials_emissive_strength row counts as 0 — the flat
+// non-emissive export shape).
+const EXPECTED_MATERIALS = [
+  'iron_dark',
+  'pane',
+  'plaster_pale',
+  'sconce_glow',
+  'stone_band',
+  'stone_flags',
+  'stucco_grey',
+  'stairlight',
+];
+const PANE_MATERIAL = 'pane';
+const MATERIALS_SHELL = 6;
+const MATERIALS_SCONCE = 2;
 const TOKTX_ARGS = [
   '--t2',
   '--encode',
@@ -99,7 +119,13 @@ function encodeTextures(stage, texOut) {
 function compress(stage, raw) {
   const stageFile = (n, ext = 'glb') => join(stage, `s${n}.${ext}`);
   const gt = (args) => run(GLTF_TRANSFORM.cmd, [...GLTF_TRANSFORM.args, ...args]);
-  gt(['dedup', raw, stageFile(1)]);
+  // --materials false (RG-F3, the Sol-17 census's own catch): gltf-transform's dedup
+  // merges CONTENT-identical materials and ignores names, so the route-B flat 'pane'
+  // (white 1,1,1, roughness 1.0, no emission) merged away into 'stairlight' and the
+  // published glb lost the pane row. The builder law needs BOTH flat slots distinct
+  // (X2: separate bake-only pane vs door terms ride their own material names) — this
+  // room's dedup keeps accessors/textures/meshes/skins deduped, materials not.
+  gt(['dedup', raw, stageFile(1), '--materials', 'false']);
   gt(['prune', stageFile(1), stageFile(2), '--keep-attributes', 'TEXCOORD_1']);
   gt(['weld', stageFile(2), stageFile(3)]);
   gt(['quantize', stageFile(3), stageFile(4)]);
@@ -149,6 +175,35 @@ function gateConventions(json) {
   if (strength !== GLOW_STRENGTH) {
     fail(`${GLOW_MATERIAL} emissiveStrength ${strength} !== ${GLOW_STRENGTH}`);
   }
+}
+
+function gateMaterialsCensus(json) {
+  // Sol-17: the material/export census rows beside the geometry gate.
+  const materials = json.materials ?? [];
+  const names = materials.map((material) => material.name ?? '').sort();
+  const expected = [...EXPECTED_MATERIALS].sort();
+  if (JSON.stringify(names) !== JSON.stringify(expected)) {
+    fail(`published materials [${names.join(', ')}] !== the census [${expected.join(', ')}]`);
+  }
+  if (materials.length !== MATERIALS_SHELL + MATERIALS_SCONCE) {
+    fail(
+      `the material census expects ${MATERIALS_SHELL} shell + ${MATERIALS_SCONCE} sconce ` +
+        `= 8 published rows, got ${materials.length}`,
+    );
+  }
+  const pane = materials.find((material) => material.name === PANE_MATERIAL);
+  if (!pane) fail(`the census: material ${PANE_MATERIAL} missing`);
+  const paneStrength = pane.extensions?.KHR_materials_emissive_strength?.emissiveStrength ?? 0;
+  if (paneStrength !== 0) {
+    fail(
+      `the census: ${PANE_MATERIAL} emissiveStrength ${paneStrength} !== 0 (the flat ` +
+        'non-emissive export shapes the pane look through the bake-only pane rows)',
+    );
+  }
+  console.log(
+    `gltf: material census ${materials.length} (shell ${MATERIALS_SHELL} + sconce ` +
+      `${MATERIALS_SCONCE}); ${PANE_MATERIAL} emissiveStrength 0`,
+  );
 }
 
 function gateGeometry(json, summary) {
@@ -207,6 +262,7 @@ export function optimise({ roomId, stage, out }) {
   }
   rewriteImages(json);
   gateConventions(json);
+  gateMaterialsCensus(json);
   const byName = gateGeometry(json, summary);
   const bin2 = repackBin(json, bin);
   const glb = writeGlb(json, bin2);

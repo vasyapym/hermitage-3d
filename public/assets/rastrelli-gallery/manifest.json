@@ -3,32 +3,32 @@
   "files": [
     {
       "path": "lm/day.ktx2",
-      "bytes": 187652,
-      "sha256": "d114702be5c1c28c723da81569cb8df1f7128b036e83b8959115f43f59b46c74",
+      "bytes": 185659,
+      "sha256": "658fd27133c3f1f681bc90a499cb27b212b8be5e2f56336aa1e2f702ae76fa71",
       "kind": "ktx2"
     },
     {
       "path": "lm/dusk.ktx2",
-      "bytes": 169305,
-      "sha256": "97f7192713c8cc2a36bb789b8cccad0e0332b07563748bb109d4416c64ed56bb",
+      "bytes": 167986,
+      "sha256": "483b43514f97166182c8332605643cffc8b31930ad7e8bcc3a8cae77234c9194",
       "kind": "ktx2"
     },
     {
       "path": "lm/night.ktx2",
-      "bytes": 167355,
-      "sha256": "951e9e35fd0baf7383e82f80838e5de06bfdac51c76c7d3cb5c90b39da97b726",
+      "bytes": 165959,
+      "sha256": "064ea1dfe914bb3e01d273e2bfb7ceaa0ef023b9be98b9d079666c07c1b50474",
       "kind": "ktx2"
     },
     {
       "path": "probe/dusk.ktx2",
-      "bytes": 1755,
-      "sha256": "2f849f82fa8e6ffa0a314dea7ec481c9fc4cd60187a95e6ea36f02dd211b3f2f",
+      "bytes": 1734,
+      "sha256": "487556b1ae801c1c1432dae3d428ea18aa38134069132478e2afcf957c1e1479",
       "kind": "ktx2"
     },
     {
       "path": "rastrelli-gallery.glb",
-      "bytes": 250752,
-      "sha256": "4953f776ec0413c58b7e5d9d0029f3387d742ab32a769580a457f5d85c98274b",
+      "bytes": 252312,
+      "sha256": "5bf119e8075d46bf39699d10a6f9da2f89dd722dfa0cb05efe5a8fa3736f6631",
       "kind": "glb"
     },
     {
@@ -61,7 +61,7 @@
       {
         "name": "shell",
         "instances": 1,
-        "primitives": 5,
+        "primitives": 6,
         "triangles": 9944
       },
       {
