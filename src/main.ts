@@ -3128,7 +3128,7 @@ for (const [buttonEl, direction] of [
     try {
       buttonEl.setPointerCapture(event.pointerId);
     } catch {
-      /* the capture refused: the pair keeps the press (the lift still lands on us) */ // biome-ignore lint/style/useBlockStatements: a one-line swallow
+      /* the capture refused: the pair keeps the press (the lift still lands on us) */
     }
     hintTravel(); // §9: dropped intents record travel too — hint BEFORE admission
     if (!touchAdmitted()) {
