@@ -3113,7 +3113,13 @@ for (const [buttonEl, direction] of [
     active = 'pointer';
     activePointerId = event.pointerId; // THIS pointer owns the activation (R15)
     syntheticClickPending = false; // a new activation un-seals the previous latch
-    buttonEl.setPointerCapture(event.pointerId);
+    // The capture is gesture hygiene, not the movement law: a synthetic/lapsed pointer (an
+    // automation dispatch) has no active pointer to capture — the press continues uncaught.
+    try {
+      buttonEl.setPointerCapture(event.pointerId);
+    } catch {
+      /* the capture refused: the pair keeps the press (the lift still lands on us) */ // biome-ignore lint/style/useBlockStatements: a one-line swallow
+    }
     hintTravel(); // §9: dropped intents record travel too — hint BEFORE admission
     if (!touchAdmitted()) {
       syncTouchRail();

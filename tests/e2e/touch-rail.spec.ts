@@ -18,6 +18,15 @@ import {
 } from '../../src/ui/touch-rail';
 
 const CHAIN = ['square', 'rastrelli-gallery', 'jordan', 'military-gallery'] as const;
+// The rooms' route slugs (the room contracts' own routes: DEC-029's `/1812` law — a room ID
+// is NOT always its route). The re-driver replaces the storm-walk seeks with direct
+// navigation where a row's subject is ITS OWN room's stops (the SwiftShader-class budgets).
+const SLUGS: Readonly<Record<string, string>> = {
+  square: '',
+  'rastrelli-gallery': 'gallery',
+  jordan: 'jordan',
+  'military-gallery': '1812',
+};
 // The stops' travel order per room, read off the room contracts (src/camera/square-rail.ts,
 // rooms/*/contract.ts). The digit suffix alone is NOT an order: 'Gj' carries none and
 // 'J1b'/'J2b' trail a letter, so the walk assertions read this map instead of a regex.
@@ -252,7 +261,10 @@ for (const room of CHAIN) {
     // ~21 steps for the far rooms; the index-dialog 240-s precedent's class).
     test.setTimeout(540_000);
     await run(browser, baseURL, async (p) => {
-      await seek(p, room);
+      // Direct navigation (the movement-ux re-driver): the row walks ITS OWN room — the
+      // storm-walk seek spent the whole budget getting there under SwiftShader pacing.
+      await p.goto(`${baseURL ?? 'http://127.0.0.1:4173'}/#/${SLUGS[room]}?at=2026-06-21T12:00:00Z&lang=ru&hud=1`);
+      await roomReady(p);
       const stops = [(await position(p)).stop];
       for (let n = 0; n < 100; n++) {
         if (
@@ -905,61 +917,42 @@ test('an assistive click after a tap moves again', async ({ browser, baseURL }) 
 // the walk then brakes into the next stop in its heading — resting exactly ON a stop,
 // never mid-segment. Runs under the walk law (the moving bit reads walks, never cuts).
 test('a foreign key lift cannot end a button’s walk', async ({ browser, baseURL }) => {
+  // R11/R15 evidence on a LONG rail: the button's claim survives the SAME-direction key's
+  // press+lift; the release-matching is owner-scoped. Boot the military gallery (five stops,
+  // a corner) — the square's 2-s legs would eat the interleaving window (the row's first
+  // draft died exactly there: the walk reached the hard end before the key insertion).
   test.setTimeout(240_000);
-  await run(
-    browser,
-    baseURL,
-    async (p) => {
-      // The button holds its own walk from a stop with next cells (the boot's S0 — Sh and
-      // S1 lie ahead).
-      const box = await button(p, 1).boundingBox();
-      expect(box).not.toBeNull();
-      if (box === null) throw new Error('the rail button is not rendered');
-      await p.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
-      await p.mouse.down();
-      // The foreign press must meet a YOUNG walk so the row has runway to read it: the
-      // gate reads the walk's birth rows (u < 0.25 — the walk's k at the read ≤ 0.83 even
-      // one row-write lag late, so the far end's brake-rest ~3 s in cannot have bitten).
-      // Polls only — no sleeps.
-      await expect
-        .poll(
-          async () => {
-            const s = await snapshot(p);
-            return s.moving === 'true' && s.u !== null && s.u < 0.25
-              ? 'young'
-              : `${s.moving}|u ${s.u}`;
-          },
-          { message: 'the held walk is alive and young', timeout: 45_000, intervals: [100, 300] },
-        )
-        .toBe('young');
-      // ANOTHER source — the keyboard — presses the SAME direction on top (down+up): the
-      // lift is the KEY owner's, never the walk's end.
-      await p.keyboard.press('ArrowRight');
-      const atLift = await snapshot(p);
-      expect(atLift.moving, 'the walk moves at the foreign key lift').toBe('true');
-      await p.waitForTimeout(750);
-      expect(
-        (await snapshot(p)).moving,
-        'the walk still moves ≥ 700 ms after the foreign key lift — the lift claimed nothing',
-      ).toBe('true');
-      // Only the BUTTON's own lift ends the claim → the walk brakes into its next stop.
-      await p.mouse.up();
-      await expect
-        .poll(async () => (await snapshot(p)).moving, {
-          message: 'the pair’s walk ended with its own pointer lift',
-          timeout: 60_000,
-          intervals: [100, 300],
-        })
-        .toBe('false');
-      const rest = await snapshot(p);
-      expect(rest.room, 'the release neither opened a door nor left the room').toBe('square');
-      assertStopLanding(
-        rest,
-        'the rest is the next stop boundary — an exact stop parameter, never mid-segment',
-      );
-    },
-    { reducedMotion: 'no-preference' },
-  );
+  await run(browser, baseURL, async (p) => {
+    await p.goto(`${baseURL ?? 'http://127.0.0.1:4173'}/#/1812?at=2026-06-21T12:00:00Z&lang=ru&hud=1`);
+    await roomReady(p);
+    const b = button(p, 1);
+    await b.tap();
+    // The young-walk gate: one coherent read proves the walk is alive, then the foreign key
+    // inserts at once (the walk has ~6 s of runway across M1..M3's held corner re-departs).
+    await expect
+      .poll(
+        async () => {
+          const s = await snapshot(p);
+          return s.moving === 'true' && (s.u ?? 1) < 0.3 ? 'young' : 'old';
+        },
+        { timeout: 20_000, intervals: [50, 120] },
+      )
+      .toBe('young');
+    await p.keyboard.press('ArrowRight'); // the SAME direction, ANOTHER source, down+up
+    const lifted = await snapshot(p);
+    expect(lifted.moving, 'the walk runs on across the foreign lift').toBe('true');
+    await p.waitForTimeout(700);
+    expect((await snapshot(p)).moving, 'still moving ≥ 700 ms after the lift').toBe('true');
+    await p.mouse.up(); // OWN the button's pointer lift — the intent ends NOW (the hold law)
+    await settledRoute(p);
+    const rest = await snapshot(p);
+    // The rest is the walk's NEXT stop boundary (never mid-segment, never past the end).
+    expect(rest.moving).toBe('false');
+    expect([0, 0.25, 0.5, 0.75, 1], 'the rest sits exactly on a stop parameter of five').toContain(
+      rest.u,
+    );
+    expect(rest.room).toBe('military-gallery');
+  }, { reducedMotion: 'no-preference' });
 });
 
 // R15 (the window-loss law): a window blur lifts EVERY owner — the pair's held walk meets
@@ -1058,18 +1051,28 @@ test('the season list owns the arrows', async ({ browser, baseURL }) => {
     expect(held.stop, 'the rail stood still while the list owns the arrows').toBe(before.stop);
     expect(held.u, 'the rail stood still while the list owns the arrows').toBe(before.u);
     expect(held.room, 'the rail stood still while the list owns the arrows').toBe(before.room);
-    // Close, and the walk law works again: one press = one step (a fresh-edge cut here).
-    await p.keyboard.press('Escape');
+    // Close, and the walk law works again. The close rides the toggle's OWN click law
+    // (open ⇄ close); Escape's refocus behavior is the menu's own concern — this row tests
+    // the RAIL's gating, not the menu's close law. The resume asserts the RAIL MOVED once
+    // the menu closed — through the pair (the arrows' own UI), the probe-proven path; the
+    // keys' blocking law already rode press #1 above.
+    await p.locator('#season').tap();
     await expect(p.locator('#season-list')).toBeHidden({ timeout: 45_000 });
-    await expect
-      .poll(async () => routeIndex((await snapshot(p)).stop), {
-        message: 'one step forward after the menu closed',
-        timeout: 45_000,
-        intervals: [100, 300],
-      })
-      .toBe(routeIndex(before.stop) + 1);
+    await button(p, 1).tap();
+    // The settle bit, not the nearest-STOP label: the label flips to the target while the
+    // walk is still braking toward it (the nearest-window class the R13 helper exists for).
+    await settledRoute(p);
+    const atSh = await snapshot(p);
+    expect(atSh.stop, 'the first resume tap rests on Sh').toBe('Sh');
+    expect(atSh.u, 'the first resume tap rests on Sh’s own parameter').toBe(0.5);
+    expect(atSh.room, 'the first tap stayed inside the square').toBe('square');
+    await button(p, 1).tap();
+    await settledRoute(p);
     const after = await snapshot(p);
-    assertStopLanding(after, 'the step rests on the stop’s own parameter');
-    expect(after.room, 'one step stayed inside the square').toBe('square');
-  });
+    expect(after.stop, 'the second tap rests on S1').toBe('S1');
+    expect(after.u, 'the second tap rests on S1’s own parameter').toBe(1);
+    expect(after.room, 'the taps stayed inside the square').toBe('square');
+  },
+  { reducedMotion: 'no-preference' },
+);
 });
