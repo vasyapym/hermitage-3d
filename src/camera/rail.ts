@@ -750,8 +750,7 @@ export function walkPress(
       const heldMs = w.held ? w.heldMs : 0; // a continuous hold keeps its clock; a re-press restarts it
       if (w.phase === 'brake' && w.reversalTo === null && w.brakeTo !== null) {
         const j = w.brakeTo;
-        const hardBrake =
-          j === 0 || j === stopCount(rail) - 1 || stopAt(rail, j).corner === true;
+        const hardBrake = j === 0 || j === stopCount(rail) - 1 || stopAt(rail, j).corner === true;
         if (!hardBrake) {
           // §1.4(c): a press during an INTENT-DEATH brake (a plain stop that the dying intent
           // was braking into) re-accelerates from the current speed — no stop.

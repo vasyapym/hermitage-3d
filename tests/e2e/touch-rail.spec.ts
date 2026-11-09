@@ -65,6 +65,44 @@ const routeIndex = (s: string | null): number => {
   return at ?? -1;
 };
 
+// The coherent walk snapshot (Sol R13): ONE page task reads the HUD's settle rows AND the
+// rail's own rows together — the ACTUAL motion bit (data-moving) included, so a settle poll
+// can never mistake a walk's mid-flight nearest reading for a landing, and no two reads can
+// interleave a state between ticks. data-u is the rail parameter (parsed float).
+type Snapshot = Readonly<{
+  room: string | null;
+  stop: string | null;
+  holdMs: string | null;
+  moving: string | null;
+  u: number | null;
+}>;
+const snapshot = (p: Page): Promise<Snapshot> =>
+  p.locator('#hud').evaluate((el) => {
+    const rail = document.querySelector('#touch-rail');
+    const uRow = rail?.getAttribute('data-u') ?? null;
+    return {
+      room: el.getAttribute('data-room'),
+      stop: el.getAttribute('data-stop'),
+      holdMs: el.getAttribute('data-hold-ms'),
+      moving: rail?.getAttribute('data-moving') ?? null,
+      u: uRow === null || uRow === '' ? null : Number.parseFloat(uRow),
+    };
+  });
+
+// The square's own stop parameters (three stops → u = i/2, exact binary floats): the
+// landing assertions (R15/R16) check the rest's u against the stop it reports.
+const SQUARE_STOP_U: Readonly<Record<string, number>> = { S0: 0, Sh: 0.5, S1: 1 };
+// The landing law (R15/R16): the walk's rest rides the stop's OWN parameter — the check
+// runs on one coherent (stop, u) pair. A mid-segment rest (the walk law never allows one
+// once intent is dead) reads loud here.
+const assertStopLanding = (s: Snapshot, why: string): void => {
+  const stop = s.stop;
+  if (stop === null || !(stop in SQUARE_STOP_U)) {
+    throw new Error(`the walk rested off the square’s stop map: ${stop}`);
+  }
+  expect(SQUARE_STOP_U[stop], why).toBe(s.u);
+};
+
 async function roomReady(p: Page): Promise<void> {
   const h = p.locator('#hud[data-room]');
   await expect(h).toBeAttached({ timeout: 45_000 });
@@ -85,25 +123,26 @@ async function frames(p: Page): Promise<void> {
   );
 }
 
-/** A settle read for a walk (never a transit): three coherent position reads 600 ms apart
- * must agree — a mid-walk nearest reading can agree twice (a walk's cruise covers one
- * stop's nearest window for ~750 ms) but never three times across 1.2 s. */
+/** A settle read for a walk (never a transit), reworked on the coherent snapshot (Sol R13):
+ * the walks' ACTUAL motion bit (data-moving) proves the walk is over — no nearest-window
+ * agreement game is needed against a passing walk (the bit is the truth, written by the
+ * rail's own sync) — then one repeat read 600 ms later must agree with the first: nothing
+ * presses between the reads, so a stable pair is the rest. */
 async function settledRoute(p: Page): Promise<void> {
   await expect
     .poll(
       async () => {
-        const first = await position(p);
-        if ((await p.locator('#hud').getAttribute('data-hold-ms')) !== '0') return 'transit-open';
+        const first = await snapshot(p);
+        if (first.moving === 'true') return 'moving';
+        if (first.holdMs !== '0') return 'transit-open';
         await p.waitForTimeout(600);
-        const second = await position(p);
-        if (second.room !== first.room || second.stop !== first.stop) return 'moving1';
-        await p.waitForTimeout(600);
-        const third = await position(p);
-        return third.room === second.room && third.stop === second.stop
+        const second = await snapshot(p);
+        if (second.moving === 'true') return 'stirring';
+        return second.room === first.room && second.stop === first.stop
           ? `${first.room}|${first.stop}`
-          : 'moving2';
+          : 'moved';
       },
-      { message: 'a stable three-reader settle read', timeout: 90_000, intervals: [250, 600] },
+      { message: 'a stable coherent settle read', timeout: 90_000, intervals: [250, 600] },
     )
     .toMatch(/^[a-z0-9-]+\|[a-zA-Z0-9-]+$/);
   expect(await p.locator('#hud').getAttribute('data-hold-ms')).toBe('0');
@@ -289,10 +328,12 @@ test('rapid activation / reduced motion', async ({ browser, baseURL }) => {
         // it extends the walk; there is no drop gate anymore). Reduced: tap two lands
         // inside the 600 ms dwell and is dropped (one cut: Sh); normal: tap two refills
         // the walk's lease, and the walk rests where the refilled intent's brake lands
-        // (the trace's ~1.5 s second CDP tap runs its own leg: two steps: G0) — so the
-        // legal set [before+1, before+2] holds in both modes (the documented law change;
-        // the old mid-glide-drop wording is gone with the walk). Assert the legal set on
-        // the route order, plus stability across frames.
+        // (the trace's ~1.5 s second CDP tap runs its own leg: two steps along the route
+        // S0 → Sh → S1, resting at S1 — never three steps off a double activation; a
+        // boundary crossing into G0 needs a press from a SETTLED S1) — so the legal set
+        // [before+1, before+2] holds in both modes (the documented law change; the old
+        // mid-glide-drop wording is gone with the walk). Assert the legal set on the
+        // route order, plus stability across frames.
         const after = (await position(p)).stop;
         expect([before + 1, before + 2]).toContain(routeIndex(after));
         await frames(p);
@@ -398,9 +439,11 @@ test('native keyboard / focus', async ({ browser, baseURL }) =>
       // index wraps 1 → 0 and the old +1 arithmetic read the lawful crossing as a miss).
       expect(routeIndex((await position(p)).stop)).toBe(before + 1);
       await expect(button(p, 1)).toBeFocused();
-      // The 1.4-s step glide must END before the next key block: the ratified no-glide
-      // admission lawfully DROPS a mid-glide command (hold-ms reads 0 during a glide —
-      // roomReady cannot see it; the CI's tighter cadence exposed the race).
+      // The wait only paces the two key blocks: the walk law admits the next block's
+      // press MID-WALK (it refills the intent — never a door), and that press still rests
+      // at the leg's own next stop either way. hold-ms reads 0 during every walk
+      // (hudHoldMs reports transits only), so roomReady cannot see one — the wait is
+      // pacing, never readiness (the CI's tighter cadence exposed the old race).
       await p.waitForTimeout(1_600);
     }
   }));
@@ -732,13 +775,17 @@ for (const lang of ['ru', 'en']) {
   });
 }
 
-// The movement-ux desktop row: at a FINE pointer and 1280×720 the pair is visible (the
-// ruling shows it at every pointer/width), a click moves one stop, and a held keyboard
-// walk passes stops mid-hold and rests at the NEXT stop after the lift (the walk law's
-// own invariant: the rest stop is one past the pass-through). Durations are never
-// asserted — the reads are position-based, on the route order: the pair and the keyboard
-// share the one rail graph, so the desktop chrome exercises both roads here.
-test('desktop 1280×720 (fine pointer): the pair is visible, a click steps one stop, a held walk rests one past its pass', async ({
+// The movement-ux desktop row (R14 re-driver): at a FINE pointer and 1280×720 the pair is
+// visible (the ruling shows it at every pointer/width), a click moves one stop, and a HELD
+// keyboard walk crosses the square's halfway stop by intent alone. The crossing read is
+// the ACTUAL motion bit plus the nearest-stop row from ONE coherent snapshot: the nearest
+// flip sits at k = 0.5 (S0 → Sh) and k = 1.5 (Sh → S1), so 'S1' as the NEAREST first reads
+// only past the halfway stop — the held walk has crossed Sh exactly while the intent was
+// still held (Sol R14). The lift ends the intent and the walk brakes into the next stop in
+// its heading — the square's far boundary stop S1 — where the settle read pins the stop,
+// the unchanged room and the EXACT stop-parameter string data-u === '1'. No fixed sleeps:
+// the reads are motion- and position-based; the durations are never asserted.
+test('desktop 1280×720 (fine pointer): the pair is visible, a click steps one stop, a held walk crosses the halfway stop and rests on data-u = 1', async ({
   browser,
   baseURL,
 }) => {
@@ -764,22 +811,265 @@ test('desktop 1280×720 (fine pointer): the pair is visible, a click steps one s
     await settledRoute(p);
     const afterClick = routeIndex((await position(p)).stop);
     expect(afterClick).toBe(before + 1);
-    // A keyboard hold: down at t0; the read at +2.2 s sits mid-segment past the FIRST
-    // stop to cross (k ≈ 1.33, the nearest read = Sh, floor(k) = 1); the lift at +2.5 s
-    // keeps floor(k) = 1 (the next crossing needs ~3.2 s at v_c). The lift ends the
-    // intent → the walk brakes to the NEXT stop in its heading → the rest stop is
-    // EXACTLY one past the pass-through.
-    const holdStart = routeIndex((await position(p)).stop);
+    // R14: the held walk — ONE press (a single down), then the coherent poll above: the
+    // walk alive AND the nearest stop reading 'S1' inside a generous 30 s budget (the
+    // budget bounds the crossing's wait, never the walk's own duration).
     await p.keyboard.down('ArrowRight');
-    await p.waitForTimeout(2200);
-    const mid = routeIndex((await position(p)).stop);
-    expect(mid, 'at least one stop passed mid-hold').toBeGreaterThanOrEqual(holdStart + 1);
+    await expect
+      .poll(
+        async () => {
+          const s = await snapshot(p);
+          return s.moving === 'true' && s.stop === 'S1' ? 'crossed' : `${s.stop}|${s.moving}`;
+        },
+        {
+          message: 'the held walk crossed into the S1 neighbourhood (the nearest flip at k = 1.5)',
+          timeout: 30_000,
+          intervals: [150, 300],
+        },
+      )
+      .toBe('crossed');
     await p.keyboard.up('ArrowRight');
-    await p.waitForTimeout(300);
-    await settledRoute(p);
-    const rest = routeIndex((await position(p)).stop);
-    expect(rest, 'the rest stop is one past the pass-through').toBe(mid + 1);
+    // The lift ends the intent → the walk brakes into the next stop in its heading and
+    // rests exactly there; the settle read polls the motion bit off, hold-ms idle.
+    await expect
+      .poll(
+        async () => {
+          const s = await snapshot(p);
+          return s.moving === 'false' && s.holdMs === '0' ? 'rested' : 'in flight';
+        },
+        { message: 'the released walk rests', timeout: 60_000, intervals: [150, 300] },
+      )
+      .toBe('rested');
+    const rest = await snapshot(p);
+    expect(rest.stop, 'the hold rests at the square’s far boundary stop').toBe('S1');
+    expect(rest.room, 'a hold never opens a door: the room is unchanged').toBe('square');
+    // The exact landing: the settled rail parameter is the stop's own parameter — the
+    // EXACT float string '1' (S1 = u 1 of the square's three stops).
+    expect(await rail.getAttribute('data-u'), 'the exact stop parameter of S1').toBe('1');
   } finally {
     await context.close();
   }
+});
+
+// R16 (the assistive click's identity law): the tap's own synthesized click is consumed
+// ONCE by the activation latch; an assistive click made AFTER the tap is an independent
+// activation and must move the rail again. The walk law's lease carries each activation's
+// one leg: the tap rests exactly one stop on (never a double-jump off the tap's own
+// click), and the evaluated click carries the rail one more. Runs under the walk law —
+// cuts know no walks, and a reduced tap's dwell would lawfully drop the click.
+test('an assistive click after a tap moves again', async ({ browser, baseURL }) => {
+  test.setTimeout(240_000); // two lease-walks + settle reads under the box's stall storms (the index-dialog precedent's class)
+  await run(
+    browser,
+    baseURL,
+    async (p) => {
+      const settled = async (): Promise<string> => {
+        const s = await snapshot(p);
+        return s.moving === 'false' && s.holdMs === '0' ? `${s.room}|${s.stop}` : 'in flight';
+      };
+      // The tap: one activation = ONE leg (the lease drains from its press) — the rest is
+      // exactly one stop on, no jump further: the tap's synthesized click moves nothing.
+      await rawTap(p, 1);
+      await expect
+        .poll(settled, { message: 'the tapped walk rests', timeout: 90_000, intervals: [150, 400] })
+        .toBe('square|Sh');
+      const afterTap = await snapshot(p);
+      expect(routeIndex(afterTap.stop), 'the tap moved exactly one stop').toBe(
+        routeIndex('S0') + 1,
+      );
+      assertStopLanding(afterTap, 'the rest is on the stop’s own parameter');
+      // NOW the assistive click on the SAME button: the tap's own click was consumed by
+      // the identity latch, so this one passes as an independent activation — one leg more.
+      await p.locator('#touch-forward').evaluate((el) => (el as HTMLButtonElement).click());
+      await expect
+        .poll(settled, {
+          message: 'the clicked walk rests',
+          timeout: 90_000,
+          intervals: [150, 400],
+        })
+        .toBe('square|S1');
+      const afterClick = await snapshot(p);
+      expect(routeIndex(afterClick.stop), 'the assistive click moved the rail again').toBe(
+        routeIndex('S0') + 2,
+      );
+      assertStopLanding(afterClick, 'the rest is on the stop’s own parameter');
+    },
+    { reducedMotion: 'no-preference' },
+  );
+});
+
+// R16 (the OWNED release law, R11/R15): a foreign source pressing the SAME direction on
+// top of the button's walk cannot end it — releases match owners (the walk keeps running
+// while ANY owner of the direction still holds). The data-moving bit stays 'true' at the
+// key lift and ≥ 700 ms past it; only the BUTTON's own pointer lift ends the claim, and
+// the walk then brakes into the next stop in its heading — resting exactly ON a stop,
+// never mid-segment. Runs under the walk law (the moving bit reads walks, never cuts).
+test('a foreign key lift cannot end a button’s walk', async ({ browser, baseURL }) => {
+  test.setTimeout(240_000);
+  await run(
+    browser,
+    baseURL,
+    async (p) => {
+      // The button holds its own walk from a stop with next cells (the boot's S0 — Sh and
+      // S1 lie ahead).
+      const box = await button(p, 1).boundingBox();
+      expect(box).not.toBeNull();
+      if (box === null) throw new Error('the rail button is not rendered');
+      await p.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+      await p.mouse.down();
+      // The foreign press must meet a YOUNG walk so the row has runway to read it: the
+      // gate reads the walk's birth rows (u < 0.25 — the walk's k at the read ≤ 0.83 even
+      // one row-write lag late, so the far end's brake-rest ~3 s in cannot have bitten).
+      // Polls only — no sleeps.
+      await expect
+        .poll(
+          async () => {
+            const s = await snapshot(p);
+            return s.moving === 'true' && s.u !== null && s.u < 0.25
+              ? 'young'
+              : `${s.moving}|u ${s.u}`;
+          },
+          { message: 'the held walk is alive and young', timeout: 45_000, intervals: [100, 300] },
+        )
+        .toBe('young');
+      // ANOTHER source — the keyboard — presses the SAME direction on top (down+up): the
+      // lift is the KEY owner's, never the walk's end.
+      await p.keyboard.press('ArrowRight');
+      const atLift = await snapshot(p);
+      expect(atLift.moving, 'the walk moves at the foreign key lift').toBe('true');
+      await p.waitForTimeout(750);
+      expect(
+        (await snapshot(p)).moving,
+        'the walk still moves ≥ 700 ms after the foreign key lift — the lift claimed nothing',
+      ).toBe('true');
+      // Only the BUTTON's own lift ends the claim → the walk brakes into its next stop.
+      await p.mouse.up();
+      await expect
+        .poll(async () => (await snapshot(p)).moving, {
+          message: 'the pair’s walk ended with its own pointer lift',
+          timeout: 60_000,
+          intervals: [100, 300],
+        })
+        .toBe('false');
+      const rest = await snapshot(p);
+      expect(rest.room, 'the release neither opened a door nor left the room').toBe('square');
+      assertStopLanding(
+        rest,
+        'the rest is the next stop boundary — an exact stop parameter, never mid-segment',
+      );
+    },
+    { reducedMotion: 'no-preference' },
+  );
+});
+
+// R15 (the window-loss law): a window blur lifts EVERY owner — the pair's held walk meets
+// its release edge, brakes into its own next stop and rests INSIDE the square (a stop
+// parameter — no airlock), and the pair re-arms: a fresh press on the button starts a NEW
+// walk. Runs under the walk law (the moving bit reads walks, never cuts).
+test('a window blur ends a held walk and re-arms the pair', async ({ browser, baseURL }) => {
+  test.setTimeout(240_000);
+  await run(
+    browser,
+    baseURL,
+    async (p) => {
+      const centre = async (): Promise<{ x: number; y: number }> => {
+        const box = await button(p, 1).boundingBox();
+        expect(box).not.toBeNull();
+        if (box === null) throw new Error('the rail button is not rendered');
+        return { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+      };
+      const { x, y } = await centre();
+      await p.mouse.move(x, y);
+      await p.mouse.down();
+      // The blur must catch the walk INSIDE the square's first segment — the gate reads
+      // the walk's birth rows (u < 0.25 → the release's rest lands the NEXT stop Sh,
+      // never the far boundary S1, where the re-press would lawfully fire the airlock
+      // instead). Polls only — no sleeps.
+      await expect
+        .poll(
+          async () => {
+            const s = await snapshot(p);
+            return s.moving === 'true' && s.u !== null && s.u < 0.25
+              ? 'young'
+              : `${s.moving}|u ${s.u}`;
+          },
+          { message: 'the held walk is alive and young', timeout: 45_000, intervals: [100, 300] },
+        )
+        .toBe('young');
+      // The window loss: the host's blur handler lifts every owner (R15's cancel-all).
+      await p.evaluate(() => window.dispatchEvent(new Event('blur')));
+      await expect
+        .poll(async () => (await snapshot(p)).moving, {
+          message: 'the blur ended the held walk',
+          timeout: 60_000,
+          intervals: [100, 300],
+        })
+        .toBe('false');
+      // The ended walk rested inside its own room: the release braked the walk to its own
+      // next stop (a stop parameter — no runaway, no frozen mid-segment state, no airlock).
+      const aftermath = await snapshot(p);
+      assertStopLanding(aftermath, 'the walk rests inside its segment — at its own next stop');
+      expect(aftermath.room, 'the blur’s release crossed no door').toBe('square');
+      // The pair re-arms: the physical lift first (a real press transition — the app's own
+      // activation is already gone by the blur; the stray synthesized click is consumed by
+      // the identity latch), then a fresh press starts a NEW walk.
+      await p.mouse.up();
+      await p.mouse.down();
+      await expect
+        .poll(async () => (await snapshot(p)).moving, {
+          message: 'the re-armed walk is alive',
+          timeout: 45_000,
+          intervals: [100, 300],
+        })
+        .toBe('true');
+      await p.mouse.up();
+      await expect
+        .poll(async () => (await snapshot(p)).moving, {
+          message: 'the re-armed walk ends with its own lift',
+          timeout: 60_000,
+          intervals: [100, 300],
+        })
+        .toBe('false');
+      const again = await snapshot(p);
+      assertStopLanding(again, 'the re-armed walk rests at a stop boundary too');
+      expect(again.room, 'the re-armed walk’s rest crossed no door').toBe('square');
+    },
+    { reducedMotion: 'no-preference' },
+  );
+});
+
+// R10 (the season list owns the arrows): while the listbox is open the rail's arrow funnel
+// admits nothing (the ONE admission law's menu membership) — the arrows may steer the
+// LIST itself (desired), but the rail's position must stand still. After the menu closes,
+// the same keys drive the walk law again: one press = one step (the cut branch under this
+// context's reduced motion — the seed law: a cut under reduced motion, the walk under it).
+test('the season list owns the arrows', async ({ browser, baseURL }) => {
+  test.setTimeout(240_000);
+  await run(browser, baseURL, async (p) => {
+    // The season spec's idiom: the toggle opens the in-page listbox.
+    const before = await snapshot(p);
+    if (before.u === null) throw new Error('data-u row missing');
+    await p.locator('#season').tap();
+    await expect(p.locator('#season-list')).toBeVisible({ timeout: 45_000 });
+    // The arrows may navigate the list itself while open — the assertion is ONLY the rail:
+    // the coherent snapshot's stop and u stand still across the press.
+    await p.keyboard.press('ArrowRight');
+    const held = await snapshot(p);
+    expect(held.stop, 'the rail stood still while the list owns the arrows').toBe(before.stop);
+    expect(held.u, 'the rail stood still while the list owns the arrows').toBe(before.u);
+    expect(held.room, 'the rail stood still while the list owns the arrows').toBe(before.room);
+    // Close, and the walk law works again: one press = one step (a fresh-edge cut here).
+    await p.keyboard.press('Escape');
+    await expect(p.locator('#season-list')).toBeHidden({ timeout: 45_000 });
+    await expect
+      .poll(async () => routeIndex((await snapshot(p)).stop), {
+        message: 'one step forward after the menu closed',
+        timeout: 45_000,
+        intervals: [100, 300],
+      })
+      .toBe(routeIndex(before.stop) + 1);
+    const after = await snapshot(p);
+    assertStopLanding(after, 'the step rests on the stop’s own parameter');
+    expect(after.room, 'one step stayed inside the square').toBe('square');
+  });
 });

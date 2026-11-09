@@ -187,34 +187,53 @@ test('arrow walk: the prompt click and a fresh ArrowRight at a settled end enter
   const edgePrompt = page.locator('#edge-prompt');
   // Mid-room at the start: the prompt is hidden (the UI-nearly-absent law).
   await expect(edgePrompt).toHaveAttribute('data-visible', 'false');
-  type HudSample = Readonly<{ stop: string | null; holdMs: string | null }>;
+  type HudSample = Readonly<{
+    stop: string | null;
+    holdMs: string | null;
+    room: string | null;
+    moving: string | null; // #touch-rail[data-moving]: the walk's ACTUAL motion bit (R13)
+    u: number | null; // #touch-rail[data-u]: the rail parameter, parsed
+  }>;
+  // ONE page task reads all five rows across BOTH elements: the sample is one write pass,
+  // never a mix of two reads a tick apart (the HUD and the rail rows ride their own ≤500 ms
+  // bind cadences, so only the single-task read is coherent).
+  const sampleHud = (): Promise<HudSample> =>
+    hud.evaluate((el) => {
+      const rail = document.querySelector('#touch-rail');
+      const uRow = rail?.getAttribute('data-u') ?? null;
+      return {
+        stop: el.getAttribute('data-stop'),
+        holdMs: el.getAttribute('data-hold-ms'),
+        room: el.getAttribute('data-room'),
+        moving: rail?.getAttribute('data-moving') ?? null,
+        u: uRow === null || uRow === '' ? null : Number.parseFloat(uRow),
+      };
+    });
   const sampleKey = (s: HudSample): string => `${s.stop} | hold ${s.holdMs}`;
   // One press per leg; the walk settles at the NEXT stop (the walk law's ≈2060 ms leg —
-  // never asserted). The settle read is a HUD poll made STABLE: two samples an interval
-  // apart must show the same coherent (stop | hold 0) tick, because a walk passes THROUGH
-  // the destination's nearest reading mid-flight (mid-walk presses lawfully extend the
-  // walk — never a retarget — so a coalesced read still lands where the legs aimed).
+  // never asserted). The settle read is a two-sample stable poll, each sample ONE coherent
+  // task over both elements: the ACTUAL motion bit (data-moving) says a walk is in flight,
+  // so a walk passing THROUGH the destination's nearest reading mid-flight can never be
+  // mistaken for a landing (mid-walk presses lawfully extend the walk — never a retarget —
+  // so a coalesced read still lands where the legs aimed).
   const legTo = async (stop: string): Promise<void> => {
     await page.keyboard.press('ArrowRight'); // the leg's only press
     await expect
       .poll(
         async () => {
-          const first = await hud.evaluate((el) => ({
-            stop: el.getAttribute('data-stop'),
-            holdMs: el.getAttribute('data-hold-ms'),
-          }));
-          if (first.holdMs !== '0') return 'in transit';
+          const first = await sampleHud();
+          if (first.moving !== 'false' || first.holdMs !== '0') return 'in flight';
           await page.waitForTimeout(700);
-          const second = await hud.evaluate((el) => ({
-            stop: el.getAttribute('data-stop'),
-            holdMs: el.getAttribute('data-hold-ms'),
-          }));
-          return second.holdMs === '0' && second.stop === first.stop && second.stop === stop
+          const second = await sampleHud();
+          return second.moving === 'false' &&
+            second.holdMs === '0' &&
+            second.stop === first.stop &&
+            second.stop === stop
             ? sampleKey(second)
             : `moving ${sampleKey(first)} → ${sampleKey(second)}`;
         },
         {
-          message: `leg: a stable coherent HUD sample at ${stop}`,
+          message: `leg: a stable coherent sample at ${stop}`,
           timeout: 90_000,
           intervals: [400, 800],
         },
@@ -271,10 +290,11 @@ test('arrow walk: the prompt click and a fresh ArrowRight at a settled end enter
 
 // r18 gate (§6.1, §10): every stop of the phase is reachable by keyboard — arrows step
 // stop→stop and a boundary intent past an end stop IS the keyboard's airlock — and
-// reduced-motion glides are cuts. Reduced motion is emulated BEFORE boot (the host reads
-// matchMedia once); cuts make the walk instant. The room flips and the hold rows carry the
-// assertions; per-stop captions surface in r18b. Fresh page: a mounted room keeps its
-// technique (no reload between configurations — the round-17 measurement trap).
+// reduced motion moves by CUTS (the seed law: a cut under reduced motion, the walk under
+// it). Reduced motion is emulated BEFORE boot (the host reads matchMedia once); cuts make
+// the movement instant. The room flips and the hold rows carry the assertions; per-stop
+// captions surface in r18b. Fresh page: a mounted room keeps its technique (no reload
+// between configurations — the round-17 measurement trap).
 test('keyboard walk: every stop reachable, reduced-motion cuts', async ({ page }) => {
   test.slow(); // same data-bound dwell per transit, on top of the instant reduced-motion cuts
   // The R3 walk crosses TWO extra airlocks (the 1812 cut and its reverse) and walks 34 landings:
@@ -288,9 +308,11 @@ test('keyboard walk: every stop reachable, reduced-motion cuts', async ({ page }
   // nothing retries a dropped press. Under Playwright 1.64.1 an error thrown inside an
   // expect.poll callback ends that poll at once, so a nested press-and-poll gives no second
   // press. A leg is therefore complete, and the next press permitted, only on ONE coherent
-  // HUD sample that shows BOTH the expected data-stop AND data-hold-ms "0". "Coherent" means
-  // both attributes are read in one page task: the tick writes them in one synchronous pass,
-  // so they can never come from different ticks.
+  // snapshot that shows the expected data-stop AND data-hold-ms "0" AND the walk's ACTUAL
+  // motion bit unset (#touch-rail[data-moving], R13 — data-stop alone can read a walk's
+  // mid-flight pass-through, hold-ms reads 0 for every walk-free instant). "Coherent" means
+  // all five rows — the HUD's three AND the rail's two — are read in one page task: the two
+  // element groups ride their own bind cadences, so only the single-task read refuses a mix.
   // data-stop alone is not readiness: a cut's swap seeds the destination stop mid-card while
   // the transit still owns the camera (the backward landing-airlock entry reports J4 with the
   // card open). data-hold-ms is not a "was non-zero" signal either: hudHoldMs reports the
@@ -332,16 +354,33 @@ test('keyboard walk: every stop reachable, reduced-motion cuts', async ({ page }
   // 2-core reference device under any load); 90 s starved ONE leg (G1→Gj) into a flake.
   const LEG_TIMEOUT_MS = 180_000;
   const IDLE_HOLD = '0';
-  type HudSample = Readonly<{ stop: string | null; holdMs: string | null; room: string | null }>;
-  // One page task reads all three attributes, so the sample is one tick's write, never a mix.
+  type HudSample = Readonly<{
+    stop: string | null;
+    holdMs: string | null;
+    room: string | null;
+    moving: string | null; // #touch-rail[data-moving]: the walk's ACTUAL motion bit (R13)
+    u: number | null; // #touch-rail[data-u]: the rail parameter, parsed
+  }>;
+  // ONE page task reads all five rows across BOTH elements: the sample is one write pass,
+  // never a mix of two reads a tick apart (the HUD and the rail rows ride their own ≤500 ms
+  // bind cadences, so only the single-task read is coherent).
   const sampleHud = (): Promise<HudSample> =>
-    hud.evaluate((el) => ({
-      stop: el.getAttribute('data-stop'),
-      holdMs: el.getAttribute('data-hold-ms'),
-      room: el.getAttribute('data-room'),
-    }));
-  const sampleKey = (s: HudSample): string => `${s.stop} | hold ${s.holdMs}`;
-  const readyKey = (stop: string): string => `${stop} | hold ${IDLE_HOLD}`;
+    hud.evaluate((el) => {
+      const rail = document.querySelector('#touch-rail');
+      const uRow = rail?.getAttribute('data-u') ?? null;
+      return {
+        stop: el.getAttribute('data-stop'),
+        holdMs: el.getAttribute('data-hold-ms'),
+        room: el.getAttribute('data-room'),
+        moving: rail?.getAttribute('data-moving') ?? null,
+        u: uRow === null || uRow === '' ? null : Number.parseFloat(uRow),
+      };
+    });
+  const sampleKey = (s: HudSample): string =>
+    `${s.stop} | hold ${s.holdMs} | ${s.moving === 'true' ? 'moving' : s.moving === null ? 'no moving row' : 'still'}`;
+  // The settle target: the stop, the idle hold and the WALK OFF — in the same snapshot
+  // (R13's ready read: hold 0 under a walk reads transit-free, so the bit is the discriminator).
+  const readyKey = (stop: string): string => `${stop} | hold ${IDLE_HOLD} | still`;
   // The walk starts from a ready S0. The arrival-settle half of the gate is bootDeterministic's
   // own contract; data-hold-ms does not encode the arrival phase.
   await expect
@@ -366,6 +405,9 @@ test('keyboard walk: every stop reachable, reduced-motion cuts', async ({ page }
       .poll(
         async () => {
           const s = await sampleHud();
+          // The ready read is the walk's motion bit in THIS snapshot: a walk in flight is
+          // never a ready read — even at the destination's nearest reading (R13).
+          if (s.moving !== 'false') return sampleKey(s);
           // An idle sample on any third stop is a wrong landing, never lag: fail at once.
           if (s.holdMs === IDLE_HOLD && s.stop !== from && s.stop !== stop) {
             throw new Error(`leg ${from} → ${stop}: one press settled on ${s.stop}`);
@@ -373,7 +415,7 @@ test('keyboard walk: every stop reachable, reduced-motion cuts', async ({ page }
           return sampleKey(s);
         },
         {
-          message: `leg ${from} → ${stop}: one coherent HUD sample with the stop AND hold 0`,
+          message: `leg ${from} → ${stop}: one coherent snapshot with the walk over (the stop, hold 0, the motion bit false)`,
           timeout: LEG_TIMEOUT_MS,
           intervals: [100, 250],
         },
@@ -425,6 +467,8 @@ test('keyboard walk: every stop reachable, reduced-motion cuts', async ({ page }
     stop: 'M4',
     holdMs: IDLE_HOLD,
     room: 'military-gallery',
+    moving: 'false', // the motion bit: nothing walks after a press that admitted nothing
+    u: 1, // M4 is the gallery's last of five stops: its exact stop parameter
   });
   // Backward: the whole way home through both airlocks — M0's backward push is the landing
   // airlock's reverse (the cut back to jordan), and the backward entries seed the far stop

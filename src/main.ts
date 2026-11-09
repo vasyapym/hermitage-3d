@@ -3097,7 +3097,8 @@ for (const [buttonEl, direction] of [
   let activePointerId: number | null = null;
   let syntheticClickPending = false;
   const owner = direction > 0 ? 'pair-forward' : 'pair-back';
-  const endActivation = (): void => { // the claim ends HERE, once, whatever the ending was
+  const endActivation = (): void => {
+    // the claim ends HERE, once, whatever the ending was
     if (active === null) return;
     active = null;
     activePointerId = null;
