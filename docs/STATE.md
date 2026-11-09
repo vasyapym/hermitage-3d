@@ -393,9 +393,8 @@ file in the same session.
 
 ## Live state
 
-- **2026-11-09 · THE WINTER SQUARE LANDED ON THE BRANCH (square-palace; worktree
-  `~/Documents/hermitage-3d-palace-square`; MERGE into main + the FULL e2e/golden gate at the
-  owner's notification that the other agent's round is done — NOT this lane).** The round: the
+- **2026-11-09 · MERGED square-palace (the winter square — the DEC-041 class-I closure; the FIRST slot of this merge wave; the FULL e2e/golden gate rides the LAST merging session — deferred NOT waived; worktree
+  `~/Documents/hermitage-3d-palace-square`).** The round: the
   DEC-041 class-I snow-legibility item, from the Fable-5.1 decision draw (vault
   `projects v13/1-…`; the owner's three ratifications: the round as drawn · the conditional sky
   grant · the caption copy). THE CAUSE BATTERY FIRST (dec-noon S0 desktop; local
@@ -438,8 +437,7 @@ file in the same session.
   gate bounds the sky term only; the ground term moves under night snow — the expected
   flips are dec-noon + dec-night, the comments/records repinned), (4.7) the
   design-staircase residue (already landed at 0e46310), (4.9) the rail.test key pinned
-  exactly; 3 ANTI-NIT + 3 NOTE rows noted without patches. REMAINING: the merge + the
-  FULL e2e/golden gate at the owner's signal.
+  exactly; 3 ANTI-NIT + 3 NOTE rows noted without patches. THE MERGE (2026-11-09, the integrating act): origin/main's `7fa4892` (the CI-legend amend) merged into the lane at `2968ef0`; the merged tree's validate GREEN (tsc 0 · biome 2 authored warnings · **vitest 64 files 1057 passed / 1 skipped** · build JS **284,110 of 350,000** · RU **7,339** · exterior 0 · basis 584,862); DEC-043 assigned by this merge (the register line in decisions.md); NO e2e and NO golden re-baselines here — **the FULL e2e/golden gate + the square's dec-noon AND dec-night golden re-baselines ride the LAST merging session** (deferred NOT waived; the R-ground-1 precedent).
 
 - **2026-11-08 · PARALLEL square-palace OPENED (branch `square-palace` off main `742bb3d`; worktree
   `~/Documents/hermitage-3d-palace-square`; MERGE into main + the FULL e2e/golden gate at the owner's
