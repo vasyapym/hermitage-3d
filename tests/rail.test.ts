@@ -13,7 +13,9 @@ import {
   samplePose,
   samplePosition,
   seedState,
+  stopCount,
   stopParameter,
+  WALK_CRUISE_MS,
   walkPress,
   walkRelease,
 } from '../src/camera/rail';
@@ -301,7 +303,9 @@ describe('the travel law (B9 field, superseding the R18/R19 departure turns)', (
         crossed = true;
         expect(state.anchor).toBeNull(); // the exact landing cleared the look anchor
         expect(state.walk?.phase).toBe('accel'); // the re-depart, already gone from Gj
-        expect(state.u).toBeLessThan(corner + 1e-6); // one frame of the ramp at most
+        // One frame's ramp at most past the corner (the atomic prior-slice continuation:
+        // the landing slice's leftover dt drives the ramp ≤ FRAME ms):
+        expect(state.u).toBeLessThan(corner + FRAME / WALK_CRUISE_MS / (stopCount(GALLERY) - 1));
         expect(state.u).toBeGreaterThan(corner - 1e-9);
       }
     }

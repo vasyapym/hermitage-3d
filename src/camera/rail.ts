@@ -450,25 +450,53 @@ const nextStopIndex = (rail: Rail, k: number, heading: Heading): number | null =
   return i >= 0 && i <= n - 1 ? i : null;
 };
 /** B9 pass-throughs: the integers crossed between two k's clear the anchor — the stop's
- * committed framing is met while passing, and an exact landing clears with the arrival. */
+ * committed framing is met while passing. Units: BOTH k's are stop-gap coordinates (one stop
+ * = 1, k = u·(n−1)); the tiny dust around an exact landing snaps to the integer (the u-side
+ * snap tolerance in locate() is the same scale by construction). An EXACT landing at a stop
+ * clears the anchor in the arrival branch itself; a departure-through-integer clears here. */
 const snapped = (k: number): number => {
   const m = Math.round(k);
   return Math.abs(k - m) < STOP_EPS ? m : k;
 };
 const crossedInteger = (kA: number, kB: number): boolean =>
   Math.floor(snapped(kA)) !== Math.floor(snapped(kB));
-/** The first t in [0, bound] where the remaining distance to `uTarget` equals the braking
- * horizon speed(t)·WALK_BRAKE_MS/2; null when none within the bound. r(t) shrinks and the
- * horizon only grows, so g(t) = r(t) − horizon(t) is strictly decreasing — a deterministic
- * fixed-iteration bisection keeps advance() bit-reproducible for a given frame stream. */
-const brakeEntryAt = (w: Walk, uTarget: number, bound: number): number | null => {
+/** The first t in [0, bound] where the walk's k reaches `kTarget` — s(t) = kTarget − k(t) is
+ * monotone within one phase (k moves one way, its speed never changes sign inside a phase) —
+ * or null when the target is unreachable within the bound. Deterministic fixed-iteration
+ * bisection; identical frame streams reproduce bit-for-bit. */
+const timeToReach = (w: Walk, kTarget: number, bound: number): number | null => {
+  const s = (t: number): number => kTarget - phasePos(w, w.phaseMs + t);
+  if (s(0) === 0) return 0;
+  if (s(bound) === 0 || s(0) * s(bound) < 0) {
+    let lo = 0;
+    let hi = bound;
+    for (let i = 0; i < 40; i++) {
+      const mid = (lo + hi) / 2;
+      if (s(0) * s(mid) <= 0) hi = mid;
+      else lo = mid;
+    }
+    return (lo + hi) / 2;
+  }
+  return null;
+};
+/** The first t ≤ bound where the (hard) destination enters the braking horizon
+ * speed(t)·WALK_BRAKE_MS/2, SEALED AT the destination's crossing (row 4): past the target the
+ * plain |distance| is no longer monotone, so the g-bisection runs only on [0, timeToReach],
+ * where r(t) decreases and the horizon only grows — g is strictly decreasing. The walk can
+ * never integrate past a hard destination inside one call: the brake always engages first
+ * (at the crossing's horizon the distance is 0 while the speed is not — g < 0 there), so the
+ * closed-form brake lands exactly ON the stop. */
+const brakeEntryAt = (w: Walk, kTarget: number, bound: number): number | null => {
   const g = (t: number): number =>
-    Math.abs(uTarget - phasePos(w, w.phaseMs + t)) -
+    Math.abs(kTarget - phasePos(w, w.phaseMs + t)) -
     Math.abs(phaseSpd(w, w.phaseMs + t)) * (WALK_BRAKE_MS / 2);
   if (g(0) <= 0) return 0;
-  if (g(bound) > 0) return null;
+  const tCross = timeToReach(w, kTarget, bound);
+  if (tCross === null) return null; // the target is beyond this slice: no brake entry in it
+  if (g(tCross) > 0) return null; // not reachable before the crossing (defensive; cannot fire
+  // in cruise/accel, where g(tCross) = −|v|·350/2 < 0)
   let lo = 0;
-  let hi = bound;
+  let hi = tCross;
   for (let i = 0; i < 40; i++) {
     const mid = (lo + hi) / 2;
     if (g(mid) > 0) lo = mid;
@@ -495,8 +523,11 @@ export function advance(rail: Rail, state: RailState, deltaMs: number): RailStat
   let w = w0;
   // The frame splits exactly at its events (no intent jump): the lease's death, a phase
   // completion, a brake entry. Each slice integrates the closed form over its own span, so
-  // the trajectory is identical for any frame cadence.
-  for (let guard = 0; guard < 128 && remaining > 0; guard++) {
+  // the trajectory is identical for any frame cadence. Termination: every iteration consumes
+  // time (remaining strictly decreases) or advances the phase machine once (a zero-step slice
+  // only fires a phase transition — after it the next slice's step is ≥ its phase time > 0);
+  // the bound below is fail-LOUD, not silent (row 5): exhausting it is an invariant breach.
+  for (let guard = 0; guard < 1024 && remaining > 0; guard++) {
     const heldNow = w.held;
     const leaseDeath = heldNow || w.leaseMs <= 0 ? Infinity : w.leaseMs;
     const phaseLeft = w.phase === 'cruise' ? Infinity : w.phaseDurationMs - w.phaseMs;
@@ -523,7 +554,10 @@ export function advance(rail: Rail, state: RailState, deltaMs: number): RailStat
     const kEnd = phasePos(w, w.phaseMs + step);
     if (crossedInteger(kHere, kEnd)) s = { ...s, anchor: null };
     const heldMs = heldNow ? w.heldMs + step : w.heldMs;
-    const leaseMs = !heldNow && w.leaseMs > 0 ? Math.max(0, w.leaseMs - step) : w.leaseMs;
+    // The lease DRAINS FROM ITS PRESS (the ruling's tap law): while held too — held intent
+    // keeps the walk alive regardless (the intent event is the release), and a release then
+    // reads the REMAINING residual. Holding 250 ms of a 600 ms lease leaves 350 ms.
+    const leaseMs = Math.max(0, w.leaseMs - step);
 
     if (step === brakeEntry && brakeIndex !== null) {
       // Brake entry at the exact threshold: speed and position continue into the brake, which
@@ -559,12 +593,15 @@ export function advance(rail: Rail, state: RailState, deltaMs: number): RailStat
       s = { ...s, walk: w };
     } else if (step === phaseLeft && w.phase === 'brake') {
       // A brake's completion: the closed form lands ON its destination — the code swaps to the
-      // exact stop parameter, never relying on a tolerance for arrival.
+      // exact stop parameter, never relying on a tolerance for arrival. The completion
+      // DECISIONS (and the successor's intent clocks) read this slice's DRAINED clocks — never
+      // the pre-slice state (a same-frame tap must not inherit its pre-drain lease).
       if (w.brakeTo !== null) {
         const j = w.brakeTo;
         s = { ...s, u: stopParameter(rail, j), walk: null, anchor: null };
         const atEnd = j === 0 || j === n - 1;
-        if (atEnd || !intentAlive(w)) {
+        const aliveAfterSlice = heldNow || leaseMs > 0;
+        if (atEnd || !aliveAfterSlice) {
           s = settle(rail, s); // the walk rests: at a rail end, or where the intent ended
           break;
         }
@@ -580,16 +617,17 @@ export function advance(rail: Rail, state: RailState, deltaMs: number): RailStat
           phaseDurationMs: WALK_ACCEL_MS,
           brakeTo: null,
           reversalTo: null,
-          leaseMs: w.leaseMs,
+          leaseMs,
           held: w.held,
-          heldMs: w.heldMs,
+          heldMs,
         };
         s = { ...s, walk: w };
       } else {
         // The reversal turnaround: the heading flips THERE and the look re-anchors at the look
         // in force at the turnaround (B9's reversal law — the instant is the turnaround, not
         // the press). Live intent departs toward the stop just left; dead intent rests
-        // mid-segment (a legal rest: a reversal may end before its leg completes).
+        // mid-segment (a legal rest: a reversal may end before its leg completes). The
+        // decision reads the DRAINED clocks of this slice (row 3).
         const kTurnRaw = phasePos(w, w.phaseMs + step);
         const turn = snapped(kTurnRaw);
         const pose = samplePose(rail, {
@@ -606,7 +644,7 @@ export function advance(rail: Rail, state: RailState, deltaMs: number): RailStat
           anchor: { u0: turn, point: pose.target, limits: pose.limits },
         };
         const j = nextStopIndex(rail, turn, newHeading);
-        if (j !== null && intentAlive(w)) {
+        if (j !== null && (heldNow || leaseMs > 0)) {
           w = {
             heading: newHeading,
             phase: 'accel',
@@ -617,9 +655,9 @@ export function advance(rail: Rail, state: RailState, deltaMs: number): RailStat
             phaseDurationMs: WALK_ACCEL_MS,
             brakeTo: null,
             reversalTo: null,
-            leaseMs: w.leaseMs,
+            leaseMs,
             held: w.held,
-            heldMs: w.heldMs,
+            heldMs,
           };
           s = { ...s, walk: w };
         } else {
@@ -635,6 +673,10 @@ export function advance(rail: Rail, state: RailState, deltaMs: number): RailStat
     }
   }
   const wf = s.walk;
+  if (remaining > 0 && wf !== null) {
+    // Row 5: never silently truncate — an exhausted event budget is a law breach, thrown.
+    throw new RangeError(`walk: event budget exhausted with ${remaining} ms unconsumed`);
+  }
   if (wf === null) return s; // the arrival branches above already settled
   return settle(rail, { ...s, u: clamp(walkK(wf) / (n - 1), 0, 1), walk: wf });
 }
@@ -674,30 +716,66 @@ export function walkPress(
   }
   const w = state.walk;
   if (w !== null) {
+    // A press of the STILL-TRAVELED direction during a pending reversal CANCELS the reversal
+    // (R5's read): re-accelerate from the current speed toward the prior heading — no
+    // turnaround pause, speed continuous (the row-8 class).
+    if (w.reversalTo !== null && direction === w.heading) {
+      const k = walkK(w);
+      const v = walkSpeed(w);
+      return {
+        state: {
+          ...state,
+          walk: {
+            heading: w.heading,
+            phase: 'accel',
+            k0: k,
+            phaseMs: 0,
+            v0: v,
+            v1: w.heading * vC,
+            phaseDurationMs: Math.max(1, (WALK_ACCEL_MS * (vC - Math.abs(v))) / vC),
+            brakeTo: null,
+            reversalTo: null,
+            leaseMs: Math.max(w.leaseMs, WALK_LEASE_MS),
+            held: true,
+            heldMs: w.held ? w.heldMs : 0,
+          },
+        },
+        boundary: null,
+      };
+    }
     const intended: Heading = w.reversalTo ?? w.heading;
     if (direction === intended) {
       // The idempotency core: a same-intent press — a key repeat or a second surface — refills
       // the lease and keeps the hold clock running; the trajectory is untouched.
       const heldMs = w.held ? w.heldMs : 0; // a continuous hold keeps its clock; a re-press restarts it
-      if (w.phase === 'brake' && w.reversalTo === null) {
-        // §1.4(c): a press during a brake re-accelerates from the current speed — no stop.
-        const k = walkK(w);
-        const v = walkSpeed(w);
-        const walk: Walk = {
-          heading: w.heading,
-          phase: 'accel',
-          k0: k,
-          phaseMs: 0,
-          v0: v,
-          v1: w.heading * vC,
-          phaseDurationMs: Math.max(1, (WALK_ACCEL_MS * (vC - Math.abs(v))) / vC),
-          brakeTo: null,
-          reversalTo: null,
-          leaseMs: Math.max(w.leaseMs, WALK_LEASE_MS),
-          held: true,
-          heldMs,
-        };
-        return { state: { ...state, walk }, boundary: null };
+      if (w.phase === 'brake' && w.reversalTo === null && w.brakeTo !== null) {
+        const j = w.brakeTo;
+        const hardBrake =
+          j === 0 || j === stopCount(rail) - 1 || stopAt(rail, j).corner === true;
+        if (!hardBrake) {
+          // §1.4(c): a press during an INTENT-DEATH brake (a plain stop that the dying intent
+          // was braking into) re-accelerates from the current speed — no stop.
+          const k = walkK(w);
+          const v = walkSpeed(w);
+          const walk: Walk = {
+            heading: w.heading,
+            phase: 'accel',
+            k0: k,
+            phaseMs: 0,
+            v0: v,
+            v1: w.heading * vC,
+            phaseDurationMs: Math.max(1, (WALK_ACCEL_MS * (vC - Math.abs(v))) / vC),
+            brakeTo: null,
+            reversalTo: null,
+            leaseMs: Math.max(w.leaseMs, WALK_LEASE_MS),
+            held: true,
+            heldMs,
+          };
+          return { state: { ...state, walk }, boundary: null };
+        }
+        // A press during a LIVE hard-stop brake (an end or a corner the intent never left)
+        // is REDUNDANT: refills the clocks and leaves the trajectory alone (the arrival law
+        // re-departs the corner; the repeats of a held key resume past the end).
       }
       return {
         state: {
@@ -709,8 +787,9 @@ export function walkPress(
     }
     // The REVERSAL (§1.4 d): brake to the turnaround (T scales the from-rest ramp, so the
     // deceleration never exceeds it); the heading flips AT the turnaround. A turnaround that
-    // would cross a hard rail end is stolen by the end instead: the walk rests there with the
-    // new intent's heading, and the repeats of a still-held key resume it.
+    // would cross a hard rail end is stolen by the end THROUGH A TIMED BRAKE (never a jump):
+    // the walk decelerates into the end (T = 2r/v, the accepted early-arrest shape), rests
+    // there by the arrival law, and the repeats of a still-held key resume the new heading.
     const k = walkK(w);
     const v = walkSpeed(w);
     const t = Math.max(1, (WALK_ACCEL_MS * Math.abs(v)) / vC);
@@ -718,16 +797,22 @@ export function walkPress(
     const n = stopCount(rail);
     if (kTurn <= 0 || kTurn >= n - 1) {
       const end = kTurn >= n - 1 ? n - 1 : 0;
-      return {
-        state: settle(rail, {
-          ...state,
-          u: stopParameter(rail, end),
-          walk: null,
-          heading: direction,
-          anchor: null,
-        }),
-        boundary: null,
+      const r = Math.abs(end - k);
+      const walk: Walk = {
+        heading: w.heading,
+        phase: 'brake',
+        k0: k,
+        phaseMs: 0,
+        v0: v,
+        v1: 0,
+        phaseDurationMs: Math.max(1, (2 * r) / Math.abs(v)),
+        brakeTo: end,
+        reversalTo: null,
+        leaseMs: WALK_LEASE_MS,
+        held: true,
+        heldMs: 0,
       };
+      return { state: { ...state, walk }, boundary: null };
     }
     const walk: Walk = {
       heading: w.heading,
