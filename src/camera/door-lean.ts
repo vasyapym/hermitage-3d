@@ -14,6 +14,11 @@
  * or the pulse going stale — springs back rather than snaps. The freshness read is the
  * lean's OWN (the host stamps its clock; this module reads the age). Reduced motion:
  * the target is 0 whatever the pulse; the enter still fires.
+ * Sol R12, DECIDED: the press-to-door transit fires in the SAME handler as the press — the
+ * lean cannot build before the airlock starts, so the depart captures the EXISTING lean
+ * (typically 0; geometrically continuous by the §4.1 handover). The VISIBLE press pulse is
+ * the dead-end push (framePush with no chained room — no transit), where the spring has its
+ * rise/release to breathe; that is the intended press response, on the record here.
  * Handover (§4.1): on the frame a transit begins, the host locks the depart's door pose as
  * leanPose(railPose, tangent, metres) and resets the lean; departPose then measures its plane
  * distance from the leaned pose, so the glide starts where the lean left the camera.

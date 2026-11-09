@@ -641,6 +641,45 @@ describe('Sol stage-1 dispositions (the pre-gate review; rows 1–6 fixes are pi
     expect(path.length).toBeGreaterThan(2); // it was a real deceleration, not an instant cut
   });
 
+  it('Sol R3 (the drained-completion clocks), pinned at the turnaround: one 420 ms call', () => {
+    // A cruise → a tap-back (the reversal brake T = 420 at cruise) → advance(420) IN ONE
+    // CALL: the turnaround completes inside it; the successor accel must carry the DRAINED
+    // clocks of that slice (lease = 600 − 420 = 180; the tap never held) — the pre-fix code
+    // inherited the fresh 600 and the walk would over-live the tap's intent.
+    let state = walkPress(LINE, restingAt(0), 1, false, false).state;
+    state = advance(LINE, state, 1200); // cruising
+    let back = walkPress(LINE, state, -1, false, false).state;
+    expect(back.walk?.phase).toBe('brake');
+    back = walkRelease(back, -1); // the tap lifts at once (the lease keeps the 600)
+    back = advance(LINE, back, WALK_ACCEL_MS); // the exact reversal T at cruise speed
+    expect(back.walk?.phase).toBe('accel'); // the turnaround already re-departed
+    expect(back.walk?.reversalTo).toBeNull();
+    // The successor clock reads THE SLICE'S drain (600 − 420 = 180; the tap never held):
+    expect(back.walk?.held).toBe(false);
+    expect(back.walk?.leaseMs).toBeCloseTo(WALK_LEASE_MS - WALK_ACCEL_MS, 0);
+    // and the walk completes the backward leg exactly (its brake lands on stop 0):
+    back = runRest(LINE, back);
+    expect(back.walk).toBeNull();
+    expect(back.u).toBe(0);
+  });
+
+  it('Sol R17: the TWO-CLOCK split — the pure core drains at any delta; the host caps the feed', () => {
+    // The DECIDED contract (R17): the PURE core accepts any finite delta and drains the
+    // clocks by exactly that delta (the R4 huge-delta law — the cap must NOT stand in for
+    // that safety); the HOST feeds advance() at ≤ 100 ms of simulation time per frame, so
+    // after a hidden tab's resume the dwell drains in 100 ms chunks — 6 × the cap.
+    let state = walkPress(LINE, restingAt(0), 1, false, true).state; // a reduced cut plants it
+    expect(state.dwellMs).toBe(REDUCED_DWELL_MS);
+    state = advance(LINE, state, 1000); // the PURE law: huge delta = full drain
+    expect(state.dwellMs).toBe(0);
+    // the HOST side: feeding 100 ms chunks, the dwell expires after exactly six frames:
+    let hosted = walkPress(LINE, restingAt(0), 1, false, true).state; // a fresh cut plants it
+    let guard = 0;
+    while (hosted.dwellMs > 0 && guard++ < 12) hosted = advance(LINE, hosted, 100);
+    expect(guard).toBe(REDUCED_DWELL_MS / 100); // six 100 ms simulation frames
+    expect(hosted.dwellMs).toBe(0);
+  });
+
   it('Sol R8: pressing the traveled heading cancels a pending reversal — no turnaround pause', () => {
     let state = walkPress(LINE, restingAt(0), 1, false, false).state;
     state = advance(LINE, state, 1200); // cruising

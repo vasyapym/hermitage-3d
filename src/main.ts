@@ -3029,21 +3029,33 @@ const menuOwnsInput = (): boolean => indexDialog.open || !seasonList.hidden || g
 const chainNext = (boundary: 'forward' | 'backward'): NodeHandle | undefined =>
   RAIL_CHAIN[RAIL_CHAIN.indexOf(railNode) + (boundary === 'forward' ? 1 : -1)];
 /** ONE route resolution for the arrows and the touch buttons (§5: no second graph): the
- * aggregate press (the walk law's intent edge) and, at a settled rail end, the door chain.
- * A press toward the end that the pair or the keys make is a push — the lean's pulse rides
- * every boundary press edge (the press-edge law that replaced the R-UX2 wheel freshness). */
-const performRailPress = (direction: 1 | -1, repeat: boolean): void => {
+ * OWNED aggregate press (the walk law's intent edge) and, at a settled rail end, the door
+ * chain. A press toward the end that the pair or the keys make is a push — the lean's pulse
+ * rides every boundary press edge (the press-edge law that replaced the R-UX2 freshness). */
+const walkOwners = new Map<string, 1 | -1>();
+const performRailPress = (direction: 1 | -1, repeat: boolean, owner: string): void => {
   const result = walkPress(rail, railState, direction, repeat, reducedMotion);
   railState = result.state;
+  walkOwners.set(owner, direction); // the accepted claim rides the direction that accepted it
   if (result.boundary === null) return;
   const next = chainNext(result.boundary);
   framePush = result.boundary; // §2: a boundary step is a push (the same door law)
   lastBoundaryPressAtMs = performance.now(); // the lean's pulse read (the press-edge law)
   if (next !== undefined) beginTransitTo(next);
 };
-/** The aggregate release: the source let go (hold → intent ends now; tap → the lease drains). */
-const performRailRelease = (direction: 1 | -1): void => {
+const performRailRelease = (owner: string, direction: 1 | -1): void => {
+  if (walkOwners.get(owner) !== direction) return; // a foreign/rejected end owns nothing
+  walkOwners.delete(owner);
+  for (const still of walkOwners.values()) {
+    if (still === direction) return; // another live owner holds this direction: not the end
+  }
   railState = walkRelease(railState, direction);
+};
+/** Window loss / hidden tab: every owner lifts (R15's cancel-all + R11's no-stale-hold). */
+const releaseAllOwners = (): void => {
+  const directions = new Set(walkOwners.values());
+  walkOwners.clear();
+  for (const direction of directions) railState = walkRelease(railState, direction);
 };
 // The pair's joint admission facts (§5): ONE law everywhere now — a press is admitted
 // mid-walk (it extends the run), so admitTouchTravel lost its glideNull field (§5 NOTE).
@@ -3064,41 +3076,53 @@ const syncTouchRail = (): void => {
   touchForward.setAttribute('aria-disabled', String(!touchAvailable(1)));
   touchRail.dataset.u = String(railState.u);
   touchRail.dataset.look = JSON.stringify(railState.lookTarget);
+  // The e2e settle instrument (Sol R13/R14): the ACTUAL motion bit, not a nearest-stop read.
+  touchRail.dataset.moving = String(moving(railState));
 };
 // §4/CHALLENGE 3: click is the sole command path; native Enter/Space stay native while the
 // repeat storm is suppressed in keydown (one held activation = ONE command). aria-disabled
 // never blocks events — the guards below drop the activation and keep focus.
+// The pair's activation registry (Sol R15): each button owns ONE activation with a pointer id;
+// blur/hiding cancel every activation through this registry (the walk owners lift with them).
+const cancelPairActivations: Array<() => void> = [];
 for (const [buttonEl, direction] of [
   [touchBack, -1],
   [touchForward, 1],
 ] as const) {
-  // THIS pair's activation lifecycle (the walk law's adapter, R6/R7): pointerdown/up and the
-  // keyboard activation drive the press/release edges; the click stays the assistive fallback,
-  // suppressed when it belongs to an activation we just drove (browsers synthesize it).
+  // THIS pair's activation lifecycle (the walk law's adapter, R6/R7/R15/R16): the pointer and
+  // keyboard activations OWN the press (owner id + pointer id); releases match owners; the
+  // click stays the assistive fallback — the synthesized click of an activation we just drove
+  // is suppressed BY IDENTITY (a one-shot latch un-sealed by any new activation, never a timer).
   let active: 'pointer' | 'key' | null = null;
-  let lastActivationAtMs = -Infinity; // the click-suppression read (R7): one activation, one tap
-  const endActivation = (): void => {
+  let activePointerId: number | null = null;
+  let syntheticClickPending = false;
+  const owner = direction > 0 ? 'pair-forward' : 'pair-back';
+  const endActivation = (): void => { // the claim ends HERE, once, whatever the ending was
     if (active === null) return;
     active = null;
-    lastActivationAtMs = performance.now();
-    performRailRelease(direction);
+    activePointerId = null;
+    syntheticClickPending = true; // THIS activation's synthesized click is expected once
+    performRailRelease(owner, direction);
     syncTouchRail();
   };
+  cancelPairActivations.push(endActivation);
   buttonEl.addEventListener('pointerdown', (event) => {
     if (active !== null) return; // one activation at a time per button (the aggregate law)
     if (event.pointerType === 'mouse' && event.button !== 0) return;
     active = 'pointer';
+    activePointerId = event.pointerId; // THIS pointer owns the activation (R15)
+    syntheticClickPending = false; // a new activation un-seals the previous latch
     buttonEl.setPointerCapture(event.pointerId);
     hintTravel(); // §9: dropped intents record travel too — hint BEFORE admission
     if (!touchAdmitted()) {
       syncTouchRail();
       return;
     }
-    performRailPress(direction, false);
+    performRailPress(direction, false, owner);
     syncTouchRail();
   });
   const pointerEnd = (event: PointerEvent): void => {
-    if (active !== 'pointer') return;
+    if (active !== 'pointer' || event.pointerId !== activePointerId) return;
     if (buttonEl.hasPointerCapture(event.pointerId)) {
       buttonEl.releasePointerCapture(event.pointerId);
     }
@@ -3106,8 +3130,9 @@ for (const [buttonEl, direction] of [
   };
   buttonEl.addEventListener('pointerup', pointerEnd);
   buttonEl.addEventListener('pointercancel', pointerEnd);
-  buttonEl.addEventListener('lostpointercapture', () => {
-    if (active === 'pointer') endActivation(); // the capture left us: the intent lifts
+  buttonEl.addEventListener('lostpointercapture', (event: PointerEvent) => {
+    if (active !== 'pointer' || event.pointerId !== activePointerId) return;
+    endActivation(); // the capture left us: the intent lifts (the owning pointer only)
   });
   buttonEl.addEventListener('keydown', (event) => {
     if (event.key !== 'Enter' && event.key !== ' ') return;
@@ -3117,63 +3142,77 @@ for (const [buttonEl, direction] of [
     }
     const first = active === null;
     if (first) active = 'key';
+    syntheticClickPending = false; // a new activation un-seals the previous latch (R16)
+    event.preventDefault(); // the OWNED activation's native default stops here (Space's
+    // scroll, Enter's keydown click) — the walk's own press replaces it
     hintTravel(); // §9: dropped intents record travel too — hint BEFORE admission
     if (!touchAdmitted()) {
       if (first) syncTouchRail();
       return;
     }
-    performRailPress(direction, !first); // repeats are meaningful refills now (the walk law)
+    performRailPress(direction, !first, owner); // repeats are meaningful refills now (the walk law)
     syncTouchRail();
   });
   buttonEl.addEventListener('keyup', (event) => {
     if ((event.key !== 'Enter' && event.key !== ' ') || active !== 'key') return;
-    event.preventDefault();
+    event.preventDefault(); // Space's keyup default stops too (it would synthesize a click)
     endActivation();
   });
   buttonEl.addEventListener('blur', endActivation);
   buttonEl.addEventListener('click', () => {
-    // The AT fallback only: a click whose activation we drove is suppressed (its tap already
-    // made a press+release). An un-preceded click IS a tap: one press + one release.
-    if (active !== null || performance.now() - lastActivationAtMs < 250) return;
+    // The AT fallback only: the click the browser SYNTHESIZED from our just-ended activation
+    // is consumed once (identity — an independent assistive click after it passes, and any
+    // new activation un-seals the latch).
+    if (syntheticClickPending) {
+      syntheticClickPending = false;
+      return;
+    }
+    if (active !== null) return;
     hintTravel();
     if (!touchAdmitted()) return;
-    performRailPress(direction, false);
-    performRailRelease(direction);
+    performRailPress(direction, false, owner); // a fallback activation claims + taps
+    performRailRelease(owner, direction);
     syncTouchRail();
   });
 }
-// The arrow keys' press edges run the SAME funnel the buttons run. Repeats are meaningful
-// refills now (the walk law). Releases are processed UNGATED — even when the dialog opens or
-// focus lands on the scrub mid-hold, a stale hold must never outlive its owner.
+// The arrow keys' press edges run the SAME funnel the buttons run — and the SAME admission
+// decision (Sol R10: ONE law whose source-specific exclusions stay): the menu's ownership
+// (dialog open, season list open, a canvas gesture) blocks the keys too. Repeats are
+// meaningful refills now (the walk law). Releases are processed UNGATED but OWNED (R11) —
+// a stale hold never outlives its owner, and a rejected source's release claims nothing.
 const arrowDirection = (event: KeyboardEvent): 1 | -1 | 0 =>
   event.key === 'ArrowRight' || event.key === 'ArrowUp'
     ? 1
     : event.key === 'ArrowLeft' || event.key === 'ArrowDown'
       ? -1
       : 0;
+const arrowOwner = (direction: 1 | -1): string =>
+  direction > 0 ? 'arrow-forward' : 'arrow-backward';
 document.addEventListener('keydown', (event) => {
   if (event.target === scrub) return; // the scrub owns its keys
   if (indexDialog.open) return; // §6.4: the index dialog owns the arrows while open
   const direction = arrowDirection(event);
   if (direction === 0) return;
   hintTravel(); // §9: an arrow press (incl. a boundary press that fires an airlock) is travel
-  if (!railInputReady()) return;
+  if (!railInputReady() || menuOwnsInput()) return; // ONE admission law (R10)
   event.preventDefault();
-  performRailPress(direction, event.repeat); // the SAME press + chain resolution the buttons run
+  performRailPress(direction, event.repeat, arrowOwner(direction)); // the SAME press + chain
+  // resolution the buttons run
+  syncTouchRail();
 });
 document.addEventListener('keyup', (event) => {
   const direction = arrowDirection(event);
   if (direction === 0) return;
-  performRailRelease(direction); // a release never owns a gate
+  performRailRelease(arrowOwner(direction), direction); // owned, ungated (R11)
 });
 window.addEventListener('blur', () => {
-  performRailRelease(1);
-  performRailRelease(-1);
+  releaseAllOwners(); // every walk owner lifts (R11/R15)
+  for (const cancel of cancelPairActivations) cancel(); // the pair closures clear too
 });
 document.addEventListener('visibilitychange', () => {
   if (document.hidden) {
-    performRailRelease(1);
-    performRailRelease(-1);
+    releaseAllOwners(); // every walk owner lifts (R11/R15)
+    for (const cancel of cancelPairActivations) cancel(); // the pair closures clear too
   }
 });
 
@@ -3228,8 +3267,8 @@ const boundaryNext = (direction: 'forward' | 'backward'): NodeHandle | null => {
   return next ?? null;
 };
 /** The rail end this settled state sits on, only when an airlock side exists there.
- * The prompt's road: it must show once the visitor STOPS at the door — a glide means
- * the camera is still moving and the chrome stays quiet. */
+ * The prompt's road: it must show once the visitor STOPS at the door — mid-walk the camera
+ * is still moving (moving() === true) and the chrome stays quiet. */
 const railSettledBoundary = (): 'backward' | 'forward' | null => {
   if (moving(railState)) return null; // mid-walk is nowhere to prompt
   if (railState.u >= 1 - EDGE_SETTLE_EPS) {
@@ -3531,12 +3570,13 @@ const tick = (timeMs: number): void => {
   }
   framePush = null;
 
-  // Camera rail (§6.1): advance the glide (a cut already settled) and apply the pose — the
-  // rail owns position and gaze every frame; the inputs below mutate its state in listeners.
-  // During an open threshold beat the beat owns the pose and the exposure instead (§4).
-  // The host clamps the frame the WALK consumes (the hard-destination law): a hidden tab's
-  // resume must not step past a stop with the intent dead. The other deltaMs consumers (the
-  // transit machine, the HUD cadence, the arrival beats) keep the real frame delta.
+  // Camera rail (§6.1): advance the walk, on SIMULATION time (Sol R17, the decided split) —
+  // everything the advance() call consumes (the walk phases, the dwell/lease/hold clocks)
+  // runs on the capped clock: a reduced-motion dwell drains in 100 ms chunks after a long
+  // hidden frame, by the contract, not by accident. The real-time consumers (the transit
+  // machine, the HUD cadence, the arrival beats) keep the real frame delta.
+  // The rail owns position and gaze every frame; the inputs below mutate its state in
+  // listeners. During an open threshold beat the beat owns the pose and the exposure (§4).
   railState = advance(rail, railState, Math.min(deltaMs, 100));
   if (!applyBeatPose()) applyRailPose();
 
