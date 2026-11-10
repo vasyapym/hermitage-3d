@@ -14,5 +14,11 @@
   },
   "formatter": { "indentStyle": "space", "lineWidth": 100 },
   "javascript": { "formatter": { "quoteStyle": "single" } },
-  "linter": { "enabled": true }
+  "linter": { "enabled": true },
+  "overrides": [
+    {
+      "includes": ["tools/reencode.mjs"],
+      "linter": { "rules": { "suspicious": { "noApproximativeNumericConstant": "off" } } }
+    }
+  ]
 }
