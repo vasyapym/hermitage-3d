@@ -312,7 +312,9 @@ test('terminal locks', async ({ browser, baseURL }) => {
   await run(browser, baseURL, async (p) => {
     for (const d of [-1, 1]) {
       if (d > 0) {
-        await p.goto(`${baseURL ?? 'http://127.0.0.1:4173'}/#/1812?at=2026-06-21T12:00:00Z&lang=ru&hud=1`);
+        await p.goto(
+          `${baseURL ?? 'http://127.0.0.1:4173'}/#/1812?at=2026-06-21T12:00:00Z&lang=ru&hud=1`,
+        );
         await roomReady(p);
         await farEnd(p);
         expect((await position(p)).stop).toMatch(/M4$/);
