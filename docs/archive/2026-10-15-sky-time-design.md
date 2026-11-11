@@ -16,6 +16,57 @@ Land the sky-and-time subsystem as a finished contract: solar recipe and accepta
 - Solar recipe and acceptance gates are now the Phase 0 contract.
 - DEC-009, DEC-010 recorded in docs/decisions.md by this round (ownership outside this batch).
 
+### DEC-009 — Sky: hand-written analytic dome material
+- **Census:** three.js Sky (Preetham) as-is vs a hand-written analytic dome material.
+- **Verdict:** Preetham (three.js Sky) is a daylight model. Below the horizon it extrapolates a look that fails the defining white-night band (−8.6°…−4.6°; tag n/r at pin). The dome is built around a controlled twilight continuation (docs/design-sky-time.md §7).
+- **Budget:** consumes 1 of the ≤ 3 custom-material slots (cap; tag n/r at pin); 2 remain (derived: ≤ 3 minus 1).
+- **Rejected:** three.js Sky as-is. It costs no material slot, but visually fails the project's defining light state.
+- **By-construction claims:** none stated.
+- **Source:** docs/decisions.md · DEC-009 · L13 (479 B) @ 438c3a3f232f5467a5ccaed8bbb9ea606b51236e
+
+### DEC-010 — No PMREM in Phase 0
+- **Census:** PMREM regeneration on clock movement vs no PMREM (no environment bake).
+- **Verdict:** exterior massing is diffuse Lambert under a solar directional light + a palette-derived hemispheric light; `scene.environment` stays null (docs/design-sky-time.md §7).
+- **By-construction claim:** the bake jank failure mode is removed by removing the bake, not rate-limited.
+- **Rejected:** PMREM regeneration on clock movement. A non-preemptible GPU stall returns at any cadence.
+- **Revisit:** by ADR in Phase 2 with interiors.
+- **Numbers:** none beyond the phase scope (Phase 0; revisit Phase 2).
+- **Source:** docs/decisions.md · DEC-010 · L14 (452 B) @ 438c3a3f232f5467a5ccaed8bbb9ea606b51236e
+
+### DEC-009 — Sky: hand-written analytic dome material
+- **Census:** three.js Sky (Preetham) as-is vs a hand-written analytic dome material.
+- **Verdict:** Preetham (three.js Sky) is a daylight model. Below the horizon it extrapolates a look that fails the defining white-night band (−8.6°…−4.6°; tag n/r at pin). The dome is built around a controlled twilight continuation (docs/design-sky-time.md §7).
+- **Budget:** consumes 1 of the ≤ 3 custom-material slots (cap; tag n/r at pin); 2 remain (derived: ≤ 3 minus 1).
+- **Rejected:** three.js Sky as-is. It costs no material slot, but visually fails the project's defining light state.
+- **By-construction claims:** none stated.
+- **Source:** docs/decisions.md · DEC-009 · L13 (479 B) @ 438c3a3f232f5467a5ccaed8bbb9ea606b51236e
+
+### DEC-010 — No PMREM in Phase 0
+- **Census:** PMREM regeneration on clock movement vs no PMREM (no environment bake).
+- **Verdict:** exterior massing is diffuse Lambert under a solar directional light + a palette-derived hemispheric light; `scene.environment` stays null (docs/design-sky-time.md §7).
+- **By-construction claim:** the bake jank failure mode is removed by removing the bake, not rate-limited.
+- **Rejected:** PMREM regeneration on clock movement. A non-preemptible GPU stall returns at any cadence.
+- **Revisit:** by ADR in Phase 2 with interiors.
+- **Numbers:** none beyond the phase scope (Phase 0; revisit Phase 2).
+- **Source:** docs/decisions.md · DEC-010 · L14 (452 B) @ 438c3a3f232f5467a5ccaed8bbb9ea606b51236e
+
+### DEC-009 — Sky: hand-written analytic dome material
+- **Census:** three.js Sky (Preetham) as-is vs a hand-written analytic dome material.
+- **Verdict:** Preetham (three.js Sky) is a daylight model. Below the horizon it extrapolates a look that fails the defining white-night band (−8.6°…−4.6°; tag n/r at pin). The dome is built around a controlled twilight continuation (docs/design-sky-time.md §7).
+- **Budget:** consumes 1 of the ≤ 3 custom-material slots (cap; tag n/r at pin); 2 remain (derived: ≤ 3 minus 1).
+- **Rejected:** three.js Sky as-is. It costs no material slot, but visually fails the project's defining light state.
+- **By-construction claims:** none stated.
+- **Source:** docs/decisions.md · DEC-009 · L13 (479 B) @ 438c3a3f232f5467a5ccaed8bbb9ea606b51236e
+
+### DEC-010 — No PMREM in Phase 0
+- **Census:** PMREM regeneration on clock movement vs no PMREM (no environment bake).
+- **Verdict:** exterior massing is diffuse Lambert under a solar directional light + a palette-derived hemispheric light; `scene.environment` stays null (docs/design-sky-time.md §7).
+- **By-construction claim:** the bake jank failure mode is removed by removing the bake, not rate-limited.
+- **Rejected:** PMREM regeneration on clock movement. A non-preemptible GPU stall returns at any cadence.
+- **Revisit:** by ADR in Phase 2 with interiors.
+- **Numbers:** none beyond the phase scope (Phase 0; revisit Phase 2).
+- **Source:** docs/decisions.md · DEC-010 · L14 (452 B) @ 438c3a3f232f5467a5ccaed8bbb9ea606b51236e
+
 ## Measured — every budget line as stated at each flip, with the flip date
 None stated at the pin.
 
@@ -28,6 +79,7 @@ None stated at the pin.
 - Owed (implementation-time checks): the 1e-5° vector tolerance; the three.js chunk APIs.
 
 ## Mentioned elsewhere — segments about this round that lived in other rounds' records
+- Round 4 (2026-10-16, sky dome rig code relay) was briefed on src/sky/rig.ts against §7 + DEC-009 and implements the hand-written dome under DEC-009. It uses the x²·x²·x² 6th-power lobe and GLSL1 + <common> for the dithering rand, and is gated on zero textures. Validate green: 66 tests, 129 015 gzip bytes of 350 000. → docs/archive/2026-10-16-sky-dome-rig-code.md
 None in this batch.
 
 ## Sources — file · entity · line range @ <pinned commit>
