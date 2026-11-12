@@ -61,6 +61,90 @@ pvCover fwidth analytic AA + Nyquist fades + mod-1024 wrap; the FIRST repo fwidt
 
 The composition is one hook inside src/procedural/ground-snow.ts: the paving call BEFORE the snow mix. Cache key Ground/snow-slot@1|Ground/paving-slot@1; the wSnow=0 IEEE identity + wSnow=1 full-cover unchanged by construction.
 
+### DEC-040 — Palace Square portrait witness — the boot subject is a pure function of (committed S0, viewport aspect)
+
+The law (CREATIVE, adopted verbatim): src/camera/portrait-frame.ts, pure.
+
+Frames whose horizontal half-FOV at S0 cannot reach the Column get a boot SUBJECT re-aimed by the shortfall (yaw only, live on resize; the arrival law camera-blind).
+The host feeds samplePose a derived rail via squareRailForAspect.
+Identity BY REFERENCE for every aspect ≥ WITNESS_ASPECT 0.8657 (all desktop goldens, landscape phones) → zero committed-golden consequence.
+Else δ = clamp(witness 24.2577° − halfHFOV, 0, 12).
+The declared share COLUMN_WITNESS_FRACTION = 1/3 of the shaft's base width; S0_YAW_DELTA_MAX_DEG = 12 bounds the S0→Sh glide swing.
+Sh/S1/look rows/captions/ids untouched; eye/pitch unchanged; ?cam=/?stop= seeds unaffected.
+
+
+Owner declarations carried: the 1/3 share; the 12° clamp.
+Test pins:
+
+The aspect table: 1280/720, 844/390, 1, 0.9, 0.8657 → δ 0 + squareRailForAspect toBe(SQUARE_RAIL).
+768/1024 → 2.926; 320/568 → 7.915; 360/744 → 10.122, subject′ ≈ (40.05, 11, 7.80); 390/844 → 10.734; 0.3 → 12 clamped.
+The purity fence, and the anti-copy scan (no 190/1.83/−24/230 literals).
+
+
+Rejected:
+
+A boot look offset (user offsets persist re-clamped through Sh/S1).
+A width/pointer-gated second rail (a step gate fails portrait tablets at 0.75 and narrow desktop windows, and keys the frame on an input capability, not what it can show).
+Moving S0 (DEC-037's own REJECTED row).
+A pitch component (moves the horizon and the facade band on every portrait frame).
+Widening the FOV in portrait (a global-look change for a local framing problem).
+
+
+SALVAGE CORRECTION of the reply's §4:
+
+The travel-hint «MUST paint at S0 on every width» ruling is STRUCK.
+The ≤767.98 #travel-hint { display: none } is a committed owner-verdict rule with its own register note in style.css («the dismissal state machine still runs — it just has nothing to fade»).
+So the m-real-boot 0×0 read is BY DESIGN, exactly like DEC-036 V2's caption slot.
+No hint change lands; no pixel-hint e2e row is written.
+
+### DEC-041 — Palace Square paving term + footprint — the ground reads the sourced 1977 diabase sett field with an analytic light-granite band grid, wear mottle and a declared footprint edge
+
+The owner ask: the square ground «reads as a vacuum» — zero texture at any scale on 44–56 % of the frame, no extent cue on three open sides, empty flanks.
+
+THE CENSUS (CREATIVE, enumerate-first per its own §0):
+
+ADOPTED as ONE surface term: A the sett field (SOURCED: the wiki's 1977 diabase re-laying); B the light-granite band grid (READINGS: aerial photographs); C the footprint/surround (footprint SOURCED ≈5.4 ha; edges DECLARED).
+D the column stylobate DEFERRED (successor; sourcing pending).
+E lanterns SUCCESSOR (count sourced for the 1977 corners only; form/height absent everywhere).
+F flanking massings SUCCESSOR (architecture, not ground; the Guards Corps HQ east first — what the look-right frame misses).
+G the facade pavement strip DEFERRED (sub-pixel from S0, ≈9 px at S1).
+H bollards/chains/drains/the fence enclosure floor NOT MODELLED (not in the source).
+I the snow legibility at wSnow=1 (dec-noon reads mid-grey; the brightness bound is the hemi SKY core): OWNER FLAG — outside the ground fence (sky palette/exposure must-not-touch).
+J the wet-sett sheen SUCCESSOR (leaves Lambert; lighting goldens).
+K people/vehicles = charter non-goal.
+
+
+THE LAW (one term, one slot):
+
+src/world/paving.ts pure ↔ src/procedural/ground-paving.ts (the GLSL twin; interpolates the constants, restates none) ↔ tests/paving.test.ts.
+The slot Ground/paving-slot@1 composes INSIDE the existing ground-snow compile hook (one hook, one material; customProgramCacheKey <snow@1>|<paving@1>).
+The paving call runs BEFORE the snow mix: the snow slot sees a paved base, and its wSnow=0 IEEE identity and wSnow=1 full-cover are unchanged by construction → the committed winter field pixels are untouched.
+Only the June goldens' ground pixels move → the re-baseline request R-ground-1 is parked for the stack finale.
+
+
+Constants:
+
+PAVING_SETT_M 0.12; PAVING_JOINT_M 0.012 (joint area 0.19); PAVING_JOINT_TONE 0.7; PAVING_SETT_TONE_AMP 0.18.
+PAVING_BODY_TONE 1.060445 (the cell mean equals the base exactly — no tonal step with distance).
+PAVING_MOTTLE_M 3.5 / 0.10.
+PAVING_BAND_PERIOD_M 20 / WIDTH 0.6 / TONE [3.6,3.5,3.3] (band area ≈5.9 % → mean +≈15 % linear, declared).
+PAVING_BAND_ANCHOR (COLUMN_X+10, COLUMN_Z+10) (the Column axis a cell centre; the fence's ±8.25 inside one cell with 1.75 m to the nearest band).
+SQUARE_FOOTPRINT x −110..110 / z 92..330 (220 × 238 m ≈ 5.2 ha against the sourced 5.4).
+PAVING_EDGE_SOFT_M 0.6; PAVING_SURROUND_TONE 0.8.
+The ground plane 600→2000 m (the sky dome is a fullscreen NDC trick — no finite radius to collide; the committed shadow box untouched).
+PAVING_SOURCE 'wiki-ru'.
+
+
+Antialiasing law: bands/joints by pixel-footprint coverage (fwidth — the FIRST repo use; safe: three r186's WebGL2 pipeline compiles ESSL3 where derivatives are core); hashes by a Nyquist fade to the mean; hash inputs wrap mod 1024 (period ≈123 m).
+Tooling riding this DEC: the capture battery's det-only look injection ?look=<yawDeg>,<pitchDeg>.
+
+It is parsed only with det=1 and clamped by the stop's own look row.
+It is applied at THREE host sites: after the boot seed; inside onLangChange after seedRail; at the hashchange re-parse under the explicit transit === null gate.
+The language-activation re-seed case was found by the round's own capture battery.
+
+Budget: the measured integration +1,525 B gz (the implementation +1,493 + the capture battery's boot-look race fix +32 — d608012) of the declared +2,000 reservation.
+The June-asphalt ledger record (rgb(64,66,68)) re-samples at the stack finale (expected ≈ +15 % linear from the bands).
+
 ## Measured
 
 At the branch (opening): the S0 portrait frame (360×744) drops the Column entirely (fence sliver ≈1.2 % of width at the right edge). The DERIVED S0 gaze→column bearing is ≈25.0° vs the 14.14° portrait half-FOV. Landscape 844×390 shows it whole; desktop 1280 shows shaft+pedestal right-of-center.

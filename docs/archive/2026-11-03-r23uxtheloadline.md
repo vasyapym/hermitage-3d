@@ -15,6 +15,201 @@ It shows only when the card's data wait outlives 1 s and latches to the title cl
 The stages read the host's REAL awaits: open = manifest+chunk, bytes = the rows streaming, assemble = mount+compile, failed = the chain rejected — announced once.
 Integration corrections recorded: the byte total is the MANIFEST ROW SUM (payload), not data-ledger-bytes (the reply's GPU-VRAM confusion); the unit tokens ride the committed BYTE_UNITS map (+MB/МБ), the decimals ride format.ts's law; the failed optional row taken.
 
+### DEC-038 — The load line (R23-ux): a room's loading stage reads live under the card's room title — verb + honest byte pair, nothing drawn, 1 s card-threshold, latch to the title clear
+
+Two corrections to the specialist's design:
+
+The byte TOTAL is the manifest row sum (payload bytes), NOT data-ledger-bytes. The reply's claim confused the GPU-VRAM ledger with payload.
+The unit tokens ride the committed BYTE_UNITS map (+MB/МБ) and format.ts's decimal law instead of numeric keys.
+
+
+NEW: corner-stack member #load-line, with the serif title above it. The question «is it alive?» is asked where the only visible thing is, the title; the answer sits under it.
+
+Style: sans 400 --hint-size, tabular numerals, .72 white, nowrap.
+States: off (display:none at settle — no box, no layout), armed (box transparent), open|bytes|assemble|failed.
+
+
+The pure law is src/ui/load-line.ts.
+
+It shows from the first card frame with !dataReady && phaseElapsedMs ≥ 1000.
+It LATCHES until the title clears (the same tick, the same 240 ms fade).
+It never extends the card: the FSM is untouched, and the 800 ms floor reads byte-identical when data lands early.
+
+
+The stages mark the host's real awaits via the ensureRoom chain and a per-row streaming sink.
+
+The sink is RowByteSink, passed through fetchRoom's optional param and bounded by setLoadSink around one serialized hold chain.
+open = manifest+chunk (verb only).
+bytes = the rows' honest received/total pair: 100 KB write steps, one-decimal MB / integer KB, the unit once, nbsp joined (formatByteProgress in format.ts).
+assemble = mount+compile («Собираем зал · {total}»).
+failed = the chain rejected («Зал не открылся · обновите страницу»), announced once over #scene-announcement, role=alert; no button — the owner may strike the row at review.
+
+
+A11y: the line is aria-hidden. ONE spoken word at the first show (chrome.load.open in #caption-live); the arrival announcement reports completion.
+Strings are RU-first, keyed chrome.load.open/bytes/assemble/failed. Charset ZERO growth (· U+00B7 ships).
+Rejected alternatives: none recorded at pin beyond the two corrections above.
+IN-FLIGHT instrument rows:
+
+LOAD_LINE_AFTER_MS is the tuning knob (1 s; raise to 1.5 s if a device pass shows the warm re-entry pass clustered at 1.0–1.4 s).
+The square's ~2.3–3.7 s boot shows nothing (another round if asked).
+Prefetch never shows (the visitor is not in the wait).
+
+### DEC-038 — The load line (R23-ux): a room's loading stage reads live under the card's room title — verb + honest byte pair, nothing drawn, 1 s card-threshold, latch to the title clear
+
+Two corrections to the specialist's design:
+
+The byte TOTAL is the manifest row sum (payload bytes), NOT data-ledger-bytes. The reply's claim confused the GPU-VRAM ledger with payload.
+The unit tokens ride the committed BYTE_UNITS map (+MB/МБ) and format.ts's decimal law instead of numeric keys.
+
+
+NEW: corner-stack member #load-line, with the serif title above it. The question «is it alive?» is asked where the only visible thing is, the title; the answer sits under it.
+
+Style: sans 400 --hint-size, tabular numerals, .72 white, nowrap.
+States: off (display:none at settle — no box, no layout), armed (box transparent), open|bytes|assemble|failed.
+
+
+The pure law is src/ui/load-line.ts.
+
+It shows from the first card frame with !dataReady && phaseElapsedMs ≥ 1000.
+It LATCHES until the title clears (the same tick, the same 240 ms fade).
+It never extends the card: the FSM is untouched, and the 800 ms floor reads byte-identical when data lands early.
+
+
+The stages mark the host's real awaits via the ensureRoom chain and a per-row streaming sink.
+
+The sink is RowByteSink, passed through fetchRoom's optional param and bounded by setLoadSink around one serialized hold chain.
+open = manifest+chunk (verb only).
+bytes = the rows' honest received/total pair: 100 KB write steps, one-decimal MB / integer KB, the unit once, nbsp joined (formatByteProgress in format.ts).
+assemble = mount+compile («Собираем зал · {total}»).
+failed = the chain rejected («Зал не открылся · обновите страницу»), announced once over #scene-announcement, role=alert; no button — the owner may strike the row at review.
+
+
+A11y: the line is aria-hidden. ONE spoken word at the first show (chrome.load.open in #caption-live); the arrival announcement reports completion.
+Strings are RU-first, keyed chrome.load.open/bytes/assemble/failed. Charset ZERO growth (· U+00B7 ships).
+Rejected alternatives: none recorded at pin beyond the two corrections above.
+IN-FLIGHT instrument rows:
+
+LOAD_LINE_AFTER_MS is the tuning knob (1 s; raise to 1.5 s if a device pass shows the warm re-entry pass clustered at 1.0–1.4 s).
+The square's ~2.3–3.7 s boot shows nothing (another round if asked).
+Prefetch never shows (the visitor is not in the wait).
+
+### DEC-038 — The load line (R23-ux): a room's loading stage reads live under the card's room title — verb + honest byte pair, nothing drawn, 1 s card-threshold, latch to the title clear
+
+Two corrections to the specialist's design:
+
+The byte TOTAL is the manifest row sum (payload bytes), NOT data-ledger-bytes. The reply's claim confused the GPU-VRAM ledger with payload.
+The unit tokens ride the committed BYTE_UNITS map (+MB/МБ) and format.ts's decimal law instead of numeric keys.
+
+
+NEW: corner-stack member #load-line, with the serif title above it. The question «is it alive?» is asked where the only visible thing is, the title; the answer sits under it.
+
+Style: sans 400 --hint-size, tabular numerals, .72 white, nowrap.
+States: off (display:none at settle — no box, no layout), armed (box transparent), open|bytes|assemble|failed.
+
+
+The pure law is src/ui/load-line.ts.
+
+It shows from the first card frame with !dataReady && phaseElapsedMs ≥ 1000.
+It LATCHES until the title clears (the same tick, the same 240 ms fade).
+It never extends the card: the FSM is untouched, and the 800 ms floor reads byte-identical when data lands early.
+
+
+The stages mark the host's real awaits via the ensureRoom chain and a per-row streaming sink.
+
+The sink is RowByteSink, passed through fetchRoom's optional param and bounded by setLoadSink around one serialized hold chain.
+open = manifest+chunk (verb only).
+bytes = the rows' honest received/total pair: 100 KB write steps, one-decimal MB / integer KB, the unit once, nbsp joined (formatByteProgress in format.ts).
+assemble = mount+compile («Собираем зал · {total}»).
+failed = the chain rejected («Зал не открылся · обновите страницу»), announced once over #scene-announcement, role=alert; no button — the owner may strike the row at review.
+
+
+A11y: the line is aria-hidden. ONE spoken word at the first show (chrome.load.open in #caption-live); the arrival announcement reports completion.
+Strings are RU-first, keyed chrome.load.open/bytes/assemble/failed. Charset ZERO growth (· U+00B7 ships).
+Rejected alternatives: none recorded at pin beyond the two corrections above.
+IN-FLIGHT instrument rows:
+
+LOAD_LINE_AFTER_MS is the tuning knob (1 s; raise to 1.5 s if a device pass shows the warm re-entry pass clustered at 1.0–1.4 s).
+The square's ~2.3–3.7 s boot shows nothing (another round if asked).
+Prefetch never shows (the visitor is not in the wait).
+
+### DEC-038 — The load line (R23-ux): a room's loading stage reads live under the card's room title — verb + honest byte pair, nothing drawn, 1 s card-threshold, latch to the title clear
+
+Two corrections to the specialist's design:
+
+The byte TOTAL is the manifest row sum (payload bytes), NOT data-ledger-bytes. The reply's claim confused the GPU-VRAM ledger with payload.
+The unit tokens ride the committed BYTE_UNITS map (+MB/МБ) and format.ts's decimal law instead of numeric keys.
+
+
+NEW: corner-stack member #load-line, with the serif title above it. The question «is it alive?» is asked where the only visible thing is, the title; the answer sits under it.
+
+Style: sans 400 --hint-size, tabular numerals, .72 white, nowrap.
+States: off (display:none at settle — no box, no layout), armed (box transparent), open|bytes|assemble|failed.
+
+
+The pure law is src/ui/load-line.ts.
+
+It shows from the first card frame with !dataReady && phaseElapsedMs ≥ 1000.
+It LATCHES until the title clears (the same tick, the same 240 ms fade).
+It never extends the card: the FSM is untouched, and the 800 ms floor reads byte-identical when data lands early.
+
+
+The stages mark the host's real awaits via the ensureRoom chain and a per-row streaming sink.
+
+The sink is RowByteSink, passed through fetchRoom's optional param and bounded by setLoadSink around one serialized hold chain.
+open = manifest+chunk (verb only).
+bytes = the rows' honest received/total pair: 100 KB write steps, one-decimal MB / integer KB, the unit once, nbsp joined (formatByteProgress in format.ts).
+assemble = mount+compile («Собираем зал · {total}»).
+failed = the chain rejected («Зал не открылся · обновите страницу»), announced once over #scene-announcement, role=alert; no button — the owner may strike the row at review.
+
+
+A11y: the line is aria-hidden. ONE spoken word at the first show (chrome.load.open in #caption-live); the arrival announcement reports completion.
+Strings are RU-first, keyed chrome.load.open/bytes/assemble/failed. Charset ZERO growth (· U+00B7 ships).
+Rejected alternatives: none recorded at pin beyond the two corrections above.
+IN-FLIGHT instrument rows:
+
+LOAD_LINE_AFTER_MS is the tuning knob (1 s; raise to 1.5 s if a device pass shows the warm re-entry pass clustered at 1.0–1.4 s).
+The square's ~2.3–3.7 s boot shows nothing (another round if asked).
+Prefetch never shows (the visitor is not in the wait).
+
+### DEC-038 — The load line (R23-ux): a room's loading stage reads live under the card's room title — verb + honest byte pair, nothing drawn, 1 s card-threshold, latch to the title clear
+
+Two corrections to the specialist's design:
+
+The byte TOTAL is the manifest row sum (payload bytes), NOT data-ledger-bytes. The reply's claim confused the GPU-VRAM ledger with payload.
+The unit tokens ride the committed BYTE_UNITS map (+MB/МБ) and format.ts's decimal law instead of numeric keys.
+
+
+NEW: corner-stack member #load-line, with the serif title above it. The question «is it alive?» is asked where the only visible thing is, the title; the answer sits under it.
+
+Style: sans 400 --hint-size, tabular numerals, .72 white, nowrap.
+States: off (display:none at settle — no box, no layout), armed (box transparent), open|bytes|assemble|failed.
+
+
+The pure law is src/ui/load-line.ts.
+
+It shows from the first card frame with !dataReady && phaseElapsedMs ≥ 1000.
+It LATCHES until the title clears (the same tick, the same 240 ms fade).
+It never extends the card: the FSM is untouched, and the 800 ms floor reads byte-identical when data lands early.
+
+
+The stages mark the host's real awaits via the ensureRoom chain and a per-row streaming sink.
+
+The sink is RowByteSink, passed through fetchRoom's optional param and bounded by setLoadSink around one serialized hold chain.
+open = manifest+chunk (verb only).
+bytes = the rows' honest received/total pair: 100 KB write steps, one-decimal MB / integer KB, the unit once, nbsp joined (formatByteProgress in format.ts).
+assemble = mount+compile («Собираем зал · {total}»).
+failed = the chain rejected («Зал не открылся · обновите страницу»), announced once over #scene-announcement, role=alert; no button — the owner may strike the row at review.
+
+
+A11y: the line is aria-hidden. ONE spoken word at the first show (chrome.load.open in #caption-live); the arrival announcement reports completion.
+Strings are RU-first, keyed chrome.load.open/bytes/assemble/failed. Charset ZERO growth (· U+00B7 ships).
+Rejected alternatives: none recorded at pin beyond the two corrections above.
+IN-FLIGHT instrument rows:
+
+LOAD_LINE_AFTER_MS is the tuning knob (1 s; raise to 1.5 s if a device pass shows the warm re-entry pass clustered at 1.0–1.4 s).
+The square's ~2.3–3.7 s boot shows nothing (another round if asked).
+Prefetch never shows (the visitor is not in the wait).
+
 ## Measured
 
 vitest 1014/1/0 (61 files; +38 rows incl. R24-ux); build 281,474 gzip of 350,000 on the branch (+1,330 for BOTH parallel rounds combined — the 285,707 ceiling holds); RU 7,332 of 12,000; budgets ok.

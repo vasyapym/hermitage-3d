@@ -29,6 +29,181 @@ under 2a+K the far-fresh boxes measured 0.692/0.640 ≥ the 0.6 target, near 0.5
 The unenumerated class (the standing shape): the fence round's cooperation pin («the lane under the west railing») is re-stated to the narrow-path facts. The fence's west face sits at the falloff tail (6.69 m east of the path's line at COLUMN_Z); the east face is full fresh (23.19 m).
 Sol 6.1 retraction: the «dec-night byte-identical / dec-noon only» reading is RETRACTED. The (1−wNight) gate bounds the sky term only; the 2a ground albedo applies at wSnow=1 at night too. Expected golden flips = the square's dec-noon AND dec-night.
 
+### DEC-043 — The winter square — the Palace Square's class-I closure: the ground's trample lane is a narrow walked path and the snowed sky carries a measured wSnow-gated gain
+
+THE CAUSE BATTERY at dec-noon (at=2026-12-21T10:00:00Z&det=1, S0 desktop):
+
+P1 baseline field/sky 0.275, with the whole lower half of the frame reading the trampled lane (≈87/255 — the ±10/±22 m lane sat UNDER the camera at every stop).
+P2 all-fresh albedo 0.576 < 0.6 → the LIGHT bounds it (the grant's condition).
+P3 hemi ×2 lifts above.
+P4 shadows byte-neutral.
+P5 no haze term exists (verified).
+
+
+LANDED:
+
+2a the lane re-declared a narrow walked path (DECLARED; the walked-path reading).
+
+Core ±2.5 m / edge ±7 m; TRAMPLED [0.38,0.39,0.41] → [0.55,0.56,0.58] (packed snow); TRAMPLE_BASE 0.3 → 0.1.
+Cache key Ground/snow-slot@1 → @2.
+The wSnow=0 IEEE identity and the full-cover law hold.
+The fence round's cooperation pin re-stated: the fence's west face sits at the falloff tail — 6.69 m east of the path's line at COLUMN_Z — and the east face is full fresh at 23.19 m.
+
+
+2b snowSkyGain(wSnow, wNight) = 1 + wSnow·(1−wNight)·0.5.
+
+K = 1.5, the smallest of the drawn {1.5, 2, 3} meeting the declared ≥ 0.6 field/sky target.
+MEASURED under 2a+K: far-fresh 0.692 / 0.640; near 0.512 (the path-dominated zone).
+Exactly 1.0 at wSnow = 0 and at wNight = 1 — the multiply SKIPS at those endpoints; the draw's (1−wNight) gate is applied unconditionally.
+
+
+2c the caption.sh beat — EN 'past the column' / RU «колонна позади» (owner-ratified copy).
+
+
+The Sol review's 4.1 correction on record: the expected golden flips are the square's dec-noon AND dec-night (the gate bounds the sky contribution only; the 2a ground albedo applies at wSnow=1 at night). Every other golden is byte-identical.
+Law: docs/design-ground-snow.md §12.
+Rejected: the broad used-zone lane (±10/±22) variant (the draw's own owner-veto path — named, not taken); 2b without the owner's explicit grant; carrying the road's constants through the paving slot.
+
+### DEC-043 — The winter square — the Palace Square's class-I closure: the ground's trample lane is a narrow walked path and the snowed sky carries a measured wSnow-gated gain
+
+THE CAUSE BATTERY at dec-noon (at=2026-12-21T10:00:00Z&det=1, S0 desktop):
+
+P1 baseline field/sky 0.275, with the whole lower half of the frame reading the trampled lane (≈87/255 — the ±10/±22 m lane sat UNDER the camera at every stop).
+P2 all-fresh albedo 0.576 < 0.6 → the LIGHT bounds it (the grant's condition).
+P3 hemi ×2 lifts above.
+P4 shadows byte-neutral.
+P5 no haze term exists (verified).
+
+
+LANDED:
+
+2a the lane re-declared a narrow walked path (DECLARED; the walked-path reading).
+
+Core ±2.5 m / edge ±7 m; TRAMPLED [0.38,0.39,0.41] → [0.55,0.56,0.58] (packed snow); TRAMPLE_BASE 0.3 → 0.1.
+Cache key Ground/snow-slot@1 → @2.
+The wSnow=0 IEEE identity and the full-cover law hold.
+The fence round's cooperation pin re-stated: the fence's west face sits at the falloff tail — 6.69 m east of the path's line at COLUMN_Z — and the east face is full fresh at 23.19 m.
+
+
+2b snowSkyGain(wSnow, wNight) = 1 + wSnow·(1−wNight)·0.5.
+
+K = 1.5, the smallest of the drawn {1.5, 2, 3} meeting the declared ≥ 0.6 field/sky target.
+MEASURED under 2a+K: far-fresh 0.692 / 0.640; near 0.512 (the path-dominated zone).
+Exactly 1.0 at wSnow = 0 and at wNight = 1 — the multiply SKIPS at those endpoints; the draw's (1−wNight) gate is applied unconditionally.
+
+
+2c the caption.sh beat — EN 'past the column' / RU «колонна позади» (owner-ratified copy).
+
+
+The Sol review's 4.1 correction on record: the expected golden flips are the square's dec-noon AND dec-night (the gate bounds the sky contribution only; the 2a ground albedo applies at wSnow=1 at night). Every other golden is byte-identical.
+Law: docs/design-ground-snow.md §12.
+Rejected: the broad used-zone lane (±10/±22) variant (the draw's own owner-veto path — named, not taken); 2b without the owner's explicit grant; carrying the road's constants through the paving slot.
+
+### DEC-043 — The winter square — the Palace Square's class-I closure: the ground's trample lane is a narrow walked path and the snowed sky carries a measured wSnow-gated gain
+
+THE CAUSE BATTERY at dec-noon (at=2026-12-21T10:00:00Z&det=1, S0 desktop):
+
+P1 baseline field/sky 0.275, with the whole lower half of the frame reading the trampled lane (≈87/255 — the ±10/±22 m lane sat UNDER the camera at every stop).
+P2 all-fresh albedo 0.576 < 0.6 → the LIGHT bounds it (the grant's condition).
+P3 hemi ×2 lifts above.
+P4 shadows byte-neutral.
+P5 no haze term exists (verified).
+
+
+LANDED:
+
+2a the lane re-declared a narrow walked path (DECLARED; the walked-path reading).
+
+Core ±2.5 m / edge ±7 m; TRAMPLED [0.38,0.39,0.41] → [0.55,0.56,0.58] (packed snow); TRAMPLE_BASE 0.3 → 0.1.
+Cache key Ground/snow-slot@1 → @2.
+The wSnow=0 IEEE identity and the full-cover law hold.
+The fence round's cooperation pin re-stated: the fence's west face sits at the falloff tail — 6.69 m east of the path's line at COLUMN_Z — and the east face is full fresh at 23.19 m.
+
+
+2b snowSkyGain(wSnow, wNight) = 1 + wSnow·(1−wNight)·0.5.
+
+K = 1.5, the smallest of the drawn {1.5, 2, 3} meeting the declared ≥ 0.6 field/sky target.
+MEASURED under 2a+K: far-fresh 0.692 / 0.640; near 0.512 (the path-dominated zone).
+Exactly 1.0 at wSnow = 0 and at wNight = 1 — the multiply SKIPS at those endpoints; the draw's (1−wNight) gate is applied unconditionally.
+
+
+2c the caption.sh beat — EN 'past the column' / RU «колонна позади» (owner-ratified copy).
+
+
+The Sol review's 4.1 correction on record: the expected golden flips are the square's dec-noon AND dec-night (the gate bounds the sky contribution only; the 2a ground albedo applies at wSnow=1 at night). Every other golden is byte-identical.
+Law: docs/design-ground-snow.md §12.
+Rejected: the broad used-zone lane (±10/±22) variant (the draw's own owner-veto path — named, not taken); 2b without the owner's explicit grant; carrying the road's constants through the paving slot.
+
+### DEC-043 — The winter square — the Palace Square's class-I closure: the ground's trample lane is a narrow walked path and the snowed sky carries a measured wSnow-gated gain
+
+THE CAUSE BATTERY at dec-noon (at=2026-12-21T10:00:00Z&det=1, S0 desktop):
+
+P1 baseline field/sky 0.275, with the whole lower half of the frame reading the trampled lane (≈87/255 — the ±10/±22 m lane sat UNDER the camera at every stop).
+P2 all-fresh albedo 0.576 < 0.6 → the LIGHT bounds it (the grant's condition).
+P3 hemi ×2 lifts above.
+P4 shadows byte-neutral.
+P5 no haze term exists (verified).
+
+
+LANDED:
+
+2a the lane re-declared a narrow walked path (DECLARED; the walked-path reading).
+
+Core ±2.5 m / edge ±7 m; TRAMPLED [0.38,0.39,0.41] → [0.55,0.56,0.58] (packed snow); TRAMPLE_BASE 0.3 → 0.1.
+Cache key Ground/snow-slot@1 → @2.
+The wSnow=0 IEEE identity and the full-cover law hold.
+The fence round's cooperation pin re-stated: the fence's west face sits at the falloff tail — 6.69 m east of the path's line at COLUMN_Z — and the east face is full fresh at 23.19 m.
+
+
+2b snowSkyGain(wSnow, wNight) = 1 + wSnow·(1−wNight)·0.5.
+
+K = 1.5, the smallest of the drawn {1.5, 2, 3} meeting the declared ≥ 0.6 field/sky target.
+MEASURED under 2a+K: far-fresh 0.692 / 0.640; near 0.512 (the path-dominated zone).
+Exactly 1.0 at wSnow = 0 and at wNight = 1 — the multiply SKIPS at those endpoints; the draw's (1−wNight) gate is applied unconditionally.
+
+
+2c the caption.sh beat — EN 'past the column' / RU «колонна позади» (owner-ratified copy).
+
+
+The Sol review's 4.1 correction on record: the expected golden flips are the square's dec-noon AND dec-night (the gate bounds the sky contribution only; the 2a ground albedo applies at wSnow=1 at night). Every other golden is byte-identical.
+Law: docs/design-ground-snow.md §12.
+Rejected: the broad used-zone lane (±10/±22) variant (the draw's own owner-veto path — named, not taken); 2b without the owner's explicit grant; carrying the road's constants through the paving slot.
+
+### DEC-043 — The winter square — the Palace Square's class-I closure: the ground's trample lane is a narrow walked path and the snowed sky carries a measured wSnow-gated gain
+
+THE CAUSE BATTERY at dec-noon (at=2026-12-21T10:00:00Z&det=1, S0 desktop):
+
+P1 baseline field/sky 0.275, with the whole lower half of the frame reading the trampled lane (≈87/255 — the ±10/±22 m lane sat UNDER the camera at every stop).
+P2 all-fresh albedo 0.576 < 0.6 → the LIGHT bounds it (the grant's condition).
+P3 hemi ×2 lifts above.
+P4 shadows byte-neutral.
+P5 no haze term exists (verified).
+
+
+LANDED:
+
+2a the lane re-declared a narrow walked path (DECLARED; the walked-path reading).
+
+Core ±2.5 m / edge ±7 m; TRAMPLED [0.38,0.39,0.41] → [0.55,0.56,0.58] (packed snow); TRAMPLE_BASE 0.3 → 0.1.
+Cache key Ground/snow-slot@1 → @2.
+The wSnow=0 IEEE identity and the full-cover law hold.
+The fence round's cooperation pin re-stated: the fence's west face sits at the falloff tail — 6.69 m east of the path's line at COLUMN_Z — and the east face is full fresh at 23.19 m.
+
+
+2b snowSkyGain(wSnow, wNight) = 1 + wSnow·(1−wNight)·0.5.
+
+K = 1.5, the smallest of the drawn {1.5, 2, 3} meeting the declared ≥ 0.6 field/sky target.
+MEASURED under 2a+K: far-fresh 0.692 / 0.640; near 0.512 (the path-dominated zone).
+Exactly 1.0 at wSnow = 0 and at wNight = 1 — the multiply SKIPS at those endpoints; the draw's (1−wNight) gate is applied unconditionally.
+
+
+2c the caption.sh beat — EN 'past the column' / RU «колонна позади» (owner-ratified copy).
+
+
+The Sol review's 4.1 correction on record: the expected golden flips are the square's dec-noon AND dec-night (the gate bounds the sky contribution only; the 2a ground albedo applies at wSnow=1 at night). Every other golden is byte-identical.
+Law: docs/design-ground-snow.md §12.
+Rejected: the broad used-zone lane (±10/±22) variant (the draw's own owner-veto path — named, not taken); 2b without the owner's explicit grant; carrying the road's constants through the paving slot.
+
 ## Measured
 
 At opening (742bb3d, census): JS 284,041/350,000 (headroom 1,666 to the operating ceiling 285,707), RU 7,332/12,000, exterior payload 0/4,000,000.
