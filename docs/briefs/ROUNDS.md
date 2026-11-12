@@ -2,6 +2,8 @@
 
 How design happens here: the orchestrator (working session) sends one self-contained brief at a time to a specialist chat opened fresh by the owner for every brief (no chat memory across briefs — the brief restates everything; search and other tool use at its discretion was invited, and the DEC-038 round's reply arithmetic arrived exact under that invitation), then salvages the reply into this repository and validates it. Briefs live in `docs/briefs/` **only while open** — deleted once their outcome is integrated; the text survives in the source chat, the outcome survives in this log and in the docs.
 
+Rows are capped (≤ 1,000 B) and rewritten at flips, never appended to; a round's narrative lives in its `docs/archive/` file — the `→` pointer in *Integrated in*.
+
 | Round | Date | Topic | Outcome | Integrated in |
 |---|---|---|---|---|
 | **movement-ux** · MERGED (slot 3 of the wave, merge mode n/r, full e2e/golden gate rode THIS last-merging session) | 2026-11-09 | The walkthrough's movement round — the owner's four observations: the wheel's travel removed ENTIRELY, arrows the single mechanism (rapid/hold = one continuous constant-pace walk, no per-leg full-stop). Vault: projects v13; brief 2. | Union gate: chromium 104/116, exactly the expected classes (9 flips + two single-green storm rows + keyboard-walk DEFERRED-NOT-WAIVED ×3); goldens re-baselined + confirmed (15/15 green, 0 flips; owner's eye-read pending); shared JS ≈ +1,129 (declared +1,000; ≈ +129 over — owner plate); DEC parked. | STATE PARALLEL bullet; budget-ledger reservation row (+1,000 B gz request) · merge n/r · → docs/archive/2026-11-09-movementux.md |
