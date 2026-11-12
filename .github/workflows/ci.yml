@@ -20,6 +20,11 @@ jobs:
       - run: pnpm test
       - run: pnpm build
       - run: pnpm budget
+      # The records lane's own check (the ratified shape: caps, pointer resolution, the
+      # no-citations law, the Standing-protocol immutability). WARNING-level this round per
+      # the owner's ratification — blocking next round.
+      - run: node tools/records-check.mjs
+        continue-on-error: true
   e2e:
     runs-on: ubuntu-latest
     env:
