@@ -125,6 +125,25 @@ DUSK_FIXTURES = {'rastrelli-gallery': True, 'jordan': True, 'military-gallery': 
 # tools/reencode.mjs (staged summary lm.patches carries the atlas rect); 'atEncode': True
 # keeps THIS table the declared colour record while gating the bake-time application.
 # The military-gallery row keeps firing here exactly as committed.
+# RG-DOORWAY-READS (the G2 glare law, the accepted brief-2 reply §2.3 — the DECLARED record
+# twin; the machine source + the gradient live in reencode.mjs GLARE_* / reencode-paint.py
+# glare_field, kept in sync by law): per part and state value(u,v) = tint_s × L_s × (EDGE +
+# (1 − EDGE) × falloff(centre→rect edge)), EDGE 0.55, the smooth cos² window; the lunette
+# shares the card's law. Per state: DAY neutral daylight at L_DAY (the ONE dial, turned at
+# G2 — landed at 1.1; the pale end-wall texel beside the card reads plate lum 0.3566).
+# The contrast domains, recorded apart (the review finding, 2026-11-13 — the pre-encode
+# ratio alone was NOT rendered proof): pre-encode paint ratio 1.1/0.3566 = 3.08× (the dial's
+# setup arithmetic); encoded scene-linear 0.8/0.3566 = 2.24× (the card's core clips at the
+# 0.8 wp → stored 1.0, decoded 0.8 — the FORMAT's ceiling at this wall plate); display
+# (AgX at eff 1.6, measured off the captures) day 1.77× / dusk 1.52× / night 1.39×; the
+# night light-domain read 0.87× — the owner's eye pending. The floor puts the centre above
+# the 0.8 white point on purpose — the card renders at the atlas's expressible ceiling, the
+# cos² fall survives in the outer band. DUSK the stair's sconce tint at 0.35 of day; NIGHT
+# the chandelier tint
+# at 0.25. The triples below are the law's CENTRE values (tint × L_s); the falloff falls
+# smoothly to EDGE × them at each rect's rim. The old flat triples (the verdict's law and
+# the owner-ratified ×1.14 screen-side calibration) are SUPERSEDED — the ×1.14 was the
+# G1-distance calibration; the dial is G2-first now.
 PANE_PAINT = {
     'military-gallery': {
         'part': 'lantern_glazing',
@@ -135,9 +154,9 @@ PANE_PAINT = {
     'rastrelli-gallery': {
         'atEncode': True,
         'part': 'stairlight',
-        'day': (0.55, 0.58, 0.62),
-        'dusk': (0.45, 0.32, 0.17),
-        'nightChandeliers': (0.60, 0.42, 0.22),
+        'day': (1.049677, 1.106527, 1.183982),
+        'dusk': (0.514242, 0.365956, 0.194455),
+        'nightChandeliers': (0.371666, 0.260296, 0.136386),
     },
 }
 # RG-F2 verdict 2.2: the bake-only stage spill on the shell's stairlight slot — applied

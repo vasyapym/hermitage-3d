@@ -60,8 +60,12 @@ describe('throat law (R-UX3 §3, §11, D2)', () => {
       expect(lum(here)).toBeLessThan(lum(before));
     }
     const seam = LAMP_STATIONS_M[0] ?? 0;
-    expect(lum(skyLitAlbedo(seam))).toBeLessThan(10 / 255);
-    expect(lum(lampRadiance(seam))).toBe(0);
+    // The seam stone keeps a tenth of the mouth (the AO floor's intent): the multiplier at
+    // d 20 is 0.83·e^(−20/9) + 0.10 ≈ 0.19 — the run's gradient, never black.
+    expect(lum(skyLitAlbedo(seam))).toBeCloseTo(0.04002, 4);
+    // The seam carries the lamp's toe — GLOW_TOE (0.04) × the lampSlab scale factor: the
+    // cool stone crosses into warm light, never a step into absolute black.
+    expect(lum(lampRadiance(seam))).toBeCloseTo(0.04 * lum(lampSlab()), 9);
     for (let i = 1; i < LAMP_STATIONS_M.length; i++) {
       const here = lampRadiance(LAMP_STATIONS_M[i] ?? 0);
       const before = lampRadiance(LAMP_STATIONS_M[i - 1] ?? 0);

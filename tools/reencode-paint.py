@@ -1,7 +1,8 @@
 # tools/reencode-paint.py — the published-state patch-paint (D-4/D-23 law, RG-E1 variant).
 # Fills the named patch rect(s) of a denoised or COMPOSED linear EXR with a flat linear
-# colour and writes the result, so reencode.mjs's single-input encode sees the paint as
-# content. Deterministic: the output depends only on the input EXR and the payload JSON.
+# colour, or with the glare law's gradient field, and writes the result, so reencode.mjs's
+# single-input encode sees the paint as content. Deterministic: the output depends only on
+# the input EXR and the payload JSON.
 #
 #   blender -b --factory-startup -noaudio -P tools/reencode-paint.py -- \
 #     <in.exr> <out.exr> <payload.json>
@@ -29,12 +30,37 @@
 # payload JSON: [{"rect": [x, y, w, h]}, ...] paired colour entries —
 # entries: [{"rect": [x, y, w, h], "colour": [r, g, b]}, ...] in CHART coordinates
 # (y runs from the top, Blender's pixel rows run from the bottom), pixels of the atlas.
+# The glare law's entries carry {"rect": [...], "glare": {"edge", "tint", "level"}}:
+# value(u,v) = tint × level × (EDGE + (1 − EDGE) × falloff(centre→rect edge)) with the
+# smooth cos² window — 1 at the rect's centre texel, 0 at its rim (the machine below).
 import json
 import math
 import sys
 
 import bpy
 import numpy as np
+
+
+def glare_field(rect, edge, tint, level):
+    """The glare law's field over one rect, chart coordinates (y-from-top).
+
+    value(u,v) = tint × level × (EDGE + (1 − EDGE) × falloff(centre→rect edge));
+    d = the axis-normalized Chebyshev distance from the rect's centre to its nearest
+    edge (|u−0.5|·2, |v−0.5|·2, max) — 0 at the centre, 1 at the rim — and
+    falloff(d) = cos²(π·d/2): a smooth window, 1 at the centre texel, 0 at the rim,
+    zero slope at both ends. The centre texel reads tint × level exactly; the rim
+    reads EDGE of it. Deterministic: a fixed formula over texel centres, no
+    randomness, no clock."""
+    x, y, w, h = (int(v) for v in rect)
+    tex_u = (np.arange(w, dtype=np.float64) + 0.5) / w
+    tex_v = (np.arange(h, dtype=np.float64) + 0.5) / h
+    du = np.abs(tex_u - 0.5) / 0.5
+    dv = np.abs(tex_v - 0.5) / 0.5
+    d = np.maximum(du[None, :], dv[:, None])
+    falloff = 0.5 * (1.0 + np.cos(np.pi * d))
+    scale = edge + (1.0 - edge) * falloff
+    field = np.asarray(tint, dtype=np.float64)[None, None, :] * (level * scale)[:, :, None]
+    return field
 
 
 def paint(src_path, out_path, payload_path):
@@ -49,7 +75,25 @@ def paint(src_path, out_path, payload_path):
     for entry in payload:
         x, y, w, h = (int(v) for v in entry['rect'])
         r0 = height - (y + h)
-        plane[r0 : r0 + h, x : x + w, 0:3] = np.array(entry['colour'], dtype=np.float32)
+        if 'glare' in entry:
+            law = entry['glare']
+            edge = float(law['edge'])
+            level = float(law['level'])
+            tint = law['tint']
+            if not (0.0 < edge < 1.0):
+                raise SystemExit(f"paint: glare edge must be in (0, 1), got {edge!r}")
+            if not (math.isfinite(level) and level > 0.0):
+                raise SystemExit(f'paint: glare level must be finite and > 0, got {level!r}')
+            if not (
+                isinstance(tint, list)
+                and len(tint) == 3
+                and all(math.isfinite(c) and c > 0.0 for c in tint)
+            ):
+                raise SystemExit(f'paint: glare tint must be 3 finite positive channels, got {tint!r}')
+            field = glare_field(entry['rect'], edge, tint, level)
+            plane[r0 : r0 + h, x : x + w, 0:3] = field.astype(np.float32)
+        else:
+            plane[r0 : r0 + h, x : x + w, 0:3] = np.array(entry['colour'], dtype=np.float32)
     dst = bpy.data.images.new(
         'reencode_paint', width, height, alpha=True, float_buffer=True, is_data=True
     )

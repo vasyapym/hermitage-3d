@@ -27,7 +27,7 @@ that decides whether a next round's declared allowance fits. The project-course 
 
 | line | cap | operating ceiling | committed (main @ the square-env2 merge, 2026-11-05) | committed (branch `roomload-mglight`) | reserved (open branches) | remaining to the operating ceiling |
 |---|---|---|---|---|---|---|
-| JS gzip (all chunks) | 350,000 | 285,707 — *proposed explicit ceiling, owner ratification pending (design-project-course §1)* | **282,514** (the fresh measure at the merged tree: 281,748 + the DEC-038 fence's union shift +766 — the branch's own round print was +780 over its pre-branch base 280,150) | merged | none — all four stack slots merged or merging | **3,193** |
+| JS gzip (all chunks) | 350,000 | 285,707 — *proposed explicit ceiling, owner ratification pending (design-project-course §1)* | **282,514** (the fresh measure at the merged tree: 281,748 + the DEC-038 fence's union shift +766 — the branch's own round print was +780 over its pre-branch base 280,150) | merged | **doorway-reads +94 B gz** (JS 285,264 measured on the branch, validate green 2026-11-13; the branch's payload rows net-negative or untouched) | **3,193** |
 | RU strings (lazy chunk) | 12,000 | — | 7,332 (byte-equal — the jordan round touched no chrome copy) | 7,332 | none | **4,668** |
 | basis transcoder | 600,000 | — | 584,862 | unchanged | none | 15,138 — effectively closed (the dossier: only a measured vendor upgrade opens it) |
 | exterior (square payload) | 4,000,000 | — | 0 | unchanged | none | full; the dossier: measure the procedural baseline BEFORE an asset program (no texture/tri/draw caps yet — under-specified) |

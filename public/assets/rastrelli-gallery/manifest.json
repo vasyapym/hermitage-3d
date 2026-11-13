@@ -3,20 +3,20 @@
   "files": [
     {
       "path": "lm/day.ktx2",
-      "bytes": 185659,
-      "sha256": "658fd27133c3f1f681bc90a499cb27b212b8be5e2f56336aa1e2f702ae76fa71",
+      "bytes": 185647,
+      "sha256": "5c1a499afc977b785e1394d9badc75d76d3b6bff3299ea17cf70e37fca980b6e",
       "kind": "ktx2"
     },
     {
       "path": "lm/dusk.ktx2",
-      "bytes": 167986,
-      "sha256": "483b43514f97166182c8332605643cffc8b31930ad7e8bcc3a8cae77234c9194",
+      "bytes": 167956,
+      "sha256": "0bb018fdef44ac9298f9c439a6617660cc985514660f9513256f084cd42a03c2",
       "kind": "ktx2"
     },
     {
       "path": "lm/night.ktx2",
-      "bytes": 165959,
-      "sha256": "064ea1dfe914bb3e01d273e2bfb7ceaa0ef023b9be98b9d079666c07c1b50474",
+      "bytes": 165953,
+      "sha256": "5b5d211169220570c3b20d5597a60fa8728c4a9e624556d5276b1deea5e633cd",
       "kind": "ktx2"
     },
     {

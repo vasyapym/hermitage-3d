@@ -6,7 +6,8 @@
   font-family: var(--font-sans, system-ui, sans-serif);
   /* The overlay chrome's type scale. One scale for the link, the toggle and the caption —
      they are one chrome register; the hint is one step under it. The r26.1 owner law: the
-     chrome steps UP on big displays (the ≥1600 px media at the file's end). */
+     chrome steps UP once per big-display tier: 1600, 1920 (the media blocks at the file's
+     end). */
   --chrome-size: 14px;
   --hint-size: 12px;
 }
@@ -482,7 +483,7 @@ body {
    1600 px CSS width (~+20%): the chrome register 14 → 17, the hint 12 → 14; the hint's
    anchor follows the caption's taller line (40 + one 25.5 px line + one 8 px gap). One
    device, every chrome element together; the pinned fixtures (360/768/1280) are below the
-   breakpoint, the 1920 fixture pair pins this law. */
+   breakpoint, the 1920 fixture pair pins the ≥1920 tier. */
 @media (min-width: 1600px) {
   :root {
     --chrome-size: 17px;
@@ -548,6 +549,28 @@ body {
 @media (min-width: 1600px) {
   #edge-prompt {
     bottom: 30px;
+  }
+}
+/* r26.2 (owner, 2026-11-12): a second step at 1920 px CSS width — the register ×1.2 again
+   (chrome 17 → 20, the hint one step under 14 → 16) and the three interactive members' rest
+   alpha lifts to the clock row's 0.72: on a big display the chrome is found, not discovered.
+   Hover/focus stay #fff + underline. Nothing below 1920 changes; the 1920 fixture pair pins
+   this tier (the ≥1600 tier is pinned by no fixture). */
+@media (min-width: 1920px) {
+  :root {
+    --chrome-size: 20px;
+    --hint-size: 16px;
+  }
+  #notes-link,
+  #lang-toggle,
+  #index-open {
+    color: rgba(255, 255, 255, 0.72);
+  }
+  #travel-hint {
+    bottom: 78px; /* 40 + one 30 px line + one 8 px gap — the r26.1 derivation at 20 px */
+  }
+  #edge-prompt {
+    bottom: 34px; /* 24 × 20/14 — r26.1 gave no derivation for its 30; eyeball on the 1920 fixture */
   }
 }
 /* Corner stack (R13) — design-staircase.md §6.1 beats + design-walkthrough-ux.md §4: the

@@ -219,7 +219,13 @@ import {
 } from './world/registry';
 import { snowSkyGain, snowWeight } from './world/snow-season';
 import { parseStopParam } from './world/stop-param';
-import { arrivePose, type BeatPose, beatExposure, departPose } from './world/threshold-beat';
+import {
+  arrivePose,
+  type BeatPose,
+  beatExposure,
+  departPose,
+  levelHeading,
+} from './world/threshold-beat';
 import { THROAT_VOID } from './world/throat';
 
 const SUN_DISTANCE = 1000;
@@ -785,6 +791,11 @@ const rig = createSkyRig(scene, camera);
 const elevationDegOf = (s: SkySample): number =>
   (Math.asin(Math.max(-1, Math.min(1, s.sunDirection[1]))) * 180) / Math.PI;
 
+// Declared above applyEpoch on purpose: the top-level boot call below (applyEpoch(epochMs))
+// reads it — down in the frame-block declarations it was a dev-mode TDZ crash the build's
+// module scoping masked.
+let lastLabelEpochMs = -1;
+
 const applyEpoch = (nextEpochMs: number): void => {
   epochMs = nextEpochMs;
   sample = sampleSky(nextEpochMs);
@@ -1233,9 +1244,11 @@ document.fonts.addEventListener('loadingerror', layoutTouchRail);
 
 const UP_AXIS = new THREE.Vector3(0, 1, 0);
 const RIGHT_AXIS = new THREE.Vector3(1, 0, 0);
-/** The unit tangent INTO the boundary the camera is pushing: the same derivation the
- * threshold beat locks on its first depart frame (§4.1) — one helper, both consumers, so
- * the lean's direction and the departure glide's direction agree by construction. */
+/** The door heading INTO the boundary the camera is pushing (§4.1a): the same derivation the
+ * threshold beat locks on its first depart frame — one helper, both consumers, so the lean's
+ * direction and the departure glide's direction agree by construction. The raw unit tangent is
+ * flattened by `levelHeading` (a stair's slope removed; a level tangent rides through by
+ * reference). */
 const doorTangent = (pose: BeatPose, u: number): Vec3 => {
   const step = 1e-4;
   const inner = samplePosition(rail, Math.min(1, Math.max(0, u >= 0.5 ? u - step : u + step)));
@@ -1246,7 +1259,7 @@ const doorTangent = (pose: BeatPose, u: number): Vec3 => {
   ];
   const len = Math.hypot(raw[0], raw[1], raw[2]);
   if (len <= 0) throw new Error('zimny: the door stop has a degenerate rail tangent');
-  return [raw[0] / len, raw[1] / len, raw[2] / len];
+  return levelHeading([raw[0] / len, raw[1] / len, raw[2] / len]);
 };
 const applyRailPose = (): void => {
   const pose = samplePose(rail, railState);
@@ -2705,7 +2718,6 @@ let massingReady = false;
 let compileStarted = false;
 let lastFrameTime: number | undefined;
 let lastLiveSampleAt = performance.now();
-let lastLabelEpochMs = -1;
 let resizePending = false;
 let titleShown = false;
 // Mobile-B §4: the rail's first layout runs ONCE the initialized chrome is laid out (the
