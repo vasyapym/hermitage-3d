@@ -240,9 +240,10 @@ test('arrow walk: the prompt click and a fresh ArrowRight at a settled end enter
       )
       .toBe(`${stop} | hold 0`);
   };
-  // The square's two gap legs to its far end S1 (R18-ux D1: S0 → Sh → S1); the walk rests
-  // there and the edge prompt appears.
-  for (const stop of ['Sh', 'S1']) await legTo(stop);
+  // The square's four gap legs to its far end S1 (R18-ux D1's halfway rhythm; the
+  // 2026-11-12/13 stops round's quarter-point inserts: S0 → S0b → Sh → Shb → S1); the walk
+  // rests there and the edge prompt appears.
+  for (const stop of ['S0b', 'Sh', 'Shb', 'S1']) await legTo(stop);
   await expect(edgePrompt).toHaveAttribute('data-visible', 'true', { timeout: 30_000 });
   // The label names the room through the door (§2/D1): verb + ' · ' + the room's NAME.
   await expect(edgePrompt).toHaveText('Enter · Rastrelli Gallery', { timeout: 30_000 });
@@ -266,9 +267,10 @@ test('arrow walk: the prompt click and a fresh ArrowRight at a settled end enter
   // The entry stop's first settled frame shows the caption only (§9): the door label waits
   // for a backward push, and a forward press at a mid-room settle walks one gap instead.
   await expect(edgePrompt).toHaveAttribute('data-visible', 'false');
-  // The gallery's three gap legs to its far end G2 (G0 → Gj → G1 → G2): the walk law
-  // brakes into the corner stop Gj (hard for the walk), re-departs live, then rests at G2.
-  for (const stop of ['Gj', 'G1', 'G2']) await legTo(stop);
+  // The gallery's five gap legs to its far end G2 (G0 → Gj → Gjb → G1 → G1b → G2; the
+  // 2026-11-12/13 stops round's axis inserts): the walk law brakes into the corner stop Gj
+  // (hard for the walk), re-departs live, then rests at G2.
+  for (const stop of ['Gj', 'Gjb', 'G1', 'G1b', 'G2']) await legTo(stop);
   await expect(edgePrompt).toHaveAttribute('data-visible', 'true', { timeout: 30_000 });
   await expect(edgePrompt).toHaveText('Enter · Jordan Staircase', { timeout: 30_000 });
   // Road 2 — the fresh ArrowRight at the settled end: the same boundary chain the arrows
@@ -297,10 +299,10 @@ test('arrow walk: the prompt click and a fresh ArrowRight at a settled end enter
 // between configurations — the round-17 measurement trap).
 test('keyboard walk: every stop reachable, reduced-motion cuts', async ({ page }) => {
   test.slow(); // same data-bound dwell per transit, on top of the instant reduced-motion cuts
-  // The R3 walk crosses TWO extra airlocks (the 1812 cut and its reverse) and walks 34 landings:
+  // The R3 walk crosses TWO extra airlocks (the 1812 cut and its reverse) and walks 38 landings:
   // every room entry is a full mount behind the card. ~8 min is the honest data-bound budget on a
   // healthy box; the r73 stall-storm class realized 10.3 m, so 900 s keeps ×1.4 headroom.
-  test.setTimeout(900_000); // the walk spans ~34 legs; a stall-storm run reaches 10.2 m against the r73 600-s cap — 900 s keeps ×1.4 headroom (the index-dialog precedent's class)
+  test.setTimeout(900_000); // the walk spans ~38 legs; a stall-storm run reaches 10.2 m against the r73 600-s cap — 900 s keeps ×1.4 headroom (the index-dialog precedent's class)
   await page.emulateMedia({ reducedMotion: 'reduce' });
   const hud = await bootDeterministic(page, `${AT}&det=1&hud=1&lang=en`);
   // One accepted press per landing. The keydown handler drops any press while the arrival is
@@ -324,14 +326,19 @@ test('keyboard walk: every stop reachable, reduced-motion cuts', async ({ page }
   // every landing (§10 r18 gate) but is never readiness evidence.
   const caption = page.locator('#caption');
   // The §6.1 caption beats, verbatim from the committed stop data (rooms/*/contract.ts;
-  // R-UX5 §7/§8 stop authoring: Gj, J1b, J2b new; J2, J3 re-authored).
+  // R-UX5 §7/§8 stop authoring: Gj, J1b, J2b new; J2, J3 re-authored; the 2026-11-12/13
+  // stops round adds S0b, Shb, Gjb, G1b).
   const BEATS: Readonly<Record<string, string>> = {
     S0: 'the facade and the hour',
+    S0b: 'the monolith', // the 2026-11-12/13 stops round: the Column's own frame
     Sh: 'past the column', // the winter-square round: the close pass gets its own caption
+    Shb: 'the arch ahead',
     S1: 'the arch opens',
     G0: 'dark; the square behind',
     Gj: 'The turn east: pilaster after pilaster, forty metres to the far door.',
+    Gjb: 'the vault leads on',
     G1: 'compression',
+    G1b: 'the door nears',
     G2: 'the door (airlock)',
     J0: 'looking up into light',
     J1: 'the flight',
@@ -451,14 +458,20 @@ test('keyboard walk: every stop reachable, reduced-motion cuts', async ({ page }
     await expect(caption).toHaveAttribute('data-stop', stop, { timeout: 60_000 });
     await expect(caption).toHaveText(beat, { timeout: 60_000 });
   };
-  // Forward: S0 → Sh → S1 (R18-ux D1's halfway leg), the arch-portal boundary, G0 → Gj → G2,
-  // the gallery-airlock boundary, J0 → J1b → J2b → J4 — every stop of the phase observed landed.
+  // Forward: S0 → S0b → Sh → Shb → S1 (R18-ux D1's halfway rhythm; the 2026-11-12/13 stops
+  // round's quarter-point inserts), the arch-portal boundary, G0 → Gj → Gjb → G1 → G1b → G2,
+  // the gallery-airlock boundary, J0 → J1b → J2b → J4 — every stop of the phase observed
+  // landed.
   for (const stop of [
+    'S0b',
     'Sh',
+    'Shb',
     'S1',
     'G0',
     'Gj',
+    'Gjb',
     'G1',
+    'G1b',
     'G2',
     'J0',
     'J1',
@@ -510,11 +523,15 @@ test('keyboard walk: every stop reachable, reduced-motion cuts', async ({ page }
     'J1',
     'J0',
     'G2',
+    'G1b',
     'G1',
+    'Gjb',
     'Gj',
     'G0',
     'S1',
+    'Shb', // the 2026-11-12/13 stops round: the backward square walk passes both inserts home
     'Sh', // R18-ux D1: the backward square walk passes the halfway stop home
+    'S0b',
     'S0',
   ]) {
     await walkTo(stop, 'ArrowLeft');

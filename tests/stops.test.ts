@@ -21,6 +21,7 @@ import { restingAt, samplePose, samplePosition, stopParameter } from '../src/cam
 import {
   SQUARE_RAIL,
   SQUARE_S0_GAZE,
+  SQUARE_S0B_GAZE,
   SQUARE_S1_GAZE,
   SQUARE_SH_GAZE,
 } from '../src/camera/square-rail';
@@ -201,8 +202,10 @@ describe('jordan stops (R-UX5 §8: feet on treads)', () => {
 });
 
 describe('gallery stops (R-UX5 §7: the junction)', () => {
-  it('walks G0 → Gj → G1 → G2', () => {
-    expect(GALLERY.stops.map((s) => s.id)).toEqual(['G0', 'Gj', 'G1', 'G2']);
+  it('walks G0 → Gj → Gjb → G1 → G1b → G2', () => {
+    // The 2026-11-12/13 stops round: Gjb/G1b are the two long axis gaps' midpoints; Gj keeps
+    // the corner flag and the mouth approach, G0's passage leg and G2's depart are untouched.
+    expect(GALLERY.stops.map((s) => s.id)).toEqual(['G0', 'Gj', 'Gjb', 'G1', 'G1b', 'G2']);
   });
   it('never passes through geometry: every sampled frame inside the passage or the gallery', () => {
     eachSample(GALLERY, (u, segment) => {
@@ -280,9 +283,11 @@ const swingRows = (
 ];
 
 describe('square stop-gaze swings (R18-ux D1: the halfway rhythm)', () => {
-  it('carries the three collinear stops; Sh holds the gate pavilion on the arch plane', () => {
-    expect(SQUARE_RAIL.stops.map((s) => s.id)).toEqual(['S0', 'Sh', 'S1']);
-    const sh = SQUARE_RAIL.stops[1];
+  it('carries the five collinear stops; Sh holds the gate pavilion on the arch plane', () => {
+    // The 2026-11-12/13 stops round: S0b/Shb split the two 54.3 m gaps at the line's quarter
+    // points; S0/Sh/S1 poses and subjects are untouched by construction.
+    expect(SQUARE_RAIL.stops.map((s) => s.id)).toEqual(['S0', 'S0b', 'Sh', 'Shb', 'S1']);
+    const sh = SQUARE_RAIL.stops[2];
     if (!sh) throw new Error('Sh missing');
     // DEC-037: the rail runs west of the Column axis; Sh moved off the axis with it.
     expect(sh.position).toEqual([-12, 1.7, 177]);
@@ -292,12 +297,29 @@ describe('square stop-gaze swings (R18-ux D1: the halfway rhythm)', () => {
     // The restated fences: S1 untouched; S0 moved 24 m west with the rail.
     expect(SQUARE_RAIL.stops[0]?.position).toEqual([-24, 1.7, 230]);
     expect(SQUARE_RAIL.stops[0]?.subject).toEqual(SQUARE_S0_GAZE);
-    expect(SQUARE_RAIL.stops[2]?.position).toEqual([0, 1.7, 124]);
-    expect(SQUARE_RAIL.stops[2]?.subject).toEqual(SQUARE_S1_GAZE);
+    expect(SQUARE_RAIL.stops[4]?.position).toEqual([0, 1.7, 124]);
+    expect(SQUARE_RAIL.stops[4]?.subject).toEqual(SQUARE_S1_GAZE);
+    // The round's inserts, pinned per this file's own shape. S0b's subject y 7 (the pedestal
+    // top / the shaft's foot on the axis) is the round's capture-checked judgment call; Shb
+    // reuses the S1 const by reference — the equal-subjects lock.
+    const s0b = SQUARE_RAIL.stops[1];
+    if (!s0b) throw new Error('S0b missing');
+    expect(s0b.position).toEqual([-18, 1.7, 203.5]);
+    expect(s0b.subject).toEqual(SQUARE_S0B_GAZE);
+    expect(SQUARE_S0B_GAZE).toEqual([0, 7, 190]);
+    expect(s0b.look).toEqual({ yaw: 30, pitchUp: 20, pitchDown: 20 });
+    const shb = SQUARE_RAIL.stops[3];
+    if (!shb) throw new Error('Shb missing');
+    expect(shb.position).toEqual([-6, 1.7, 150.5]);
+    expect(shb.subject).toEqual(SQUARE_S1_GAZE);
+    expect(shb.subject).toBe(SQUARE_S1_GAZE);
+    expect(shb.look).toEqual({ yaw: 25, pitchUp: 20, pitchDown: 15 });
   });
   for (const [n, measured, expected] of [
-    ...swingRows(SQUARE_RAIL, 'S0', 'Sh', 2.6), // DEC-037: the west rail (was 2.0 on the axis)
-    ...swingRows(SQUARE_RAIL, 'Sh', 'S1', 8.7), // DEC-037: the west rail (was 4.4 on the axis)
+    ...swingRows(SQUARE_RAIL, 'S0', 'S0b', 47.9), // the round's Column pan (the reply's ≈47° yaw)
+    ...swingRows(SQUARE_RAIL, 'S0b', 'Sh', 45.8), // the pavilion pan back (the reply's ≈45° yaw)
+    ...swingRows(SQUARE_RAIL, 'Sh', 'Shb', 1.8), // the mouth drift (the reply's ≈1°; yaw −1.7°)
+    ...swingRows(SQUARE_RAIL, 'Shb', 'S1', 7.0), // the locked dolly's convergence (was Sh→S1 8.7)
   ]) {
     it(`${n}: swing ≈ ${expected}° (3D ${measured.toFixed(2)}°) stays under the head law`, () => {
       expect(measured, n).toBeCloseTo(expected, 1);

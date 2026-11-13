@@ -5,10 +5,13 @@
  *
  * The square's gaze is authored, not the room pose law: S0 — level with the boot camera, up at
  * the cornice line — is what the noon and white-night goldens pin. The square has three stops
- * (R18-ux D1). S0 faces the facade. Sh (R18-ux D1) stands halfway (z 177), so the first Forward
- * comes closer without arriving. S1 (R-UX3, D7) stands back so the gate pavilion composes as
- * architecture. Under the glide look law, each glide holds its destination's subject: S0→Sh
- * holds the gate pavilion on the arch plane, Sh→S1 holds the arch mouth.
+ * (R18-ux D1) — five since the 2026-11-12/13 stops round (the owner's stop order, Fable 5.1's
+ * placement): S0b and Shb split the two 54.3 m gaps at the line's quarter points. S0 faces the
+ * facade. Sh (R18-ux D1) stands halfway (z 177), so the first Forward comes closer without
+ * arriving. S1 (R-UX3, D7) stands back so the gate pavilion composes as architecture. Under the
+ * glide look law, each glide holds its destination's subject: S0→S0b holds the Column, S0b→Sh
+ * holds the gate pavilion on the arch plane, Sh→Shb holds the arch mouth, and Shb→S1 is locked
+ * onto it.
  *
  * DEC-037 (the post-1834 square): the Alexander Column stands on the gate axis at z 190, so the
  * rail no longer lies ON the axis — it runs WEST of it and MEETS it at S1. The three stops stay
@@ -26,6 +29,9 @@ export const SQUARE_SH_GAZE: Vec3 = [0, 8.5, 87];
 /** The authored S1 subject (R-UX3): inside the mouth (z 93.5), ≈ ⅔ of the 9.55 m opening.
  * From S1 this is 8.7° up: the frame's top edge meets the facade near y 24 (entablature in). */
 export const SQUARE_S1_GAZE: Vec3 = [0, 6.6, 92];
+/** The authored S0b subject (the 2026-11-12/13 stops round): the Column's pedestal top / the
+ * shaft's foot on the axis (x = 0) — the round's capture-checked judgment call. */
+export const SQUARE_S0B_GAZE: Vec3 = [0, 7, 190];
 
 export const SQUARE_RAIL = {
   stops: [
@@ -35,6 +41,25 @@ export const SQUARE_RAIL = {
       subject: SQUARE_S0_GAZE,
       look: { yaw: 35, pitchUp: 35, pitchDown: 35 },
       caption: 'caption.s0',
+    },
+    {
+      // The 2026-11-12/13 stops round (the owner's stop order; Fable 5.1's placement): the
+      // first quarter-point insert, t 0.25 on the committed XZ line (x = −24 + 24t,
+      // z = 230 − 106t) — the 54.3 m S0→Sh gap splits into two even 27.17 m gaps, four over
+      // the whole rail, so the cruise reads 18 m/s instead of 36. The monument pause: the
+      // Column gets its own frame before the walk passes it — 22.5 m off the axis (≈11 m
+      // clear of the fence's NW corner), gaze 13.3° up with the pedestal centred and the
+      // shaft rising through the upper frame; pitchUp 20 lets the visitor tilt to the capital
+      // without a strong committed look-up. The only square stop that looks away from the
+      // axis (≈40° right of the walk line): S0→S0b pans ≈48° right onto the monolith as it
+      // grows, S0b→Sh pans ≈46° back left onto the pavilion («past the column» lands at Sh
+      // exactly as written). Subject y 7 is set from the real monument's proportions
+      // (the pedestal top / the shaft's foot) — the one value capture may move.
+      id: 'S0b',
+      position: [-18, 1.7, 203.5],
+      subject: SQUARE_S0B_GAZE,
+      look: { yaw: 30, pitchUp: 20, pitchDown: 20 },
+      caption: 'caption.s0b',
     },
     {
       // R18-ux D1: halfway (z 177), so the first Forward comes closer without arriving. DEC-037:
@@ -48,6 +73,20 @@ export const SQUARE_RAIL = {
       // (Sh stands ≈3.75 m west / 4.75 m north of the fence's NW corner — just past the
       // Column it swept through the S0→Sh glide). Owner-ratified copy.
       caption: 'caption.sh',
+    },
+    {
+      // The round's second quarter-point insert, t 0.75 — the 54.3 m Sh→S1 gap splits the
+      // same way. The gate pavilion whole: from 58.8 m the gaze is 4.8° up and the frame's
+      // top edge meets the facade near y 37, so the pavilion composes above the mouth's dark
+      // slot, where S1 later crops it at the entablature (y 24). Subject: SQUARE_S1_GAZE by
+      // reference — the equal-subjects lock — so Sh→Shb→S1 is one locked dolly onto the arch,
+      // the same hold the Sh→S1 glide has today; Sh→Shb itself drifts ≈1.8° (3D) from Sh's
+      // own pavilion point.
+      id: 'Shb',
+      position: [-6, 1.7, 150.5],
+      subject: SQUARE_S1_GAZE,
+      look: { yaw: 25, pitchUp: 20, pitchDown: 15 },
+      caption: 'caption.shb',
     },
     {
       id: 'S1',

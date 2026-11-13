@@ -2,12 +2,15 @@
 /**
  * Rastrelli Gallery room contract — design-staircase.md §2.2 (per-room values; all declared
  * where marked), §6.1; design-walkthrough-ux.md §7 (the corridor path fix: FOUR stops — the
- * junction knot Gj where the arch passage meets the gallery axis; the G0→G1 wall-pass is gone)
+ * junction knot Gj where the arch passage meets the gallery axis; the G0→G1 wall-pass is gone;
+ * six since the 2026-11-12/13 stops round, which added two axis inserts)
  * and §8 (authored subjects, R-UX5). Budget rows mirror the generated manifest.
  *
- * Subjects (world metres): G0 gazes down the passage at the lit junction; Gj, G1 and G2 share
- * the east door's opening centre at eye height, so Gj→G1→G2 is one locked dolly onto the
- * door's light. From G1 that direction is exactly (1, 0, 0) — the committed G1 gaze — so the
+ * Subjects (world metres): G0 gazes down the passage at the lit junction; Gj and every axis
+ * stop east of it (Gjb, G1, G1b, G2) share the east door's opening centre at eye height, so
+ * Gj→G1→G2 is one locked dolly onto the door's light — every glide from Gj on holds
+ * EAST_DOOR, the inserts included. From G1 that direction is exactly (1, 0, 0) — the
+ * committed G1 gaze — so the
  * three G1 goldens hold. G2 stands 3 m off the door so the portal frame reads as architecture.
  * Every position and subject below is declared from the build constants
  * (tools/bpy/rastrelli-gallery.py) and framed by capture at integration.
@@ -57,11 +60,34 @@ export const contract: RoomContract = {
         caption: 'caption.gj',
       },
       {
+        // The 2026-11-12/13 stops round: the Gj→G1 midpoint (the 22.4 m gap → 2 × 11.2), the
+        // first rest inside the gallery proper — 30.7 m of corridor to the door's light, the
+        // longest view the room offers from its own floor, the vault's bays receding in the
+        // upper frame. On the axis z 73 with subject EAST_DOOR (G1's look row): the locked
+        // dolly continues; no corner/approach (straight run).
+        id: 'Gjb',
+        position: [12.8, 1.7, 73],
+        subject: EAST_DOOR,
+        look: { yaw: 30, pitchUp: 15, pitchDown: 15 },
+        caption: 'caption.gjb',
+      },
+      {
         id: 'G1',
         position: [24, 1.7, 73],
         subject: EAST_DOOR,
         look: { yaw: 30, pitchUp: 15, pitchDown: 15 },
         caption: 'caption.g1',
+      },
+      {
+        // The round's second insert: the G1→G2 midpoint (16.5 → 2 × 8.25) — 11.25 m off the
+        // portal, between G1's «compression» and G2's door: the doorcase and its opening
+        // resolve as architecture while the corridor still frames them. EAST_DOOR again
+        // (G2's look row): the locked dolly continues to the airlock.
+        id: 'G1b',
+        position: [32.25, 1.7, 73],
+        subject: EAST_DOOR,
+        look: { yaw: 25, pitchUp: 15, pitchDown: 10 },
+        caption: 'caption.g1b',
       },
       {
         // 3 m off the opening: depart travels 1.5 m and halts 1.5 m short of the portal plane.

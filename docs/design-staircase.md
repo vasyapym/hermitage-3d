@@ -243,7 +243,9 @@ Eye height 1.7 m above the local floor; `t` on the room rail; look limits yaw/pi
 | J4 | (73, 11.7, −66) — landing between the twin columns | ±35/±30 | arrival; the portal (landing airlock) |
 
 > **DEC-037 (the square rail).** The rail no longer lies ON the gate axis — it runs 24 m west
-> and meets it at S1; the three stops stay XZ-collinear (the square's `S0/Sh/S1` rows above),
+> and meets it at S1; the three stops stay XZ-collinear (the square's `S0/Sh/S1` rows above;
+> five since the 2026-11-12/13 stops round — S0b/Shb are the two quarter-point inserts on the
+> same line),
 > the subjects untouched, the perpendicular Column clearance 14.57449 m. Supersedes this
 > section's on-axis S0/S1 rows only.
 

@@ -194,7 +194,7 @@ describe('en dictionary', () => {
   it('keeps the U+2019 apostrophe of the committed notes link', () => {
     expect(en['chrome.notesLink']).toBe('How it’s built →');
   });
-  it('pins the fourteen stop captions the e2e asserts (R-UX5: Gj, J1b, J2b new; J2, J3 re-authored; the winter-square round adds Sh)', () => {
+  it('pins the stop captions the e2e asserts (R-UX5: Gj, J1b, J2b new; J2, J3 re-authored; the winter-square round adds Sh; the 2026-11-12/13 stops round adds s0b, shb, gjb, g1b)', () => {
     expect(en['caption.s0']).toBe('the facade and the hour');
     expect(en['caption.s1']).toBe('the arch opens');
     expect(en['caption.sh']).toBe('past the column');

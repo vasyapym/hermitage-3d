@@ -309,8 +309,8 @@ describe('7 · the fade and the group', () => {
 
 describe('8 · the rail passes the fence (the corrected clearance read)', () => {
   const s0 = stopAt(0).position;
-  const sh = stopAt(1).position;
-  const s1 = stopAt(2).position;
+  const sh = stopAt(2).position; // Sh (the 2026-11-12/13 quarter-point inserts shifted the indices)
+  const s1 = stopAt(4).position;
   const [dx, dz] = [s1[0] - s0[0], s1[2] - s0[2]]; // (24, −106): the straight XZ rail
   const length = Math.hypot(dx, dz); // √11812
   const perpendicular = (x: number, z: number): number =>
@@ -395,8 +395,8 @@ describe('10 · the golden declarations', () => {
   });
 
   it('never enters an S1 frame inside its look limits, nor its s1-noon shadow — the HOLD', () => {
-    const eye = stopAt(2).position;
-    const gaze = stopAt(2).subject ?? SQUARE_S1_GAZE;
+    const eye = stopAt(4).position;
+    const gaze = stopAt(4).subject ?? SQUARE_S1_GAZE;
     const bearing = Math.atan2(gaze[0] - eye[0], -(gaze[2] - eye[2]));
     const dir = sampleSky(Date.parse('2026-06-21T12:00:00Z')).sunDirection;
     const up = dir[1] ?? Number.NaN;
@@ -405,7 +405,7 @@ describe('10 · the golden declarations', () => {
       const t = c[1] / up;
       return [c[0] - (dir[0] ?? 0) * t, 0, c[2] - (dir[2] ?? 0) * t];
     });
-    const reach = stopAt(2).look.yaw * RAD + hfovHalf;
+    const reach = stopAt(4).look.yaw * RAD + hfovHalf;
     for (const p of [...CORNERS, ...tips]) {
       const off = Math.atan2(p[0] - eye[0], -(p[2] - eye[2])) - bearing;
       expect(Math.abs(Math.atan2(Math.sin(off), Math.cos(off)))).toBeGreaterThan(reach);

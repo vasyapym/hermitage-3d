@@ -22,6 +22,7 @@ import {
 import {
   SQUARE_RAIL,
   SQUARE_S0_GAZE,
+  SQUARE_S0B_GAZE,
   SQUARE_S1_GAZE,
   SQUARE_SH_GAZE,
 } from '../src/camera/square-rail';
@@ -312,7 +313,8 @@ describe('the travel law (B9 field, superseding the R18/R19 departure turns)', (
     expect(crossed, 'the walk met the corner exactly').toBe(true);
     expect(worst).toBeLessThanOrEqual(6.3);
     expect(state.walk).toBeNull();
-    expect(state.u).toBe(stopParameter(GALLERY, 3)); // the far hard end rests
+    // The far hard end rests (the 2026-11-12/13 axis inserts sit between Gj and G2).
+    expect(state.u).toBe(stopParameter(GALLERY, GALLERY.stops.length - 1));
   });
   it('the Back Gj→G0 pitch climbs linearly in distance, monotonically to its 3.06° settle (B9)', () => {
     // B9: the framings carry the WHOLE segment — the blend weight IS the distance fraction
@@ -575,8 +577,13 @@ describe('corner runs and the approach field (R18-ux D3)', () => {
     }
   });
   it('with corner on Gj the run Gj→G2 rides y = 1.7, z = 73 (±1e-9); the chord stays in 0..1.6', () => {
+    // The 2026-11-12/13 stops round: six stops — the Gj→G2 corner run spans
+    // stopParameter(1)..stopParameter(5) and the passage chord G0→Gj is 0..stopParameter(1);
+    // the axis inserts keep every east segment on the line.
+    const uGj = stopParameter(GALLERY, 1);
+    const uG2 = stopParameter(GALLERY, GALLERY.stops.length - 1);
     for (let k = 0; k <= 256; k++) {
-      const u = (1 + k / 256) / 3;
+      const u = uGj + (k / 256) * (uG2 - uGj);
       const at = samplePosition(GALLERY, u);
       expect(at[1], `y at u ${u.toFixed(4)}`).toBeCloseTo(1.7, 9);
       expect(at[2], `z at u ${u.toFixed(4)}`).toBeCloseTo(73, 9);
@@ -584,7 +591,7 @@ describe('corner runs and the approach field (R18-ux D3)', () => {
       expect(at[0], `x at u ${u.toFixed(4)}`).toBeLessThanOrEqual(40.5 + 1e-9);
     }
     for (let k = 0; k <= 128; k++) {
-      const u = k / 128 / 3;
+      const u = (k / 128) * uGj;
       const x = samplePosition(GALLERY, u)[0] ?? Number.NaN;
       expect(x, `chord x at u ${u.toFixed(4)}`).toBeGreaterThanOrEqual(0 - 1e-9);
       expect(x, `chord x at u ${u.toFixed(4)}`).toBeLessThanOrEqual(1.6 + 1e-9);
@@ -636,28 +643,45 @@ describe('seed precedence', () => {
 });
 
 describe('square rail (design §6.1, declared data; R18-ux D1)', () => {
-  it('pins the three declared stops', () => {
-    expect(SQUARE_RAIL.stops.map((s) => s.id)).toEqual(['S0', 'Sh', 'S1']);
-    // DEC-037: the rail runs west of the Column axis — S0 24 m, Sh 12 m, S1 on the axis.
+  it('pins the five declared stops', () => {
+    // The 2026-11-12/13 stops round: S0b/Shb split the two 54.3 m gaps at the line's quarter
+    // points. DEC-037: the rail runs west of the Column axis — S0 24 m, Sh 12 m, S1 on the
+    // axis; the S0/Sh/S1 rows below are the untouched committed values.
+    expect(SQUARE_RAIL.stops.map((s) => s.id)).toEqual(['S0', 'S0b', 'Sh', 'Shb', 'S1']);
     expect(SQUARE_RAIL.stops[0]?.position).toEqual([-24, 1.7, 230]);
     expect(SQUARE_RAIL.stops[0]?.look).toEqual({ yaw: 35, pitchUp: 35, pitchDown: 35 });
     expect(t(SQUARE_RAIL.stops[0]?.caption ?? 'caption.s0')).toBe('the facade and the hour');
+    // The round's first quarter-point insert (t 0.25); its subject is the capture-checked
+    // judgment call (the pedestal top / the shaft's foot on the axis).
+    expect(SQUARE_RAIL.stops[1]?.position).toEqual([-18, 1.7, 203.5]);
+    expect(SQUARE_RAIL.stops[1]?.subject).toEqual(SQUARE_S0B_GAZE);
+    expect(SQUARE_RAIL.stops[1]?.look).toEqual({ yaw: 30, pitchUp: 20, pitchDown: 20 });
+    // The key is pinned exactly (the Sol review: the t() fallback would mask a MISSING caption).
+    expect(SQUARE_RAIL.stops[1]?.caption).toBe('caption.s0b');
+    expect(t(SQUARE_RAIL.stops[1]?.caption ?? 'caption.s0b')).toBe('the monolith');
     // DEC-037: Sh moved off the axis with the west rail (z 177 unchanged). The winter-square
     // round gives the close pass its own caption (owner-ratified copy).
-    expect(SQUARE_RAIL.stops[1]?.position).toEqual([-12, 1.7, 177]);
-    expect(SQUARE_RAIL.stops[1]?.subject).toEqual(SQUARE_SH_GAZE);
-    expect(SQUARE_RAIL.stops[1]?.look).toEqual({ yaw: 30, pitchUp: 25, pitchDown: 20 });
-    // The key is pinned exactly (the Sol review: the t() fallback would mask a MISSING caption).
-    expect(SQUARE_RAIL.stops[1]?.caption).toBe('caption.sh');
-    expect(t(SQUARE_RAIL.stops[1]?.caption ?? 'caption.sh')).toBe('past the column');
-    expect(SQUARE_RAIL.stops[2]?.position).toEqual([0, 1.7, 124]);
-    expect(SQUARE_RAIL.stops[2]?.look).toEqual({ yaw: 25, pitchUp: 20, pitchDown: 10 });
-    expect(t(SQUARE_RAIL.stops[2]?.caption ?? 'caption.s1')).toBe('the arch opens');
+    expect(SQUARE_RAIL.stops[2]?.position).toEqual([-12, 1.7, 177]);
+    expect(SQUARE_RAIL.stops[2]?.subject).toEqual(SQUARE_SH_GAZE);
+    expect(SQUARE_RAIL.stops[2]?.look).toEqual({ yaw: 30, pitchUp: 25, pitchDown: 20 });
+    expect(SQUARE_RAIL.stops[2]?.caption).toBe('caption.sh');
+    expect(t(SQUARE_RAIL.stops[2]?.caption ?? 'caption.sh')).toBe('past the column');
+    // The round's second quarter-point insert (t 0.75); its subject reuses SQUARE_S1_GAZE
+    // (the equal-subjects lock).
+    expect(SQUARE_RAIL.stops[3]?.position).toEqual([-6, 1.7, 150.5]);
+    expect(SQUARE_RAIL.stops[3]?.subject).toEqual(SQUARE_S1_GAZE);
+    expect(SQUARE_RAIL.stops[3]?.look).toEqual({ yaw: 25, pitchUp: 20, pitchDown: 15 });
+    expect(SQUARE_RAIL.stops[3]?.caption).toBe('caption.shb');
+    expect(t(SQUARE_RAIL.stops[3]?.caption ?? 'caption.shb')).toBe('the arch ahead');
+    expect(SQUARE_RAIL.stops[4]?.position).toEqual([0, 1.7, 124]);
+    expect(SQUARE_RAIL.stops[4]?.look).toEqual({ yaw: 25, pitchUp: 20, pitchDown: 10 });
+    expect(t(SQUARE_RAIL.stops[4]?.caption ?? 'caption.s1')).toBe('the arch opens');
   });
   it('carries the S0, halfway and arch-mouth gazes as the stops’ subjects (R18-ux D1)', () => {
     expect(SQUARE_RAIL.stops[0]?.subject).toEqual(SQUARE_S0_GAZE);
-    expect(SQUARE_RAIL.stops[1]?.subject).toEqual(SQUARE_SH_GAZE);
-    expect(SQUARE_RAIL.stops[2]?.subject).toEqual(SQUARE_S1_GAZE);
+    expect(SQUARE_RAIL.stops[2]?.subject).toEqual(SQUARE_SH_GAZE);
+    expect(SQUARE_RAIL.stops[4]?.subject).toEqual(SQUARE_S1_GAZE);
+    // u 0.5 is still Sh (index 2 of 5: 2/4 = 0.5) — the halfway fence survives the inserts.
     expect(samplePose(SQUARE_RAIL, restingAt(0)).target).toEqual(SQUARE_S0_GAZE);
     expect(samplePose(SQUARE_RAIL, restingAt(0.5)).target).toEqual(SQUARE_SH_GAZE);
     expect(samplePose(SQUARE_RAIL, restingAt(1)).target).toEqual(SQUARE_S1_GAZE);

@@ -294,7 +294,9 @@ The transit beat, in order:
 
 - A **junction stop** where the arch passage meets the gallery axis (near
   (1.5–2, 1.7, 73); gaze east down the gallery toward the east door's light) —
-  four stops; the G0→G1 wall-pass disappears. The G0 gaze re-authors as «down the
+  four stops; the G0→G1 wall-pass disappears (six since the 2026-11-12/13
+  stops round — Gjb/G1b, the two long axis gaps' midpoints, keep the
+  EAST_DOOR lock). The G0 gaze re-authors as «down the
   passage toward the lit junction»; G2 (the door) gets an authored subject (the
   door's light) replacing the look-back law there; G1 keeps the lock-on east.
 - The end-phantoms adjudication does NOT reopen: these are stops with captions,

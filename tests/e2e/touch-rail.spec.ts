@@ -30,14 +30,20 @@ const SLUGS: Readonly<Record<string, string>> = {
 // The stops' travel order per room, read off the room contracts (src/camera/square-rail.ts,
 // rooms/*/contract.ts). The digit suffix alone is NOT an order: 'Gj' carries none and
 // 'J1b'/'J2b' trail a letter, so the walk assertions read this map instead of a regex.
+// The 2026-11-12/13 stops round: S0b/Shb (the square's quarter-point inserts) and Gjb/G1b
+// (the gallery's axis inserts) join their rooms' walk order.
 const STOPS: Record<string, number> = {
   S0: 0,
-  Sh: 1, // R18-ux D1: the halfway stop (the §8 stop table)
-  S1: 2,
+  S0b: 1, // the 2026-11-12/13 stops round: the first quarter-point insert
+  Sh: 2, // R18-ux D1: the halfway stop (the §8 stop table)
+  Shb: 3, // the round's second quarter-point insert
+  S1: 4,
   G0: 0,
   Gj: 1,
-  G1: 2,
-  G2: 3,
+  Gjb: 2, // the round's first axis insert (the Gj→G1 midpoint)
+  G1: 3,
+  G1b: 4, // the round's second axis insert (the G1→G2 midpoint)
+  G2: 5,
   J0: 0,
   J1: 1,
   J1b: 2,
@@ -98,9 +104,16 @@ const snapshot = (p: Page): Promise<Snapshot> =>
     };
   });
 
-// The square's own stop parameters (three stops → u = i/2, exact binary floats): the
-// landing assertions (R15/R16) check the rest's u against the stop it reports.
-const SQUARE_STOP_U: Readonly<Record<string, number>> = { S0: 0, Sh: 0.5, S1: 1 };
+// The square's own stop parameters (five stops → u = i/4, exact binary floats — the
+// 2026-11-12/13 quarter-point inserts sit at 0.25/0.75): the landing assertions (R15/R16)
+// check the rest's u against the stop it reports.
+const SQUARE_STOP_U: Readonly<Record<string, number>> = {
+  S0: 0,
+  S0b: 0.25,
+  Sh: 0.5,
+  Shb: 0.75,
+  S1: 1,
+};
 // The landing law (R15/R16): the walk's rest rides the stop's OWN parameter — the check
 // runs on one coherent (stop, u) pair. A mid-segment rest (the walk law never allows one
 // once intent is dead) reads loud here.

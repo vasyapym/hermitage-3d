@@ -8,6 +8,7 @@ import { samplePosition } from '../src/camera/rail';
 import {
   SQUARE_RAIL,
   SQUARE_S0_GAZE,
+  SQUARE_S0B_GAZE,
   SQUARE_S1_GAZE,
   SQUARE_SH_GAZE,
 } from '../src/camera/square-rail';
@@ -148,15 +149,21 @@ describe('3 · placement', () => {
 });
 
 describe('4 · the rail west of the axis', () => {
-  it('keeps the stops XZ-collinear; S1 and all three subjects committed', () => {
-    const [a, b, c] = [stopAt(0).position, stopAt(1).position, stopAt(2).position];
+  it('keeps the stops XZ-collinear; S1 and all five subjects committed', () => {
+    // The 2026-11-12/13 stops round: five collinear stops — the quarter-point inserts ride
+    // the same XZ line, so the DEC-037 triple (first, halfway, S1) still pins the cross.
+    const [a, b, c] = [stopAt(0).position, stopAt(2).position, stopAt(4).position];
     const cross = (b[0] - a[0]) * (c[2] - a[2]) - (b[2] - a[2]) * (c[0] - a[0]);
     expect(Math.abs(cross)).toBeLessThan(1e-9);
-    expect(stopAt(2).position).toEqual([0, 1.7, 124]);
+    expect(stopAt(4).position).toEqual([0, 1.7, 124]);
     expect(stopAt(0).subject).toEqual([0, 11, 0]);
-    expect(stopAt(1).subject).toEqual([0, 8.5, 87]);
-    expect(stopAt(2).subject).toEqual([0, 6.6, 92]);
-    expect([SQUARE_S0_GAZE, SQUARE_SH_GAZE, SQUARE_S1_GAZE].map((g) => g[0])).toEqual([0, 0, 0]);
+    expect(stopAt(1).subject).toEqual([0, 7, 190]);
+    expect(stopAt(2).subject).toEqual([0, 8.5, 87]);
+    expect(stopAt(3).subject).toEqual([0, 6.6, 92]);
+    expect(stopAt(4).subject).toEqual([0, 6.6, 92]);
+    expect(
+      [SQUARE_S0_GAZE, SQUARE_S0B_GAZE, SQUARE_SH_GAZE, SQUARE_S1_GAZE].map((g) => g[0]),
+    ).toEqual([0, 0, 0, 0]);
   });
 
   it('clears the Column axis by 14.57449 m (≥ COLUMN_RAIL_CLEARANCE_M) along the polyline', () => {
