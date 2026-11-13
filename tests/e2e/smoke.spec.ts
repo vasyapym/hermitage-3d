@@ -395,11 +395,35 @@ test('keyboard walk: every stop reachable, reduced-motion cuts', async ({ page }
     const from = at;
     const beat = BEATS[stop];
     if (beat === undefined) throw new Error(`no committed beat for stop ${stop}`);
-    // The press is made only in the ready state the previous leg proved. Nothing moves
-    // without a press, so a fresh sample must still read it.
-    expect(sampleKey(await sampleHud()), `leg ${from} → ${stop}: ready before its press`).toBe(
-      readyKey(from),
-    );
+    // The reduced-motion dwell (REDUCED_DWELL_MS 600) drains inside advance() per rendered
+    // frame, each frame clamped at ≤100 ms of state time (the loop's Math.min(deltaMs, 100)):
+    // the drain takes SIX RENDERED FRAMES at any box speed (≈0.1 s at 60 fps, ≈6 s at the
+    // CI's ~1 fps). No DOM bit exposes dwellMs, and the press path does not pre-advance by
+    // wall time — so the press waits out SEVEN rAF frames (the drain's own driver, counted
+    // directly: 7 × ≤100 ms ≥ 600 ms of state time, guaranteed at any fps). The removed
+    // pre-press read chain used to spend ~1.3 s per CI read and cleared the dwell by
+    // accident — the recorded CI deaths moved between runs on exactly this race.
+    for (let frame = 0; frame < 7; frame += 1) {
+      await page.evaluate(
+        () => new Promise((resolve) => requestAnimationFrame(() => resolve(null))),
+      );
+    }
+    // The press waits for the pair's OWN pressability bit before firing: aria-disabled
+    // 'false' on the direction's button mirrors touchAdmitted (§5) — arrival settled,
+    // transit-free, gesture- and menu-free — which the five-row snapshot cannot see
+    // (data-hold-ms reads 0 through the arrival phase; the arrival beats own the
+    // pre-settle frames). The bit replaces the old read-chain accident with evidence
+    // and costs one attribute read, not a five-row sample. The keyboard drop gate
+    // (§2.4 railInputReady) keys on the same settled+transit facts, so a 'false' bit
+    // is the honest green light.
+    const dirButton = key === 'ArrowLeft' ? '#touch-back' : '#touch-forward';
+    await expect
+      .poll(async () => page.locator(dirButton).getAttribute('aria-disabled'), {
+        message: `leg ${from} → ${stop}: the pair admits the press`,
+        timeout: LEG_TIMEOUT_MS,
+        intervals: [100, 250],
+      })
+      .toBe('false');
     await page.keyboard.press(key); // the leg's ONLY press: no retry, by contract
     await expect
       .poll(
@@ -457,10 +481,10 @@ test('keyboard walk: every stop reachable, reduced-motion cuts', async ({ page }
     await walkTo(stop);
   }
   // The route's end (M4, the closed doors) is the new inert end: a press past it, made in
-  // the ready state, changes nothing. The room's only airlock side sits at M0, the entry stop
-  // (§1.1's chain end). After the re-check window, one coherent sample shows the stop, the
-  // room and an idle hold: no transit opened.
-  expect(sampleKey(await sampleHud()), 'inert end: ready before its press').toBe(readyKey('M4'));
+  // the ready state the M4 landing poll proved (no fresh pre-press read — the same
+  // redundant-double-read rule as the legs' presses), changes nothing. The room's only
+  // airlock side sits at M0, the entry stop (§1.1's chain end). After the re-check window,
+  // one coherent sample shows the stop, the room and an idle hold: no transit opened.
   await page.keyboard.press('ArrowRight');
   await page.waitForTimeout(2000);
   expect(await sampleHud(), 'inert end: the press past M4 opened nothing').toEqual({

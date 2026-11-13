@@ -339,18 +339,34 @@ test('rapid activation / reduced motion', async ({ browser, baseURL }) => {
       async (p) => {
         const before = routeIndex((await position(p)).stop); // S0 boots at the square
         await rawTap(p, 1);
+        // The settle between the taps (the CI pacing hardening): under the CI runner's
+        // dispatch pace two back-to-back rawTaps never registered movement (before+0 twice;
+        // locally the same row always read +1/+2). Wait on the ACTUAL evidence — tap #1's
+        // own rest, read off the coherent snapshot's data-moving bit (R13) — before tap #2
+        // is dispatched. A tap that was lawfully dropped never moves the bit: the poll
+        // passes at once and the row's outcome assertions still hold the verdict. The
+        // budget covers the mode split: the no-preference tap #1 is a WALK leg (≤ ~2.6 s:
+        // accel 420 + one gap at cruise 1500 + brake ≤ 700), and the bit binds per rendered
+        // frame — at the CI runner's ~1 fps the bind lag alone reaches ~3.4 s — so 8 s
+        // keeps the wait honest on a slow box where the 2.5 s cut-case figure times out.
+        await expect
+          .poll(async () => (await snapshot(p)).moving, {
+            message: 'tap #1: the first cut rests (data-moving false)',
+            timeout: 8_000,
+            intervals: [100, 250],
+          })
+          .toBe('false');
         await rawTap(p, 1);
         await roomReady(p);
         // The walk law owns the outcome (the one admission rule admits a press MID-WALK —
-        // it extends the walk; there is no drop gate anymore). Reduced: tap two lands
-        // inside the 600 ms dwell and is dropped (one cut: Sh); normal: tap two refills
-        // the walk's lease, and the walk rests where the refilled intent's brake lands
-        // (the trace's ~1.5 s second CDP tap runs its own leg: two steps along the route
-        // S0 → Sh → S1, resting at S1 — never three steps off a double activation; a
-        // boundary crossing into G0 needs a press from a SETTLED S1) — so the legal set
-        // [before+1, before+2] holds in both modes (the documented law change; the old
-        // mid-glide-drop wording is gone with the walk). Assert the legal set on the
-        // route order, plus stability across frames.
+        // it extends the walk; there is no drop gate anymore), and the settle above waits
+        // out tap #1's own rest first. Reduced: tap two lands inside the 600 ms dwell and
+        // is dropped (one cut: Sh); normal: tap two departs the first cut's rest and runs
+        // its own leg: two steps along the route S0 → Sh → S1, resting at S1 — never three
+        // steps off a double activation; a boundary crossing into G0 needs a press from a
+        // SETTLED S1 — so the legal set [before+1, before+2] holds in both modes (the
+        // documented law change; the old mid-glide-drop wording is gone with the walk).
+        // Assert the legal set on the route order, plus stability across frames.
         const after = (await position(p)).stop;
         expect([before + 1, before + 2]).toContain(routeIndex(after));
         await frames(p);
