@@ -3088,6 +3088,11 @@ const syncTouchRail = (): void => {
   touchRail.dataset.look = JSON.stringify(railState.lookTarget);
   // The e2e settle instrument (Sol R13/R14): the ACTUAL motion bit, not a nearest-stop read.
   touchRail.dataset.moving = String(moving(railState));
+  // The reduced-motion dwell's own published value (the R13-class instrument; the
+  // 2026-11-12/13 hardening: the smoke walk's press waits for the app's OWN drain — no
+  // wall-clock mirror from outside the loop). Ceil: the poll's '0' must mean the drained
+  // dwell, never a stale fractional frame.
+  touchRail.dataset.dwellMs = String(Math.ceil(railState.dwellMs));
 };
 // §4/CHALLENGE 3: click is the sole command path; native Enter/Space stay native while the
 // repeat storm is suppressed in keydown (one held activation = ONE command). aria-disabled

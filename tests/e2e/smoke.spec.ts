@@ -299,10 +299,14 @@ test('arrow walk: the prompt click and a fresh ArrowRight at a settled end enter
 // between configurations — the round-17 measurement trap).
 test('keyboard walk: every stop reachable, reduced-motion cuts', async ({ page }) => {
   test.slow(); // same data-bound dwell per transit, on top of the instant reduced-motion cuts
-  // The R3 walk crosses TWO extra airlocks (the 1812 cut and its reverse) and walks 38 landings:
-  // every room entry is a full mount behind the card. ~8 min is the honest data-bound budget on a
-  // healthy box; the r73 stall-storm class realized 10.3 m, so 900 s keeps ×1.4 headroom.
-  test.setTimeout(900_000); // the walk spans ~38 legs; a stall-storm run reaches 10.2 m against the r73 600-s cap — 900 s keeps ×1.4 headroom (the index-dialog precedent's class)
+  // The R3 walk crosses TWO extra airlocks (the 1812 cut and its reverse) and walks 44
+  // landings (17 forward + 5 across the 1812 gallery + 22 backward; the pre-round count was
+  // 36 — the recorded "34 legs" comment was already 2 under). Every room entry is a full
+  // mount behind the card. MEASURED on the CI-representative SwiftShader env: 6.0–8.3 min
+  // wall ⇒ the 900-s budget's ratio ≈ 1.8–2.4; the inherited ×1.4 storm figure described the
+  // pre-hardening read chain's arithmetic and retires (the Sol review: the historical stall
+  // measurement is not a current guarantee).
+  test.setTimeout(900_000); // 44 walkTo calls × (the dwell-drain wait + the pressability poll + one coherent landing read) + boot + four transits — the measured 6.0–8.3 m (SwiftShader) holds ≈ ×1.8–2.4 headroom
   await page.emulateMedia({ reducedMotion: 'reduce' });
   const hud = await bootDeterministic(page, `${AT}&det=1&hud=1&lang=en`);
   // One accepted press per landing. The keydown handler drops any press while the arrival is
@@ -404,23 +408,21 @@ test('keyboard walk: every stop reachable, reduced-motion cuts', async ({ page }
     if (beat === undefined) throw new Error(`no committed beat for stop ${stop}`);
     // The reduced-motion dwell (REDUCED_DWELL_MS 600) drains inside advance() per rendered
     // frame, each frame feeding ≤100 ms of state time (the loop's Math.min(deltaMs, 100)):
-    // ≈7 frames at ~1 fps, ≈37 at 60 fps — a FRAME COUNT cannot cover both, so the wait
-    // mirrors the app's own drain: accumulate min(frame-gap, 100) on the SAME rAF cadence
-    // the app's loop rides until ≥650 ms of state time (the +50 margin covers the landing
-    // sample's own lag). No DOM bit exposes dwellMs, and the press path does not
-    // pre-advance by wall time. The removed pre-press read chain used to spend ~1.3 s per
-    // CI read and cleared the dwell by accident — the recorded CI deaths moved between
+    // ≈7 frames at ~1 fps, ≈37 at 60 fps — no wall-clock figure covers every cadence, and a
+    // frame-gap mirror measured from OUTSIDE the app's loop can diverge either way under a
+    // loaded main thread (the Sol review's refutation). The press waits on the app's OWN
+    // published drain instead — data-dwell-ms rides syncTouchRail's ≤500 ms state-write
+    // cadence (the R13-class instrument): a stale read sits HIGH (the dwell only shrinks),
+    // so '0' proves the drained dwell. The removed pre-press read chain used to spend ~1.3 s
+    // per CI read and cleared the dwell by accident — the recorded CI deaths moved between
     // runs on exactly this race.
-    await page.evaluate(async () => {
-      let drained = 0;
-      let last = performance.now();
-      while (drained < 650) {
-        await new Promise((resolve) => requestAnimationFrame(() => resolve(null)));
-        const now = performance.now();
-        drained += Math.min(now - last, 100);
-        last = now;
-      }
-    });
+    await expect
+      .poll(async () => page.locator('#touch-rail').getAttribute('data-dwell-ms'), {
+        message: `leg ${from} → ${stop}: the reduced-motion dwell drained (the app's own data-dwell-ms)`,
+        timeout: 30_000,
+        intervals: [100, 250],
+      })
+      .toBe('0');
     // The press waits for the pair's OWN pressability bit before firing: aria-disabled
     // 'false' on the direction's button mirrors touchAdmitted (§5) — arrival settled,
     // transit-free, gesture- and menu-free — which the five-row snapshot cannot see

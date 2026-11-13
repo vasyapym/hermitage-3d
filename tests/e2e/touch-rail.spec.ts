@@ -354,30 +354,40 @@ test('rapid activation / reduced motion', async ({ browser, baseURL }) => {
         await rawTap(p, 1);
         // The settle between the taps (the CI pacing hardening): under the CI runner's
         // dispatch pace two back-to-back rawTaps never registered movement (before+0 twice;
-        // locally the same row always read +1/+2). Wait on the ACTUAL evidence — tap #1's
-        // own rest, read off the coherent snapshot's data-moving bit (R13) — before tap #2
-        // is dispatched. A tap that was lawfully dropped never moves the bit: the poll
-        // passes at once and the row's outcome assertions still hold the verdict. The
-        // budget covers the mode split: the no-preference tap #1 is a WALK leg (≤ ~2.6 s:
-        // accel 420 + one gap at cruise 1500 + brake ≤ 700), and the bit binds per rendered
-        // frame — at the CI runner's ~1 fps the bind lag alone reaches ~3.4 s — so 8 s
-        // keeps the wait honest on a slow box where the 2.5 s cut-case figure times out.
+        // locally the same row always read +1/+2). Wait for tap #1's OWN completed landing
+        // on the coherent snapshot — the stop ADVANCED past the boot pose AND the walk is
+        // over — not the idle bit alone (an idle bit alone cannot tell a rest from a walk
+        // the cadence has not published yet). The press path publishes its bit synchronously
+        // (the pair's activation syncs on pointerdown), so an accepted tap reads moving
+        // 'true' from the poll's first sample; the reduced-motion cut is instant and passes
+        // as soon as its changed stop binds. THE BUDGET SIZES AGAINST THE CAPPED SIMULATION
+        // CLOCK: the walk law feeds ≤100 ms of state time per rendered frame
+        // (Math.min(deltaMs, 100)), so the no-preference leg's ~2.2 s of simulation needs
+        // ≥22 rendered frames — ≈29 s at the CI's recorded ~1.3 s/frame — the wall-time
+        // figures (2.5 s, then 8 s) were arithmetic against the wrong clock (the Sol review).
         await expect
-          .poll(async () => (await snapshot(p)).moving, {
-            message: 'tap #1: the first cut rests (data-moving false)',
-            timeout: 8_000,
-            intervals: [100, 250],
-          })
-          .toBe('false');
+          .poll(
+            async () => {
+              const s = await snapshot(p);
+              return routeIndex(s.stop) > before && s.moving === 'false' ? 'rested' : 'waiting';
+            },
+            {
+              message: 'tap #1: its own leg landed (the stop advanced, the walk over)',
+              timeout: 40_000,
+              intervals: [100, 250],
+            },
+          )
+          .toBe('rested');
         await rawTap(p, 1);
         await roomReady(p);
         // The walk law owns the outcome (the one admission rule admits a press MID-WALK —
         // it extends the walk; there is no drop gate anymore), and the settle above waits
         // out tap #1's own rest first. Reduced: tap two lands inside the 600 ms dwell and
-        // is dropped (one cut: Sh); normal: tap two departs the first cut's rest and runs
-        // its own leg: two steps along the route S0 → Sh → S1, resting at S1 — never three
-        // steps off a double activation; a boundary crossing into G0 needs a press from a
-        // SETTLED S1 — so the legal set [before+1, before+2] holds in both modes (the
+        // is dropped (one cut: S0b); normal: tap two departs the first cut's rest and runs
+        // its own leg: two steps along the route S0 → S0b → Sh, resting at Sh — never
+        // three steps off a double activation; a boundary crossing into G0 needs a press
+        // from a SETTLED S1 (four steps) — so the legal set [before+1, before+2] holds in
+        // both modes (the
         // documented law change; the old mid-glide-drop wording is gone with the walk).
         // Assert the legal set on the route order, plus stability across frames.
         const after = (await position(p)).stop;
