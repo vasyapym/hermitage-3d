@@ -7,7 +7,7 @@
         {
           "clippedFraction": 0.0018,
           "emitters": 0,
-          "exrSha256": "8018c13a5cf87244bf0c7ab350e390b9fdda98386dbcbd4504604065220e95ea",
+          "exrSha256": "c25b19d7095b9a0e7a768c51a2300c90e87f2a047d5466c1da038164e5b0c7e0",
           "name": "arch",
           "objects": 15,
           "pad": 2,
@@ -25,7 +25,7 @@
       "probe": null,
       "res": 1536,
       "samples": 128,
-      "seconds": 396.5,
+      "seconds": 451.5,
       "state": "day",
       "whitePoint": 0.8,
       "artifacts": [
@@ -42,7 +42,7 @@
         {
           "clippedFraction": 0.0015,
           "emitters": 14,
-          "exrSha256": "ffd65d165a6ce780ea80d2123da3aefc32caa3d6ab6221ba86457adf66a7076b",
+          "exrSha256": "7518b3e3f0d0e7bd5e68cb11ae31526e25464e411b4d6d5264ffaa5f382147c3",
           "name": "arch",
           "objects": 1,
           "pad": 2,
@@ -74,7 +74,7 @@
       },
       "res": 1536,
       "samples": 128,
-      "seconds": 626.6,
+      "seconds": 753.3,
       "state": "dusk",
       "whitePoint": 0.8,
       "artifacts": [
@@ -96,7 +96,7 @@
         {
           "clippedFraction": 0.0015,
           "emitters": 14,
-          "exrSha256": "f460a0e2c8977e00028aaf4157b9d1f95163562b32cfd966fd5918351b88c66d",
+          "exrSha256": "27e4df86d0ef2c39dbdbda9d5de98860b6a7a77738c473d1e945fbfb4639a1c8",
           "name": "arch",
           "objects": 1,
           "pad": 2,
@@ -114,7 +114,7 @@
       "probe": null,
       "res": 1536,
       "samples": 128,
-      "seconds": 451.2,
+      "seconds": 725.6,
       "state": "nightChandeliers",
       "whitePoint": 0.8,
       "artifacts": [
@@ -129,23 +129,23 @@
   "postEncode": {
     "day": [
       {
-        "bytes": 185659,
+        "bytes": 185647,
         "rel": "lm/day.ktx2",
-        "sha256": "658fd27133c3f1f681bc90a499cb27b212b8be5e2f56336aa1e2f702ae76fa71"
+        "sha256": "5c1a499afc977b785e1394d9badc75d76d3b6bff3299ea17cf70e37fca980b6e"
       }
     ],
     "dusk": [
       {
-        "bytes": 167986,
+        "bytes": 167956,
         "rel": "lm/dusk.ktx2",
-        "sha256": "483b43514f97166182c8332605643cffc8b31930ad7e8bcc3a8cae77234c9194"
+        "sha256": "0bb018fdef44ac9298f9c439a6617660cc985514660f9513256f084cd42a03c2"
       }
     ],
     "nightChandeliers": [
       {
-        "bytes": 165959,
+        "bytes": 165953,
         "rel": "lm/night.ktx2",
-        "sha256": "064ea1dfe914bb3e01d273e2bfb7ceaa0ef023b9be98b9d079666c07c1b50474"
+        "sha256": "5b5d211169220570c3b20d5597a60fa8728c4a9e624556d5276b1deea5e633cd"
       }
     ],
     "paneProof": {
@@ -171,7 +171,7 @@
         ],
         "stagedExr": {
           "path": "bake-day/lm/day.exr",
-          "sha256": "8018c13a5cf87244bf0c7ab350e390b9fdda98386dbcbd4504604065220e95ea"
+          "sha256": "c25b19d7095b9a0e7a768c51a2300c90e87f2a047d5466c1da038164e5b0c7e0"
         }
       },
       "dusk": {
@@ -196,7 +196,7 @@
         ],
         "stagedExr": {
           "path": "bake-dusk/lm/dusk.exr",
-          "sha256": "ffd65d165a6ce780ea80d2123da3aefc32caa3d6ab6221ba86457adf66a7076b"
+          "sha256": "7518b3e3f0d0e7bd5e68cb11ae31526e25464e411b4d6d5264ffaa5f382147c3"
         }
       },
       "nightChandeliers": {
@@ -221,7 +221,7 @@
         ],
         "stagedExr": {
           "path": "bake-night/lm/night.exr",
-          "sha256": "f460a0e2c8977e00028aaf4157b9d1f95163562b32cfd966fd5918351b88c66d"
+          "sha256": "27e4df86d0ef2c39dbdbda9d5de98860b6a7a77738c473d1e945fbfb4639a1c8"
         }
       }
     }

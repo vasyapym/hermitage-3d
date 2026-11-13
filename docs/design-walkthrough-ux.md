@@ -126,6 +126,13 @@ chrome stays nearly absent; two text lines change; no icons, no spinner.
   hidden the frame the gallery mounts (the gallery's true-coordinate passage
   replaces it at black). The throat is what «the arch opens» describes and the
   invitation itself.
+- The throat's grading (2026-11-13 amendment): the sky-lit run darkens with depth as an
+  authored occlusion whose e-fold is the passage's first third and whose floor is a tenth
+  of the mouth — the stone never reaches black, a passage is read by its gradient, a tone
+  without one is a wall. The lamp run carries the slab's warmth to the seam as a toe and
+  rises to the slab's last-metre fall — the seam is cool stone crossing into warm light,
+  never a step into black. The mouth keeps the kit's stone; the collar stays the recess
+  dark — the ring's shadow line, never the body.
 - Early-mounting the real gallery passage outdoors is rejected for now (couples
   the room's lightmap-only exposure to the sky, sun/hemi leak, extra draws).
 - Touches: the S1 golden re-baselines (deliberate re-composition, recorded); new
@@ -184,10 +191,32 @@ The transit beat, in order:
 7. Beats: the doorway persists as depart ~700 + card ≥ ~300 + arrive ~900 [declared]
    — a warm-cache wait becomes ~2 s of continuous MOTION with a title. The landing
    airlock's 600 ms dead-end beat stays untouched until DEC-025 retargets it.
+
+### 4.1 The door heading and the gaze (2026-11-13; DEC-017 amended)
+
+**§4.1a The door heading.** The departure glide travels the door heading — the rail's
+end tangent with world-up removed and renormalised. A stair's end tangent inherits the
+stair's slope; the visitor's eye does not: a depart keeps the door stop's eye height from
+its first frame to the card, and the standoff is measured from the doorway's own vertical
+plane (through the portal centre, normal to the heading). The lean (R-UX2) rides the same
+heading — a body leans into a door, it does not stoop. A heading already level passes
+through the law untouched: the flat rails' departs are bit-identical. The exact-height
+guarantee holds for a flattened or exactly horizontal heading; a near-level tangent inside
+the level fence keeps its own residual slope — a bounded drift of at most the fence times
+the travel cap (≈2.5 cm; the committed rails' residuals ≈0.3 mm), documented as intentional
+(the review finding, 2026-11-13).
+
+**§4.1b The gaze.** A door stop that faces its door glides the gaze to the portal centre
+— the stride through «the last few metres». A door stop whose committed gaze faces away
+from its door backs out as a locked dolly: the eye retreats along the heading, the gaze
+holds the stop's subject — «back out of the scene», the arrival played backward. Arrivals
+are untouched; an arrive never reads the tangent.
+
 - Touches: DEC-017 rewritten («dark title card, every transit, min dwell, no
   spinner»), §2.3 recorded as implemented (exposure instead of overlay), §1.3
   recorded as implemented (simpler trigger), the hold constants re-declared. Owner
-  dispositions D3 (title card) and D4 (prefetch bytes).
+  dispositions D3 (title card) and D4 (prefetch bytes). 2026-11-13: §4.1 above —
+  DEC-017 amended again (the door heading; the facing-away gaze backs out).
 
 ## 5. The corridor's light (reply §2.4, adopted)
 

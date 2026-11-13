@@ -6,9 +6,9 @@ The committed ktx2 bytes + sha256 below are the byte-identity gate (`--verify`).
 
 | state | command | Blender | res | samples | denoiser | white point | peak | clipped | wall s |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| day | `node tools/bake.mjs rastrelli-gallery day` | Blender 4.2.23 LTS | 1536 | 128 | OPENIMAGEDENOISE | 0.8 | 2.4771 | 0.0018 | 396.5 |
-| dusk | `node tools/bake.mjs rastrelli-gallery dusk` | Blender 4.2.23 LTS | 1536 | 128 | OPENIMAGEDENOISE | 0.8 | 2.111 | 0.0015 | 626.6 |
-| nightChandeliers | `node tools/bake.mjs rastrelli-gallery nightChandeliers` | Blender 4.2.23 LTS | 1536 | 128 | OPENIMAGEDENOISE | 0.8 | 2.1324 | 0.0015 | 451.2 |
+| day | `node tools/bake.mjs rastrelli-gallery day` | Blender 4.2.23 LTS | 1536 | 128 | OPENIMAGEDENOISE | 0.8 | 2.4771 | 0.0018 | 451.5 |
+| dusk | `node tools/bake.mjs rastrelli-gallery dusk` | Blender 4.2.23 LTS | 1536 | 128 | OPENIMAGEDENOISE | 0.8 | 2.111 | 0.0015 | 753.3 |
+| nightChandeliers | `node tools/bake.mjs rastrelli-gallery nightChandeliers` | Blender 4.2.23 LTS | 1536 | 128 | OPENIMAGEDENOISE | 0.8 | 2.1324 | 0.0015 | 725.6 |
 
 ## Artifacts
 
@@ -27,9 +27,9 @@ No state exceeded the ~45 min/state threshold here.
 ## Post-encode artifacts (the RG-F2 re-encode; the committed bytes = the manifest)
 | state | file | bytes | sha256 |
 |---|---|---|---|
-| day | lm/day.ktx2 | 185659 | 658fd27133c3f1f681bc90a499cb27b212b8be5e2f56336aa1e2f702ae76fa71 |
-| dusk | lm/dusk.ktx2 | 167986 | 483b43514f97166182c8332605643cffc8b31930ad7e8bcc3a8cae77234c9194 |
-| nightChandeliers | lm/night.ktx2 | 165959 | 064ea1dfe914bb3e01d273e2bfb7ceaa0ef023b9be98b9d079666c07c1b50474 |
-paneApplied (day) = true — 1 proof row(s): applied; pre-paint exr bake-day/lm/day.exr 8018c13a5cf87244bf0c7ab350e390b9fdda98386dbcbd4504604065220e95ea
-paneApplied (dusk) = true — 1 proof row(s): applied; pre-paint exr bake-dusk/lm/dusk.exr ffd65d165a6ce780ea80d2123da3aefc32caa3d6ab6221ba86457adf66a7076b
-paneApplied (nightChandeliers) = true — 1 proof row(s): declared-zero-verified; pre-paint exr bake-night/lm/night.exr f460a0e2c8977e00028aaf4157b9d1f95163562b32cfd966fd5918351b88c66d
+| day | lm/day.ktx2 | 185647 | 5c1a499afc977b785e1394d9badc75d76d3b6bff3299ea17cf70e37fca980b6e |
+| dusk | lm/dusk.ktx2 | 167956 | 0bb018fdef44ac9298f9c439a6617660cc985514660f9513256f084cd42a03c2 |
+| nightChandeliers | lm/night.ktx2 | 165953 | 5b5d211169220570c3b20d5597a60fa8728c4a9e624556d5276b1deea5e633cd |
+paneApplied (day) = true — 1 proof row(s): applied; pre-paint exr bake-day/lm/day.exr c25b19d7095b9a0e7a768c51a2300c90e87f2a047d5466c1da038164e5b0c7e0
+paneApplied (dusk) = true — 1 proof row(s): applied; pre-paint exr bake-dusk/lm/dusk.exr 7518b3e3f0d0e7bd5e68cb11ae31526e25464e411b4d6d5264ffaa5f382147c3
+paneApplied (nightChandeliers) = true — 1 proof row(s): declared-zero-verified; pre-paint exr bake-night/lm/night.exr 27e4df86d0ef2c39dbdbda9d5de98860b6a7a77738c473d1e945fbfb4639a1c8

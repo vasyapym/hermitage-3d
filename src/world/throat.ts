@@ -9,9 +9,12 @@
  * middle arch. The profile MEETS the committed kit envelope: it sits just outside the
  * portal-arch ring's inner edge (r 2.25 at springing 7.25) so a dark reveal band reads between
  * ring and vault; the void clears the throat by 0.25 m so no pier face is coplanar with a wall.
- * Grading: the sky-lit run darkens with depth (an authored ambient-occlusion falloff — the
- * hemisphere light is directionless, so depth must be written into the albedo); the lamp run is
- * absolute radiance rising to the slab — constant light, the exposure E(h) is the eye.
+ * Grading: the sky-lit run darkens with depth as an authored occlusion whose e-fold is the
+ * passage's first third and whose floor is a tenth of the mouth (the hemisphere is
+ * directionless, so depth is written into the albedo; the stone never reaches black — a
+ * passage is read by its gradient); the lamp run carries the slab's warmth to the seam as a
+ * toe and rises to the slab's last-metre fall — the seam is cool stone crossing into warm
+ * light, never a step into black. The mouth keeps the kit's stone; the exposure E(h) is the eye.
  */
 export type Pt = readonly [number, number];
 export type Rgb = readonly [number, number, number];
@@ -35,11 +38,12 @@ const STONE_ALBEDO: Rgb = [0.22, 0.21, 0.19];
 const LAMP_WARM: Rgb = [1, 0.55, 0.22];
 export const COLLAR_RGB: Rgb = [0.017, 0.019, 0.024]; // the kit's recess dark, linear
 export const LAMP_SLAB_RADIANCE = 1.6; // mild HDR; AgX rolls it off, E(h) scales it
-const AO_MOUTH = 0.9;
-const AO_FALL_M = 4;
-const AO_FLOOR = 0.03;
+const AO_MOUTH = 0.83; // the mouth sum stays 0.93: the committed kit stone at d = 0
+const AO_FALL_M = 9; // the e-fold is the passage's first third — the fall reads across the run
+const AO_FLOOR = 0.1; // the deep stone keeps a tenth of the mouth (0.022 albedo)
 const GLOW_END = 0.35; // the lamp's fall on the last metres of vault, relative to the slab
-const GLOW_GAMMA = 2.2;
+const GLOW_TOE = 0.04; // the lamp's toe at the seam, relative to the slab
+const GLOW_GAMMA = 1.4; // the warmth reaches forward
 const scale = (c: Rgb, k: number): Rgb => [c[0] * k, c[1] * k, c[2] * k];
 const clamp01 = (x: number): number => Math.min(1, Math.max(0, x));
 export function throatProfile(): readonly Pt[] {
@@ -57,11 +61,14 @@ export function skyLitAlbedo(d: number): Rgb {
   if (!Number.isFinite(d) || d < 0) throw new RangeError(`throat: depth must be ≥ 0, got ${d}`);
   return scale(STONE_ALBEDO, AO_MOUTH * Math.exp(-d / AO_FALL_M) + AO_FLOOR);
 }
-/** Radiance of the lamp-lit run at depth d: nothing at the seam, warm toward the slab. */
+/** Radiance of the lamp-lit run at depth d: a faint warm toe at the seam, rising to the slab. */
 export function lampRadiance(d: number): Rgb {
   if (!Number.isFinite(d) || d < 0) throw new RangeError(`throat: depth must be ≥ 0, got ${d}`);
   const t = clamp01((d - LAMP_REACH_M) / (THROAT.depthM - LAMP_REACH_M));
-  return scale(LAMP_WARM, LAMP_SLAB_RADIANCE * GLOW_END * t ** GLOW_GAMMA);
+  return scale(
+    LAMP_WARM,
+    LAMP_SLAB_RADIANCE * (GLOW_TOE + (GLOW_END - GLOW_TOE) * t ** GLOW_GAMMA),
+  );
 }
 export const lampSlab = (): Rgb => scale(LAMP_WARM, LAMP_SLAB_RADIANCE);
 /** Exact triangle count the builder must produce (strips + end fan + collar polygon). */
