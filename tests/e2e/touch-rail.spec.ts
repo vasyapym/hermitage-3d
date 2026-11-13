@@ -928,7 +928,7 @@ test('an assistive click after a tap moves again', async ({ browser, baseURL }) 
       await rawTap(p, 1);
       await expect
         .poll(settled, { message: 'the tapped walk rests', timeout: 90_000, intervals: [150, 400] })
-        .toBe('square|Sh');
+        .toBe('square|S0b');
       const afterTap = await snapshot(p);
       expect(routeIndex(afterTap.stop), 'the tap moved exactly one stop').toBe(
         routeIndex('S0') + 1,
@@ -943,7 +943,7 @@ test('an assistive click after a tap moves again', async ({ browser, baseURL }) 
           timeout: 90_000,
           intervals: [150, 400],
         })
-        .toBe('square|S1');
+        .toBe('square|Sh');
       const afterClick = await snapshot(p);
       expect(routeIndex(afterClick.stop), 'the assistive click moved the rail again').toBe(
         routeIndex('S0') + 2,
@@ -1118,14 +1118,14 @@ test('the season list owns the arrows', async ({ browser, baseURL }) => {
       // walk is still braking toward it (the nearest-window class the R13 helper exists for).
       await settledRoute(p);
       const atSh = await snapshot(p);
-      expect(atSh.stop, 'the first resume tap rests on Sh').toBe('Sh');
-      expect(atSh.u, 'the first resume tap rests on Sh’s own parameter').toBe(0.5);
+      expect(atSh.stop, 'the first resume tap rests on S0b').toBe('S0b');
+      expect(atSh.u, 'the first resume tap rests on S0b’s own parameter').toBe(0.25);
       expect(atSh.room, 'the first tap stayed inside the square').toBe('square');
       await button(p, 1).tap();
       await settledRoute(p);
       const after = await snapshot(p);
-      expect(after.stop, 'the second tap rests on S1').toBe('S1');
-      expect(after.u, 'the second tap rests on S1’s own parameter').toBe(1);
+      expect(after.stop, 'the second tap rests on Sh').toBe('Sh');
+      expect(after.u, 'the second tap rests on Sh’s own parameter').toBe(0.5);
       expect(after.room, 'the taps stayed inside the square').toBe('square');
     },
     { reducedMotion: 'no-preference' },
