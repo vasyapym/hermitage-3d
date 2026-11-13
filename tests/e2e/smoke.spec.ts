@@ -403,18 +403,24 @@ test('keyboard walk: every stop reachable, reduced-motion cuts', async ({ page }
     const beat = BEATS[stop];
     if (beat === undefined) throw new Error(`no committed beat for stop ${stop}`);
     // The reduced-motion dwell (REDUCED_DWELL_MS 600) drains inside advance() per rendered
-    // frame, each frame clamped at ≤100 ms of state time (the loop's Math.min(deltaMs, 100)):
-    // the drain takes SIX RENDERED FRAMES at any box speed (≈0.1 s at 60 fps, ≈6 s at the
-    // CI's ~1 fps). No DOM bit exposes dwellMs, and the press path does not pre-advance by
-    // wall time — so the press waits out SEVEN rAF frames (the drain's own driver, counted
-    // directly: 7 × ≤100 ms ≥ 600 ms of state time, guaranteed at any fps). The removed
-    // pre-press read chain used to spend ~1.3 s per CI read and cleared the dwell by
-    // accident — the recorded CI deaths moved between runs on exactly this race.
-    for (let frame = 0; frame < 7; frame += 1) {
-      await page.evaluate(
-        () => new Promise((resolve) => requestAnimationFrame(() => resolve(null))),
-      );
-    }
+    // frame, each frame feeding ≤100 ms of state time (the loop's Math.min(deltaMs, 100)):
+    // ≈7 frames at ~1 fps, ≈37 at 60 fps — a FRAME COUNT cannot cover both, so the wait
+    // mirrors the app's own drain: accumulate min(frame-gap, 100) on the SAME rAF cadence
+    // the app's loop rides until ≥650 ms of state time (the +50 margin covers the landing
+    // sample's own lag). No DOM bit exposes dwellMs, and the press path does not
+    // pre-advance by wall time. The removed pre-press read chain used to spend ~1.3 s per
+    // CI read and cleared the dwell by accident — the recorded CI deaths moved between
+    // runs on exactly this race.
+    await page.evaluate(async () => {
+      let drained = 0;
+      let last = performance.now();
+      while (drained < 650) {
+        await new Promise((resolve) => requestAnimationFrame(() => resolve(null)));
+        const now = performance.now();
+        drained += Math.min(now - last, 100);
+        last = now;
+      }
+    });
     // The press waits for the pair's OWN pressability bit before firing: aria-disabled
     // 'false' on the direction's button mirrors touchAdmitted (§5) — arrival settled,
     // transit-free, gesture- and menu-free — which the five-row snapshot cannot see
