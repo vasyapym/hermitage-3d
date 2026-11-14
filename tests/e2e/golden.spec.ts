@@ -21,8 +21,12 @@ const VIEWPORT = { width: 1280, height: 720 };
 // R23-ux: the load line rides the same hide law (it lives in the corner stack during a
 // transit; a settled scene never shows it, and the goldens' deep-link entries never reach
 // the threshold — the row hides it unconditionally, one selector, no image change).
+// square-palace-2 (2026-11-15): #touch-rail joins — the movement-ux pair-everywhere law put
+// the arrows into every settled frame, and the golden baselines (cut before that round) do
+// not carry them; T1 measured the pair riding inside the golden comparisons at 0.05 % of
+// frame, absorbed by the 1 % allowance. The goldens stay overlay-free by design.
 const HIDE_OVERLAYS_CSS =
-  '#title, #scrub, #chrome-row, #lang-toggle, #index-open, #index-dialog, #travel-hint, #edge-prompt, #hud, #caption, #caption-title, #load-line { visibility: hidden !important; }';
+  '#title, #scrub, #chrome-row, #lang-toggle, #index-open, #index-dialog, #travel-hint, #edge-prompt, #hud, #caption, #caption-title, #load-line, #touch-rail { visibility: hidden !important; }';
 
 const MAX_DIFF_PIXEL_RATIO = 0.01;
 
