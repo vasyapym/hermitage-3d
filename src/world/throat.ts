@@ -71,6 +71,11 @@ export function lampRadiance(d: number): Rgb {
   );
 }
 export const lampSlab = (): Rgb => scale(LAMP_WARM, LAMP_SLAB_RADIANCE);
+/** The lamp's forward spill on the sky-lit run, relative to the slab: the toe carried back to
+ * the mouth with the passage's own length as the e-fold. Absolute radiance — it reads at
+ * E(h)→0 where the albedo×hemisphere body collapses; gated at runtime (× wNight). */
+export const lampSpill = (d: number): number =>
+  GLOW_TOE * Math.exp((d - LAMP_REACH_M) / THROAT.depthM);
 /** Exact triangle count the builder must produce (strips + end fan + collar polygon). */
 export function throatTriangleEstimate(): number {
   const n = throatProfile().length;

@@ -116,7 +116,12 @@ import { solveSouthFacade } from './procedural/facade-solver';
 import { GROUND_SNOW_UNIFORMS, patchGroundSnowSlot } from './procedural/ground-snow';
 import { buildNightLattice } from './procedural/night-lattice';
 import { buildSnowCap } from './procedural/snow-cap';
-import { buildThroat, openGroundArch, setThroatOpacity } from './procedural/throat';
+import {
+  buildThroat,
+  openGroundArch,
+  setThroatNightSpill,
+  setThroatOpacity,
+} from './procedural/throat';
 import { type SkySample, sampleSky } from './sky/appearance';
 import type { ArrivalState } from './sky/arrival';
 import { advanceArrival, initialArrival, presentationForArrival } from './sky/arrival';
@@ -820,6 +825,7 @@ const applyEpoch = (nextEpochMs: number): void => {
   // to the pre-lattice sample line, and the lattice group is hidden outright.
   const wNight = lightmapWeights(elevationDegOf(sample)).nightChandeliers;
   nightLattice.setNight(wNight);
+  setThroatNightSpill(throat, wNight); // the doorway's lamp forward spill rides the same switch
   // DEC-033: the season law reads the same instant the sun samples (at=/det=), never Date.now();
   // four writes per frame — morph influence + cap visibility, and the two slots' uniforms (R12).
   const wSnow = snowWeight(nextEpochMs);
