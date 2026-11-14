@@ -27,7 +27,7 @@ that decides whether a next round's declared allowance fits. The project-course 
 
 | line | cap | operating ceiling | committed (main @ the square-env2 merge, 2026-11-05) | committed (branch `roomload-mglight`) | reserved (open branches) | remaining to the operating ceiling |
 |---|---|---|---|---|---|---|
-| JS gzip (all chunks) | 350,000 | 285,707 — *proposed explicit ceiling, owner ratification pending (design-project-course §1)* | **285,609** (main @ the owner-steer landing, 2026-11-14 — the walk −25, the evening +188, both inside their bands; the evening's estimate 180–240 held) | merged | none — all stack lanes merged; the finale's reservation released | **98** |
+| JS gzip (all chunks) | 350,000 | 285,707 — *proposed explicit ceiling, owner ratification pending (design-project-course §1)* | **285,631** (main @ the transit-gate landing, 2026-11-14 — the roomsRoot gate +22: the Group + 2 redirects + 1 flag line; the lever's estimate 60–90 B overshot the actual) | merged | none — no open reservations | **76** |
 | RU strings (lazy chunk) | 12,000 | — | **7,360** (main @ the owner-steer landing 2026-11-14: the stops captions +47, the doorway walk trade −26) | — | none | **4,640** |
 | basis transcoder | 600,000 | — | 584,862 | unchanged | none | 15,138 — effectively closed (the dossier: only a measured vendor upgrade opens it) |
 | exterior (square payload) | 4,000,000 | — | 0 | unchanged | none | full; the dossier: measure the procedural baseline BEFORE an asset program (no texture/tri/draw caps yet — under-specified) |

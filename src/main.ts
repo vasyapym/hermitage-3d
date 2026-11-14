@@ -715,6 +715,18 @@ for (const child of palace.children) {
 palace.visible = false; // §10: the first rendered frame is the procedural sky alone
 scene.add(palace);
 
+// The rooms root (the transit-band round, 2026-11-14): every mounted room's object parents
+// here, and the root's visibility is the exact complement of the palace law — exterior XOR
+// interior, never both renderable. Rooms still mount fully in the hold (mountParsed is
+// hold-only) and compileAsync still reaches them (three's compile collects materials via
+// scene.traverse, visibility-agnostic; the room glbs carry no lights), but nothing of an
+// interior can paint through the gate mouth while the exterior is up: the gallery's end wall
+// read as a grey speckled band over the warm cap from the square — the owner's sighting.
+const roomsRoot = new THREE.Group();
+roomsRoot.name = 'rooms';
+roomsRoot.visible = false;
+scene.add(roomsRoot);
+
 const sun = new THREE.DirectionalLight(0xffffff, 0); // intensity driven by the sample
 sun.castShadow = true;
 sun.shadow.mapSize.set(1024, 1024); // T1 default until quality tiers land
@@ -869,8 +881,10 @@ const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matc
 const ledger = createLedger(); // §8.3 layer 1: the loaders register their own GPU allocations
 const assets = createLoaders(renderer, ledger);
 const roomScene: RoomScene = {
-  add: (object) => scene.add(object as unknown as THREE.Object3D),
-  remove: (object) => scene.remove(object as unknown as THREE.Object3D),
+  // Parents under the host's rooms root — renderable only while indoor (see roomsRoot above);
+  // the exterior↔interior half of the overlap visibility policy (R24-ux) lives here.
+  add: (object) => roomsRoot.add(object as unknown as THREE.Object3D),
+  remove: (object) => roomsRoot.remove(object as unknown as THREE.Object3D),
   setEnvironment: (object) => {
     scene.environment = (object ?? null) as THREE.Texture | null;
   },
@@ -2738,6 +2752,7 @@ const applyPresentation = (): void => {
   }
   const visible = presentation.massingOpacity > 0;
   palace.visible = visible && !indoor;
+  roomsRoot.visible = indoor; // the exact complement: one world renderable at any instant
   if (visible) {
     massingMaterial.opacity = presentation.massingOpacity;
     groundMaterial.opacity = presentation.massingOpacity;

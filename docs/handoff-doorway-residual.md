@@ -1,5 +1,7 @@
 # Handoff — the doorway's residual dark mass (PARKED 2026-11-14; the next session's entry point)
 
+> **SUPERSEDED 2026-11-14** — the residual this pack chased was diagnosed from the owner's own sighting conditions and is NOT a light law: it is the transit band (the gallery glb's south end wall visible through the mouth while mounted but not indoor), fixed by the roomsRoot gate. See docs/briefs/ROUNDS.md row 68 and the vault `03_projects/hermitage-3d-2026-11-14/`. The costed levers below remain on record for the SEPARATE settled-frame day-read question (the deep vault black at day — probe A's TABLE.md); pick them only if the owner still wants that read warmer.
+
 **Read first:** docs/STATE.md's owner-steer bullet + docs/parking-lot.md's doorway row. This file is the self-contained pack for the session that picks the item up.
 
 ## The standing situation

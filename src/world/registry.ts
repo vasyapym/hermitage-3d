@@ -148,6 +148,10 @@ export interface RoomAssetService {
   disposeParsed(object: RoomObject): void;
 }
 export interface RoomScene {
+  /**
+   * Parents under the host's rooms root — renderable only while indoor; the add/remove pair
+   * redirects into that root (the exterior↔interior exclusivity, main.ts roomsRoot).
+   */
   add(object: RoomObject): void;
   remove(object: RoomObject): void;
   /** §5: the room's PMREM probe attaches to the host scene's environment; null clears it. */
