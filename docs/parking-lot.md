@@ -2,6 +2,7 @@
 
 Ideas parked on purpose. Each carries a "why parked" line.
 
+- **The doorway's residual dark mass (the owner's 2026-11-14 report: "the visual bug is still there")** — the evening spill (the owner-steer lane's lampSpill law) landed but the owner still sees the defect on the live site; PARKED by the owner's explicit call («let's not fix it now»). The diagnostic state on record: the deploy's vintage vs the landing push unverified at report time; the candidate levers already costed in the Astra-6 relay (brief 5): the dusk-gate widening (`1 − lightmaps.day` — Astra-6's uncertainty 1; the dusk crown computed ≈0.0086 < the 0.01 display floor), the GLOW_TOE raise, the EXPOSURE.low lift (global — everything flips), each with its golden flip set named. Why parked: the owner's call after two rounds on this family — the next attempt should start from the owner's own sighting conditions (the hour, the device, the deployed sha) rather than another class ruling.
 - **The Cut (dollhouse section)** — first v2 feature; parked until ≥ 2 interiors exist. The enabling constraint (true-coordinate room placement) is active since the room contract.
 - **Rastrelli's Line (ink drawing ⇄ building transition)** — may become an intro flourish if a phase finishes under budget; parked because it risks reading as a shader demo.
 - **Subtle soundscape** — never a phase requirement; revisit only after Phase 4.
