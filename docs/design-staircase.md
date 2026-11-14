@@ -259,8 +259,9 @@ Rail: Catmull-Rom through stop positions with two helper points per flight for t
 > travels exactly the arc between the two stops' framings with the distance fraction as
 > its one weight — no departure-turn span, no near-field class (its former exemption's
 > distance weight is now every pair's law), no held-point parallax.
-> Back Gj→G0 reads the same 83° field: the pitch rises linearly and monotonically
-> from 0° to its 3.06° settle at G0,
+> Back Gj→G0b reads the same 83° field: the pitch rises linearly and monotonically
+> from 0° to its 6.10° settle at G0b (the owner's 2026-11-14 walk steer split the passage
+> leg — G0b mid-chord keeps the pan's 83°; the locked leg on to G0 keeps G0's 3.06° fence),
 > superseding FIXUPS 2's ≈10.05° and the round-landed 17.39°.
 > Shared targets stay locked dollies; the position path is this section's spline. At
 > stops the pose is bit-identical, which keeps the eight goldens green un-rebaselined.

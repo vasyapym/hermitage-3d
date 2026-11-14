@@ -30,8 +30,9 @@ const SLUGS: Readonly<Record<string, string>> = {
 // The stops' travel order per room, read off the room contracts (src/camera/square-rail.ts,
 // rooms/*/contract.ts). The digit suffix alone is NOT an order: 'Gj' carries none and
 // 'J1b'/'J2b' trail a letter, so the walk assertions read this map instead of a regex.
-// The 2026-11-12/13 stops round: S0b/Shb (the square's quarter-point inserts) and Gjb/G1b
-// (the gallery's axis inserts) join their rooms' walk order.
+// The 2026-11-12/13 stops round: S0b/Shb (the square's quarter-point inserts) join their
+// room's walk order; the owner's 2026-11-14 walk tweak adds the gallery's G0b (the entry-leg
+// insert) and retires that round's Gjb/G1b.
 const STOPS: Record<string, number> = {
   S0: 0,
   S0b: 1, // the 2026-11-12/13 stops round: the first quarter-point insert
@@ -39,11 +40,10 @@ const STOPS: Record<string, number> = {
   Shb: 3, // the round's second quarter-point insert
   S1: 4,
   G0: 0,
-  Gj: 1,
-  Gjb: 2, // the round's first axis insert (the Gj→G1 midpoint)
+  G0b: 1, // the owner's 2026-11-14 walk tweak: the entry-leg insert
+  Gj: 2, // the corner stop (the §8 stop table)
   G1: 3,
-  G1b: 4, // the round's second axis insert (the G1→G2 midpoint)
-  G2: 5,
+  G2: 4,
   J0: 0,
   J1: 1,
   J1b: 2,

@@ -323,9 +323,11 @@ are untouched; an arrive never reads the tangent.
 
 - A **junction stop** where the arch passage meets the gallery axis (near
   (1.5–2, 1.7, 73); gaze east down the gallery toward the east door's light) —
-  four stops; the G0→G1 wall-pass disappears (six since the 2026-11-12/13
-  stops round — Gjb/G1b, the two long axis gaps' midpoints, keep the
-  EAST_DOOR lock). The G0 gaze re-authors as «down the
+  four stops; the G0→G1 wall-pass disappears (five since the 2026-11-12/13
+  stops round and the owner's 2026-11-14 walk steer: that round's two axis
+  inserts Gjb/G1b retired, one entry-leg insert G0b added at the G0→Gj
+  diagonal's midpoint — the passage leg the round left deliberately unsplit;
+  G0b keeps the JUNCTION lock). The G0 gaze re-authors as «down the
   passage toward the lit junction»; G2 (the door) gets an authored subject (the
   door's light) replacing the look-back law there; G1 keeps the lock-on east.
 - The end-phantoms adjudication does NOT reopen: these are stops with captions,
@@ -410,7 +412,7 @@ pick destinations; the wheel's travel (and its sustained-scroll boundary pass) i
   2026-11-02: press 4 locks onto J2's framing — the old upper-window glance into the north
   wall retired); J3/J4 → EAST_PORTAL
   (locked approach). Local presses from J0 land at J1, J1b, J2, J2b, J3, J4. The sconce
-  and window are intentional subjects, not random samples. Corridor: G0 → JUNCTION;
+  and window are intentional subjects, not random samples. Corridor: G0/G0b → JUNCTION;
   Gj/G1/G2 → EAST_DOOR; GALLERY_MOUTH stays recorded as Gj's approach on the committed ray
   and, under B9, no longer steers the Forward glide.
 - Look limits (B9): the gaze's distance weight blends departure rows (or the rows at a

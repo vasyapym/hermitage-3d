@@ -110,7 +110,7 @@ describe('B9 pacing: the look turns with the travel', () => {
   const yawOf = (pose: ReturnType<typeof samplePose>): number =>
     aimOf(pose.position, pose.target).yaw;
   const cases: readonly (readonly [string, Rail, number])[] = [
-    ['gallery G0→Gj', galleryContract.rail, 0],
+    ['gallery G0b→Gj', galleryContract.rail, 1], // the passage pan (the owner's 2026-11-14 split)
     ['jordan J2b→J3', jordanContract.rail, 4],
   ];
   for (const [label, rail, i] of cases) {
@@ -164,16 +164,21 @@ describe('B9 pacing: the look turns with the travel', () => {
 });
 
 describe('B9 keeps the recorded rows', () => {
-  it('Back Gj→G0: 83.0° pan; pitch rises linearly and monotonically to its 3.06° settle', () => {
+  it('Back Gj→G0b: 83.0° pan; pitch rises linearly and monotonically to its 6.10° settle at G0b', () => {
+    // The owner's 2026-11-14 steer split the passage leg: the 83° pan and its monotone
+    // Back pitch live on the G0b→Gj segment now (G0b rides the old chord, so the pan
+    // keeps its 83.0°); G0's own entry framing keeps its 3.06° pitch on the locked leg
+    // beyond G0b.
     const rail = galleryContract.rail;
-    const end = framings(rail, 0);
+    const end = framings(rail, 1);
     expect(Math.abs(wrapDeg(end.b.yaw - end.a.yaw))).toBeCloseTo(83.0, 1);
-    expect(end.a.pitch).toBeCloseTo(3.06, 2);
+    expect(end.a.pitch).toBeCloseTo(6.1009, 2);
     expect(end.b.pitch).toBeCloseTo(0, 9);
+    expect(framings(rail, 0).a.pitch).toBeCloseTo(3.06, 2); // G0's fence, unchanged data
     let last = Number.POSITIVE_INFINITY;
     for (let step = 1; step <= 99; step += 1) {
-      const s = step / 100; // forward: from the G0 framing (3.0591°) down toward Gj's 0°
-      const pose = samplePose(rail, midState(rail, 0, s, -1));
+      const s = step / 100; // forward: from the G0b framing (6.1009°) down toward Gj's 0°
+      const pose = samplePose(rail, midState(rail, 1, s, -1));
       const got = aimOf(pose.position, pose.target);
       expect(got.pitch, `monotone at s ${s}`).toBeLessThanOrEqual(last + 1e-12);
       const want = end.a.pitch + (end.b.pitch - end.a.pitch) * s;
@@ -231,24 +236,25 @@ describe('B9 keeps the recorded rows', () => {
     expect(samplePose(rail, cut).target).toEqual(committedTarget(rail, 4));
   });
 
-  it('the Forward G0→Gj arrival looks due east and carries no approach hold mid-flight', () => {
+  it('the Forward G0b→Gj arrival looks due east and carries no approach hold mid-flight', () => {
     const rail = galleryContract.rail;
-    const arrivedPose = samplePose(rail, restingAt(stopParameter(rail, 1)));
-    expect(arrivedPose.target).toBe(committedTarget(rail, 1));
+    const arrivedPose = samplePose(rail, restingAt(stopParameter(rail, 2)));
+    expect(arrivedPose.target).toBe(committedTarget(rail, 2));
     const aim = aimOf(arrivedPose.position, arrivedPose.target);
     expect(aim.yaw).toBeCloseTo(90, 6); // EAST_DOOR lies due +x of Gj
     expect(aim.pitch).toBeCloseTo(0, 9);
-    const mid = samplePose(rail, midState(rail, 0, 0.5, 1));
-    expect(mid.target === committedTarget(rail, 1)).toBe(false); // no point hold mid-flight
+    const mid = samplePose(rail, midState(rail, 1, 0.5, 1));
+    expect(mid.target === committedTarget(rail, 2)).toBe(false); // no point hold mid-flight
   });
 
   it('the walk rests AT the arrival: release timing controls T = 2r/v (brake ≤ the cruise bar)', () => {
     // On the square rail the walk's next stop (Sh) is SOFT: a held walk coasts past the
-    // horizon, and only the intent's end starts the brake. On the gallery the next stop
-    // Gj is a CORNER — hard regardless of intent — so the pinned T comes from the square.
+    // horizon, and only the intent's end starts the brake. On the gallery the tap's next
+    // stop is the soft G0b since the owner's 2026-11-14 steer (the corner Gj sits one leg
+    // on) — the pinned T comes from the square either way.
     const rail = galleryContract.rail;
     // Tap: press, the lift inside the lease, then the settle: the intent dies, the brake
-    // enters, and the walk rests AT Gj exactly.
+    // enters, and the walk rests at the next stop exactly.
     const pressed = walkPress(rail, restingAt(0), 1, false, false).state;
     let state = advance(rail, pressed, 80); // the tap's flight
     state = walkRelease(state, 1);

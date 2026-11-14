@@ -202,10 +202,26 @@ describe('jordan stops (R-UX5 §8: feet on treads)', () => {
 });
 
 describe('gallery stops (R-UX5 §7: the junction)', () => {
-  it('walks G0 → Gj → Gjb → G1 → G1b → G2', () => {
-    // The 2026-11-12/13 stops round: Gjb/G1b are the two long axis gaps' midpoints; Gj keeps
-    // the corner flag and the mouth approach, G0's passage leg and G2's depart are untouched.
-    expect(GALLERY.stops.map((s) => s.id)).toEqual(['G0', 'Gj', 'Gjb', 'G1', 'G1b', 'G2']);
+  it('walks G0 → G0b → Gj → G1 → G2', () => {
+    // The 2026-11-12/13 stops round added two axis inserts; the owner's 2026-11-14 steer
+    // reverses the gallery half: Gjb/G1b retire, one insert lands inside the entry leg.
+    // Gj keeps the corner flag and the mouth approach, the passage chord now carries G0b
+    // at its midpoint, G2's depart is untouched.
+    expect(GALLERY.stops.map((s) => s.id)).toEqual(['G0', 'G0b', 'Gj', 'G1', 'G2']);
+  });
+  it('carries the owner’s 2026-11-14 insert: the entry diagonal’s midpoint on the JUNCTION lock', () => {
+    const g0b = GALLERY.stops[1];
+    if (!g0b) throw new Error('G0b missing');
+    expect(g0b.position).toEqual([0.8, 1.7, 79.5]); // the exact G0→Gj midpoint
+    // The subject is the JUNCTION const by reference — the equal-subjects lock makes
+    // G0→G0b one locked dolly onto the lit junction.
+    expect(g0b.subject).toBe(GALLERY.stops[0]?.subject);
+    // No corner/approach: a straight run; the R18-ux D3 law stays Gj's.
+    expect(g0b.corner).toBeUndefined();
+    expect(g0b.approach).toBeUndefined();
+    expect(g0b.look).toEqual({ yaw: 30, pitchUp: 15, pitchDown: 15 }); // Gj's rows verbatim
+    // The key is pinned exactly (the Sol review: the t() fallback would mask a MISSING caption).
+    expect(g0b.caption).toBe('caption.g0b');
   });
   it('never passes through geometry: every sampled frame inside the passage or the gallery', () => {
     eachSample(GALLERY, (u, segment) => {
