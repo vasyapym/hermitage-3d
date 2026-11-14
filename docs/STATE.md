@@ -403,6 +403,26 @@ file in the same session.
 
 ## Live state
 
+- **2026-11-15 · jordan-slice-3 OPEN (PARALLEL to the luna2 portfolio session's in-flight track —
+  observed in flight at this round's opening; this lane works only inside its own worktree
+  `~/Documents/hermitage-3d-jordan3`, branch `jordan-slice-3` off main `a32b70c`; MERGE into main +
+  the FULL e2e/golden gate at the owner's notification that the parallel work is done — NOT this
+  session; SCOPE-LOCAL gates only: the bpy/bake/encode chain as needed, `pnpm validate`, the jordan
+  capture battery).** The Jordan Staircase's next visual round — the owner's directive: investigate
+  the room's current state, hand the creative model the fact pack, and let it pinpoint what is
+  missing/lacking the most; the selected slice then runs decision → implementation docs as separate
+  briefs (the RG-F3 round-opening shape). The relay opens FACTS-ONLY — the FIND dossier (the vault
+  `03_projects/hermitage-3d-2026-11-15/1-…`, CREATIVE Fable 5.1, text-only) carries the full census
+  (geometry / materials / light / assets+budgets / gates), the fresh capture battery's factual reads
+  (13 frames: 7 stops × day + J0/J2b/J4 × dusk/night on the branch tree), the record trail (slice 1
+  + slice 2 + what they parked), the register's jordan rows, and the repair-cascade standing
+  situation surfaced with its own numbers; the specialist decides the slice; ZERO STEERING. Budget
+  context at open: shared JS 285,631 of 350,000 — 76 B under the proposed 285,707 operating ceiling
+  (a shared-JS spend is effectively blocked without an owner call); the room's own budgets have
+  headroom (payload 1,237,543 of 7,000,000 · textures 996,068 of 4,000,000 · tris 21,872 of 380,000
+  · draws 19 of 60 · decode-cells 3,250 of 4,096). No code yet; the state/rounds marks ride the
+  branch and land at the round's own landing commit.
+
 - **2026-11-09/10 · movement-ux → MERGED (the merge wave's third slot; the FULL e2e/golden gate rode THIS last-merging session; the merge chain: ed7287f into the branch + the fast-forward 287f488 to main):** THE WALK LAW LANDED — ONE arrows mechanism (the owner's four observations; the six ratified dispositions; the Fable ruling; TWO Sol review stages with every FIX integrated: the lease-drains-from-press, the no-replan hard brakes, the drained completion clocks, the sealed brake-entry search, the fail-loud event budget, the timed end-steal, the owned adapter, the one admission law, the settle-bit instruments); wheel-edge.ts retired WITH the wheel; the pair visible at every pointer/width; DEC parked for the integrating authority. THE UNION'S GATES: tsc 0 · biome 2 authored warnings · vitest 1089/1 on 63 files · build JS 285,170/350,000 (the lane's union delta ≈ +1,129 over the 284,041 base — **the declared +1,000 was overspent by ≈ +129: the owner's ratification rides the integration plate** · RU 7,339 · rooms/basis untouched); THE FULL chromium e2e 104/116 with EXACTLY the expected classes: the 9 goldens = the expected flip set; `terminal locks` green 3.0 m after its storm-seek rode direct navigation; `foreign key lift` green single; **`keyboard walk` RED ×3 (budget-burn deaths at fps 1 SwiftShader pacing; the failure point MOVING between runs; the law probe-proven healthy on the exact legs — the cut fires, the rest lands exactly at J1, u=0.1666…, hold 0) — recorded DEFERRED NOT WAIVED per the slot-1 storm-row precedent; expected main-green on the next ordinary CI run; the boundary-cadence hardening stays the owner-gated spec candidate**; THE GOLDEN BATTERY: the expected flip set re-baselined + confirmed green; **the owner's pixel eye-read PENDING — the old/new pairs saved under probes/golden-flips-2026-11-10/**; every other golden byte-held (the square's June/Oct/dec goldens + the 360 fixtures untouched); the cross-room asset guard held through the wave (the rg-f3 assets ride as merged).
 
 - **2026-11-09 · MERGED square-palace (the winter square — the DEC-041 class-I closure; the FIRST slot of this merge wave; the FULL e2e/golden gate rides the LAST merging session — deferred NOT waived; worktree
