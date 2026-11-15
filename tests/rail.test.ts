@@ -22,6 +22,7 @@ import {
 import {
   SQUARE_RAIL,
   SQUARE_S0_GAZE,
+  SQUARE_S0B_GAZE,
   SQUARE_S1_GAZE,
   SQUARE_SH_GAZE,
 } from '../src/camera/square-rail';
@@ -231,16 +232,22 @@ describe('the travel law (B9 field, superseding the R18/R19 departure turns)', (
     const pose = samplePose(STAIR, done);
     expect(pose.target).toEqual(STAIR.stops[2]?.position);
   });
-  it('Back Gj→G0 turns from the fence at Gj; the hold lands only at G0 (B9 framings)', () => {
+  it('Back Gj→G0b turns from the fence at Gj; the hold lands only at G0b (B9 framings)', () => {
     // B9: the framings carry the whole 83° for the whole segment (the near-field class
     // retired — its distance weight is now every pair's law). The fence holds at the exact
-    // stops; east of the fence the aim is strictly between the framings.
-    const just = samplePose(GALLERY, back(GALLERY, stopParameter(GALLERY, 1)));
-    expect(just.target).toBe(GALLERY.stops[1]?.subject); // the Gj fence pose
-    const mid = samplePose(GALLERY, back(GALLERY, stopParameter(GALLERY, 1) - 0.401 / 3));
-    expect(mid.target).not.toBe(GALLERY.stops[0]?.subject); // still on the arc mid-segment
+    // stops; west of the fence the aim is strictly between the framings. The owner's
+    // 2026-11-14 steer split the passage leg, so the pan pair is G0b→Gj now; the locked
+    // leg on to G0 keeps G0's fence.
+    const uG0b = stopParameter(GALLERY, 1);
+    const uGj = stopParameter(GALLERY, 2);
+    const just = samplePose(GALLERY, back(GALLERY, uGj));
+    expect(just.target).toBe(GALLERY.stops[2]?.subject); // the Gj fence pose
+    const mid = samplePose(GALLERY, back(GALLERY, uG0b + (uGj - uG0b) / 2));
+    expect(mid.target).not.toBe(GALLERY.stops[1]?.subject); // still on the arc mid-segment
+    const g0b = samplePose(GALLERY, back(GALLERY, uG0b));
+    expect(g0b.target).toBe(GALLERY.stops[1]?.subject); // the G0b fence pose
     const g0 = samplePose(GALLERY, back(GALLERY, 0));
-    expect(g0.target).toBe(GALLERY.stops[0]?.subject); // the G0 fence pose
+    expect(g0.target).toBe(GALLERY.stops[0]?.subject); // the G0 fence pose (the locked leg)
   });
   it('a mid-walk reversal re-anchors at the turnaround and keeps the per-16ms gaze change ≤ 3° (the step world)', () => {
     // The widest committed turn (θ = 90° at the widened span 0.36 ≈ 1034 ms of 2800) peaks
@@ -287,7 +294,7 @@ describe('the travel law (B9 field, superseding the R18/R19 departure turns)', (
     let worst = 0;
     let crossed = false;
     let guard = 0;
-    const corner = stopParameter(GALLERY, 1);
+    const corner = stopParameter(GALLERY, 2); // Gj — the insert G0b sits one soft leg before it
     while (state.walk !== null && guard++ < 1200) {
       const prevU = state.u;
       state = advance(GALLERY, state, FRAME);
@@ -312,23 +319,27 @@ describe('the travel law (B9 field, superseding the R18/R19 departure turns)', (
     expect(crossed, 'the walk met the corner exactly').toBe(true);
     expect(worst).toBeLessThanOrEqual(6.3);
     expect(state.walk).toBeNull();
-    expect(state.u).toBe(stopParameter(GALLERY, 3)); // the far hard end rests
+    // The far hard end rests (the 2026-11-12/13 axis inserts sit between Gj and G2).
+    expect(state.u).toBe(stopParameter(GALLERY, GALLERY.stops.length - 1));
   });
-  it('the Back Gj→G0 pitch climbs linearly in distance, monotonically to its 3.06° settle (B9)', () => {
+  it('the Back Gj→G0b pitch climbs linearly in distance, monotonically to its 6.10° settle (B9)', () => {
     // B9: the framings carry the WHOLE segment — the blend weight IS the distance fraction
-    // w = 1 − 3u, so pitch = settle·w exactly (0.07 of the settle at the 7th-percent sample,
-    // half the settle at mid-distance). The old near-field curve (2.615° at its 7% spot)
-    // is retired.
-    const u0 = stopParameter(GALLERY, 1);
+    // of the pan segment, so pitch = settle·w exactly (0.07 of the settle at the 7th-percent
+    // sample, half the settle at mid-distance). The owner's 2026-11-14 steer moved the
+    // passage pan here from the old unsplit G0→Gj leg — G0b rides the same chord, so the
+    // pan keeps its 82.98° and G0's own 3.0591° entry fence stays pinned below. The old
+    // near-field curve (2.615° at its 7% spot) is retired.
+    const uG0b = stopParameter(GALLERY, 1);
+    const uGj = stopParameter(GALLERY, 2);
     const pitchDeg = (pose: ReturnType<typeof samplePose>): number => {
       const [px, py, pz] = [pose.position[0] ?? 0, pose.position[1] ?? 0, pose.position[2] ?? 0];
       const [tx, ty, tz] = [pose.target[0] ?? 0, pose.target[1] ?? 0, pose.target[2] ?? 0];
       return (Math.atan2(ty - py, Math.hypot(tx - px, tz - pz)) * 180) / Math.PI;
     };
-    const settle = pitchDeg(samplePose(GALLERY, restingAt(0)));
+    const settle = pitchDeg(samplePose(GALLERY, restingAt(uG0b)));
     const pitches: number[] = [];
     for (let i = 1; i <= 1000; i++) {
-      pitches.push(pitchDeg(samplePose(GALLERY, back(GALLERY, u0 - (i / 1000) * u0))));
+      pitches.push(pitchDeg(samplePose(GALLERY, back(GALLERY, uGj - (i / 1000) * (uGj - uG0b)))));
     }
     const dips = pitches.filter((p, i) => i > 0 && p < (pitches[i - 1] ?? p) - 1e-6).length;
     const peak = Math.max(...pitches);
@@ -337,23 +348,33 @@ describe('the travel law (B9 field, superseding the R18/R19 departure turns)', (
     expect(pitches[0] ?? Number.NaN).toBeLessThan(0.1);
     expect(pitches[69] ?? Number.NaN).toBeCloseTo(settle * 0.07, 3);
     expect(pitches[499] ?? Number.NaN).toBeCloseTo(settle * 0.5, 3);
-    expect(settle).toBeCloseTo(3.0591, 3);
+    expect(settle).toBeCloseTo(6.1009, 3); // G0b's framing, measured
+    expect(pitchDeg(samplePose(GALLERY, restingAt(0)))).toBeCloseTo(3.0591, 3); // G0's fence, unchanged data
   });
 
-  it('Back Gj→G0 spans the whole heading: the framings’ 83° pan half at mid-segment (B9)', () => {
+  it('Back Gj→G0b spans the whole heading: the framings’ 83° pan half at mid-segment (B9)', () => {
     // B9: the yaw reads the arc between the two framings — 82.98° off +x — with the same
-    // distance weight: 33.19° at w = 0.4 (u0·0.6), 41.49° at w = 0.5, and the fence's
-    // 82.98° only once at G0. (The recorded numbers coincide with the old row's: the old
-    // near-field law and B9 agree numerically on this pair's shape.)
-    const u0 = stopParameter(GALLERY, 1);
+    // distance weight, re-anchored by the owner's 2026-11-14 steer onto the split pan leg
+    // (G0b rides the chord, so the pan keeps the recorded arc): 33.19° at w = 0.4
+    // (s 0.6 of the leg), 41.49° at mid, and each fence's 82.98° only once — G0b's AND
+    // G0's, the two chord stops sharing the bearing by collinearity.
+    const uG0b = stopParameter(GALLERY, 1);
+    const uGj = stopParameter(GALLERY, 2);
     const bearingDeg = (pose: ReturnType<typeof samplePose>): number => {
       const hx = (pose.target[0] ?? 0) - (pose.position[0] ?? 0);
       const hz = (pose.target[2] ?? 0) - (pose.position[2] ?? 0);
       return (Math.atan2(Math.abs(hz), hx) * 180) / Math.PI;
     };
-    expect(bearingDeg(samplePose(GALLERY, back(GALLERY, u0 * 0.6)))).toBeCloseTo(33.19, 1);
-    expect(bearingDeg(samplePose(GALLERY, back(GALLERY, u0 * 0.5)))).toBeCloseTo(41.49, 1);
-    expect(bearingDeg(samplePose(GALLERY, restingAt(0)))).toBeCloseTo(82.98, 1);
+    expect(bearingDeg(samplePose(GALLERY, back(GALLERY, uG0b + 0.6 * (uGj - uG0b))))).toBeCloseTo(
+      33.19,
+      1,
+    );
+    expect(bearingDeg(samplePose(GALLERY, back(GALLERY, uG0b + 0.5 * (uGj - uG0b))))).toBeCloseTo(
+      41.49,
+      1,
+    );
+    expect(bearingDeg(samplePose(GALLERY, back(GALLERY, uG0b)))).toBeCloseTo(82.98, 1);
+    expect(bearingDeg(samplePose(GALLERY, restingAt(0)))).toBeCloseTo(82.98, 1); // G0's fence
   });
   it('a vertical destination aim at departure yields no NaN and the committed gaze', () => {
     // FIXUPS 2's pin, R19-ux C: re-derived by measurement — a destination aim straight above
@@ -384,7 +405,8 @@ describe('look limits', () => {
     // B9: the limits blend over the WHOLE remaining segment with the travelled-distance
     // weight — walk-driven now: the walk reaches the same mid-segment positions the old
     // glide row sampled, and the weight is position-only, so the pins read the blend at
-    // the actual k. G0's rows yaw 20 → Gj's yaw 30; pitch rows equal (15/15).
+    // the actual k. G0's rows yaw 20 → G0b's yaw 30 (Gj's rows verbatim); pitch rows
+    // equal (15/15).
     const press = walkPress(GALLERY, restingAt(0), 1, false, false).state;
     const walkTo = (targetK: number): RailState => {
       let state = press;
@@ -505,18 +527,25 @@ describe('reduced motion (the cut law)', () => {
 });
 
 describe('corner barriers under the walk', () => {
-  it('a tap rests AT the corner stop: the Forward walk from G0 never passes Gj', () => {
+  it('a tap walks one gap: the Forward walk from G0 rests at G0b, never past it', () => {
     const rested = runToRest(GALLERY, tap(GALLERY, restingAt(0), 1));
     expect(rested.walk).toBeNull();
-    expect(rested.u).toBe(stopParameter(GALLERY, 1)); // the corner, never past it
+    expect(rested.u).toBe(stopParameter(GALLERY, 1)); // the entry-leg insert (soft)
     expect(rested.heading).toBe(1);
+  });
+  it('a tap from G0b rests AT the corner stop: the walk never passes Gj', () => {
+    const rested = runToRest(GALLERY, tap(GALLERY, restingAt(0), 1));
+    const atCorner = runToRest(GALLERY, tap(GALLERY, rested, 1));
+    expect(atCorner.walk).toBeNull();
+    expect(atCorner.u).toBe(stopParameter(GALLERY, 2)); // the corner, never past it
   });
   it('the next delta after the corner walks on from it (its own barrier excludes itself)', () => {
     const rested = runToRest(GALLERY, tap(GALLERY, restingAt(0), 1));
-    const onward = tap(GALLERY, rested, 1);
+    const atCorner = runToRest(GALLERY, tap(GALLERY, rested, 1));
+    const onward = tap(GALLERY, atCorner, 1);
     expect(onward.walk).not.toBeNull(); // a walk departs the corner (the corner is no wall)
     const landed = runToRest(GALLERY, onward);
-    expect(landed.u).toBe(stopParameter(GALLERY, 2)); // the next stop past the corner
+    expect(landed.u).toBe(stopParameter(GALLERY, 3)); // the next stop past the corner
   });
   it('never crosses a corner stop going back either: the 1812 backward tap rests at M3', () => {
     const rested = runToRest(contract1812.rail, tap(contract1812.rail, restingAt(1), -1));
@@ -575,8 +604,13 @@ describe('corner runs and the approach field (R18-ux D3)', () => {
     }
   });
   it('with corner on Gj the run Gj→G2 rides y = 1.7, z = 73 (±1e-9); the chord stays in 0..1.6', () => {
+    // The owner's 2026-11-14 steer: five stops — the Gj→G2 corner run spans
+    // stopParameter(2)..stopParameter(4) and the passage chord G0→G0b→Gj is
+    // 0..stopParameter(2); the entry-leg insert rides the same chord.
+    const uGj = stopParameter(GALLERY, 2);
+    const uG2 = stopParameter(GALLERY, GALLERY.stops.length - 1);
     for (let k = 0; k <= 256; k++) {
-      const u = (1 + k / 256) / 3;
+      const u = uGj + (k / 256) * (uG2 - uGj);
       const at = samplePosition(GALLERY, u);
       expect(at[1], `y at u ${u.toFixed(4)}`).toBeCloseTo(1.7, 9);
       expect(at[2], `z at u ${u.toFixed(4)}`).toBeCloseTo(73, 9);
@@ -584,7 +618,7 @@ describe('corner runs and the approach field (R18-ux D3)', () => {
       expect(at[0], `x at u ${u.toFixed(4)}`).toBeLessThanOrEqual(40.5 + 1e-9);
     }
     for (let k = 0; k <= 128; k++) {
-      const u = k / 128 / 3;
+      const u = (k / 128) * uGj;
       const x = samplePosition(GALLERY, u)[0] ?? Number.NaN;
       expect(x, `chord x at u ${u.toFixed(4)}`).toBeGreaterThanOrEqual(0 - 1e-9);
       expect(x, `chord x at u ${u.toFixed(4)}`).toBeLessThanOrEqual(1.6 + 1e-9);
@@ -592,20 +626,20 @@ describe('corner runs and the approach field (R18-ux D3)', () => {
   });
   it('a Forward approach into Gj reads the committed framings on both headings (B9)', () => {
     // B9: GALLERY_MOUTH stays recorded but no longer steers — the aim travels the arc
-    // between G0's JUNCTION framing and Gj's EAST_DOOR framing, identical at both
+    // between G0b's JUNCTION framing and Gj's EAST_DOOR framing, identical at both
     // headings on the same rail point (the field law), and the arrival meets EAST_DOOR.
-    const fwd = samplePose(GALLERY, restingAt(0.108));
-    const bwd = samplePose(GALLERY, back(GALLERY, 0.108));
+    const fwd = samplePose(GALLERY, restingAt(0.375)); // mid-pan (the G0b→Gj segment)
+    const bwd = samplePose(GALLERY, back(GALLERY, 0.375));
     expect(
       angleDeg(unitDir(fwd.target, fwd.position), unitDir(bwd.target, bwd.position)),
-      'the field at u 0.108 both headings',
+      'the field at u 0.375 both headings',
     ).toBeLessThan(1e-6);
-    const arrived = samplePose(GALLERY, restingAt(stopParameter(GALLERY, 1)));
-    expect(arrived.target).toBe(GALLERY.stops[1]?.subject); // EAST_DOOR at the ex-approach stop
+    const arrived = samplePose(GALLERY, restingAt(stopParameter(GALLERY, 2)));
+    expect(arrived.target).toBe(GALLERY.stops[2]?.subject); // EAST_DOOR at the ex-approach stop
   });
   it('a Back approach into the approach stop (and its own pose) keeps the subject', () => {
-    const pose = samplePose(GALLERY, back(GALLERY, stopParameter(GALLERY, 1) + 0.05));
-    expect(pose.target).toEqual(GALLERY.stops[1]?.subject); // EAST_DOOR on both sides
+    const pose = samplePose(GALLERY, back(GALLERY, stopParameter(GALLERY, 2) + 0.05));
+    expect(pose.target).toEqual(GALLERY.stops[2]?.subject); // EAST_DOOR on both sides
   });
   it('the 1812 corner run M3→M4 stays inside the chord’s plan box', () => {
     // Segments 0–2 ride the axis exactly (the corner decouples M4's pull; pinned next file).
@@ -636,28 +670,45 @@ describe('seed precedence', () => {
 });
 
 describe('square rail (design §6.1, declared data; R18-ux D1)', () => {
-  it('pins the three declared stops', () => {
-    expect(SQUARE_RAIL.stops.map((s) => s.id)).toEqual(['S0', 'Sh', 'S1']);
-    // DEC-037: the rail runs west of the Column axis — S0 24 m, Sh 12 m, S1 on the axis.
+  it('pins the five declared stops', () => {
+    // The 2026-11-12/13 stops round: S0b/Shb split the two 54.3 m gaps at the line's quarter
+    // points. DEC-037: the rail runs west of the Column axis — S0 24 m, Sh 12 m, S1 on the
+    // axis; the S0/Sh/S1 rows below are the untouched committed values.
+    expect(SQUARE_RAIL.stops.map((s) => s.id)).toEqual(['S0', 'S0b', 'Sh', 'Shb', 'S1']);
     expect(SQUARE_RAIL.stops[0]?.position).toEqual([-24, 1.7, 230]);
     expect(SQUARE_RAIL.stops[0]?.look).toEqual({ yaw: 35, pitchUp: 35, pitchDown: 35 });
     expect(t(SQUARE_RAIL.stops[0]?.caption ?? 'caption.s0')).toBe('the facade and the hour');
+    // The round's first quarter-point insert (t 0.25); its subject is the capture-checked
+    // judgment call (the pedestal top / the shaft's foot on the axis).
+    expect(SQUARE_RAIL.stops[1]?.position).toEqual([-18, 1.7, 203.5]);
+    expect(SQUARE_RAIL.stops[1]?.subject).toEqual(SQUARE_S0B_GAZE);
+    expect(SQUARE_RAIL.stops[1]?.look).toEqual({ yaw: 30, pitchUp: 20, pitchDown: 20 });
+    // The key is pinned exactly (the Sol review: the t() fallback would mask a MISSING caption).
+    expect(SQUARE_RAIL.stops[1]?.caption).toBe('caption.s0b');
+    expect(t(SQUARE_RAIL.stops[1]?.caption ?? 'caption.s0b')).toBe('the monolith');
     // DEC-037: Sh moved off the axis with the west rail (z 177 unchanged). The winter-square
     // round gives the close pass its own caption (owner-ratified copy).
-    expect(SQUARE_RAIL.stops[1]?.position).toEqual([-12, 1.7, 177]);
-    expect(SQUARE_RAIL.stops[1]?.subject).toEqual(SQUARE_SH_GAZE);
-    expect(SQUARE_RAIL.stops[1]?.look).toEqual({ yaw: 30, pitchUp: 25, pitchDown: 20 });
-    // The key is pinned exactly (the Sol review: the t() fallback would mask a MISSING caption).
-    expect(SQUARE_RAIL.stops[1]?.caption).toBe('caption.sh');
-    expect(t(SQUARE_RAIL.stops[1]?.caption ?? 'caption.sh')).toBe('past the column');
-    expect(SQUARE_RAIL.stops[2]?.position).toEqual([0, 1.7, 124]);
-    expect(SQUARE_RAIL.stops[2]?.look).toEqual({ yaw: 25, pitchUp: 20, pitchDown: 10 });
-    expect(t(SQUARE_RAIL.stops[2]?.caption ?? 'caption.s1')).toBe('the arch opens');
+    expect(SQUARE_RAIL.stops[2]?.position).toEqual([-12, 1.7, 177]);
+    expect(SQUARE_RAIL.stops[2]?.subject).toEqual(SQUARE_SH_GAZE);
+    expect(SQUARE_RAIL.stops[2]?.look).toEqual({ yaw: 30, pitchUp: 25, pitchDown: 20 });
+    expect(SQUARE_RAIL.stops[2]?.caption).toBe('caption.sh');
+    expect(t(SQUARE_RAIL.stops[2]?.caption ?? 'caption.sh')).toBe('past the column');
+    // The round's second quarter-point insert (t 0.75); its subject reuses SQUARE_S1_GAZE
+    // (the equal-subjects lock).
+    expect(SQUARE_RAIL.stops[3]?.position).toEqual([-6, 1.7, 150.5]);
+    expect(SQUARE_RAIL.stops[3]?.subject).toEqual(SQUARE_S1_GAZE);
+    expect(SQUARE_RAIL.stops[3]?.look).toEqual({ yaw: 25, pitchUp: 20, pitchDown: 15 });
+    expect(SQUARE_RAIL.stops[3]?.caption).toBe('caption.shb');
+    expect(t(SQUARE_RAIL.stops[3]?.caption ?? 'caption.shb')).toBe('the arch ahead');
+    expect(SQUARE_RAIL.stops[4]?.position).toEqual([0, 1.7, 124]);
+    expect(SQUARE_RAIL.stops[4]?.look).toEqual({ yaw: 25, pitchUp: 20, pitchDown: 10 });
+    expect(t(SQUARE_RAIL.stops[4]?.caption ?? 'caption.s1')).toBe('the arch opens');
   });
   it('carries the S0, halfway and arch-mouth gazes as the stops’ subjects (R18-ux D1)', () => {
     expect(SQUARE_RAIL.stops[0]?.subject).toEqual(SQUARE_S0_GAZE);
-    expect(SQUARE_RAIL.stops[1]?.subject).toEqual(SQUARE_SH_GAZE);
-    expect(SQUARE_RAIL.stops[2]?.subject).toEqual(SQUARE_S1_GAZE);
+    expect(SQUARE_RAIL.stops[2]?.subject).toEqual(SQUARE_SH_GAZE);
+    expect(SQUARE_RAIL.stops[4]?.subject).toEqual(SQUARE_S1_GAZE);
+    // u 0.5 is still Sh (index 2 of 5: 2/4 = 0.5) — the halfway fence survives the inserts.
     expect(samplePose(SQUARE_RAIL, restingAt(0)).target).toEqual(SQUARE_S0_GAZE);
     expect(samplePose(SQUARE_RAIL, restingAt(0.5)).target).toEqual(SQUARE_SH_GAZE);
     expect(samplePose(SQUARE_RAIL, restingAt(1)).target).toEqual(SQUARE_S1_GAZE);

@@ -30,14 +30,20 @@ const SLUGS: Readonly<Record<string, string>> = {
 // The stops' travel order per room, read off the room contracts (src/camera/square-rail.ts,
 // rooms/*/contract.ts). The digit suffix alone is NOT an order: 'Gj' carries none and
 // 'J1b'/'J2b' trail a letter, so the walk assertions read this map instead of a regex.
+// The 2026-11-12/13 stops round: S0b/Shb (the square's quarter-point inserts) join their
+// room's walk order; the owner's 2026-11-14 walk tweak adds the gallery's G0b (the entry-leg
+// insert) and retires that round's Gjb/G1b.
 const STOPS: Record<string, number> = {
   S0: 0,
-  Sh: 1, // R18-ux D1: the halfway stop (the §8 stop table)
-  S1: 2,
+  S0b: 1, // the 2026-11-12/13 stops round: the first quarter-point insert
+  Sh: 2, // R18-ux D1: the halfway stop (the §8 stop table)
+  Shb: 3, // the round's second quarter-point insert
+  S1: 4,
   G0: 0,
-  Gj: 1,
-  G1: 2,
-  G2: 3,
+  G0b: 1, // the owner's 2026-11-14 walk tweak: the entry-leg insert
+  Gj: 2, // the corner stop (the §8 stop table)
+  G1: 3,
+  G2: 4,
   J0: 0,
   J1: 1,
   J1b: 2,
@@ -98,9 +104,16 @@ const snapshot = (p: Page): Promise<Snapshot> =>
     };
   });
 
-// The square's own stop parameters (three stops → u = i/2, exact binary floats): the
-// landing assertions (R15/R16) check the rest's u against the stop it reports.
-const SQUARE_STOP_U: Readonly<Record<string, number>> = { S0: 0, Sh: 0.5, S1: 1 };
+// The square's own stop parameters (five stops → u = i/4, exact binary floats — the
+// 2026-11-12/13 quarter-point inserts sit at 0.25/0.75): the landing assertions (R15/R16)
+// check the rest's u against the stop it reports.
+const SQUARE_STOP_U: Readonly<Record<string, number>> = {
+  S0: 0,
+  S0b: 0.25,
+  Sh: 0.5,
+  Shb: 0.75,
+  S1: 1,
+};
 // The landing law (R15/R16): the walk's rest rides the stop's OWN parameter — the check
 // runs on one coherent (stop, u) pair. A mid-segment rest (the walk law never allows one
 // once intent is dead) reads loud here.
@@ -339,18 +352,44 @@ test('rapid activation / reduced motion', async ({ browser, baseURL }) => {
       async (p) => {
         const before = routeIndex((await position(p)).stop); // S0 boots at the square
         await rawTap(p, 1);
+        // The settle between the taps (the CI pacing hardening): under the CI runner's
+        // dispatch pace two back-to-back rawTaps never registered movement (before+0 twice;
+        // locally the same row always read +1/+2). Wait for tap #1's OWN completed landing
+        // on the coherent snapshot — the stop ADVANCED past the boot pose AND the walk is
+        // over — not the idle bit alone (an idle bit alone cannot tell a rest from a walk
+        // the cadence has not published yet). The press path publishes its bit synchronously
+        // (the pair's activation syncs on pointerdown), so an accepted tap reads moving
+        // 'true' from the poll's first sample; the reduced-motion cut is instant and passes
+        // as soon as its changed stop binds. THE BUDGET SIZES AGAINST THE CAPPED SIMULATION
+        // CLOCK: the walk law feeds ≤100 ms of state time per rendered frame
+        // (Math.min(deltaMs, 100)), so the no-preference leg's ~2.2 s of simulation needs
+        // ≥22 rendered frames — ≈29 s at the CI's recorded ~1.3 s/frame — the wall-time
+        // figures (2.5 s, then 8 s) were arithmetic against the wrong clock (the Sol review).
+        await expect
+          .poll(
+            async () => {
+              const s = await snapshot(p);
+              return routeIndex(s.stop) > before && s.moving === 'false' ? 'rested' : 'waiting';
+            },
+            {
+              message: 'tap #1: its own leg landed (the stop advanced, the walk over)',
+              timeout: 40_000,
+              intervals: [100, 250],
+            },
+          )
+          .toBe('rested');
         await rawTap(p, 1);
         await roomReady(p);
         // The walk law owns the outcome (the one admission rule admits a press MID-WALK —
-        // it extends the walk; there is no drop gate anymore). Reduced: tap two lands
-        // inside the 600 ms dwell and is dropped (one cut: Sh); normal: tap two refills
-        // the walk's lease, and the walk rests where the refilled intent's brake lands
-        // (the trace's ~1.5 s second CDP tap runs its own leg: two steps along the route
-        // S0 → Sh → S1, resting at S1 — never three steps off a double activation; a
-        // boundary crossing into G0 needs a press from a SETTLED S1) — so the legal set
-        // [before+1, before+2] holds in both modes (the documented law change; the old
-        // mid-glide-drop wording is gone with the walk). Assert the legal set on the
-        // route order, plus stability across frames.
+        // it extends the walk; there is no drop gate anymore), and the settle above waits
+        // out tap #1's own rest first. Reduced: tap two lands inside the 600 ms dwell and
+        // is dropped (one cut: S0b); normal: tap two departs the first cut's rest and runs
+        // its own leg: two steps along the route S0 → S0b → Sh, resting at Sh — never
+        // three steps off a double activation; a boundary crossing into G0 needs a press
+        // from a SETTLED S1 (four steps) — so the legal set [before+1, before+2] holds in
+        // both modes (the
+        // documented law change; the old mid-glide-drop wording is gone with the walk).
+        // Assert the legal set on the route order, plus stability across frames.
         const after = (await position(p)).stop;
         expect([before + 1, before + 2]).toContain(routeIndex(after));
         await frames(p);
@@ -889,7 +928,7 @@ test('an assistive click after a tap moves again', async ({ browser, baseURL }) 
       await rawTap(p, 1);
       await expect
         .poll(settled, { message: 'the tapped walk rests', timeout: 90_000, intervals: [150, 400] })
-        .toBe('square|Sh');
+        .toBe('square|S0b');
       const afterTap = await snapshot(p);
       expect(routeIndex(afterTap.stop), 'the tap moved exactly one stop').toBe(
         routeIndex('S0') + 1,
@@ -904,7 +943,7 @@ test('an assistive click after a tap moves again', async ({ browser, baseURL }) 
           timeout: 90_000,
           intervals: [150, 400],
         })
-        .toBe('square|S1');
+        .toBe('square|Sh');
       const afterClick = await snapshot(p);
       expect(routeIndex(afterClick.stop), 'the assistive click moved the rail again').toBe(
         routeIndex('S0') + 2,
@@ -1079,14 +1118,14 @@ test('the season list owns the arrows', async ({ browser, baseURL }) => {
       // walk is still braking toward it (the nearest-window class the R13 helper exists for).
       await settledRoute(p);
       const atSh = await snapshot(p);
-      expect(atSh.stop, 'the first resume tap rests on Sh').toBe('Sh');
-      expect(atSh.u, 'the first resume tap rests on Sh’s own parameter').toBe(0.5);
+      expect(atSh.stop, 'the first resume tap rests on S0b').toBe('S0b');
+      expect(atSh.u, 'the first resume tap rests on S0b’s own parameter').toBe(0.25);
       expect(atSh.room, 'the first tap stayed inside the square').toBe('square');
       await button(p, 1).tap();
       await settledRoute(p);
       const after = await snapshot(p);
-      expect(after.stop, 'the second tap rests on S1').toBe('S1');
-      expect(after.u, 'the second tap rests on S1’s own parameter').toBe(1);
+      expect(after.stop, 'the second tap rests on Sh').toBe('Sh');
+      expect(after.u, 'the second tap rests on Sh’s own parameter').toBe(0.5);
       expect(after.room, 'the taps stayed inside the square').toBe('square');
     },
     { reducedMotion: 'no-preference' },

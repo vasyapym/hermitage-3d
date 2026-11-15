@@ -240,9 +240,10 @@ test('arrow walk: the prompt click and a fresh ArrowRight at a settled end enter
       )
       .toBe(`${stop} | hold 0`);
   };
-  // The square's two gap legs to its far end S1 (R18-ux D1: S0 → Sh → S1); the walk rests
-  // there and the edge prompt appears.
-  for (const stop of ['Sh', 'S1']) await legTo(stop);
+  // The square's four gap legs to its far end S1 (R18-ux D1's halfway rhythm; the
+  // 2026-11-12/13 stops round's quarter-point inserts: S0 → S0b → Sh → Shb → S1); the walk
+  // rests there and the edge prompt appears.
+  for (const stop of ['S0b', 'Sh', 'Shb', 'S1']) await legTo(stop);
   await expect(edgePrompt).toHaveAttribute('data-visible', 'true', { timeout: 30_000 });
   // The label names the room through the door (§2/D1): verb + ' · ' + the room's NAME.
   await expect(edgePrompt).toHaveText('Enter · Rastrelli Gallery', { timeout: 30_000 });
@@ -266,9 +267,11 @@ test('arrow walk: the prompt click and a fresh ArrowRight at a settled end enter
   // The entry stop's first settled frame shows the caption only (§9): the door label waits
   // for a backward push, and a forward press at a mid-room settle walks one gap instead.
   await expect(edgePrompt).toHaveAttribute('data-visible', 'false');
-  // The gallery's three gap legs to its far end G2 (G0 → Gj → G1 → G2): the walk law
-  // brakes into the corner stop Gj (hard for the walk), re-departs live, then rests at G2.
-  for (const stop of ['Gj', 'G1', 'G2']) await legTo(stop);
+  // The gallery's four gap legs to its far end G2 (G0 → G0b → Gj → G1 → G2; the owner's
+  // 2026-11-14 walk tweak: one stop inside the entry leg, the two axis inserts gone): the
+  // walk law brakes into the corner stop Gj (hard for the walk), re-departs live, then
+  // rests at G2.
+  for (const stop of ['G0b', 'Gj', 'G1', 'G2']) await legTo(stop);
   await expect(edgePrompt).toHaveAttribute('data-visible', 'true', { timeout: 30_000 });
   await expect(edgePrompt).toHaveText('Enter · Jordan Staircase', { timeout: 30_000 });
   // Road 2 — the fresh ArrowRight at the settled end: the same boundary chain the arrows
@@ -297,10 +300,14 @@ test('arrow walk: the prompt click and a fresh ArrowRight at a settled end enter
 // between configurations — the round-17 measurement trap).
 test('keyboard walk: every stop reachable, reduced-motion cuts', async ({ page }) => {
   test.slow(); // same data-bound dwell per transit, on top of the instant reduced-motion cuts
-  // The R3 walk crosses TWO extra airlocks (the 1812 cut and its reverse) and walks 34 landings:
-  // every room entry is a full mount behind the card. ~8 min is the honest data-bound budget on a
-  // healthy box; the r73 stall-storm class realized 10.3 m, so 900 s keeps ×1.4 headroom.
-  test.setTimeout(900_000); // the walk spans ~34 legs; a stall-storm run reaches 10.2 m against the r73 600-s cap — 900 s keeps ×1.4 headroom (the index-dialog precedent's class)
+  // The R3 walk crosses TWO extra airlocks (the 1812 cut and its reverse) and walks 42
+  // landings (16 forward + 5 across the 1812 gallery + 21 backward; the 2026-11-14 walk
+  // tweak took the gallery from six stops to five, two legs off the round). Every room
+  // entry is a full mount behind the card. MEASURED at 44 calls on the CI-representative
+  // SwiftShader env: 6.0–8.3 min wall ⇒ the 900-s budget's ratio ≈ 1.8–2.4; the walk is
+  // two legs shorter now, the budget stands (the Sol review: the historical stall
+  // measurement is not a current guarantee).
+  test.setTimeout(900_000); // 42 walkTo calls × (the dwell-drain wait + the pressability poll + one coherent landing read) + boot + four transits — two legs under the measured 6.0–8.3 m (SwiftShader), the ≈×1.8–2.4 headroom grows
   await page.emulateMedia({ reducedMotion: 'reduce' });
   const hud = await bootDeterministic(page, `${AT}&det=1&hud=1&lang=en`);
   // One accepted press per landing. The keydown handler drops any press while the arrival is
@@ -324,12 +331,17 @@ test('keyboard walk: every stop reachable, reduced-motion cuts', async ({ page }
   // every landing (§10 r18 gate) but is never readiness evidence.
   const caption = page.locator('#caption');
   // The §6.1 caption beats, verbatim from the committed stop data (rooms/*/contract.ts;
-  // R-UX5 §7/§8 stop authoring: Gj, J1b, J2b new; J2, J3 re-authored).
+  // R-UX5 §7/§8 stop authoring: Gj, J1b, J2b new; J2, J3 re-authored; the 2026-11-12/13
+  // stops round adds S0b/Shb; the owner's 2026-11-14 walk tweak adds G0b and retires
+  // the round's Gjb/G1b).
   const BEATS: Readonly<Record<string, string>> = {
     S0: 'the facade and the hour',
+    S0b: 'the monolith', // the 2026-11-12/13 stops round: the Column's own frame
     Sh: 'past the column', // the winter-square round: the close pass gets its own caption
+    Shb: 'the arch ahead',
     S1: 'the arch opens',
     G0: 'dark; the square behind',
+    G0b: 'the lit junction', // the owner's 2026-11-14 walk tweak: the entry leg's own rest
     Gj: 'The turn east: pilaster after pilaster, forty metres to the far door.',
     G1: 'compression',
     G2: 'the door (airlock)',
@@ -395,11 +407,39 @@ test('keyboard walk: every stop reachable, reduced-motion cuts', async ({ page }
     const from = at;
     const beat = BEATS[stop];
     if (beat === undefined) throw new Error(`no committed beat for stop ${stop}`);
-    // The press is made only in the ready state the previous leg proved. Nothing moves
-    // without a press, so a fresh sample must still read it.
-    expect(sampleKey(await sampleHud()), `leg ${from} → ${stop}: ready before its press`).toBe(
-      readyKey(from),
-    );
+    // The reduced-motion dwell (REDUCED_DWELL_MS 600) drains inside advance() per rendered
+    // frame, each frame feeding ≤100 ms of state time (the loop's Math.min(deltaMs, 100)):
+    // ≈7 frames at ~1 fps, ≈37 at 60 fps — no wall-clock figure covers every cadence, and a
+    // frame-gap mirror measured from OUTSIDE the app's loop can diverge either way under a
+    // loaded main thread (the Sol review's refutation). The press waits on the app's OWN
+    // published drain instead — data-dwell-ms rides syncTouchRail's ≤500 ms state-write
+    // cadence (the R13-class instrument): a stale read sits HIGH (the dwell only shrinks),
+    // so '0' proves the drained dwell. The removed pre-press read chain used to spend ~1.3 s
+    // per CI read and cleared the dwell by accident — the recorded CI deaths moved between
+    // runs on exactly this race.
+    await expect
+      .poll(async () => page.locator('#touch-rail').getAttribute('data-dwell-ms'), {
+        message: `leg ${from} → ${stop}: the reduced-motion dwell drained (the app's own data-dwell-ms)`,
+        timeout: 30_000,
+        intervals: [100, 250],
+      })
+      .toBe('0');
+    // The press waits for the pair's OWN pressability bit before firing: aria-disabled
+    // 'false' on the direction's button mirrors touchAdmitted (§5) — arrival settled,
+    // transit-free, gesture- and menu-free — which the five-row snapshot cannot see
+    // (data-hold-ms reads 0 through the arrival phase; the arrival beats own the
+    // pre-settle frames). The bit replaces the old read-chain accident with evidence
+    // and costs one attribute read, not a five-row sample. The keyboard drop gate
+    // (§2.4 railInputReady) keys on the same settled+transit facts, so a 'false' bit
+    // is the honest green light.
+    const dirButton = key === 'ArrowLeft' ? '#touch-back' : '#touch-forward';
+    await expect
+      .poll(async () => page.locator(dirButton).getAttribute('aria-disabled'), {
+        message: `leg ${from} → ${stop}: the pair admits the press`,
+        timeout: LEG_TIMEOUT_MS,
+        intervals: [100, 250],
+      })
+      .toBe('false');
     await page.keyboard.press(key); // the leg's ONLY press: no retry, by contract
     await expect
       .poll(
@@ -427,12 +467,17 @@ test('keyboard walk: every stop reachable, reduced-motion cuts', async ({ page }
     await expect(caption).toHaveAttribute('data-stop', stop, { timeout: 60_000 });
     await expect(caption).toHaveText(beat, { timeout: 60_000 });
   };
-  // Forward: S0 → Sh → S1 (R18-ux D1's halfway leg), the arch-portal boundary, G0 → Gj → G2,
-  // the gallery-airlock boundary, J0 → J1b → J2b → J4 — every stop of the phase observed landed.
+  // Forward: S0 → S0b → Sh → Shb → S1 (R18-ux D1's halfway rhythm; the 2026-11-12/13 stops
+  // round's quarter-point inserts), the arch-portal boundary, G0 → G0b → Gj → G1 → G2 (the
+  // owner's 2026-11-14 walk tweak), the gallery-airlock boundary, J0 → J1b → J2b → J4 —
+  // every stop of the phase observed landed.
   for (const stop of [
+    'S0b',
     'Sh',
+    'Shb',
     'S1',
     'G0',
+    'G0b',
     'Gj',
     'G1',
     'G2',
@@ -457,10 +502,10 @@ test('keyboard walk: every stop reachable, reduced-motion cuts', async ({ page }
     await walkTo(stop);
   }
   // The route's end (M4, the closed doors) is the new inert end: a press past it, made in
-  // the ready state, changes nothing. The room's only airlock side sits at M0, the entry stop
-  // (§1.1's chain end). After the re-check window, one coherent sample shows the stop, the
-  // room and an idle hold: no transit opened.
-  expect(sampleKey(await sampleHud()), 'inert end: ready before its press').toBe(readyKey('M4'));
+  // the ready state the M4 landing poll proved (no fresh pre-press read — the same
+  // redundant-double-read rule as the legs' presses), changes nothing. The room's only
+  // airlock side sits at M0, the entry stop (§1.1's chain end). After the re-check window,
+  // one coherent sample shows the stop, the room and an idle hold: no transit opened.
   await page.keyboard.press('ArrowRight');
   await page.waitForTimeout(2000);
   expect(await sampleHud(), 'inert end: the press past M4 opened nothing').toEqual({
@@ -488,9 +533,12 @@ test('keyboard walk: every stop reachable, reduced-motion cuts', async ({ page }
     'G2',
     'G1',
     'Gj',
+    'G0b', // the owner's 2026-11-14 walk tweak: the backward gallery walk passes the insert home
     'G0',
     'S1',
+    'Shb', // the 2026-11-12/13 stops round: the backward square walk passes both inserts home
     'Sh', // R18-ux D1: the backward square walk passes the halfway stop home
+    'S0b',
     'S0',
   ]) {
     await walkTo(stop, 'ArrowLeft');

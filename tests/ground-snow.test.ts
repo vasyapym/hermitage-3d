@@ -74,8 +74,10 @@ describe('ground-snow purity fence', () => {
 
 describe('GROUND_LANE_LINE', () => {
   it('restates the square rail: S1 (near, the gate axis) → S0 (far, west)', () => {
-    expect(GROUND_LANE_LINE.nearX).toBe(SQUARE_RAIL.stops[2]?.position[0]);
-    expect(GROUND_LANE_LINE.nearZ).toBe(SQUARE_RAIL.stops[2]?.position[2]);
+    // S1 is the rail's last stop, S0 its first (the 2026-11-12/13 quarter-point inserts sit
+    // between them; the XZ line is unchanged).
+    expect(GROUND_LANE_LINE.nearX).toBe(SQUARE_RAIL.stops.at(-1)?.position[0]);
+    expect(GROUND_LANE_LINE.nearZ).toBe(SQUARE_RAIL.stops.at(-1)?.position[2]);
     expect(GROUND_LANE_LINE.farX).toBe(SQUARE_RAIL.stops[0]?.position[0]);
     expect(GROUND_LANE_LINE.farZ).toBe(SQUARE_RAIL.stops[0]?.position[2]);
   });

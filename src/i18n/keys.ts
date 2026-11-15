@@ -52,9 +52,12 @@ export type IndexKey = 'index.open' | 'index.title' | 'index.current';
 
 export type CaptionKey =
   | 'caption.s0'
+  | 'caption.s0b'
   | 'caption.s1'
   | 'caption.sh'
+  | 'caption.shb'
   | 'caption.g0'
+  | 'caption.g0b'
   | 'caption.gj'
   | 'caption.g1'
   | 'caption.g2'

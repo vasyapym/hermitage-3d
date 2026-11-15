@@ -116,7 +116,12 @@ import { solveSouthFacade } from './procedural/facade-solver';
 import { GROUND_SNOW_UNIFORMS, patchGroundSnowSlot } from './procedural/ground-snow';
 import { buildNightLattice } from './procedural/night-lattice';
 import { buildSnowCap } from './procedural/snow-cap';
-import { buildThroat, openGroundArch, setThroatOpacity } from './procedural/throat';
+import {
+  buildThroat,
+  openGroundArch,
+  setThroatNightSpill,
+  setThroatOpacity,
+} from './procedural/throat';
 import { type SkySample, sampleSky } from './sky/appearance';
 import type { ArrivalState } from './sky/arrival';
 import { advanceArrival, initialArrival, presentationForArrival } from './sky/arrival';
@@ -219,7 +224,13 @@ import {
 } from './world/registry';
 import { snowSkyGain, snowWeight } from './world/snow-season';
 import { parseStopParam } from './world/stop-param';
-import { arrivePose, type BeatPose, beatExposure, departPose } from './world/threshold-beat';
+import {
+  arrivePose,
+  type BeatPose,
+  beatExposure,
+  departPose,
+  levelHeading,
+} from './world/threshold-beat';
 import { THROAT_VOID } from './world/throat';
 
 const SUN_DISTANCE = 1000;
@@ -704,6 +715,18 @@ for (const child of palace.children) {
 palace.visible = false; // §10: the first rendered frame is the procedural sky alone
 scene.add(palace);
 
+// The rooms root (the transit-band round, 2026-11-14): every mounted room's object parents
+// here, and the root's visibility is the exact complement of the palace law — exterior XOR
+// interior, never both renderable. Rooms still mount fully in the hold (mountParsed is
+// hold-only) and compileAsync still reaches them (three's compile collects materials via
+// scene.traverse, visibility-agnostic; the room glbs carry no lights), but nothing of an
+// interior can paint through the gate mouth while the exterior is up: the gallery's end wall
+// read as a grey speckled band over the warm cap from the square — the owner's sighting.
+const roomsRoot = new THREE.Group();
+roomsRoot.name = 'rooms';
+roomsRoot.visible = false;
+scene.add(roomsRoot);
+
 const sun = new THREE.DirectionalLight(0xffffff, 0); // intensity driven by the sample
 sun.castShadow = true;
 sun.shadow.mapSize.set(1024, 1024); // T1 default until quality tiers land
@@ -785,6 +808,11 @@ const rig = createSkyRig(scene, camera);
 const elevationDegOf = (s: SkySample): number =>
   (Math.asin(Math.max(-1, Math.min(1, s.sunDirection[1]))) * 180) / Math.PI;
 
+// Declared above applyEpoch on purpose: the top-level boot call below (applyEpoch(epochMs))
+// reads it — down in the frame-block declarations it was a dev-mode TDZ crash the build's
+// module scoping masked.
+let lastLabelEpochMs = -1;
+
 const applyEpoch = (nextEpochMs: number): void => {
   epochMs = nextEpochMs;
   sample = sampleSky(nextEpochMs);
@@ -809,6 +837,7 @@ const applyEpoch = (nextEpochMs: number): void => {
   // to the pre-lattice sample line, and the lattice group is hidden outright.
   const wNight = lightmapWeights(elevationDegOf(sample)).nightChandeliers;
   nightLattice.setNight(wNight);
+  setThroatNightSpill(throat, wNight); // the doorway's lamp forward spill rides the same switch
   // DEC-033: the season law reads the same instant the sun samples (at=/det=), never Date.now();
   // four writes per frame — morph influence + cap visibility, and the two slots' uniforms (R12).
   const wSnow = snowWeight(nextEpochMs);
@@ -852,8 +881,10 @@ const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matc
 const ledger = createLedger(); // §8.3 layer 1: the loaders register their own GPU allocations
 const assets = createLoaders(renderer, ledger);
 const roomScene: RoomScene = {
-  add: (object) => scene.add(object as unknown as THREE.Object3D),
-  remove: (object) => scene.remove(object as unknown as THREE.Object3D),
+  // Parents under the host's rooms root — renderable only while indoor (see roomsRoot above);
+  // the exterior↔interior half of the overlap visibility policy (R24-ux) lives here.
+  add: (object) => roomsRoot.add(object as unknown as THREE.Object3D),
+  remove: (object) => roomsRoot.remove(object as unknown as THREE.Object3D),
   setEnvironment: (object) => {
     scene.environment = (object ?? null) as THREE.Texture | null;
   },
@@ -1233,9 +1264,11 @@ document.fonts.addEventListener('loadingerror', layoutTouchRail);
 
 const UP_AXIS = new THREE.Vector3(0, 1, 0);
 const RIGHT_AXIS = new THREE.Vector3(1, 0, 0);
-/** The unit tangent INTO the boundary the camera is pushing: the same derivation the
- * threshold beat locks on its first depart frame (§4.1) — one helper, both consumers, so
- * the lean's direction and the departure glide's direction agree by construction. */
+/** The door heading INTO the boundary the camera is pushing (§4.1a): the same derivation the
+ * threshold beat locks on its first depart frame — one helper, both consumers, so the lean's
+ * direction and the departure glide's direction agree by construction. The raw unit tangent is
+ * flattened by `levelHeading` (a stair's slope removed; a level tangent rides through by
+ * reference). */
 const doorTangent = (pose: BeatPose, u: number): Vec3 => {
   const step = 1e-4;
   const inner = samplePosition(rail, Math.min(1, Math.max(0, u >= 0.5 ? u - step : u + step)));
@@ -1246,7 +1279,7 @@ const doorTangent = (pose: BeatPose, u: number): Vec3 => {
   ];
   const len = Math.hypot(raw[0], raw[1], raw[2]);
   if (len <= 0) throw new Error('zimny: the door stop has a degenerate rail tangent');
-  return [raw[0] / len, raw[1] / len, raw[2] / len];
+  return levelHeading([raw[0] / len, raw[1] / len, raw[2] / len]);
 };
 const applyRailPose = (): void => {
   const pose = samplePose(rail, railState);
@@ -2705,7 +2738,6 @@ let massingReady = false;
 let compileStarted = false;
 let lastFrameTime: number | undefined;
 let lastLiveSampleAt = performance.now();
-let lastLabelEpochMs = -1;
 let resizePending = false;
 let titleShown = false;
 // Mobile-B §4: the rail's first layout runs ONCE the initialized chrome is laid out (the
@@ -2720,6 +2752,7 @@ const applyPresentation = (): void => {
   }
   const visible = presentation.massingOpacity > 0;
   palace.visible = visible && !indoor;
+  roomsRoot.visible = indoor; // the exact complement: one world renderable at any instant
   if (visible) {
     massingMaterial.opacity = presentation.massingOpacity;
     groundMaterial.opacity = presentation.massingOpacity;
@@ -3088,6 +3121,11 @@ const syncTouchRail = (): void => {
   touchRail.dataset.look = JSON.stringify(railState.lookTarget);
   // The e2e settle instrument (Sol R13/R14): the ACTUAL motion bit, not a nearest-stop read.
   touchRail.dataset.moving = String(moving(railState));
+  // The reduced-motion dwell's own published value (the R13-class instrument; the
+  // 2026-11-12/13 hardening: the smoke walk's press waits for the app's OWN drain — no
+  // wall-clock mirror from outside the loop). Ceil: the poll's '0' must mean the drained
+  // dwell, never a stale fractional frame.
+  touchRail.dataset.dwellMs = String(Math.ceil(railState.dwellMs));
 };
 // §4/CHALLENGE 3: click is the sole command path; native Enter/Space stay native while the
 // repeat storm is suppressed in keydown (one held activation = ONE command). aria-disabled

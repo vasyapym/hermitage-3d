@@ -66,9 +66,12 @@ export const en = {
   'index.current': 'Current room',
 
   'caption.s0': 'the facade and the hour',
+  'caption.s0b': 'the monolith',
   'caption.s1': 'the arch opens',
   'caption.sh': 'past the column',
+  'caption.shb': 'the arch ahead',
   'caption.g0': 'dark; the square behind',
+  'caption.g0b': 'the lit junction',
   'caption.gj': 'The turn east: pilaster after pilaster, forty metres to the far door.',
   'caption.g1': 'compression',
   'caption.g2': 'the door (airlock)',

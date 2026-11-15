@@ -72,28 +72,65 @@ const PANE_PAINT_RAW = {
 // k order = the builder's NICHE_CENTRES order (k=1 the EAST-most bay x 42.3065, k=11 the
 // WEST-most x 8.4365); zero-padded so lexical = numeric.
 const PANE_PARTS = Array.from({ length: 11 }, (_v, i) => `pane${String(i + 1).padStart(2, '0')}`);
+//
+// THE G2 GLARE LAW (the doorway-reads round; the accepted brief-2 reply §2.3): the door
+// card + the lunette read as GLARE up close. Per part and per state the painted value is
+//   value(u,v) = tint_s × L_s × (EDGE + (1 − EDGE) × falloff(centre→rect edge)),
+// EDGE 0.55 and falloff the smooth cos² window (1 at the rect's centre texel → 0 at the
+// rim; the field machine is tools/reencode-paint.py's glare_field). Per state: DAY neutral
+// daylight at L_DAY; DUSK the stair's sconce tint at 0.35 of day; NIGHT the chandelier
+// tint at 0.25 of day. The tints are the committed stair triples' hues, luminance-
+// normalized (Rec.709), so L_s ARE luminance levels in linear bake units and the hue is
+// the committed one exactly. L_DAY is the ONE dial, now turned at G2 — the old flat door
+// triples (the ×1.14 measured-ratio lineage, owner-ratified 2026-11-08) are SUPERSEDED:
+// the ×1.14 was the G1-distance calibration (the screen-side door read ~30 codes under
+// the 180 band, +14% plate ⇒ +3.3% screen at the tonemap shoulder); the new dial is
+// G2-first (the card's centre texel after the room's effective gain, eff = 0.8 × 2 = 1.6,
+// must render ≥ 3× the pale end-wall texel beside it at G2; G1 stays a credible pale door
+// at distance). The lunette shares the card's law (the both-patch law rides).
+const GLARE_EDGE = 0.55;
+const GLARE_TINTS = {
+  // day: the committed day triple (0.627, 0.661, 0.707) / its luminance 0.6571.
+  day: [0.954252, 1.005934, 1.076347],
+  // dusk: the committed dusk triple (0.513, 0.365, 0.194) / its luminance 0.3841.
+  dusk: [1.335694, 0.950534, 0.505078],
+  // night: the committed night triple (0.684, 0.479, 0.251) / its luminance 0.5061.
+  nightChandeliers: [1.351511, 0.946532, 0.49595],
+};
+// L_DAY — the dial (Rec.709 luminance, linear bake units). Landed at 1.1: the pale
+// end-wall texel beside the card reads plate lum 0.3566 at G2 day (the wall panel's own
+// atlas quad, probes/exr-sample-poly.py over the composed day plate; the render confirms
+// it — albedo ≈0.55 × stored 0.446 × eff 1.6/π = code 100, the measured wall spot).
+// The dial's floor puts the centre above the 0.8 white point on purpose: the card renders
+// at the atlas's expressible ceiling. The three contrast domains, recorded apart (the
+// review finding, 2026-11-13 — the pre-encode ratio alone was NOT rendered proof):
+//   pre-encode paint ratio:  1.1 / 0.3566 = 3.08× (the dial's setup arithmetic);
+//   encoded scene-linear:    the card's core clips at the 0.8 wp → stored 1.0, decoded
+//                            0.8 against the wall's 0.3566 = 2.24× — the FORMAT's ceiling
+//                            for the day card at this wall plate (raising it needs the
+//                            white point, a room-wide law, not this dial);
+//   display (AgX at eff 1.6, measured off the captures): day 1.77× (card 176 vs wall
+//                            99 codes), dusk 1.52× (143 vs 94), night 1.39× (129 vs 93);
+//   night light-domain:      0.87× (the law's 0.25 level against a sconce-lit wall) —
+//                            the owner's eye pending.
+// The encode clips the card's core flat at stored 1.0 (~176 rendered codes under AgX at
+// eff 1.6) and the cos² fall survives in the outer band (rim stored 0.756, ~152 codes) —
+// the glare pool + soft fall the atlas can express at the committed gain.
+const GLARE_LEVEL_DAY = 1.1;
+const GLARE_LEVELS = {
+  day: GLARE_LEVEL_DAY,
+  dusk: 0.35 * GLARE_LEVEL_DAY,
+  nightChandeliers: 0.25 * GLARE_LEVEL_DAY,
+};
+// The law's paint per part: { part, law: 'glare' } — the payload row carries the state's
+// tint + level + the shared EDGE (the rect comes from the bpy stage summary, as before).
+const GLARE_PAINTS = [
+  { part: 'stairlight', law: 'glare' },
+  { part: 'doorcard', law: 'glare' },
+];
 const PATCH_PAINTS = {
-  // The law's triples × 1.14 — the Sol-DOOR calibration (owner-ratified 2026-11-08): the
-  // screen-side door read sat ~30 codes under the 180 band with the law's own values, so the
-  // room-scoped paint row rises ×1.14 (plate +~14%; no encode clip lead: 0.707 < 1.0). Both
-  // patches carry the SAME multiplier; the calibration proof rides the landing record.
   'rastrelli-gallery': [
-    {
-      part: 'stairlight',
-      colours: {
-        day: [0.627, 0.661, 0.707],
-        dusk: [0.513, 0.365, 0.194],
-        nightChandeliers: [0.684, 0.479, 0.251],
-      },
-    },
-    {
-      part: 'doorcard',
-      colours: {
-        day: [0.627, 0.661, 0.707], // the verdict's both-patch law: the card paints the same
-        dusk: [0.513, 0.365, 0.194], // ×1.14 triples as the stairlight
-        nightChandeliers: [0.684, 0.479, 0.251],
-      },
-    },
+    ...GLARE_PAINTS,
     // RG-F3: the eleven declared panes' RAW encode paint, generated from ONE shared
     // triple record (the ruling's constants block). NO ×1.14: that ratio is the DOOR's
     // measured screen-side calibration, not a pane value (transferring it would put the
@@ -292,6 +329,14 @@ function reencodeChart(room, state, chart, whitePoint, manifest, work, transfer)
           `${room}: summary lm block lacks the ${paint.part} patch rect`,
           'regenerate the bpy stage',
         );
+      }
+      // The glare-law entries carry the state's tint + level + the shared EDGE; the flat
+      // entries (the panes) keep the committed colour form.
+      if (paint.law === 'glare') {
+        return {
+          rect,
+          glare: { edge: GLARE_EDGE, tint: GLARE_TINTS[state], level: GLARE_LEVELS[state] },
+        };
       }
       return { rect, colour: paint.colours[state] };
     });

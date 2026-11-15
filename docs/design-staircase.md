@@ -50,7 +50,7 @@ Deep link to a room: fetch its manifest first, then everything; the reviewed roo
 ### 1.4 How the hour moves along the beats (frozen §8, consumed not changed)
 
 - Square: live sky + exposure E(h) — exists.
-- Gallery (the §1.4 contract, re-recorded at RG-F3 — the stale «artificial light dominates at every hour; the three bakes differ little» read is superseded): "RG-F3 declares a courtyard-window-led day along z=70, with reduced pane contribution at dusk and none at night. Artificial light retains the night reading, and the east door must remain the leading destination at Gj/G1/G2. Delivery of this hierarchy requires the recorded after-battery and owner look; it is not established by constants alone."
+- Gallery (the §1.4 contract, DELIVERED AND MEASURED at RG-F4 — the RG-F3 recording's «requires the recorded after-battery» clause is closed; the stale «artificial light dominates at every hour» read stays superseded): "RG-F4 delivers the courtyard-window-led day along z=70 by the pane dial — the z=70 panes' bake emission is the day's source (PANE_EMISSION = the pane row in bake.py's STAGE_SPILL_PARTS: day 2.7 / dusk 0.9 / night declared zero; the RG-F3 first-bake 0.020/0.006 emitted ~nothing — the 13-frame battery proved the day undelivered: floor, vault and z=76 wall state-identical at G1, dusk ≡ night within 2/255 outside the painted parts). The compose law is untouched — the day lamp weight stays 3 (the ruling's (c) split retired by the owner's call on ESTIMATES: cutting it is estimated to cost the G1 floor delta ≈ −11 and the G0 day mean ≈ −17 — rendered-space linearity through the paint/encode/tonemap chain is not verified end-to-end; the retirement decision stands on the estimates' direction, and a fresh ruling must measure before any rebalance). Measured at the landed dial by the committed instrument (tools/probes/rg-f4-capture.mjs + rg-f4-bars.py, the full-sample 6×4 grids): G1 floor day ≥ night + 21.2 (bar ≥ +20), G1 vault day ≥ night + 21.1 (bar ≥ +8), dusk floor +6.9 (bar [+5,+15]) / vault +7.2 (bar ≥ +3) / mean 98.6 ([88,102]), night 45.8 floor (46±1) / 86.5 mean (86.6±1) — byte-held (the night ktx2 sha 5b5d2111… reproduced ×4 through the fresh bake→compose→paint→encode chain), no G1 cell ≥ 200 (max 147), ordering 86.5 ≤ 98.6 ≤ 113.3, the passage B6 deltas ≤ +2.1. The east door remains the leading destination (the DOOR bands hold; golden-gallery-night byte-held). B2's numeric z=70 lead retired by the owner's call — the wash equalizes the two wall columns at any B1-passing strength (measured −1.2 at the landed dial, from the paint-only baseline's +15.7); the day's source asymmetry is carried by the dial + the pane paint."
 - Jordan: the hero of the phase. Day — tall windows flood the flights; dusk — low warm cross-light, chandeliers warming up; nightChandeliers — gilding and crystal carry the room. The ascent is where `w_day/w_dusk/w_night` reads as narrative.
 
 ---
@@ -243,7 +243,9 @@ Eye height 1.7 m above the local floor; `t` on the room rail; look limits yaw/pi
 | J4 | (73, 11.7, −66) — landing between the twin columns | ±35/±30 | arrival; the portal (landing airlock) |
 
 > **DEC-037 (the square rail).** The rail no longer lies ON the gate axis — it runs 24 m west
-> and meets it at S1; the three stops stay XZ-collinear (the square's `S0/Sh/S1` rows above),
+> and meets it at S1; the three stops stay XZ-collinear (the square's `S0/Sh/S1` rows above;
+> five since the 2026-11-12/13 stops round — S0b/Shb are the two quarter-point inserts on the
+> same line),
 > the subjects untouched, the perpendicular Column clearance 14.57449 m. Supersedes this
 > section's on-axis S0/S1 rows only.
 
@@ -257,8 +259,9 @@ Rail: Catmull-Rom through stop positions with two helper points per flight for t
 > travels exactly the arc between the two stops' framings with the distance fraction as
 > its one weight — no departure-turn span, no near-field class (its former exemption's
 > distance weight is now every pair's law), no held-point parallax.
-> Back Gj→G0 reads the same 83° field: the pitch rises linearly and monotonically
-> from 0° to its 3.06° settle at G0,
+> Back Gj→G0b reads the same 83° field: the pitch rises linearly and monotonically
+> from 0° to its 6.10° settle at G0b (the owner's 2026-11-14 walk steer split the passage
+> leg — G0b mid-chord keeps the pan's 83°; the locked leg on to G0 keeps G0's 3.06° fence),
 > superseding FIXUPS 2's ≈10.05° and the round-landed 17.39°.
 > Shared targets stay locked dollies; the position path is this section's spline. At
 > stops the pose is bit-identical, which keeps the eight goldens green un-rebaselined.

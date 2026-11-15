@@ -58,18 +58,19 @@ describe('3 · the aspect table (re-aimed subjects below the witness aspect)', (
     expect(s0YawDeltaDeg(0.3)).toBe(S0_YAW_DELTA_MAX_DEG);
   });
 
-  it('re-aims only the S0 subject at 360/744; Sh and S1 stay the committed objects', () => {
+  it('re-aims only the S0 subject at 360/744; every other stop stays the committed object', () => {
     const derived = squareRailForAspect(360 / 744);
     const first = derived.stops[0];
-    const sh = derived.stops[1];
-    const s1 = derived.stops[2];
-    if (first === undefined || sh === undefined || s1 === undefined) {
+    if (first === undefined) {
       throw new Error('derived rail is missing stops');
     }
     if (first.subject === null) throw new Error('derived S0 lost its subject');
-    expect(derived.stops).toHaveLength(3);
-    expect(sh).toBe(SQUARE_RAIL.stops[1]);
-    expect(s1).toBe(SQUARE_RAIL.stops[2]);
+    // The 2026-11-12/13 stops round: five stops — the tail rides the committed objects by
+    // reference (S0's subject is the only re-aim).
+    expect(derived.stops).toHaveLength(5);
+    for (let i = 1; i < derived.stops.length; i++) {
+      expect(derived.stops[i]).toBe(SQUARE_RAIL.stops[i]);
+    }
     expect(first.position).toBe(s0.position);
     expect(first.id).toBe('S0');
     expect(first.subject[0]).toBeCloseTo(40.04, 2);

@@ -7,7 +7,7 @@
         {
           "clippedFraction": null,
           "emitters": 0,
-          "exrSha256": "5f5976367f938aba6efc2f0d0958602e6a0bbca3f6a21c685f5c8731987d9242",
+          "exrSha256": "93821a616ccd6707662535c07918dcb033fcf6c133df4534f4b748ad7c3bfbc9",
           "name": "arch",
           "objects": 214,
           "pad": 2,
@@ -25,7 +25,7 @@
       "probe": null,
       "res": 2048,
       "samples": 128,
-      "seconds": 2373.5,
+      "seconds": 1083.9,
       "state": "day",
       "whitePoint": "percentile",
       "artifacts": [],
@@ -36,16 +36,16 @@
         "scope": "allocated-interior",
         "transfer": "srgb",
         "cellsSha256": "dca79efeac32e922f171706c280003d19bb732be5a0c7835cc899daabfa106a7",
-        "wRaw": 1.02422,
+        "wRaw": 2.677779,
         "w": 0.45,
         "gain": 2.22,
         "kappa": 1,
-        "clipFraction": 0.017272,
-        "haloFraction": 0.000344,
+        "clipFraction": 0.022296,
+        "haloFraction": 0.015051,
         "artifact": {
           "rel": "lm/day.ktx2",
-          "bytes": 304963,
-          "sha256": "284c01b72da0ceda96d3d043fc7401dc3bf213a02159b46079ace6fd391158e5"
+          "bytes": 358260,
+          "sha256": "c4b3ae53b13048233dbf5ac5ad8aea77237382cdd79ad834d3238666e2539ef7"
         }
       }
     },
@@ -55,7 +55,7 @@
         {
           "clippedFraction": null,
           "emitters": 0,
-          "exrSha256": "479b8add5f8accdc57e2b23681410e4292aa55b60056677aeb8747ff7482c296",
+          "exrSha256": "4217d27a21243ddf21e005fd4c4b4ec5350f85d8c0e5cb68de140d27d7a4b6bd",
           "name": "arch",
           "objects": 214,
           "pad": 2,
@@ -71,8 +71,8 @@
       "margin": 2,
       "peak": null,
       "probe": {
-        "clippedFraction": 0.0052,
-        "peak": 36.647,
+        "clippedFraction": 0.0003,
+        "peak": 4.2676,
         "point": [
           79,
           9,
@@ -87,14 +87,14 @@
       },
       "res": 2048,
       "samples": 128,
-      "seconds": 3011,
+      "seconds": 2425.6,
       "state": "dusk",
       "whitePoint": "percentile",
       "artifacts": [
         {
           "rel": "probe/dusk.ktx2",
-          "bytes": 13535,
-          "sha256": "cef3cd4b744f437eed86dc4760a0fcf0bcdab098c695b551424022168557e802"
+          "bytes": 6390,
+          "sha256": "4bcd13e345610d62299d5604a5a78a2fd38edf7b656fb2892f9c696d87f2c991"
         }
       ],
       "rig": {
@@ -167,6 +167,7 @@
           "sconce.008",
           "sconce.009"
         ],
+        "scale": 0.1,
         "sconcePositions": [
           [
             66.63,
@@ -221,8 +222,8 @@
         ],
         "sconceRule": "c_glow + n_room * (h_glow + 0.15) on the builder mount rosters",
         "totals_W": {
-          "chandelier": 800,
-          "sconces": 800
+          "chandelier": 80,
+          "sconces": 80
         }
       },
       "cellsSha256": "dca79efeac32e922f171706c280003d19bb732be5a0c7835cc899daabfa106a7",
@@ -232,16 +233,16 @@
         "scope": "allocated-interior",
         "transfer": "srgb",
         "cellsSha256": "dca79efeac32e922f171706c280003d19bb732be5a0c7835cc899daabfa106a7",
-        "wRaw": 2.357531,
-        "w": 1,
-        "gain": 1,
+        "wRaw": 0.251881,
+        "w": 0.35,
+        "gain": 2.86,
         "kappa": 1,
-        "clipFraction": 0.028745,
-        "haloFraction": 0.001353,
+        "clipFraction": 0.002065,
+        "haloFraction": 0,
         "artifact": {
           "rel": "lm/dusk.ktx2",
-          "bytes": 324047,
-          "sha256": "7b36773648e634e58f982f20423b8dab4580f7161a1e4367cf7dd817887cc61f"
+          "bytes": 299077,
+          "sha256": "be38e5cdb35331f5b6c6994158cf1c1cd01be110265895a5f610a8b27166fac3"
         }
       }
     },
@@ -251,7 +252,7 @@
         {
           "clippedFraction": null,
           "emitters": 0,
-          "exrSha256": "caec72d8aa43d22e7746d2fc6df3e0683cba2d538f9f3fd7bc67bb560f5ee9ec",
+          "exrSha256": "46e733343cd140b772a60f8ca1d55691901a4f1084b133203886d1636a964577",
           "name": "arch",
           "objects": 214,
           "pad": 2,
@@ -269,7 +270,7 @@
       "probe": null,
       "res": 2048,
       "samples": 128,
-      "seconds": 2787.6,
+      "seconds": 3427.2,
       "state": "nightChandeliers",
       "whitePoint": "percentile",
       "artifacts": [],
@@ -408,16 +409,16 @@
         "scope": "allocated-interior",
         "transfer": "srgb",
         "cellsSha256": "dca79efeac32e922f171706c280003d19bb732be5a0c7835cc899daabfa106a7",
-        "wRaw": 2.365537,
-        "w": 1.2,
-        "gain": 0.83,
+        "wRaw": 2.362587,
+        "w": 4,
+        "gain": 0.25,
         "kappa": 1,
-        "clipFraction": 0.020231,
-        "haloFraction": 0.000148,
+        "clipFraction": 0.001388,
+        "haloFraction": 0,
         "artifact": {
           "rel": "lm/night.ktx2",
-          "bytes": 313051,
-          "sha256": "7288c24a2ec3fdfa3388a26c14c0988adea6bf25cac9a38ef20646cc4b2bdf61"
+          "bytes": 260617,
+          "sha256": "f7fa86df7cc8e3a323874ce45c37b1c00f99c79a69418032830828ae9898e733"
         }
       }
     }
