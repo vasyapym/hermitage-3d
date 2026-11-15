@@ -4,9 +4,11 @@ One file a new relay session reads at start. Two sections: **Live state** (updat
 integration that changes the facts — same session, never later) and **Standing protocol** (rarely
 changes).
 
-- **2026-11-15 · rg-f4 LANDED ON THE BRANCH (the PARALLEL lane; MERGE into main + the FULL
-  e2e/golden gate at the owner's signal — NOT this session; the Sol review rides before the
-  scope-local gates).** The bench ×4 landed «the day that lights the room»: the pane row in
+- **2026-11-15 · rg-f4 MERGED TO MAIN (the FIRST slot of the three-lane wave; fast-forward
+  `a32b70c..82e1756` at the owner's directive — the other two lanes merge after; the FULL
+  e2e/golden gate + the CI verdict ride the LAST merging session — deferred NOT waived;
+  validate GREEN on the merged HEAD; DEC-044 numbered at this merge; the ledger row SPENT
+  and RELEASED).** The bench ×4 landed «the day that lights the room»: the pane row in
   bake.py STAGE_SPILL_PARTS is the room's PANE_EMISSION dial — **day 2.7 / dusk 0.9 / night 0**
   (the RG-F3 first-bake 0.020/0.006 emitted ~nothing; the Fable-5.1 find-draw ruling + the
   owner's ratifications: the slice as drawn · the B4 bands · the B2 retire · the (c) retire).
