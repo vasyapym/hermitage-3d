@@ -460,11 +460,17 @@ file in the same session.
 
 ## Live state
 
-- **2026-11-15 · jordan-slice-3 LANDED (slice 2c «the hour reads before the walls are
-  dressed» — the branch; the MERGE into main + the FULL e2e/golden gate RIDE THIS SESSION by
-  the owner's directive — the last merging session of the wave; the expected golden flips:
-  the three jordan J4 frames (day/dusk/night) re-baseline at the finale + rg-f4's
-  golden-gallery-{day,dusk} + square-palace-2's dec-noon).** The round's shape: the FACTS-ONLY
+- **2026-11-15 · jordan-slice-3 MERGED TO MAIN (slice 2c «the hour reads before the walls are
+  dressed» — the wave's slot 3/3, the LAST merging session; the merge = the fast-forward
+  `5583c2c..b747e11` of the union; **the FULL e2e/golden gate ran THIS session**: the full
+  chromium 106 passed / 10 failed (2.0 h) — the 10 = the 7 EXPECTED golden flips (this lane's
+  jordan J4 ×3 + rg-f4's gallery G1 day/dusk + square-palace-2's dec-noon, all three named in
+  their own merge records) + the 4 walk rows (smoke 176/271, touch-rail 269/304) = the
+  IDENTICAL recorded machine-stall class of the 2026-11-14 finale («4/4 CI GREEN but local-red
+  at ~1.2 s frames — machine class, not code»; CI green = the authority); **the goldens: the 6
+  expected flips re-baselined + eyeballed** (the day modulation, the dusk/night separation, the
+  gallery's RG-F4 pane day, the winter square) → **the confirm 37/37 GREEN (11.7 m)**, no
+  fixtures drift; the CI verdict on the pushed head = the residual known reds class check. The round's shape: the FACTS-ONLY
   FIND (the RG-F3 opening shape; the census + the 13-frame battery + the record trail) → the
   owner ratified slice 2c IN FULL (the FIND's items 1–3: the dusk≈night separation + the day's
   value band + the warm chips; 2b wall articulation named the next slice) → the value-table
