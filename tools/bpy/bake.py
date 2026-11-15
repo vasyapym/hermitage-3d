@@ -182,15 +182,24 @@ STAGE_SPILL = {
 # point as apply_stage_spill (AFTER the emitter scan, AFTER the fixtures-off law) in all
 # three rigs; never registered in the pre-scan PANE_BAKE_EMISSION path, never fed to the
 # swap or the pane_rects machinery (the room's PANE_PAINT row keeps 'atEncode': True).
-# First-bake constants are FIXED (the ruling's constants block): every colour and the
-# strength decrease day -> dusk, so every effective emitted channel decreases too; night
+# First-bake constants were FIXED (the RG-F3 ruling's constants block): every colour and
+# the strength decrease day -> dusk, so every effective emitted channel decreases too; night
 # is the declared zero. The published pane-cast weights stay 1/1/0 under the unchanged
 # compose law.
+# RG-F4 (the ruling's dial): the pane row IS the room's PANE_EMISSION dial — the z=70
+# declared panes' bake-only emission {day, dusk, night = 0}. RG-F3's first-bake strengths
+# (0.020/0.006) emitted ~nothing (the fresh 13-frame battery: the §1.4 courtyard-led day
+# undelivered — floor/vault/z=76 state-identical at G1); the strengths are raised at the
+# bench until the G1 state-delta bars hold (B1 floor +20 day, B3 vault +8). The colours
+# and the day>dusk ordering stand; night stays the declared zero.
 STAGE_SPILL_PARTS = {
     'rastrelli-gallery': {
+        # RG-F4 dial: the strengths below are the bench's current values (day 2.7 /
+        # dusk 0.9; iter 1 1.0/0.15 → B1 day +11.0; iter 2 2.0/0.9 → +17.6; iter 3 2.4 →
+        # +19.8 of ≥ +20 — the response compresses sublinearly; iter 4 crosses it).
         'pane': {
-            'day': ((0.82, 0.86, 0.92), 0.020),
-            'dusk': ((0.70, 0.55, 0.38), 0.006),
+            'day': ((0.82, 0.86, 0.92), 2.7),
+            'dusk': ((0.70, 0.55, 0.38), 0.9),
             'nightChandeliers': ((0.0, 0.0, 0.0), 0.0),
         },
     },

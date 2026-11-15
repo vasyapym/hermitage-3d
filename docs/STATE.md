@@ -4,6 +4,40 @@ One file a new relay session reads at start. Two sections: **Live state** (updat
 integration that changes the facts — same session, never later) and **Standing protocol** (rarely
 changes).
 
+- **2026-11-15 · rg-f4 LANDED ON THE BRANCH (the PARALLEL lane; MERGE into main + the FULL
+  e2e/golden gate at the owner's signal — NOT this session; the Sol review rides before the
+  scope-local gates).** The bench ×4 landed «the day that lights the room»: the pane row in
+  bake.py STAGE_SPILL_PARTS is the room's PANE_EMISSION dial — **day 2.7 / dusk 0.9 / night 0**
+  (the RG-F3 first-bake 0.020/0.006 emitted ~nothing; the Fable-5.1 find-draw ruling + the
+  owner's ratifications: the slice as drawn · the B4 bands · the B2 retire · the (c) retire).
+  MEASURED 14/14 (the committed instrument, full-sample 6×4 grids): G1 floor day **+21.2** ≥
+  +20 · vault day **+21.1** ≥ +8 · dusk floor **+6.9** ∈ [+5,+15] / vault +7.2 / mean 98.6 ·
+  night 45.8/86.5 byte-held · day mean 113.3 ∈ [100,125] · max cell 147 < 200 · ordering
+  86.5 ≤ 98.6 ≤ 113.3 · B6 passage ≤ +2.1. The compose law untouched — the (c) day-lamp-weight
+  split retired by the owner's call on ESTIMATES (the floor delta ≈ −11 / the G0 day mean ≈ −17,
+  rendered-space linearity unverified end-to-end; the day reads lamp-lit + pane-washed); B2's
+  numeric z=70 lead retired (the wash equalizes the wall columns at any B1-passing strength,
+  measured −1.2 vs the paint-only +15.7; the source asymmetry lives in the dial + the paint).
+  CONTAINMENT: glb 5bf119e8… byte-identical (the bpy build regenerated), the night ktx2
+  5b5d2111… reproduced **×4** through the fresh chain (the rg-details ×2 worry resolved at the
+  chain level), probe 487556b1… unchanged, the night renders +0.0; payload **852,888/2,000,000**
+  (+1,614) · textures 600,576/1M (+1,566) · tris 10,868 / draws 8 · JS/RU/basis byte-zero.
+  INSTRUMENT COMMITTED: tools/probes/rg-f4-capture.mjs + rg-f4-bars.py +
+  tests/rastrelli-state.test.ts (the dial rows + the two containment sha locks + the envelope
+  pins). RECORDS: design-staircase §1.4 DELIVERED AND MEASURED; license row 52's
+  measured-delivery sentence; the ledger reservation LANDED + the update-log line; the
+  DEC-ready row parks (the number at the merge). The golden flips expected at the merge
+  finale: golden-gallery-{day,dusk} re-baseline, golden-gallery-night byte-held. The
+  targeted night-golden harness run STORMED today (the machine's ~6.3 s/frame cadence: the
+  hold's 800 ms needs ~8 clamped 100 ms ticks ≈ 50 s > the spec's 45 s settle timeout; two
+  earlier runs were also CONTAMINATED — another lane's 26-hour-old vite preview (square-palace-2,
+  PID 41776) squats on the e2e config's port 4173 and playwright's reuseExistingServer reused
+  it — reaping rides the owner/that lane) — the night byte-held evidence is the plate sha ×4 +
+  the battery's +0.0 night renders + the direct baseline diff: only the doorway-reads glare
+  repaint's PRE-EXISTING deferred door-box flip (x 612–843 · y 300–418, the >32 deltas 0.51% <
+  the 1% fence; the baseline predates 4147e60), everything else AA grain. The vault
+  trail: `03_projects/hermitage-3d-2026-11-15/` (the ruling in round-1/replies/, the bench
+  iterations in probes/rg-f4-shots-iter1..4/, local-only).
 - **2026-11-15 · rg-f4 OPEN (PARALLEL — the owner's 2026-11-15 directive: another agent works per
   STATE/ROUNDS in parallel; this lane works ONLY inside its own worktree
   `~/Documents/hermitage-3d-rg-f4`, branch `rg-f4` off main `a32b70c`; MERGE into main + the FULL
