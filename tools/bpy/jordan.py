@@ -69,8 +69,9 @@ LM_CELLS = {'expected': 3150, 'warn': 3400, 'max': 4096}
 LM_PART2_FIRST_CELL = 0
 LM_CELL_MAP = {'res': LM_RES, 'grid': LM_GRID, 'pad': LM_PAD_PX, 'cells': {}}
 PANE_EMISSION = ((0.84, 0.89, 1.00), 3.0)
-SCONCE_GLOW_EMISSION = ((1.00, 0.78, 0.50), 2.0)
-CHANDELIER_GLOW_EMISSION = ((1.00, 0.82, 0.58), 2.5)
+SCONCE_GLOW_EMISSION = ((1.00, 0.78, 0.50), 1.0)  # 2c: strength 1.0 — the tint survives the clip (2.0 blew blue to white)
+CHANDELIER_GLOW_EMISSION = ((1.00, 0.82, 0.58), 1.0)  # 2c: same law
+PANE_BASE_COLOR = (0.02, 0.02, 0.025)  # 2c: the pane reads as dark glass, never a lit plaster card
 GILT_METALLIC = 0.5
 TEXTURES = (('marble_floor', 512), ('plaster_warm', 512), ('granite_grey', 256), ('gilt', 256))
 TEX_SEED = {'plaster_warm': 0x504C4153, 'marble_floor': 0x4D415242, 'granite_grey': 0x4752414E, 'gilt': 0x47494C54}
@@ -455,19 +456,26 @@ def write_texture(name, size, tex_dir):
     return img
 
 
-def make_material(name, image, roughness, emission=None, metallic=0.0):
+def make_material(name, image, roughness, emission=None, metallic=0.0, base_color=None):
     mat = bpy.data.materials.new(name)
     mat.use_nodes = True
     nt = mat.node_tree
     bsdf = nt.nodes['Principled BSDF']
-    tex = nt.nodes.new('ShaderNodeTexImage')
-    tex.image = image
-    tex.interpolation = 'Linear'
-    tex.extension = 'REPEAT'
-    uvn = nt.nodes.new('ShaderNodeUVMap')
-    uvn.uv_map = 'uv'
-    nt.links.new(uvn.outputs['UV'], tex.inputs['Vector'])
-    nt.links.new(tex.outputs['Color'], bsdf.inputs['Base Color'])
+    if image is None and base_color is not None:
+        # The untextured route (the pane's dark-glass law): a constant base colour, no
+        # image node — the glb slot count and the texture lock are untouched because the
+        # material's ALBEDO TEXTURE is what disappears, and no other material loses its
+        # reference (plaster_warm stays used by shell/portal/sconce/pilaster/cornice).
+        bsdf.inputs['Base Color'].default_value = (*base_color, 1.0)
+    else:
+        tex = nt.nodes.new('ShaderNodeTexImage')
+        tex.image = image
+        tex.interpolation = 'Linear'
+        tex.extension = 'REPEAT'
+        uvn = nt.nodes.new('ShaderNodeUVMap')
+        uvn.uv_map = 'uv'
+        nt.links.new(uvn.outputs['UV'], tex.inputs['Vector'])
+        nt.links.new(tex.outputs['Color'], bsdf.inputs['Base Color'])
     bsdf.inputs['Roughness'].default_value = roughness
     bsdf.inputs['Metallic'].default_value = metallic
     if emission is not None:
@@ -1172,7 +1180,7 @@ def main():
     images = {name: write_texture(name, size, tex_dir) for name, size in TEXTURES}
     make_material('plaster_warm', images['plaster_warm'], 0.85)
     make_material('marble_floor', images['marble_floor'], 0.35)
-    make_material('pane', images['plaster_warm'], 0.6, PANE_EMISSION)
+    make_material('pane', None, 0.6, PANE_EMISSION, base_color=PANE_BASE_COLOR)
     make_material('sconce_glow', images['plaster_warm'], 0.85, SCONCE_GLOW_EMISSION)
     make_material('chandelier_glow', images['gilt'], 0.35, CHANDELIER_GLOW_EMISSION)
     make_material('granite_grey', images['granite_grey'], 0.6)

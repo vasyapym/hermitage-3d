@@ -19,7 +19,7 @@ import type { RoomLedger, StateId } from '../src/world/registry';
 
 // The landed manifest white points (lm-percentile's fresh-bake row, D1 clamps, κ=1) —
 // the descriptor row public/assets/jordan/manifest.json mirrors.
-const JORDAN = { day: 0.45, dusk: 1, nightChandeliers: 1.2 } as const;
+const JORDAN = { day: 0.45, dusk: 0.35, nightChandeliers: 4 } as const;
 // The committed gallery record (R-UX4): all three states encode at the shared white point 0.2
 // (public/assets/rastrelli-gallery/manifest.json is the source of truth this fixture mirrors).
 const GALLERY = { day: 0.8, dusk: 0.8, nightChandeliers: 0.8 } as const;
@@ -31,11 +31,11 @@ const PRECISION = 12;
 
 describe('effectiveIntensities', () => {
   it('jordan: white points × gains (the landed κ≈1 trio)', () => {
-    // eff = wp × gain = 0.45×2.22 / 1×1 / 1.2×0.83 — the round2(κ/W) gains pin eff ≈ κ = 1.
+    // eff = wp × gain = 0.45×2.22 / 0.35×2.86 / 4×0.25 — the round2(κ/W) gains pin eff ≈ κ = 1.
     const eff = effectiveIntensities('jordan', JORDAN);
     expect(eff.day).toBeCloseTo(0.999, PRECISION);
-    expect(eff.dusk).toBeCloseTo(1, PRECISION);
-    expect(eff.nightChandeliers).toBeCloseTo(0.996, PRECISION);
+    expect(eff.dusk).toBeCloseTo(1.001, PRECISION);
+    expect(eff.nightChandeliers).toBeCloseTo(1, PRECISION);
   });
   it('rastrelli-gallery: white point 0.8 × one gain 2 (RG-D1 adopted law)', () => {
     const eff = effectiveIntensities('rastrelli-gallery', GALLERY);
@@ -161,7 +161,7 @@ describe('applyTechnique — the single-chart delegate (D-9)', () => {
     expect(m1.lightMapIntensity).toBeCloseTo(0.6 * 0.999, PRECISION);
     expect(m2.lightMapIntensity).toBeCloseTo(0.6 * 0.999, PRECISION);
     expect(s1.uniforms.lmB?.value).toBe(arch.get('dusk'));
-    expect(s1.uniforms.lmScale?.value).toBeCloseTo(0.4 * 1, PRECISION);
+    expect(s1.uniforms.lmScale?.value).toBeCloseTo(0.4 * 1.001, PRECISION);
   });
 
   it('is value-equal to applyChartedTechnique over a single arch chart', () => {
@@ -187,7 +187,7 @@ describe('applyTechnique — the single-chart delegate (D-9)', () => {
     expect(m1.lightMap).toBe(arch.get('day'));
     expect(m1.lightMapIntensity).toBeCloseTo(0.6 * 0.999, PRECISION);
     expect(s1.uniforms.lmB?.value).toBe(arch.get('dusk'));
-    expect(s1.uniforms.lmScale?.value).toBeCloseTo(0.4 * 1, PRECISION);
+    expect(s1.uniforms.lmScale?.value).toBeCloseTo(0.4 * 1.001, PRECISION);
   });
 
   it('a null B binds the black texel at scalar 0', () => {

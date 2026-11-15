@@ -73,10 +73,19 @@ BPY_DIR = Path(__file__).resolve().parent
 # Directions are in the glTF/three frame (+X east, +Y up, +Z south), unit, pointing TO the sun.
 DAY_SUN_DIR = (0.9016, 0.2591, -0.3463)      # FILL: +15 deg plateau, 2026-06-22 06:18 UTC+3
 DUSK_WORLD_DIR = (0.0000, -0.1150, -0.9930)  # FILL: -6.6 deg one-hot centre, 00:50 UTC+3
-SUN_STRENGTH = 4.0        # FILL — new default; MASKED-IN-BRIEF: keep the SUN_STRENGTH value
+SUN_STRENGTH = {  # per-room (jordan 2c: the sun's G-cut 4.0→3.5 was REVERTED by the capture read — the walls' bounce is sun-fed (the swap glass throttles the sky), the −12% sun dropped the wall fields ~10 points below the committed frame)
+    'rastrelli-gallery': 4.0,
+    'jordan': 4.0,
+    'military-gallery': 4.0,
+}
 SUN_ANGLE_DEG = 0.53      # solar disc
-# FILL — new defaults; MASKED-IN-BRIEF: keep the WORLD_STRENGTH values
-WORLD_STRENGTH = {'day': 1.0, 'dusk': 0.08, 'nightChandeliers': 0.0}
+# Per-room world strengths (jordan 2c: the day sky lift + the dusk sky-led read); the
+# siblings carry their former global row byte-for-byte.
+WORLD_STRENGTH = {
+    'rastrelli-gallery': {'day': 1.0, 'dusk': 0.08, 'nightChandeliers': 0.0},
+    'jordan': {'day': 4.0, 'dusk': 0.30, 'nightChandeliers': 0.0},  # 2c: sky-led dusk; the TRUE sky coefficient measured 0.10/unit at the plate's p50 (the brief's 0.254 was poisoned by the RIG_STATE_SCALE gate-only bug — dusk#1 carried the full rig); 0.30 targets stored p50 ≈ 82 inside the reply's 70-90 gate after the ETC1S q128 dark-median loss (~-16 at stored ~70, measured dusk#2-encode vs its EXR dry row)
+    'military-gallery': {'day': 1.0, 'dusk': 0.08, 'nightChandeliers': 0.0},
+}
 DUSK_GLOW_GAIN = 0.25     # FILL — new default; MASKED-IN-BRIEF: keep the DUSK_GLOW_GAIN value
 DUSK_GLOW_POWER = 4.0     # FILL — new default; MASKED-IN-BRIEF: keep the DUSK_GLOW_POWER value
 BAKE_SAMPLES = 128        # FILL — new default; MASKED-IN-BRIEF: keep the BAKE_SAMPLES value
@@ -235,14 +244,18 @@ PANE_BAKE_EMISSION = {
 # capture/restore law stays byte-compatible — the overrides ride ON TOP of the captured
 # values, so the dusk probe restores the AUTHORED glb strengths with the rig left on.
 FIXTURE_BAKE_STRENGTH = {
+    # jordan 2c — ABSOLUTE strengths (apply_fixture_bake_strength REPLACES the authored
+    # value; bake.py:459-479). The reply's multiplier table is corrected to intent under
+    # the true semantics: night keeps the committed baked chips exactly (1.0); dusk rides
+    # the rig's ×0.1 step off the normalized authored 1.0.
     'jordan': {
-        'sconce_glow': {'day': 0.0, 'dusk': 1.0, 'nightChandeliers': 1.0},
-        'chandelier_glow': {'day': 0.0, 'dusk': 1.0, 'nightChandeliers': 1.0},
+        'sconce_glow': {'day': 0.0, 'dusk': 0.1, 'nightChandeliers': 1.0},
+        'chandelier_glow': {'day': 0.0, 'dusk': 0.1, 'nightChandeliers': 1.0},
     },
 }
 # C (D1): the lamp rig lights a state only where its scale is > 0 (jordan day bakes with
 # no rig — its light is the sun).
-RIG_STATE_SCALE = {'jordan': {'day': 0.0, 'dusk': 1.0, 'nightChandeliers': 1.0}}
+RIG_STATE_SCALE = {'jordan': {'day': 0.0, 'dusk': 0.1, 'nightChandeliers': 1.0}}  # 2c: the parked dusk knob taken
 # D (D1): the per-template lm representative law for instanced props — 'first' keeps the
 # committed deterministic-first-object selection; jordan's 'centroid' picks the instance
 # nearest the roster's centroid.
@@ -604,9 +617,9 @@ def apply_stage_spill_parts(materials, room, state):
     return {'paneApplied': True, 'paneProof': proofs}
 
 
-def add_sun(scene):
+def add_sun(scene, room):
     data = bpy.data.lights.new('ZIMNY_SUN', 'SUN')
-    data.energy = SUN_STRENGTH
+    data.energy = SUN_STRENGTH[room]
     data.angle = math.radians(SUN_ANGLE_DEG)
     data.color = (1.0, 1.0, 1.0)
     data.use_shadow = True
@@ -686,7 +699,10 @@ def jordan_rig_check_clearance(rows, fixtures, radius, label):
                      f'{fixture_name} by {gap:.4f} m < {JORDAN_RIG_CLEARANCE} m')
 
 
-def add_jordan_rig(scene, namespace, meshes):
+def add_jordan_rig(scene, namespace, meshes, scale=1.0):
+    """scale: the RIG_STATE_SCALE multiplier for THIS state (2c: the parked dusk knob —
+    it multiplies every lamp's energy; before 2c the row only gated the rig's existence,
+    so the knob was not exercisable and the committed 0/1/1 values masked that)."""
     """D3 verbatim, derived from the builder's own constants (no parsed summary copies):
     10 sconce lamps on the builder's mount rosters (glow-box WORLD centre + the unit
     room-facing normal * (half-depth + the front offset)), 8 chandelier drop lamps on the
@@ -766,7 +782,7 @@ def add_jordan_rig(scene, namespace, meshes):
     )
     for name, position, row in lamps:
         data = bpy.data.lights.new(name, 'POINT')
-        data.energy = row['power_W']
+        data.energy = row['power_W'] * scale
         data.shadow_soft_size = row['radius_m']
         data.color = row['colour']
         data.use_shadow = True
@@ -786,13 +802,14 @@ def add_jordan_rig(scene, namespace, meshes):
         'fixtures': [name for name, _bvh in fixtures],
         'sconcePositions': [r6(row) for row in sconces],
         'sconceRule': 'c_glow + n_room * (h_glow + 0.15) on the builder mount rosters',
-        'totals_W': {'chandelier': len(drops) * JORDAN_RIG_RING['power_W']
-                     + JORDAN_RIG_CORE['power_W'],
-                     'sconces': len(sconces) * JORDAN_RIG_SCONCE['power_W']},
+        'totals_W': {'chandelier': (len(drops) * JORDAN_RIG_RING['power_W']
+                                    + JORDAN_RIG_CORE['power_W']) * scale,
+                     'sconces': len(sconces) * JORDAN_RIG_SCONCE['power_W'] * scale},
+        'scale': scale,
     }
 
 
-def build_world(scene, state):
+def build_world(scene, room, state):
     world = bpy.data.worlds.new('ZIMNY_BAKE_WORLD')
     world.use_nodes = True
     tree = world.node_tree
@@ -800,7 +817,7 @@ def build_world(scene, state):
     output = tree.nodes.new('ShaderNodeOutputWorld')
     background = tree.nodes.new('ShaderNodeBackground')
     background.inputs['Color'].default_value = (1.0, 1.0, 1.0, 1.0)
-    base = WORLD_STRENGTH[state]
+    base = WORLD_STRENGTH[room][state]
     background.inputs['Strength'].default_value = base
     if state == 'dusk' and DUSK_GLOW_GAIN > 0.0:
         # Horizon glow toward the below-horizon sun: base + gain * max(dot, 0) ^ power.
@@ -1262,10 +1279,11 @@ def main():
     # (jordan day bakes with no rig — its light is the sun).
     rig = None
     if RIG_STATE_SCALE.get(room, {}).get(state, 0.0) > 0.0:
-        rig = add_jordan_rig(scene, namespace, meshes)
+        rig = add_jordan_rig(scene, namespace, meshes,
+                             scale=RIG_STATE_SCALE[room][state])
     if state == 'day':
-        add_sun(scene)
-    build_world(scene, state)
+        add_sun(scene, room)
+    build_world(scene, room, state)
     add_probe_camera(scene, room)
     configure_cycles(scene, samples)
 

@@ -19,9 +19,9 @@ export const LIGHT_STATES: readonly LightState[] = ['day', 'dusk', 'nightChandel
 
 export const INTERIOR_LOOK_GAIN: Readonly<Record<RoomId, Readonly<Record<LightState, number>>>> = {
   // lm-percentile's landed row (fresh-bake plates): g_s = decimal half-up round2(κ / W),
-  // κ = 1 → 1/0.45, 1/1, 1/1.2. Landed alongside ROOM.lightmaps.intensity in the room
+  // κ = 1 → 1/0.45, 1/0.35, 1/4. Landed alongside ROOM.lightmaps.intensity in the room
   // descriptor (tools/bake-logs/jordan.md § Encode).
-  jordan: { day: 2.22, dusk: 1, nightChandeliers: 0.83 },
+  jordan: { day: 2.22, dusk: 2.86, nightChandeliers: 0.25 },
 
   // RG-D1 (details program, iteration 1 — the lamps' light; the R-UX4 band rule is retired for
   // this room by owner call, design-walkthrough-ux §5 record): the three atlases carry the
@@ -66,8 +66,8 @@ export type InteriorEmissiveRoomScale = Readonly<
 export const INTERIOR_EMISSIVE_SCALE: Readonly<Partial<Record<RoomId, InteriorEmissiveRoomScale>>> =
   {
     jordan: {
-      pane: { day: 1.0, dusk: 0.12, nightChandeliers: 0.03 },
-      sconce_glow: { day: 0.0, dusk: 1.0, nightChandeliers: 1.0 },
-      chandelier_glow: { day: 0.0, dusk: 1.0, nightChandeliers: 1.0 },
+      pane: { day: 1, dusk: 0.25, nightChandeliers: 0.01 },
+      sconce_glow: { day: 0, dusk: 0.5, nightChandeliers: 1 },
+      chandelier_glow: { day: 0, dusk: 0.5, nightChandeliers: 1 },
     },
   };

@@ -3,32 +3,32 @@
   "files": [
     {
       "path": "jordan.glb",
-      "bytes": 237648,
-      "sha256": "c8fc2ceb0c6a6bb28437537c74325701728db1d84eaa82b856b782d4a7baf5e9",
+      "bytes": 237556,
+      "sha256": "cdd526ded9cca7b196e0445ad235aae6c110d84943ca1e2238670a1ef24fcc93",
       "kind": "glb"
     },
     {
       "path": "lm/day.ktx2",
-      "bytes": 304963,
-      "sha256": "284c01b72da0ceda96d3d043fc7401dc3bf213a02159b46079ace6fd391158e5",
+      "bytes": 358260,
+      "sha256": "c4b3ae53b13048233dbf5ac5ad8aea77237382cdd79ad834d3238666e2539ef7",
       "kind": "ktx2"
     },
     {
       "path": "lm/dusk.ktx2",
-      "bytes": 324047,
-      "sha256": "7b36773648e634e58f982f20423b8dab4580f7161a1e4367cf7dd817887cc61f",
+      "bytes": 299077,
+      "sha256": "be38e5cdb35331f5b6c6994158cf1c1cd01be110265895a5f610a8b27166fac3",
       "kind": "ktx2"
     },
     {
       "path": "lm/night.ktx2",
-      "bytes": 313051,
-      "sha256": "7288c24a2ec3fdfa3388a26c14c0988adea6bf25cac9a38ef20646cc4b2bdf61",
+      "bytes": 260617,
+      "sha256": "f7fa86df7cc8e3a323874ce45c37b1c00f99c79a69418032830828ae9898e733",
       "kind": "ktx2"
     },
     {
       "path": "probe/dusk.ktx2",
-      "bytes": 13535,
-      "sha256": "cef3cd4b744f437eed86dc4760a0fcf0bcdab098c695b551424022168557e802",
+      "bytes": 6390,
+      "sha256": "4bcd13e345610d62299d5604a5a78a2fd38edf7b656fb2892f9c696d87f2c991",
       "kind": "ktx2"
     },
     {
@@ -154,8 +154,8 @@
     "res": 2048,
     "intensity": {
       "day": 0.45,
-      "dusk": 1,
-      "nightChandeliers": 1.2
+      "dusk": 0.35,
+      "nightChandeliers": 4
     }
   },
   "budget": {

@@ -19,9 +19,20 @@ export const LM_ENCODE = {
   scope: 'allocated-interior',
   excludeMaterials: ['pane', 'sconce_glow', 'chandelier_glow'],
   clamp: {
+    // 2c: the hour written in the bands — day percentile-led [0.2, 0.45] (the W 0.7 draw
+    // darkened the display: the sky ×4 does not reach the diffuse walls through the swap
+    // glass — the wall raw stayed ≈ flat while the band's rise divided the display; the
+    // capture read decided, per the reply's own risk clause — the day W returns to 0.45
+    // with the world-lifted raw body, so the walls hold the committed level and the
+    // sun-lit zones brighten), dusk band-forced [0.35, 0.45]
+    // (the rig runs ×0.1 for real after the RIG_STATE_SCALE multiplier fix; the body is
+    // bounce-bound — the world's p50 response is sublinear, 0.10→0.028 / 0.30→0.036 raw —
+    // so the reply's one band trim lands the median inside its 70–90 gate; the ETC1S q128
+    // dark-median loss measured −22 at this level), night band-forced [4.0, 4.5]
+    // (≥ the raw p99.5 so the pools keep the lamp tint and the walls fall off).
     day: [0.2, 0.45],
-    dusk: [0.15, 1.0],
-    nightChandeliers: [0.3, 1.2],
+    dusk: [0.35, 0.45],
+    nightChandeliers: [4.0, 4.5],
   },
   displayClip: { day: 1.0, dusk: 1.0, nightChandeliers: 1.0 },
   round: 2,
@@ -40,9 +51,9 @@ export const ROOM = {
   lightmaps: {
     states: ['day', 'dusk', 'nightChandeliers'],
     res: 2048,
-    // lm-percentile's landed row (fresh-bake plates, D1 clamps, κ=1): wRaw 1.02422 → 0.45,
-    // dusk 2.357531 → 1, night 2.365537 → 1.2 (tools/bake-logs/jordan.md § Encode).
-    intensity: { day: 0.45, dusk: 1, nightChandeliers: 1.2 },
+    // lm-percentile's landed row (fresh-bake plates, 2c bands, κ=1): day wRaw 2.613 → 0.45,
+    // dusk wRaw 0.252 → 0.35 (the band's lo), night wRaw 2.363 → 4.0 (tools/bake-logs/jordan.md § Encode).
+    intensity: { day: 0.45, dusk: 0.35, nightChandeliers: 4 },
   },
 };
 
@@ -79,7 +90,7 @@ export const MATERIAL_SLOTS = {
   pilaster_base: ['plaster_warm'],
   window_frame: ['plaster_warm'],
 };
-export const EMISSIVE_MATERIALS = { pane: 3, sconce_glow: 2, chandelier_glow: 2.5 };
+export const EMISSIVE_MATERIALS = { pane: 3, sconce_glow: 1, chandelier_glow: 1 }; // 2c: the chips normalize so the tint survives
 export const METALLIC_MATERIALS = { gilt: 0.5 };
 
 // Albedo-only arguments. Jordan lightmaps must NOT inherit --genmipmap;
@@ -237,8 +248,12 @@ function gateConventions(json) {
   for (const [name, strength] of Object.entries(EMISSIVE_MATERIALS)) {
     const m = materials.find((mat) => baseName(mat.name ?? '') === name);
     if (!m) fail(`emissive material ${name} missing`);
-    const s = m.extensions?.KHR_materials_emissive_strength?.emissiveStrength;
-    if (typeof s !== 'number' || !Number.isFinite(s) || Math.abs(s - strength) > 1e-3) {
+    // 2c: the chips normalize to strength 1.0 — the glTF DEFAULT, which the exporter
+    // legitimately omits; read the default instead of failing on the absent extension
+    // (pane 3.0 still fails loud if ITS extension disappears).
+    const raw = m.extensions?.KHR_materials_emissive_strength?.emissiveStrength;
+    const s = typeof raw === 'number' && Number.isFinite(raw) ? raw : 1.0;
+    if (Math.abs(s - strength) > 1e-3) {
       fail(`material ${name}: emissiveStrength ${s} != ${strength}`);
     }
   }

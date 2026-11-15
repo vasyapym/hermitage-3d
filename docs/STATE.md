@@ -403,6 +403,48 @@ file in the same session.
 
 ## Live state
 
+- **2026-11-15 · jordan-slice-3 LANDED (slice 2c «the hour reads before the walls are
+  dressed» — the branch; the MERGE into main + the FULL e2e/golden gate RIDE THIS SESSION by
+  the owner's directive — the last merging session of the wave; the expected golden flips:
+  the three jordan J4 frames (day/dusk/night) re-baseline at the finale + rg-f4's
+  golden-gallery-{day,dusk} + square-palace-2's dec-noon).** The round's shape: the FACTS-ONLY
+  FIND (the RG-F3 opening shape; the census + the 13-frame battery + the record trail) → the
+  owner ratified slice 2c IN FULL (the FIND's items 1–3: the dusk≈night separation + the day's
+  value band + the warm chips; 2b wall articulation named the next slice) → the value-table
+  draw (brief 2) → the dusk-correction draw (brief 3, rev 2 adopted over rev 1) → the
+  integration with FOUR measured iterations. THE DELIVERABLE: the per-state encode bands (day
+  [0.2,0.45] W 0.45 · dusk [0.35,0.45] W 0.35 · night [4.0,4.5] W 4.0; gains 2.22/2.86/0.25;
+  κ = 1 everywhere), the day sky 1.0 → 4.0 (the sun unchanged 4.0 — the drawn 3.5 cut reverted
+  by the capture read), the dusk rig ×0.1 of 1,600 W (the parked knob taken) with sky 0.30
+  (the first draw 0.8 lit the whole body — the dome is omnidirectional), the chips normalized
+  to authored 1.0 (the tint survives the clip; bake-side dusk chips 0.1 absolute; runtime
+  scales 0/0.5/1), the pane dark-glass (base colour (0.02, 0.02, 0.025) — the night pane the
+  darkest surface), the environment probe re-rendered (dusk/scaled-rig). THE FINDS ON RECORD:
+  (1) **bake.py's RIG_STATE_SCALE was a GATE, not a multiplier** — the parked knob was not
+  exercisable (the committed 0/1/1 masked it); 2c made it a multiplier (day/night
+  byte-identical through the fix); (2) the committed day plate's top was BINARY — 0.0 % of
+  texels at stored 152–247 (the clip census's smoking gun; the fresh plate: 33 %); (3) the
+  ETC1S q128 dark-median loss measured −22 (the dry-row → ktx2 delta the gates must carry);
+  (4) the emissive gate reads the glTF default at strength 1.0 (the exporter omits the
+  extension at the default). THE GATES: the census green on all three fresh ktx2s (day p50
+  118.3 · p90 195.8 · near-white 1.58 %; dusk p50 72.5 ∈ [70, 90] · p90 122.9 · near-white
+  0.13 %; night p50 40.1 · p90 94.1 · near-white 0.08 % — nothing clips, the pools keep the
+  lamp tint, the walls fall off); validate GREEN (tsc 0 · biome clean · vitest 1121/1 on 63
+  files · build · budgets ok; **JS 285,629 = −2 of the ≤ +0 declared** — the dusk gain 1 → 2.86
+  +3 clawed by the jordan-row shortenings; jordan payload 1,190,510 of 7,000,000); the capture
+  battery 15 frames + the pixel-grid reads: the day reads with real modulation (the walls'
+  mean −10 % vs the committed = the contrast arriving — the eye-verdict better; the stairs and
+  the sun patches brighter, the patches white-hot), the dusk reads evening (the warm lamps +
+  the cool windows; the window-zone B−R split reads on the pane/chips, the mid-wall median
+  near-neutral by construction), the night reads night (the dark walls + the pools + the dark
+  glass panes; the hour ladder day > dusk > night holds at the paired cells). THE BAKES: day
+  ×2 + dusk ×4 + night ×1 (the scale fix + the sky recalibrations, all under caffeinate; the
+  probe ×3). THE PARKED: the wall articulation (2b — the next slice), the fixture FORM (E —
+  the axial photograph), the plafond (3), the rosettes (4), the probe's day-state residual
+  (the day envMapIntensity 1.0 samples the dusk-lit probe — the ADR-0013 class, re-worded).
+  The records: the license row «Jordan light states (slice 2c)», the ledger rows (the shared
+  lines + the jordan room row + the update log).
+
 - **2026-11-15 · jordan-slice-3 OPEN (PARALLEL to the luna2 portfolio session's in-flight track —
   observed in flight at this round's opening; this lane works only inside its own worktree
   `~/Documents/hermitage-3d-jordan3`, branch `jordan-slice-3` off main `a32b70c`; MERGE into main +
