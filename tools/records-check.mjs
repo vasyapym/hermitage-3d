@@ -72,9 +72,12 @@ for (const ref of refs) {
 
 // (c) the no-line-citations law
 for (const f of RECORDS) {
-  readFileSync(f, 'utf8').split('\n').forEach((line, i) => {
-    for (const m of line.matchAll(CITATION_RE)) failures.push(`line-citation ${f}:${i + 1} → ${m[0]}`);
-  });
+  readFileSync(f, 'utf8')
+    .split('\n')
+    .forEach((line, i) => {
+      for (const m of line.matchAll(CITATION_RE))
+        failures.push(`line-citation ${f}:${i + 1} → ${m[0]}`);
+    });
 }
 
 // (d) the Standing-protocol immutability
@@ -85,13 +88,17 @@ if (protocolStart >= 0) {
   if (pinStart < 0) {
     failures.push('the pin STATE.md carries no «## Standing protocol» heading');
   } else {
-    const pinBlock = pinLines.slice(pinStart).join('\n') + '\n';
+    const pinBlock = `${pinLines.slice(pinStart).join('\n')}\n`;
     if (!curBlock.startsWith(pinBlock)) {
-      failures.push('Standing protocol: the current block is not the pin block + one appended entry (byte-prefix mismatch)');
+      failures.push(
+        'Standing protocol: the current block is not the pin block + one appended entry (byte-prefix mismatch)',
+      );
     } else {
       const remainder = curBlock.slice(pinBlock.length);
       if (!remainder.startsWith('**Record shapes.**')) {
-        failures.push(`Standing protocol remainder is not the «Record shapes.» entry: «${remainder.slice(0, 60)}»`);
+        failures.push(
+          `Standing protocol remainder is not the «Record shapes.» entry: «${remainder.slice(0, 60)}»`,
+        );
       } else if ((remainder.match(/Record shapes\./g) || []).length !== 1) {
         failures.push('Standing protocol carries more than one «Record shapes.» entry');
       } else {
@@ -108,4 +115,6 @@ if (failures.length) {
 }
 console.log('records-check: green');
 for (const n of notes) console.log(`note: ${n}`);
-console.log(`caps: STATE ${stateBytes} B · Live-state ${liveBytes} B · ROUNDS ${roundsBytes} B · ${refs.size} archive pointers resolved · citations 0`);
+console.log(
+  `caps: STATE ${stateBytes} B · Live-state ${liveBytes} B · ROUNDS ${roundsBytes} B · ${refs.size} archive pointers resolved · citations 0`,
+);
