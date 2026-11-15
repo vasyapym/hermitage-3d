@@ -30,10 +30,21 @@ const HIDE_OVERLAYS_CSS =
 
 const MAX_DIFF_PIXEL_RATIO = 0.01;
 
+// The explicit per-pixel threshold (the square-palace-2 certification round, 2026-11-15; the
+// owner's T5 ratification). The default 0.2 was measured tone-blind: a neutral-grey step up to
+// ≈52.8/255 per pixel passes invisibly (the vendored comparator's maxDelta = 35215·t²; the
+// synthetic self-test pins the grey/chromatic semantics). t=0.1 bounds the blind spot at
+// ≈26.4/255 — the daylight-testing steer's instrument. The re-baselined set this pin rides:
+// golden-dec-noon (the landed 2a/2b winter, 61 % of frame tone-differs from the 2026-11-03
+// baseline), golden-s1-noon (the fence+paving+grading accumulation, 1.02 % at t=0.1),
+// golden-dec-night (coherence, its drift is sub-gate at both thresholds).
+const GOLDEN_THRESHOLD = 0.1;
+
 // Screenshot options shared by every scene (see the comment on 'golden: noon' for why page-level).
 const SHOT = {
   clip: { x: 0, y: 0, width: 1280, height: 720 },
   maxDiffPixelRatio: MAX_DIFF_PIXEL_RATIO,
+  threshold: GOLDEN_THRESHOLD,
   timeout: 60_000,
 } as const;
 
