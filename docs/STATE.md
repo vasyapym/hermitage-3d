@@ -8,7 +8,7 @@ changes). Live state = Now + every lane not yet MERGED + the last 3 MERGED round
 
 ### Now
 
-Tree: the compaction branch `records-compaction`, the lane head `88c6ef1` (batch-d — the ledger rebuilt to the contract shape off the fixed-current-truth pin `4ffd0f8`); the compaction's batches ride main via `dae337d`/`7e61efd`; the remaining delta waits the owner's signal.
+Tree: the compaction branch `records-compaction`, the lane head `88c6ef1` (batch-d — the ledger rebuilt to the contract shape off the fixed-current-truth pin `4ffd0f8`); the compaction's batches ride main via `dae337d`/`7e61efd`; the remaining delta waits the owner's signal. Open PARALLEL lanes: jordan-bands (worktree ~/Documents/hermitage-3d-jordan-bands, branch off main `d136e79`, the parked day upper-tier bands row; scope-local gates, merge + FULL gate at the owner's signal).
 Budgets (the verified ledger — batch-d's rebuild off the fixed-current-truth pin `4ffd0f8`): JS 285,629/350,000 · RU 7,360/12,000 · jordan 1,206,199/7,000,000 · rastrelli-gallery 855,438/2,000,000 · basis 584,862/600,000.
 Owed: the machinery round per DEC-045 (the exterior asset program; geometry rounds wait behind it) · the jordan 2b wall articulation (the next slice) · the axial photograph (the fixture FORM) · the doorway residual parked (docs/parking-lot.md) · the draw-calls SwiftShader CI debt (the pre-existing class).
 
@@ -23,6 +23,8 @@ Owed: the machinery round per DEC-045 (the exterior asset program; geometry roun
 - 2026-11-15 · LANDED jordan-slice-3 (slot n/r · merge n/r, rides the owner's directive, the last merging session · gate: scope-local validate GREEN; FULL e2e/golden DEFERRED to the merge) — DEC n/r · bands day [0.2,0.45] W 0.45 / dusk [0.35,0.45] W 0.35 / night [4.0,4.5] W 4.0 · census p50 118.3 / 72.5 / 40.1 — JS −2 → 285,629 (declared ≤ +0); payload 1,190,510 of 7,000,000 — found RIG_STATE_SCALE was a gate not a multiplier (fixed, day/night byte-identical); expected re-baseline: jordan J4 day/dusk/night, rg-f4 golden-gallery-{day,dusk}, square-palace-2 dec-noon — → docs/archive/2026-11-15-jordanslice3.md
 
 - 2026-11-14 · the pre-wave stack LANDED ON MAIN (solo-lane direct, targeted gates, the full battery waived per the solo-merge ruling): owner-steer — the five-stop gallery walk (G0b in, Gjb/G1b out, plan --check byte-identical) + the lampSpill evening forward spill (day bit-identical), ZERO golden flips; transit-band — the doorway «dark mass» = the gallery glb's south end wall seen mid-transit, fixed by the roomsRoot gate, the owner's eye-read CONFIRMED 2026-11-15; doorway-reads — the stack finale `fd838f4`: [golden] ZERO flips, the r26.2 1920-fixture flip re-baselined, the 1812-360 touch-arrow race found (the app-side fix named) — → docs/archive/2026-11-14-transitband.md (owner-steer → docs/archive/2026-11-14-ownersteer.md · doorway-reads → docs/archive/2026-11-13-doorwayreads.md)
+
+- 2026-11-16 · jordan-bands OPENED (PARALLEL, worktree, branch off main `d136e79`): the parked day upper-tier bands row taken up (docs/parking-lot.md) — diagnose why the DAY lightmap's upper-tier north-wall bands (the pilaster strips + the zones flanking/below the upper windows, y ≈ 13–16.5) bake dark (the sighting IMG_4685; the June-noon one-hot det test kept the bands → the hour-blend refuted), fix it; the creative rules the mechanism + the levers. Scope-local gates (probe + validate); merge + FULL gate at the owner's signal. Vault: 03_projects/hermitage-3d-2026-11-16; briefs 2
 
 ## Standing protocol
 
