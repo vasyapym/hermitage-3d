@@ -8,7 +8,7 @@ changes). Live state = Now + every lane not yet MERGED + the last 3 MERGED round
 
 ### Now
 
-Tree: main @ the square-forward-gaze marks; one PARALLEL lane open — square-forward-gaze (worktree ~/Documents/hermitage-3d-square-forward-gaze, branch off main, scope-local gates, merge + FULL gate at the owner's signal).
+Tree: main @ the jordan-bands marks; two PARALLEL lanes open — square-forward-gaze (worktree ~/Documents/hermitage-3d-square-forward-gaze, branch off main, scope-local gates, merge + FULL gate at the owner's signal) · jordan-bands (worktree ~/Documents/hermitage-3d-jordan-bands, the parked day upper-tier bands row, docs/parking-lot.md; scope-local gates, merge + FULL gate at the owner's signal).
 Budgets (the verified ledger — batch-d's rebuild off the fixed-current-truth pin `4ffd0f8`): JS 285,629/350,000 · RU 7,360/12,000 · jordan 1,206,199/7,000,000 · rastrelli-gallery 855,438/2,000,000 · basis 584,862/600,000.
 Owed: the machinery round per DEC-045 (the exterior asset program; geometry rounds wait behind it) · the jordan 2b wall articulation (the next slice) · the axial photograph (the fixture FORM) · the doorway residual parked (docs/parking-lot.md) · the draw-calls SwiftShader CI debt (the pre-existing class).
 
@@ -23,6 +23,8 @@ Owed: the machinery round per DEC-045 (the exterior asset program; geometry roun
 - 2026-11-15 · LANDED jordan-slice-3 (slot n/r · merge n/r, rides the owner's directive, the last merging session · gate: scope-local validate GREEN; FULL e2e/golden DEFERRED to the merge) — DEC n/r · bands day [0.2,0.45] W 0.45 / dusk [0.35,0.45] W 0.35 / night [4.0,4.5] W 4.0 · census p50 118.3 / 72.5 / 40.1 — JS −2 → 285,629 (declared ≤ +0); payload 1,190,510 of 7,000,000 — found RIG_STATE_SCALE was a gate not a multiplier (fixed, day/night byte-identical); expected re-baseline: jordan J4 day/dusk/night, rg-f4 golden-gallery-{day,dusk}, square-palace-2 dec-noon — → docs/archive/2026-11-15-jordanslice3.md
 
 - 2026-11-16 · square-forward-gaze OPENED (PARALLEL, worktree, branch off main): the owner's drag+Forward feel item — at S0 a manual look + Forward rides the B9 arc ≈48° right onto the Column's pedestal framing (S0b), the manual offset composes on top (re-clamped, never reset); the T5 2026-11-15 «the pans KEEP» verdict is the ratified context; the creative rules the transit-gaze law (remove/damp/other). Scope-local gates; merge + FULL gate at the owner's signal. Vault: 03_projects/hermitage-3d-2026-11-16; briefs 1
+
+- 2026-11-16 · jordan-bands OPENED (PARALLEL, worktree, branch off main): the parked day upper-tier bands row taken up (docs/parking-lot.md) — diagnose why the DAY lightmap's upper-tier north-wall bands (the pilaster strips + the zones flanking/below the upper windows, y ≈ 13–16.5) bake dark (the sighting IMG_4685; the June-noon one-hot det test kept the bands → the hour-blend refuted), fix it; the creative rules the mechanism + the levers. Scope-local gates (probe + validate); merge + FULL gate at the owner's signal. Vault: 03_projects/hermitage-3d-2026-11-16; briefs 2 (brief 1 = square-forward-gaze's)
 
 ## Standing protocol
 
