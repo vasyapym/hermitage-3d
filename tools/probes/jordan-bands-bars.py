@@ -58,12 +58,16 @@ def regions():
         out[f'shaft_hi_{i}'] = (px - 0.22, px + 0.22, 8.5, 16.0, Z_N + 0.15, Z_N + 0.25)
         out[f'shaft_lo_{i}'] = (px - 0.22, px + 0.22, 0.8, 8.5, Z_N + 0.15, Z_N + 0.25)
     for j, cx in enumerate(WIN_X):
-        out[f'flank_hi_{j}_w'] = (cx - 1.70, cx - 1.15, 13.2, 16.3, Z_N - 0.05, Z_N + 0.05)
-        out[f'flank_hi_{j}_e'] = (cx + 1.15, cx + 1.70, 13.2, 16.3, Z_N - 0.05, Z_N + 0.05)
+        # The TRUE flank strip: the architrave ends at cx+1.28 (WINDOW_ARCH band 0.18 over
+        # the 1.1 m opening), the pier's face starts at cx+1.5 — the clean wall band is
+        # [1.30, 1.48]. The design's [1.15, 1.70] overlapped the blown frame band and the
+        # pier face; the baseline run caught it (the 2026-11-16 calibration note).
+        out[f'flank_hi_{j}_w'] = (cx - 1.48, cx - 1.30, 13.2, 16.3, Z_N - 0.05, Z_N + 0.05)
+        out[f'flank_hi_{j}_e'] = (cx + 1.30, cx + 1.48, 13.2, 16.3, Z_N - 0.05, Z_N + 0.05)
         out[f'spandrel_{j}'] = (cx - 1.0, cx + 1.0, 7.0, 12.5, Z_N - 0.05, Z_N + 0.05)
         out[f'head_zone_{j}'] = (cx - 1.0, cx + 1.0, 16.6, 16.95, Z_N - 0.05, Z_N + 0.05)
-        out[f'frame_hi_{j}'] = (cx - 1.30, cx - 1.12, 13.0, 16.7, Z_N + 0.05, Z_N + 0.15)
-        out[f'frame_hi_{j}_e'] = (cx + 1.12, cx + 1.30, 13.0, 16.7, Z_N + 0.05, Z_N + 0.15)
+        out[f'frame_hi_{j}'] = (cx - 1.26, cx - 1.12, 13.0, 16.7, Z_N + 0.05, Z_N + 0.15)
+        out[f'frame_hi_{j}_e'] = (cx + 1.12, cx + 1.26, 13.0, 16.7, Z_N + 0.05, Z_N + 0.15)
         out[f'pane_hi_{j}'] = (cx - 1.0, cx + 1.0, 13.2, 16.3, Z_N - 0.62, Z_N - 0.58)
     for i, ez in enumerate(EAST_Z):
         out[f'east_shaft_hi_{i}'] = (91.75, 91.85, 8.5, 16.0, ez - 0.22, ez + 0.22)
@@ -314,14 +318,14 @@ def main():
     log_file = pathlib.Path(log_path)
     if log_file.exists():
         log = json.loads(log_file.read_text(encoding='utf-8'))
-        rows = log if isinstance(log, list) else log.get('bakes', log.get('rows', []))
-        day_rows = [row for row in rows
-                    if isinstance(row, dict) and row.get('state') == 'day'
-                    and row.get('encode')]
-        if day_rows:
-            enc = day_rows[-1]['encode']
+        # The log shape: {'room': ..., 'states': {state: row}} (the per-state rows carry
+        # 'encode' when the room is percentile-led).
+        states = log.get('states', {}) if isinstance(log, dict) else {}
+        day_row = states.get('day') or {}
+        enc = day_row.get('encode')
+        if enc:
             w = enc.get('w')
-            clipped = enc.get('clippedFraction')
+            clipped = enc.get('clipFraction', enc.get('clippedFraction'))
             halo = enc.get('haloFraction')
             checks = [(w == expect_w, f'W {w} == {expect_w}'),
                       (clipped is not None and clipped <= 0.03,
