@@ -987,13 +987,14 @@ def bake_targets(objects, room):
             centre_x = sum(obj.location.x for obj in group) / len(group)
             centre_y = sum(obj.location.y for obj in group) / len(group)
             centre_z = sum(obj.location.z for obj in group) / len(group)
-            keyed = sorted((((obj.location.x - centre_x) ** 2
-                             + (obj.location.y - centre_y) ** 2
-                             + (obj.location.z - centre_z) ** 2), obj)
-                           for obj in group)
-            # The (dist2, name) order IS the committed law: exact ties resolve to the
-            # lexicographically lowest object name. Log pick + runner-up so the next
-            # session reads them instead of re-deriving the law (the bands round's pins).
+            # Build unsorted (RNA objects are not orderable — an exact dist2 tie must
+            # never fall into tuple comparison), then sort by the committed law's key:
+            # (dist2, object name) — exact ties resolve to the lexicographically lowest
+            # name. Log pick + runner-up so the next session reads them instead of
+            # re-deriving the law (the bands round's pins).
+            keyed = [(((obj.location.x - centre_x) ** 2
+                       + (obj.location.y - centre_y) ** 2
+                       + (obj.location.z - centre_z) ** 2), obj) for obj in group]
             keyed.sort(key=lambda item: (item[0], item[1].name))
             chosen = keyed[0][1]
             runner = keyed[1] if len(keyed) > 1 else None
