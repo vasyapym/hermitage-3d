@@ -104,6 +104,8 @@ the probe's day-state residual: the day envMapIntensity 1.0 samples the dusk-lit
 The sibling slice's archive (docs/archive/2026-11-03-jordanslice2thestairhallslightfinishslice.md) is untouched.
 
 ## Mentioned elsewhere
+From the budget ledger's jordan row (the 2c landing): the day plate grew to 358,260 with the modulation's bits — the three lm ktx2s re-encoded at the hour bands.
+
 None in this batch's excerpts.
 ## Sources
 

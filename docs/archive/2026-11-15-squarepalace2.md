@@ -54,6 +54,9 @@ Deferred, NOT waived → the LAST merging session / the wave finale's quiet full
 Owed: the machinery round (a fresh lane off merged main; the ceiling lift ratified at its measured delta; its implementation DEC-ready rows stay parked for its merge) · the candelabra successor (4 corners DECLARED from the two photo references, ≤ 2 meshes / 2,400 tris) · integration-time verification items: the shadow-draw counter scope (the ledger row says incl. shadow — consistent), the type-widening ripple in engine/ledger.ts + registry.ts, the first-presented-frame hook's exact name in main.ts · the interior G1 baselines keep the arrows until their next re-baseline.
 
 ## Mentioned elsewhere
+From the cut ledger log (the square-palace-2 EXECUTED entry, 2026-11-15): the T4 HQ-height haul — the sourced relation «такую же высоту, что и здание Главного штаба» + the 1844 decree bound ПСЗРИ № 18398.
+From the same entry: the massings-row register edit recorded the void band measured 44 % bare field at S0b-dec-noon (the T2 census above relabels the metric as modal-tone occupancy).
+From the budget ledger's **square-palace-2** row (the re-baseline set): the expected flip set from the T1 measurements — dec-noon 41.7 % @t0.1, s1-noon 1.02 % @t0.1, dec-night coherent.
 From rg-f4's STATE bullet (2026-11-15 MERGED): another lane's 26-hour-old vite preview (square-palace-2, PID 41776) squatted on the e2e config's port 4173, and playwright's reuseExistingServer reused it, contaminating two earlier rg-f4 night-golden runs; reaping rides the owner / that lane.
 (none at creation; the orchestrator appends via ARCHIVE-APPEND)
 ## Sources — file · entity · line range @ de58d5206909e308e33a089bd0227bbbc85a2278
