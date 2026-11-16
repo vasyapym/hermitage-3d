@@ -63,8 +63,9 @@ for (const state of ['day-golden', 'day-noon', 'dusk', 'night']) {
     }
   }
 }
-const SELECTED = FRAMES.map(([state, stop, view]) => `${state}-${stop.toLowerCase()}-${view}`)
-  .filter((name) => !ONLY || ONLY.test(name));
+const SELECTED = FRAMES.map(
+  ([state, stop, view]) => `${state}-${stop.toLowerCase()}-${view}`,
+).filter((name) => !ONLY || ONLY.test(name));
 
 const HIDE_OVERLAYS_CSS =
   '#title, #scrub, #chrome-row, #lang-toggle, #index-open, #index-dialog, #travel-hint, #edge-prompt, #hud, #caption, #caption-title, #load-line { visibility: hidden !important; }';
