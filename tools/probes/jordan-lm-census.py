@@ -111,42 +111,43 @@ def datablock_family(name):
 
 
 def shell_bin(centre, normal, win_x, tiers):
-    """The shell's band bins by the face centroid + normal (world space; the builders
-    emit the north wall at z −86 with the field facing +z, the recess between −86.6
-    and −86, the south wall at −62, the east wall at x 92, the west at x 66)."""
+    """The shell's band bins by the face centroid + normal, in BLENDER space (the
+    builder's to_b: glTF (x, y, z) -> Blender (x, -z, y) — the north wall is the plane
+    y = +86 with the field facing -y, the south wall y = +62 facing +y, the east wall
+    x = +92 facing -x, the west x = +66 facing +x, the floor z = 0 facing +z, the
+    heights ride z)."""
     x, y, z = (float(v) for v in centre)
-    n = (float(v) for v in normal)
-    nz, ny, nx_abs = n[2], n[1], abs(n[0])
-    if z < -86.05:  # the reveal recess faces
-        if nx_abs > 0.5:
+    nz, ny, nx = float(normal[2]), float(normal[1]), float(normal[0])
+    if y > 86.05:  # the reveal recess faces (glTF z in -86.6..-86)
+        if abs(nx) > 0.5:
             return 'reveal_jamb'
-        if ny > 0.5:
+        if nz > 0.5:
             return 'reveal_sill'
-        if ny < -0.5:
+        if nz < -0.5:
             return 'reveal_head'
         return 'reveal_other'
-    if nz > 0.5 and z <= -85.9:  # the north wall field
+    if ny < -0.5 and y >= 85.9:  # the north wall field (faces the room, -y)
         upper_sill, upper_head = tiers[1]
         lower_sill = tiers[0][0]
         for cx in win_x:
             dx = x - cx
-            if 1.05 <= dx <= 1.95 and upper_sill - 0.4 <= y <= upper_head + 0.2:
+            if 1.05 <= dx <= 1.95 and upper_sill - 0.4 <= z <= upper_head + 0.2:
                 return 'north_upper_flank'
-        if abs(y - (tiers[0][1] + upper_sill) / 2) < (upper_sill - tiers[0][1]) / 2 \
+        if abs(z - (tiers[0][1] + upper_sill) / 2) < (upper_sill - tiers[0][1]) / 2 \
                 and any(abs(x - cx) <= 1.1 for cx in win_x):
             return 'north_spandrel'
-        if y > upper_head + 0.2 and y < 17.6:
+        if z > upper_head + 0.2 and z < 17.6:
             return 'north_head_zone'
-        if y < lower_sill - 0.3:
+        if z < lower_sill - 0.3:
             return 'north_below_lower'
         return 'north_field_other'
-    if nz < -0.5 and z >= -62.1:
+    if ny > 0.5 and y <= 62.1:
         return 'south_wall'
-    if nx_abs > 0.5 and abs(nz) < 0.5:
+    if abs(nx) > 0.5 and abs(ny) < 0.5:
         return 'east_wall' if x > 80.0 else 'west_wall'
-    if ny > 0.5:
+    if nz > 0.5:
         return 'floor'
-    if ny < -0.5:
+    if nz < -0.5:
         return 'ceiling'
     return 'shell_other'
 
@@ -251,6 +252,20 @@ def bin_stats(census, per_cell):
     return out
 
 
+def per_cell_dump(census, per_state):
+    """Per-cell rows for the json: {bin: [{cell, world, material, state: mean}]} — the
+    strip question needs the shaft's height profile, not the bin mean."""
+    out = {}
+    for key, row in census.items():
+        entry = {'world': row['world'], 'material': row['material']}
+        for state, per_cell in per_state.items():
+            entry[state] = round(per_cell[key]['mean'], 5)
+        out.setdefault(row['bin'], []).append({'cell': key, **entry})
+    for bin_name in out:
+        out[bin_name].sort(key=lambda item: (item['world'][0], item['world'][2]))
+    return out
+
+
 def main():
     builder, out, plates, w = parse_args()
     out.mkdir(parents=True, exist_ok=True)
@@ -291,6 +306,7 @@ def main():
                 deltas[f'worldRatio_{other}_over_north'] = round(
                     bins[other]['mean'] / north, 3)
     report['deltas'] = deltas
+    report['perCell'] = per_cell_dump(census, per_state)
     out_path = out / 'census.json'
     out_path.write_text(json.dumps(report, sort_keys=True, indent=2) + '\n', encoding='utf8')
     print(f'ZIMNY_CENSUS {out_path}')
