@@ -267,11 +267,10 @@ test('arrow walk: the prompt click and a fresh ArrowRight at a settled end enter
   // The entry stop's first settled frame shows the caption only (§9): the door label waits
   // for a backward push, and a forward press at a mid-room settle walks one gap instead.
   await expect(edgePrompt).toHaveAttribute('data-visible', 'false');
-  // The gallery's four gap legs to its far end G2 (G0 → G0b → Gj → G1 → G2; the owner's
-  // 2026-11-14 walk tweak: one stop inside the entry leg, the two axis inserts gone): the
-  // walk law brakes into the corner stop Gj (hard for the walk), re-departs live, then
-  // rests at G2.
-  for (const stop of ['G0b', 'Gj', 'G1', 'G2']) await legTo(stop);
+  // The gallery's six gap legs to its far end G2 (G0 → G0b → Gj → Gjb → G1 → G1b → G2; the
+  // 2026-11-16 re-choreography reinstates the two axis rests): the walk law brakes into
+  // the corner stop Gj (hard for the walk), re-departs live, then rests at G2.
+  for (const stop of ['G0b', 'Gj', 'Gjb', 'G1', 'G1b', 'G2']) await legTo(stop);
   await expect(edgePrompt).toHaveAttribute('data-visible', 'true', { timeout: 30_000 });
   await expect(edgePrompt).toHaveText('Enter · Jordan Staircase', { timeout: 30_000 });
   // Road 2 — the fresh ArrowRight at the settled end: the same boundary chain the arrows
@@ -300,14 +299,16 @@ test('arrow walk: the prompt click and a fresh ArrowRight at a settled end enter
 // between configurations — the round-17 measurement trap).
 test('keyboard walk: every stop reachable, reduced-motion cuts', async ({ page }) => {
   test.slow(); // same data-bound dwell per transit, on top of the instant reduced-motion cuts
-  // The R3 walk crosses TWO extra airlocks (the 1812 cut and its reverse) and walks 42
-  // landings (16 forward + 5 across the 1812 gallery + 21 backward; the 2026-11-14 walk
-  // tweak took the gallery from six stops to five, two legs off the round). Every room
-  // entry is a full mount behind the card. MEASURED at 44 calls on the CI-representative
-  // SwiftShader env: 6.0–8.3 min wall ⇒ the 900-s budget's ratio ≈ 1.8–2.4; the walk is
-  // two legs shorter now, the budget stands (the Sol review: the historical stall
-  // measurement is not a current guarantee).
-  test.setTimeout(900_000); // 42 walkTo calls × (the dwell-drain wait + the pressability poll + one coherent landing read) + boot + four transits — two legs under the measured 6.0–8.3 m (SwiftShader), the ≈×1.8–2.4 headroom grows
+  // The R3 walk crosses TWO extra airlocks (the 1812 cut and its reverse) and walks 46
+  // landings (18 forward + 5 across the 1812 gallery + 23 backward; the 2026-11-16
+  // re-choreography reinstates the gallery's two axis rests — two legs back on in each
+  // direction, and the reduced-motion cut law lands on every stop, soft or hard). Every
+  // room entry is a full mount behind the card. MEASURED at 44 calls (the six-stop
+  // gallery) on the CI-representative SwiftShader env: 6.0–8.3 min wall ⇒ the 900-s
+  // budget's ratio ≈ 1.8–2.4; the walk is two legs over the measured shape now, the
+  // headroom absorbs it (the Sol review: the historical stall measurement is not a
+  // current guarantee).
+  test.setTimeout(900_000); // 46 walkTo calls × (the dwell-drain wait + the pressability poll + one coherent landing read) + boot + four transits — two legs over the measured 6.0–8.3 m (SwiftShader), the ≈×1.8–2.4 headroom still covers it
   await page.emulateMedia({ reducedMotion: 'reduce' });
   const hud = await bootDeterministic(page, `${AT}&det=1&hud=1&lang=en`);
   // One accepted press per landing. The keydown handler drops any press while the arrival is
@@ -332,8 +333,8 @@ test('keyboard walk: every stop reachable, reduced-motion cuts', async ({ page }
   const caption = page.locator('#caption');
   // The §6.1 caption beats, verbatim from the committed stop data (rooms/*/contract.ts;
   // R-UX5 §7/§8 stop authoring: Gj, J1b, J2b new; J2, J3 re-authored; the 2026-11-12/13
-  // stops round adds S0b/Shb; the owner's 2026-11-14 walk tweak adds G0b and retires
-  // the round's Gjb/G1b).
+  // stops round adds S0b/Shb; the 2026-11-16 walk re-choreography re-authors G0b onto the
+  // lit mouth and reinstates the corridor rests Gjb/G1b).
   const BEATS: Readonly<Record<string, string>> = {
     S0: 'the facade and the hour',
     S0b: 'the monolith', // the 2026-11-12/13 stops round: the Column's own frame
@@ -341,9 +342,11 @@ test('keyboard walk: every stop reachable, reduced-motion cuts', async ({ page }
     Shb: 'the arch ahead',
     S1: 'the arch opens',
     G0: 'dark; the square behind',
-    G0b: 'the lit junction', // the owner's 2026-11-14 walk tweak: the entry leg's own rest
+    G0b: 'Mid-passage. The gallery\u2019s light spills through the arch on the right; the junction lies ahead.', // the 2026-11-16 re-choreography: the mouth lock
     Gj: 'The turn east: pilaster after pilaster, forty metres to the far door.',
+    Gjb: 'Inside the gallery. The vault runs level to the east door and its light.',
     G1: 'compression',
+    G1b: 'The door nears. Beyond it, the Jordan Staircase.',
     G2: 'the door (airlock)',
     J0: 'looking up into light',
     J1: 'the flight',
@@ -468,9 +471,9 @@ test('keyboard walk: every stop reachable, reduced-motion cuts', async ({ page }
     await expect(caption).toHaveText(beat, { timeout: 60_000 });
   };
   // Forward: S0 → S0b → Sh → Shb → S1 (R18-ux D1's halfway rhythm; the 2026-11-12/13 stops
-  // round's quarter-point inserts), the arch-portal boundary, G0 → G0b → Gj → G1 → G2 (the
-  // owner's 2026-11-14 walk tweak), the gallery-airlock boundary, J0 → J1b → J2b → J4 —
-  // every stop of the phase observed landed.
+  // round's quarter-point inserts), the arch-portal boundary, G0 → G0b → Gj → Gjb → G1 →
+  // G1b → G2 (the 2026-11-16 re-choreography), the gallery-airlock boundary, J0 → J1b →
+  // J2b → J4 — every stop of the phase observed landed.
   for (const stop of [
     'S0b',
     'Sh',
@@ -479,7 +482,9 @@ test('keyboard walk: every stop reachable, reduced-motion cuts', async ({ page }
     'G0',
     'G0b',
     'Gj',
+    'Gjb',
     'G1',
+    'G1b',
     'G2',
     'J0',
     'J1',
@@ -531,9 +536,11 @@ test('keyboard walk: every stop reachable, reduced-motion cuts', async ({ page }
     'J1',
     'J0',
     'G2',
+    'G1b', // the 2026-11-16 re-choreography: the backward gallery walk passes both rests home
     'G1',
+    'Gjb',
     'Gj',
-    'G0b', // the owner's 2026-11-14 walk tweak: the backward gallery walk passes the insert home
+    'G0b',
     'G0',
     'S1',
     'Shb', // the 2026-11-12/13 stops round: the backward square walk passes both inserts home
