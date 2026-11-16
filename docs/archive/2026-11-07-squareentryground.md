@@ -196,6 +196,8 @@ Successors named (ROADMAP): stylobate / lanterns / massings / strip / sheen. Cla
 
 ## Mentioned elsewhere
 
+From the budget ledger's square-entry-ground row: the branch build 284,007 of 350,000, +1,493; headroom to the 285,707 ceiling 1,700 — the row declared +2,000 B gz.
+
 None at the pin. The class-I winter-lane fact fed the square-palace round (own archive).
 
 ## Sources

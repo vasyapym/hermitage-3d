@@ -43,6 +43,8 @@ Record note: at the pin the row's Outcome cell still carried the pre-flip OPEN t
 
 ## Mentioned elsewhere
 
+From the budget ledger's movement-ux row (the arrows-mechanism round, MERGED 2026-11-09/10): the branch measure JS 284,726 of 350,000, +685 over the 284,041 base, headroom ≈ 981; RU 7,331 the toolchain's rounding; vitest 1075 passed / 1 skipped, 63 files incl. the 20-row rail-walk battery.
+
 The docs/STATE.md PARALLEL bullet and the docs/budget-ledger.md reservation row (+1,000 B gz request, DEC parked) are cited by the row; their text is not in this batch's excerpt.
 
 ## Sources
