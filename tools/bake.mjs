@@ -246,6 +246,9 @@ function record(state, result, artifacts, blenderVersion, mod) {
   // (jordan's rig + the builder's cells.json; absent rows on the siblings' paths).
   if (summary.rig !== null && summary.rig !== undefined) row.rig = summary.rig;
   if (summary.cellsSha256) row.cellsSha256 = summary.cellsSha256;
+  // The bands round: per-group representative picks; absent on every room whose bake
+  // emits no multi-instance centroid groups (the sibling byte-stability law).
+  if (summary.reps) row.reps = summary.reps;
   if (mod.LM_ENCODE?.mode === 'percentile') {
     row.encode = plantEncode(mod, state, summary); // the D2 retired whitePoint row's +1
   }
