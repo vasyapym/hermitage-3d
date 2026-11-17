@@ -11,12 +11,13 @@
  * entry frame); G0b, mid-passage, turns toward the lit mouth — GALLERY_MOUTH by reference: the
  * head pre-turns toward the light before the corner (22° of the passage's 83° turn), so
  * G0→G0b pans 22° right and settles level, and G0b→Gj carries the remaining 61° onto the door,
- * flat. Gj and every stop east of it (Gjb, G1, G1b, G2) share the east door's opening centre
+ * flat. Gj and every stop east of it (Gjb, G1, G2) share the east door's opening centre
  * at eye height, so Gj→…→G2 is one locked dolly onto the door's light; from G1 that direction
  * is exactly (1, 0, 0) — the three G1 goldens hold. G2 stands 3 m off the door so the portal
- * frame reads as architecture. Seven stops since the 2026-11-16 walk re-choreography (the
- * creative's decision + spec, vault projects hermitage-3d-2026-11-16 brief 1): the two axis
- * rests reinstated because the per-gap walk law makes an unsplit 22.4 m leg run 14.9 m/s.
+ * frame reads as architecture. Six stops since the 2026-11-17 walk re-tune (the rg-move
+ * lane): the axis rest G1b retired — the corridor reads as three beats (11.2 / 11.2 / 16.5 m;
+ * the G1→G2 approach absorbed by G2's 3 m architectural halt), the owner's «too much of
+ * stopping points» answered; Gjb stands (the Gj→G1 midpoint, 7.5 m/s).
  * Every position and subject below is declared from the build constants
  * (tools/bpy/rastrelli-gallery.py) and framed by capture at integration.
  */
@@ -96,15 +97,6 @@ export const contract: RoomContract = {
         subject: EAST_DOOR,
         look: { yaw: 30, pitchUp: 15, pitchDown: 15 },
         caption: 'caption.g1',
-      },
-      {
-        // 2026-11-16 re-choreography: an axis rest on the EAST_DOOR lock at the G1→G2
-        // midpoint; the same law as Gjb — the rest halves the leg's pace (11.0 → 5.5 m/s).
-        id: 'G1b',
-        position: [32.25, 1.7, 73],
-        subject: EAST_DOOR,
-        look: { yaw: 30, pitchUp: 15, pitchDown: 15 },
-        caption: 'caption.g1b',
       },
       {
         // 3 m off the opening: depart travels 1.5 m and halts 1.5 m short of the portal plane.

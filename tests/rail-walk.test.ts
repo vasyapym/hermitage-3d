@@ -12,7 +12,7 @@ import { describe, expect, it } from 'vitest';
 import {
   advance,
   committedTarget,
-  LOOK_LEAD,
+  LOOK_LAG,
   moving,
   type RailState,
   REDUCED_DWELL_MS,
@@ -89,16 +89,17 @@ const runRest = (rail: Rail, s: RailState, cadence: readonly number[] = [FRAME])
 };
 
 describe('the declared pacing constants (the walk law’s own exports)', () => {
-  it('pins the six declared values and the gaze lead, once', () => {
+  it('pins the six declared values and the gaze lag, once', () => {
     expect(WALK_CRUISE_MS).toBe(1500);
     expect(WALK_ACCEL_MS).toBe(420);
     expect(WALK_BRAKE_MS).toBe(700);
     expect(WALK_LEASE_MS).toBe(600);
     expect(WALK_HOLD_MS).toBe(300);
     expect(REDUCED_DWELL_MS).toBe(600);
-    // B9b (the 2026-11-16 re-choreography): the gaze lead fraction — the look completes
-    // its arc at 80 % of the anchor's remaining segment and rests while the body brakes in.
-    expect(LOOK_LEAD).toBe(0.8);
+    // B9c (2026-11-17, the rg-move lane; supersedes B9b's LOOK_LEAD): the gaze lag
+    // fraction — the look holds the anchor's aim across the first 20 % of the anchor's
+    // remaining segment and plays its whole arc across the last 80 %, landing with the body.
+    expect(LOOK_LAG).toBe(0.8);
   });
 });
 

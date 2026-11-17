@@ -19,29 +19,37 @@
  *   world-space point) looks at it; a stop without one looks at stop i + 1, the last looks back
  *   at i − 1. At t = 0 / t = 1 the target IS the committed object, so never-dragged stop poses
  *   stay bit-identical to the data (the golden fence).
- * - Gaze between stops (B9, supersedes R19-ux C's departure turn): between two stops the base
- *   gaze travels exactly the arc between their two committed framings and nothing else — the
- * - Gaze between stops (B9, supersedes R19-ux C's departure turn): between two stops the base
- *   gaze travels exactly the arc between their two committed framings and nothing else — the
- *   source aim frozen at the segment's anchor (the departure stop's committed framing, or the
- *   look in force — B10), the destination aim frozen at the destination eye, yaw on the
- *   shortest arc, pitch linear, one weight: the distance fraction covered of the anchor's
- *   remaining segment, reshaped by the lead (B9b, 2026-11-16): w = smoothstep(min(1, wd /
- *   LOOK_LEAD)), LOOK_LEAD 0.8 — the look completes its arc at 80 % of the segment and rests
- *   on the destination framing while the body brakes in. The look therefore turns with the
- *   travel (starts and peaks with the position; stops with the travel up to the lead, then
- *   the body settles under a landed look; never turns faster per unit of rail than 1.875 ×
- *   the segment's own average — the smoothstep peak over the lead span) and no held point's
- *   parallax reaches the gaze. The pass-through rate kink is closed by construction FOR THE
- *   NONLOCKED BLENDS: at every stop whose segments blend angularly the gaze-turn rate is
- *   zero on both sides (w flat at 0 and at 1 across each stop's neighbourhood). A locked
- *   dolly keeps its held-point parallax — the locked branch bypasses the angular blend, so a
- *   transverse eye motion still rotates the gaze direction (the gallery's corridor dollies
- *   point along their travel axis and carry none). Equal source/destination points remain a
- *   locked dolly for the whole
- *   segment (the point is held). There is no turn span, no reference widening and no
- *   near-field exemption — the former exemption's distance weight is now the rule for every
- *   segment.
+ * - Gaze between stops (B9, supersedes R19-ux C's departure turn; phasing amended by B9c,
+ *   2026-11-17, which supersedes B9b's lead): between two stops the base gaze travels exactly
+ *   the arc between their two committed framings and nothing else — the source aim frozen at
+ *   the segment's anchor (the departure stop's committed framing, or the look in force — B10),
+ *   the destination aim frozen at the destination eye, yaw on the shortest arc, pitch linear,
+ *   one weight: the distance fraction covered of the anchor's remaining segment, reshaped by
+ *   the lag (B9c): w = smoothstep(max(0, 1 − (1 − wd) / LOOK_LAG)), LOOK_LAG 0.8 — the look
+ *   HOLDS the anchor's aim across the first 1 − LOOK_LAG of the segment (the body departs
+ *   under the look it left with) and plays its whole arc across the last LOOK_LAG, landing on
+ *   the destination framing exactly at the stop (w = 1 at wd = 1 by construction — the
+ *   fence). The look therefore trails the travel (the position starts first; the look starts
+ *   at 20 % of the segment, peaks at 60 % and comes to rest with the body — never faster per
+ *   unit of rail than 1.875 × the segment's own average, the smoothstep peak over the lag
+ *   span) and no held point's parallax reaches the gaze. B10 rules the arc's SOURCE (where it
+ *   starts — the look in force at the anchor, offset absorbed in the same frame); B9c rules
+ *   its WEIGHT (when it plays); they compose, and every arrival lands on the author's frame
+ *   exactly. The pass-through rate kink is closed by construction FOR THE NONLOCKED BLENDS:
+ *   at every stop whose segments blend angularly the gaze-turn rate is zero on both sides (w
+ *   rests at 0 across the outgoing segment's first 1 − LOOK_LAG; w arrives at 1 with zero
+ *   slope on the incoming side). A locked dolly keeps its held-point parallax — the locked
+ *   branch bypasses the angular blend, so a transverse eye motion still rotates the gaze
+ *   direction (the gallery's corridor dollies point along their travel axis and carry none).
+ *   Equal source/destination points remain a locked dolly for the whole segment (the point
+ *   is held). There is no turn span, no reference widening and no near-field exemption — the
+ *   former exemption's distance weight is now the rule for every segment. The law is
+ *   position-only: the rotation cannot outlast the body (both rest at wd = 1); a rotation that
+ *   settles AFTER the body is a clock law, deliberately not taken (B9d, docs §8). Capture
+ *   safety is by absence: there is NO post-arrival settle, so a capture taken AFTER ARRIVAL
+ *   reads the committed rest pose (w = 1 at wd = 1 exactly — the roomReady hold + the 300 ms
+ *   margin stay the harness's explicit arrival prerequisite; a capture taken MID-SEGMENT
+ *   reads an intermediate pose, as the position law intends).
  *   Partial intents and retargets use this same position-only law, not a separate wall clock.
  *   Reversals re-anchor at the look in force and retrace it; pass-through stops are met on
  *   their committed framings. Stops retain their exact committed targets and position objects.
@@ -179,7 +187,11 @@ export const WALK_BRAKE_MS = 700; // the cruise → rest ramp; an early brake us
 export const WALK_LEASE_MS = 600; // a tap's intent grace — taps ≤ this far apart never brake
 export const WALK_HOLD_MS = 300; // held duration at release that a HOLD needs (intent ends now)
 export const REDUCED_DWELL_MS = 600; // the reduced-motion cut cooldown (one cut ≈ 1.7/s)
-export const LOOK_LEAD = 0.8; // B9b: the base gaze (and its limits) completes the segment's arc at this fraction of the anchor's remaining segment; the body brakes in under a landed look
+/** B9c (2026-11-17, supersedes B9b's LOOK_LEAD): the gaze plays its whole arc across the LAST
+ * LOOK_LAG of the anchor's remaining segment and holds the anchor's aim before it. Bounded dial,
+ * 0 < LOOK_LAG ≤ 1: 1 = smoothstep over the whole segment (no hold); the trail strengthens as it
+ * falls. The end beat does not move with the dial (a position law rests with the body). */
+export const LOOK_LAG = 0.8;
 
 const STOP_EPS = 1e-9;
 const KNOT_EPS = 1e-6;
@@ -286,7 +298,8 @@ type TurnFrame = Readonly<{
 /** B9: the segment frame at k. `a` is the departure stop's committed aim or the look in force
  * at a reversal; `D` is the destination's committed target on either heading; `w` is the
  * distance fraction of the anchor's remaining segment — the one weight for gaze and limits, so
- * the look turns with the travel, never ahead of it and never after it. */
+ * the look turns with the travel — trailing it (B9c), never ahead of it; a position law rests
+ * with the body, never after it. */
 function turnFrame(rail: Rail, k: number, heading: Heading, anchor: LookAnchor | null): TurnFrame {
   const i = Math.floor(k);
   const dest = heading > 0 ? i + 1 : i;
@@ -301,11 +314,12 @@ function turnFrame(rail: Rail, k: number, heading: Heading, anchor: LookAnchor |
         };
   const remaining = Math.abs(dest - a.u0);
   const wd = remaining > 0 ? Math.min(1, Math.abs(k - a.u0) / remaining) : 1;
-  // B9b: the lead — the gaze completes its arc at LOOK_LEAD of the remaining segment and
-  // rests on the destination framing after it; smoothstep keeps the gaze-turn rate zero at
-  // both ends (departure and lead point), so pass-through stops are met with a continuous
-  // (zero) rate and the body brakes in under a landed look.
-  const w = smoothstep(Math.min(1, wd / LOOK_LEAD));
+  // B9c: the lag — the look holds the anchor's aim across the first 1 − LOOK_LAG of the
+  // remaining segment and plays its arc across the last LOOK_LAG. Written as 1 − (1 − wd) /
+  // LOOK_LAG so wd = 1 maps to exactly 1 for ANY value of the dial (the fence); smoothstep's
+  // zero end slopes keep the gaze-turn rate zero where the hold ends and at the stop, so
+  // pass-through stops are met with a continuous (zero) rate.
+  const w = smoothstep(Math.max(0, 1 - (1 - wd) / LOOK_LAG));
   return { a, dest, D: committedTarget(rail, dest), w };
 }
 

@@ -72,14 +72,14 @@ export const en = {
   'caption.shb': 'the arch ahead',
   'caption.g0': 'dark; the square behind',
   // The 2026-11-16 walk re-choreography (brief 1): G0b re-authors onto the lit mouth
-  // (GALLERY_MOUTH), and the two axis rests Gjb/G1b rejoin the corridor's EAST_DOOR lock.
+  // (GALLERY_MOUTH), and the axis rest Gjb rejoins the corridor's EAST_DOOR lock (the
+  // 2026-11-17 walk re-tune retires G1b).
   'caption.g0b':
     'Mid-passage. The gallery\u2019s light spills through the arch on the right; ' +
     'the junction lies ahead.',
   'caption.gj': 'The turn east: pilaster after pilaster, forty metres to the far door.',
   'caption.gjb': 'Inside the gallery. The vault runs level to the east door and its light.',
   'caption.g1': 'compression',
-  'caption.g1b': 'The door nears. Beyond it, the Jordan Staircase.',
   'caption.g2': 'the door (airlock)',
   'caption.m0': 'The threshold: the long view south, to the portraits of the heroes of 1812.',
   'caption.m1': 'The west wall — a block of portraits in gilt frames.',
