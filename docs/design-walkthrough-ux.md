@@ -323,13 +323,17 @@ are untouched; an arrive never reads the tangent.
 
 - A **junction stop** where the arch passage meets the gallery axis (near
   (1.5–2, 1.7, 73); gaze east down the gallery toward the east door's light) —
-  four stops; the G0→G1 wall-pass disappears (five since the 2026-11-12/13
-  stops round and the owner's 2026-11-14 walk steer: that round's two axis
-  inserts Gjb/G1b retired, one entry-leg insert G0b added at the G0→Gj
-  diagonal's midpoint — the passage leg the round left deliberately unsplit;
-  G0b keeps the JUNCTION lock). The G0 gaze re-authors as «down the
-  passage toward the lit junction»; G2 (the door) gets an authored subject (the
-  door's light) replacing the look-back law there; G1 keeps the lock-on east.
+  four stops; the G0→G1 wall-pass disappears (seven since the 2026-11-16 walk
+  re-choreography: the 2026-11-12/13 stops round added G0b and two axis inserts
+  Gjb/G1b; the owner's 2026-11-14 steer retired those two and kept G0b at the G0→Gj
+  diagonal's midpoint; the owner's 2026-11-16 feel report re-opened the trade — the
+  per-gap pace law makes the unsplit 22.4 m leg run 14.9 m/s — so Gjb/G1b are
+  reinstated as axis rests on the EAST_DOOR lock, speed for sameness, and G0b's
+  subject is re-authored from JUNCTION to GALLERY_MOUTH: the head pre-turns toward
+  the light before the corner). The G0 gaze stays «down the
+  passage toward the lit junction» (the vault leads the entry frame, its 3.06°
+  fence untouched); G2 (the door) keeps its authored subject (the
+  door's light); G1 keeps the lock-on east, gaze exactly (1, 0, 0).
 - The end-phantoms adjudication does NOT reopen: these are stops with captions,
   not helpers.
 
@@ -369,22 +373,38 @@ pick destinations; the wheel's travel (and its sustained-scroll boundary pass) i
 - Reduced motion: a fresh press edge cuts to the next stop under REDUCED_DWELL_MS 600 (a
   press during the dwell is dropped, repeats are ignored; the boundary is checked before
   the dwell — a door press opens even inside it).
-- The B9 gaze law below is UNCHANGED (position-only): the walk re-times u, not the look;
+- The B9 gaze law below is position-only (the walk re-times u, not the look);
   pass-through stops are met on their committed framings and the arrival poses stay exact
-  (the golden fence holds by construction). Known consequence, accepted: cruising through
-  a stop makes the gaze-turn RATE discontinuous there — today's zero-speed arrivals hid
-  the kink; review at capture.
+  (the golden fence holds by construction). B9b (2026-11-16, the rg-walk-tune round)
+  reshapes the ONE weight: w = smoothstep(min(1, wd / LOOK_LEAD)), LOOK_LEAD 0.8 — the
+  base gaze completes its arc at 80 % of the anchor's remaining segment and rests on the
+  destination framing while the body brakes in (on an isolated tap the look lands at
+  ≈ 1.41 s and the body rests at 2.06 s — the look leads the stop by ≈ 0.65 s). Still no
+  clock and no RailState field. The formerly accepted pass-through consequence
+  («cruising through a stop makes the gaze-turn RATE discontinuous there») is CLOSED by
+  construction FOR THE NONLOCKED BLENDS: at every stop whose segments blend angularly the
+  gaze-turn rate is zero on both sides of the stop. A locked dolly keeps its held-point
+  parallax (the locked branch bypasses the angular blend; a transverse eye motion still
+  rotates the gaze direction) — the gallery's axis-aligned corridor dollies carry none.
 - **Gaze law (B9, supersedes R19-ux C's departure turn)**: authored SUBJECTS and the
   subjectless next/back fallback remain unchanged; stop poses remain bit-identical. Between
   two stops the base gaze travels the arc between their two committed framings and nothing
   else: the source aim is frozen at the departure eye (or at the look in force at a
   reversal), the destination aim is frozen at the destination eye, yaw takes the shortest
   arc and pitch blends linearly, both with one weight — the distance fraction covered of
-  the anchor's remaining segment. The look therefore turns with the travel: it starts and
-  stops with the position, never turns faster per unit of rail than the segment's own
-  average, and no held point's parallax reaches the gaze. The base gaze is a function of
-  rail position alone: Forward and Back, walks, partial intents, retargets
-  and reversals read the same look at the same point; pass-through stops are met on their
+  the anchor's remaining segment, reshaped by the lead (B9b, 2026-11-16): the look
+  completes its arc at LOOK_LEAD 0.8 of the remaining segment and rests on the destination
+  framing while the body brakes in (on an isolated tap the look lands at ≈ 1.41 s, the
+  body rests at 2.06 s). The look therefore turns with the travel: it starts with the
+  position and stops with the travel up to the lead, then the body settles under a landed
+  look, never turning faster per unit of rail than 1.875 × the segment's own average (the
+  smoothstep peak over the lead span), and no held point's parallax reaches the gaze. The base gaze is a function of
+  rail position, heading and the active anchor alone — no independent clock: within one
+  anchored segment, Forward and Back, walks, partial intents, retargets
+  and reversals read the same look at the same point; a fresh opposite heading anchors at
+  its own origin and reads its own shape (the lead made the fresh-heading shapes differ —
+  the linear law's cross-heading point-equality is retired intentionally, 2026-11-16);
+  pass-through stops are met on their
   committed poses. Equal source and destination points remain a locked dolly throughout
   (the point is held). There is no turn span, no TURN_REF_DEG widening and no near-field
   exemption: the former exemption's distance weight is now the rule. An APPROACH point
@@ -412,8 +432,11 @@ pick destinations; the wheel's travel (and its sustained-scroll boundary pass) i
   2026-11-02: press 4 locks onto J2's framing — the old upper-window glance into the north
   wall retired); J3/J4 → EAST_PORTAL
   (locked approach). Local presses from J0 land at J1, J1b, J2, J2b, J3, J4. The sconce
-  and window are intentional subjects, not random samples. Corridor: G0/G0b → JUNCTION;
-  Gj/G1/G2 → EAST_DOOR; GALLERY_MOUTH stays recorded as Gj's approach on the committed ray
+  and window are intentional subjects, not random samples. Corridor (re-authored
+  2026-11-16): G0 → JUNCTION (the vault leads the entry frame); G0b → GALLERY_MOUTH (the
+  head pre-turns toward the light before the corner); Gj/Gjb/G1/G1b/G2 → EAST_DOOR (one
+  locked dolly onto the door's light; Gjb/G1b are the 2026-11-16 axis rests for the pace);
+  GALLERY_MOUTH stays recorded as Gj's approach on the committed ray
   and, under B9, no longer steers the Forward glide.
 - Look limits (B9): the gaze's distance weight blends departure rows (or the rows at a
   reversal) into destination rows over the whole remaining segment. Limits are manual offsets around the

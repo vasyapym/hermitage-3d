@@ -31,8 +31,8 @@ const SLUGS: Readonly<Record<string, string>> = {
 // rooms/*/contract.ts). The digit suffix alone is NOT an order: 'Gj' carries none and
 // 'J1b'/'J2b' trail a letter, so the walk assertions read this map instead of a regex.
 // The 2026-11-12/13 stops round: S0b/Shb (the square's quarter-point inserts) join their
-// room's walk order; the owner's 2026-11-14 walk tweak adds the gallery's G0b (the entry-leg
-// insert) and retires that round's Gjb/G1b.
+// room's walk order; the 2026-11-16 walk re-choreography keeps the gallery's G0b (the
+// entry-leg insert, on the re-authored mouth subject) and reinstates that round's Gjb/G1b.
 const STOPS: Record<string, number> = {
   S0: 0,
   S0b: 1, // the 2026-11-12/13 stops round: the first quarter-point insert
@@ -40,10 +40,12 @@ const STOPS: Record<string, number> = {
   Shb: 3, // the round's second quarter-point insert
   S1: 4,
   G0: 0,
-  G0b: 1, // the owner's 2026-11-14 walk tweak: the entry-leg insert
+  G0b: 1, // the 2026-11-14 entry-leg insert, re-authored by the 2026-11-16 re-choreography
   Gj: 2, // the corner stop (the §8 stop table)
-  G1: 3,
-  G2: 4,
+  Gjb: 3, // the 2026-11-16 re-choreography: the reinstated axis rest at the Gj→G1 midpoint
+  G1: 4,
+  G1b: 5, // the reinstated axis rest at the G1→G2 midpoint
+  G2: 6,
   J0: 0,
   J1: 1,
   J1b: 2,

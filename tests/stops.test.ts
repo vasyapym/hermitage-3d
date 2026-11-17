@@ -16,7 +16,7 @@
 import { describe, expect, it } from 'vitest';
 import { contract as contract1812 } from '../rooms/1812/contract';
 import { contract as jordanContract } from '../rooms/jordan/contract';
-import { contract as galleryContract } from '../rooms/rastrelli-gallery/contract';
+import { GALLERY_MOUTH, contract as galleryContract } from '../rooms/rastrelli-gallery/contract';
 import { restingAt, samplePose, samplePosition, stopParameter } from '../src/camera/rail';
 import {
   SQUARE_RAIL,
@@ -202,26 +202,53 @@ describe('jordan stops (R-UX5 §8: feet on treads)', () => {
 });
 
 describe('gallery stops (R-UX5 §7: the junction)', () => {
-  it('walks G0 → G0b → Gj → G1 → G2', () => {
+  it('walks G0 → G0b → Gj → Gjb → G1 → G1b → G2', () => {
     // The 2026-11-12/13 stops round added two axis inserts; the owner's 2026-11-14 steer
-    // reverses the gallery half: Gjb/G1b retire, one insert lands inside the entry leg.
-    // Gj keeps the corner flag and the mouth approach, the passage chord now carries G0b
-    // at its midpoint, G2's depart is untouched.
-    expect(GALLERY.stops.map((s) => s.id)).toEqual(['G0', 'G0b', 'Gj', 'G1', 'G2']);
+    // retired them and added one entry-leg insert; the 2026-11-16 walk re-choreography
+    // (brief 1) reinstates the two axis rests Gjb/G1b — seven stops: the per-gap walk law
+    // makes an unsplit 22.4 m leg run 14.9 m/s. Gj keeps the corner flag and the mouth
+    // approach, G0b keeps its chord position with the re-authored mouth subject.
+    expect(GALLERY.stops.map((s) => s.id)).toEqual(['G0', 'G0b', 'Gj', 'Gjb', 'G1', 'G1b', 'G2']);
   });
-  it('carries the owner’s 2026-11-14 insert: the entry diagonal’s midpoint on the JUNCTION lock', () => {
+  it('carries the 2026-11-14 insert re-authored by the 2026-11-16 re-choreography: the mid-passage rest on the GALLERY_MOUTH lock', () => {
     const g0b = GALLERY.stops[1];
     if (!g0b) throw new Error('G0b missing');
     expect(g0b.position).toEqual([0.8, 1.7, 79.5]); // the exact G0→Gj midpoint
-    // The subject is the JUNCTION const by reference — the equal-subjects lock makes
-    // G0→G0b one locked dolly onto the lit junction.
-    expect(g0b.subject).toBe(GALLERY.stops[0]?.subject);
+    // The subject is the GALLERY_MOUTH const by reference — the head pre-turns toward the
+    // light before the corner: G0→G0b pans 22° right onto the mouth and settles level
+    // (3.06° → 0°), so G0b is NOT on G0's JUNCTION lock anymore.
+    expect(g0b.subject).toBe(GALLERY_MOUTH);
+    expect(g0b.subject).not.toBe(GALLERY.stops[0]?.subject);
     // No corner/approach: a straight run; the R18-ux D3 law stays Gj's.
     expect(g0b.corner).toBeUndefined();
     expect(g0b.approach).toBeUndefined();
     expect(g0b.look).toEqual({ yaw: 30, pitchUp: 15, pitchDown: 15 }); // Gj's rows verbatim
     // The key is pinned exactly (the Sol review: the t() fallback would mask a MISSING caption).
     expect(g0b.caption).toBe('caption.g0b');
+  });
+  it('carries the 2026-11-16 axis rests: the two reinstated corridor inserts on the EAST_DOOR lock', () => {
+    // Gjb [12.8, 1.7, 73] and G1b [32.25, 1.7, 73] sit at the Gj→G1 and G1→G2 midpoints;
+    // each rest halves its leg's pace (14.9 → 7.5 / 11.0 → 5.5 m/s). The subject is Gj's
+    // EAST_DOOR by reference — the equal-subjects lock makes Gj→…→G2 one locked dolly.
+    const gj = GALLERY.stops[2];
+    if (!gj) throw new Error('Gj missing');
+    const gjb = GALLERY.stops[3];
+    if (!gjb) throw new Error('Gjb missing');
+    const g1b = GALLERY.stops[5];
+    if (!g1b) throw new Error('G1b missing');
+    expect(gjb.position).toEqual([12.8, 1.7, 73]);
+    expect(g1b.position).toEqual([32.25, 1.7, 73]);
+    expect(gjb.subject).toBe(gj.subject);
+    expect(g1b.subject).toBe(gj.subject);
+    expect(gjb.look).toEqual({ yaw: 30, pitchUp: 15, pitchDown: 15 });
+    expect(g1b.look).toEqual({ yaw: 30, pitchUp: 15, pitchDown: 15 });
+    expect(gjb.corner).toBeUndefined();
+    expect(gjb.approach).toBeUndefined();
+    expect(g1b.corner).toBeUndefined();
+    expect(g1b.approach).toBeUndefined();
+    // The keys are pinned exactly (the Sol review: the t() fallback would mask a MISSING caption).
+    expect(gjb.caption).toBe('caption.gjb');
+    expect(g1b.caption).toBe('caption.g1b');
   });
   it('never passes through geometry: every sampled frame inside the passage or the gallery', () => {
     eachSample(GALLERY, (u, segment) => {

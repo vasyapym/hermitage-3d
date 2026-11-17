@@ -23,10 +23,19 @@
  *   gaze travels exactly the arc between their two committed framings and nothing else — the
  *   source aim frozen at the departure eye (or at the look in force at a reversal), the
  *   destination aim frozen at the destination eye, yaw on the shortest arc, pitch linear, one
- *   weight: the distance fraction covered of the anchor's remaining segment. The look
- *   therefore turns with the travel (starts, peaks and stops with the position; never turns
- *   faster per unit of rail than the segment's own average) and no held point's parallax
- *   reaches the gaze. Equal source/destination points remain a locked dolly for the whole
+ *   weight: the distance fraction covered of the anchor's remaining segment, reshaped by the
+ *   lead (B9b, 2026-11-16): w = smoothstep(min(1, wd / LOOK_LEAD)), LOOK_LEAD 0.8 — the look
+ *   completes its arc at 80 % of the segment and rests on the destination framing while the
+ *   body brakes in. The look therefore turns with the travel (starts and peaks with the
+ *   position; stops with the travel up to the lead, then the body settles under a landed
+ *   look; never turns faster per unit of rail than 1.875 × the segment's own average — the
+ *   smoothstep peak over the lead span) and no held point's parallax reaches the gaze. The
+ *   pass-through rate kink is closed by construction FOR THE NONLOCKED BLENDS: at every stop
+ *   whose segments blend angularly the gaze-turn rate is zero on both sides (w flat at 0 and
+ *   at 1 across each stop's neighbourhood). A locked dolly keeps its held-point parallax —
+ *   the locked branch bypasses the angular blend, so a transverse eye motion still rotates
+ *   the gaze direction (the gallery's corridor dollies point along their travel axis and
+ *   carry none). Equal source/destination points remain a locked dolly for the whole
  *   segment (the point is held). There is no turn span, no reference widening and no
  *   near-field exemption — the former exemption's distance weight is now the rule for every
  *   segment.
@@ -145,6 +154,7 @@ export const WALK_BRAKE_MS = 700; // the cruise → rest ramp; an early brake us
 export const WALK_LEASE_MS = 600; // a tap's intent grace — taps ≤ this far apart never brake
 export const WALK_HOLD_MS = 300; // held duration at release that a HOLD needs (intent ends now)
 export const REDUCED_DWELL_MS = 600; // the reduced-motion cut cooldown (one cut ≈ 1.7/s)
+export const LOOK_LEAD = 0.8; // B9b: the base gaze (and its limits) completes the segment's arc at this fraction of the anchor's remaining segment; the body brakes in under a landed look
 
 const STOP_EPS = 1e-9;
 const KNOT_EPS = 1e-6;
@@ -251,7 +261,12 @@ function turnFrame(rail: Rail, k: number, heading: Heading, anchor: LookAnchor |
           limits: stopAt(rail, orig).look,
         };
   const remaining = Math.abs(dest - a.u0);
-  const w = remaining > 0 ? Math.min(1, Math.abs(k - a.u0) / remaining) : 1;
+  const wd = remaining > 0 ? Math.min(1, Math.abs(k - a.u0) / remaining) : 1;
+  // B9b: the lead — the gaze completes its arc at LOOK_LEAD of the remaining segment and
+  // rests on the destination framing after it; smoothstep keeps the gaze-turn rate zero at
+  // both ends (departure and lead point), so pass-through stops are met with a continuous
+  // (zero) rate and the body brakes in under a landed look.
+  const w = smoothstep(Math.min(1, wd / LOOK_LEAD));
   return { a, dest, D: committedTarget(rail, dest), w };
 }
 
