@@ -1,27 +1,30 @@
 # square-forward-gaze — the Palace Square's drag + Forward gaze feel
-Opened 2026-11-16 · Landed n/r · Merged n/r (n/r — pending; worktree merge + FULL e2e/golden gate at the owner's signal) · slot n/r · briefs 1 · vault 03_projects/hermitage-3d-2026-11-16 · DEC-ids: none owned yet
+Opened 2026-11-16 · Landed 2026-11-17 · Merged 2026-11-17 (the wave's slot 4/4 — the LAST merging session; the FULL e2e/golden gate + the CI verdict + the wave's due re-baselines = this session's battery) · branch square-forward-gaze (rebased onto the rg-walk-tune merge `18d78f5` before landing) · briefs 1, 2 · vault 03_projects/hermitage-3d-2026-11-16 · DEC-046
 ## Ask
-The owner's drag+Forward feel item: at S0 a manual look + Forward pans ≈48° right onto the Column (the B9 arc to S0b's pedestal framing; the manual offset composes on top, never reset). The creative rules the transit-gaze law (remove / damp / other). Status at pin: OPEN, PARALLEL (branch square-forward-gaze off main, scope-local gates).
+The owner's drag+Forward feel item (2026-11-16, verbatim in the round brief): at S0 a manual look + Forward pans ≈48° right onto the Column (the B9 arc to S0b's pedestal framing; the manual offset composes on top, never reset) — expected but unintuitive. The owner floated «let's remove looking around to the monument when you click Forward» and «make the rotation not so big (or that, too, confuse users)?» and gave the decision to the creative.
 ## Relay shape
-
-Brief 1 = the decision brief (the placeholder stub placed by the rg-walk-tune merging session 2026-11-17 so main's records-check resolves the row's pointer; the lane's session owns this archive's content and rewrites it at its own flips).
-
+Brief 1 (Fable 5.1, the decision draw): VERDICT — neither floated direction as written: **B10, the departure absorbs the look** (the adopted law; the reply carried the law text + the integration plan).
+Integration (the orchestrator, verified against the code first): `composeAim` — the unit bridge (the rail's radian angles + the degree look offsets, x + 0 exact in IEEE — the golden fence's bit-identity lever) · `lookAnchor` — the composed anchor (a zero offset hands the committed target back bit-exact) · the t=0/t=1 consult in samplePose (an absorbed look renders as the base aim at the departure/arrival frames — no jump) · `anchorApplies` widened to the leg's [u0, dest] interval (a backward stop-departure's anchor expired under the old floor test at its first step) · the absorption at the three sites (the rest departure, the reduced cut, the turnaround) · the press path and the host composition untouched (zero bytes in main.ts).
+Review pass (Sol 6.1, brief 2, score 7/10): 1 fixed (the census enumerated BOTH departure directions per leg and was re-labelled a stop-departure maximum — turnaround coverage explicitly separate), 1 declined (the t=0/t=1 stale-anchor sequence — not reachable: the anchor lifecycle clears at every leg boundary; a zero-offset anchor's point IS the committed target so the point-equality gate cannot mis-frame), 2 deferred (the FULL gate = this merge; a browser drag-then-press row on the owner's word).
+Reconciliation (the wave's slot 4/4): rebased onto the rg-walk-tune merge — **B9b the look leads (LOOK_LEAD 0.8)** reshapes the arc's weight while B10 re-anchors its source; the reversal row's atInstant expectation rebuilt on the FORWARD base in force at the turnaround (the departure anchor literally) — B9b retired the cross-heading field symmetry by design (their 2a review); the census re-measured on the reconciled rails.
 ## Verdicts
-
-n/r (pending).
-
-## Measured
-
-n/r.
-
+### DEC-046 — B10 (the compact row lives in docs/decisions.md; this archive holds the law's full statement)
+THE LAW (B10, amending B9's anchor clause and the re-clamp sentence): at every anchor the press path creates — a press from rest (at a stop or mid-segment) and a reversal's turnaround — the arc's source aim freezes at the LOOK IN FORCE: the base gaze composed with the user's offset (additive: the rail's radian yaw/pitch plus the degree look, the exact rendered direction), and the offset is ABSORBED — both look fields (the eased current and the drag target) return to zero in the same frame, so the view does not jump. The arc then runs from where the visitor looks to the destination's committed framing (under B9b's lead weight), and every arrival is the author's frame exactly — the S0b monument pause lands on the pedestal whatever was dragged. A never-dragged walk is bit-identical in every sample: offset 0 ⇒ source = the committed framing. Drags made while walking ride on top, re-clamped by the rows in force, and are absorbed at the next anchor; pass-through stops and mid-walk presses neither anchor nor absorb. Reduced motion's cut absorbs at the same press edge — the cut lands on the destination's committed pose exactly (§8's promise made true for the rendered view). Within an anchor the base gaze stays a function of rail position (B9b's lead is position-derived); the anchor's frozen source is the one history the law carries — B9 already carried it at reversals.
+THE INTERPLAY (B9b × B10). The two laws compose orthogonally: B10 owns the arc's SOURCE (the look in force at the anchor), B9b owns its WEIGHT (the lead — the look completes the arc at 80 % of the segment). No jump holds at w = 0 under both. The field is NOT cross-heading symmetric under the lead (retired intentionally by rg-walk-tune's 2a review) — a reversal's frozen source is the forward leg's rendered look, and the backward leg then leads its own way home to the author's frame.
+THE CENSUS. The absorbed-look realized turn is the angle between the visitor's look and the author's next frame; the head law's MAX_SWING_DEG 90 governs the DEFAULT gaze and has no absorbed-look universal bound. The census row (tests/rail-anchor.test.ts) records each rail's stop-departure worst over BOTH directions of every leg: square 90.7° (S0's full down-left look at the S0→S0b pan) · gallery 91.0° (stop 1→2, on rg-walk-tune's seven-stop rail) · jordan 84.1° (5→4) · 1812 141.7° (3→4, the ±90 rows). Turnaround anchors are a separate surface the owner's-eye probes cover.
+## Measured — every budget line as stated at each flip
+2026-11-17 branch probe (pre-rebase): JS 285,797 (+168 on 285,629) · RU/payload/draws/tris +0 · validate GREEN.
+2026-11-17 reconciled tree (the merge's measurement): JS **286,053** = 285,892 (rg-walk-tune) + 161 · RU 7,474 · jordan payload 1,488,707/7M · rastrelli-gallery 855,438/2M · basis 584,862/600k · validate GREEN (typecheck, biome, vitest 1,162 passed / 1 skipped, build, budget).
+The operating ceiling 285,707 is exceeded by the wave's plates (rg-walk-tune +185, this lane +161 over their base) — the owner plate per the movement-ux precedent; the 350,000 cap holds with 63,947 free.
 ## Hunt / found / fixed
-
-n/r.
-
+Found: the press path aims nothing — the sweep IS the B9 arc; the manual offset composes on top (never reset). Fixed: B10 (the absorption at the anchors).
+Found: the anchor mechanism could not carry a departure-stop source on a backward leg (the floor test expired it at the first step). Fixed: anchorApplies widened to the leg's [u0, dest] interval (the reachable k never leaves it; the expiry paths — the pass-through clear, the arrival clear, the cut — unchanged).
+Found: the units split — the rail's angles are radians, the look offsets are degrees (main.ts's DEG2RAD). Fixed: composeAim is the unit bridge.
+Found (the review): the census covered forward-departure corners only. Fixed: both directions; the gallery's worst moved to the backward 2→1 (113.7° on the five-stop rail; 91.0° on the reconciled seven-stop rail).
+Found (the reconciliation): B9b retired the cross-heading field symmetry — the reversal row's expectation rebuilt on the forward base.
 ## Gates — passed · deferred-not-waived → who carries · owed
-
-Owed: the merge + FULL e2e/golden gate at the owner's signal (the wave's slot protocol).
-
+Scope-local: validate GREEN on the branch and on the reconciled tree (the numbers above).
+The FULL e2e/golden gate + the CI verdict = THIS merge (the wave's slot 4/4 finale; the quiet-machine law, mains power, background from the first attempt). The expected golden flips: jordan-bands' J4 ×3 (+J3?); rg-walk-tune predicted zero (G1's pose untouched); square-forward-gaze zero by construction (the never-dragged bit-identity).
+Owed: the owner's-eye probes (S0 drag ±30 + Forward: the ≈ 15° glide onto the pedestal / the ≈ 77° glide that lands on the frame; one Jordan drag+press) · the browser drag-then-press row (the review's F4) on the owner's word.
 ## Sources
-
-docs/briefs/ROUNDS.md · row square-forward-gaze · the rg-walk-tune merging session's placeholder
+docs/briefs/ROUNDS.md · row square-forward-gaze · tests/rail-anchor.test.ts · docs/design-walkthrough-ux.md §8 (the B10 bullet) · src/camera/rail.ts (the header's B10 bullet) · the review ledger: the vault's round-1/FINDINGS.md
