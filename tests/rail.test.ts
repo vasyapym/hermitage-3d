@@ -5,6 +5,7 @@ import { contract as galleryContract } from '../rooms/rastrelli-gallery/contract
 import type { RailState } from '../src/camera/rail';
 import {
   advance,
+  committedTarget,
   drag,
   LOOK_LEAD,
   moving,
@@ -280,7 +281,9 @@ describe('the travel law (B9 field, superseding the R18/R19 departure turns)', (
     expect(reversed.walk?.phase).toBe('brake');
     expect(reversed.walk?.reversalTo).toBe(-1);
     expect(reversed.heading).toBe(1); // the heading flips at the turnaround, not at the press
-    expect(reversed.anchor).toBeNull();
+    // B10: the departure anchor rides from the press (stop 0's committed framing, bit-exact);
+    // the TURNAROUND replaces it with the look in force there (asserted below).
+    expect(reversed.anchor?.point).toEqual(committedTarget(STAIR, 0));
     let guard = 0;
     let prevPose = samplePose(STAIR, inFlight);
     let state = reversed;
@@ -452,11 +455,14 @@ describe('look limits', () => {
     });
   });
   it('re-clamp when a walk narrows them', () => {
-    // r21: the mid-segment drag is wide (2/3 of the STAIR's k range is stop c's ±60 row);
-    // the backward walk re-clamps both fields at the rest stop's rows (yaw 30).
-    const wide = drag(STAIR, restingAt(2 / 3), 2000, 0, 800, 'mouse');
-    expect(wide.lookTarget.yaw).toBe(60);
-    const backState = runToRest(STAIR, tap(STAIR, wide, -1));
+    // r21, amended by B10: a rest drag is ABSORBED at the press (the look never persists
+    // across an anchor); the re-clamp law lives on mid-walk drags — a wide look rides the
+    // backward walk and re-clamps down as the rows narrow to the rest stop's (yaw 30).
+    const press = walkPress(STAIR, restingAt(2 / 3), -1, false, false).state;
+    expect(press.look.yaw).toBe(0); // B10: the departure absorbed whatever look was in force
+    const wide = drag(STAIR, press, 2000, 0, 800, 'mouse');
+    expect(wide.lookTarget.yaw).toBe(60); // the rows in force at the anchor are still the ±60 row
+    const backState = runToRest(STAIR, walkRelease(wide, -1));
     expect(backState.look.yaw).toBe(30);
   });
   it('leave the never-dragged state bit-identical at rest (the r21 golden gate)', () => {

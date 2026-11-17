@@ -442,6 +442,29 @@ pick destinations; the wheel's travel (and its sustained-scroll boundary pass) i
   reversal) into destination rows over the whole remaining segment. Limits are manual offsets around the
   base gaze. Existing offsets are re-clamped, never silently reset; zero-offset stop poses
   and the stop inventory remain unchanged.
+- Departure absorbs the look (B10, the 2026-11-16 owner report — the drag+Forward feel item;
+  amends B9's anchor clause and the re-clamp sentence above): at every anchor the press path
+  creates — a press from rest (at a stop or mid-segment) and a reversal's turnaround — the
+  arc's source aim freezes at the look in force: the base gaze composed with the user's
+  offset (additive in degrees, the exact rendered direction), and the offset is ABSORBED —
+  both look fields return to zero in the same frame, so the view does not jump. The arc then
+  runs from where the visitor looks to the destination's committed framing, so every arrival
+  is the author's frame exactly — the S0b monument pause lands on the pedestal whatever was
+  dragged. A never-dragged walk is bit-identical in every room (offset 0 ⇒ source = the
+  committed framing): the golden fence and «the pans KEEP» (T5 2026-11-15) stand. Drags made
+  while walking ride on top, re-clamped by the rows in force, and are absorbed at the next
+  anchor; pass-through stops and mid-walk presses neither anchor nor absorb. Reduced motion's
+  cut absorbs at the same press edge — the cut lands on the destination's committed pose
+  exactly. Within an anchor the base gaze stays a function of rail position alone; the
+  anchor's frozen source is the one history the law carries (B9 already carried it at
+  reversals). The realized turn's size is the angle between the visitor's look and the
+  author's next frame; the head law's MAX_SWING_DEG 90 governs the DEFAULT gaze and has no
+  absorbed-look universal bound — the census row records each rail's worst corner instead
+  (the square's 90.7° at S0's full down-left look; the rooms' extremes ride their own wide
+  look rows — 1812's ±90 rows reach 141.7°). The rail-anchor tests pin the fence, the
+  no-jump, the absorption, the turnaround, the cut, the dolly and the sign. The owner's-eye
+  probes: S0 drag +30 → a ≈ 15° glide onto the pedestal; S0 drag −30 → a ≈ 77° glide that
+  turns MORE than today's 48° but lands on the frame — the eye rules.
 - Reduced motion (R18-ux, verdict 2; amended movement-ux): a fresh press edge cuts to the next
   stop under REDUCED_DWELL_MS 600 (a press during the dwell is dropped, repeats are ignored; the
   boundary is checked before the dwell); a cut lands on the

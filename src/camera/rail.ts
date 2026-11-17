@@ -21,30 +21,54 @@
  *   stay bit-identical to the data (the golden fence).
  * - Gaze between stops (B9, supersedes R19-ux C's departure turn): between two stops the base
  *   gaze travels exactly the arc between their two committed framings and nothing else — the
- *   source aim frozen at the departure eye (or at the look in force at a reversal), the
- *   destination aim frozen at the destination eye, yaw on the shortest arc, pitch linear, one
- *   weight: the distance fraction covered of the anchor's remaining segment, reshaped by the
- *   lead (B9b, 2026-11-16): w = smoothstep(min(1, wd / LOOK_LEAD)), LOOK_LEAD 0.8 — the look
- *   completes its arc at 80 % of the segment and rests on the destination framing while the
- *   body brakes in. The look therefore turns with the travel (starts and peaks with the
- *   position; stops with the travel up to the lead, then the body settles under a landed
- *   look; never turns faster per unit of rail than 1.875 × the segment's own average — the
- *   smoothstep peak over the lead span) and no held point's parallax reaches the gaze. The
- *   pass-through rate kink is closed by construction FOR THE NONLOCKED BLENDS: at every stop
- *   whose segments blend angularly the gaze-turn rate is zero on both sides (w flat at 0 and
- *   at 1 across each stop's neighbourhood). A locked dolly keeps its held-point parallax —
- *   the locked branch bypasses the angular blend, so a transverse eye motion still rotates
- *   the gaze direction (the gallery's corridor dollies point along their travel axis and
- *   carry none). Equal source/destination points remain a locked dolly for the whole
+ * - Gaze between stops (B9, supersedes R19-ux C's departure turn): between two stops the base
+ *   gaze travels exactly the arc between their two committed framings and nothing else — the
+ *   source aim frozen at the segment's anchor (the departure stop's committed framing, or the
+ *   look in force — B10), the destination aim frozen at the destination eye, yaw on the
+ *   shortest arc, pitch linear, one weight: the distance fraction covered of the anchor's
+ *   remaining segment, reshaped by the lead (B9b, 2026-11-16): w = smoothstep(min(1, wd /
+ *   LOOK_LEAD)), LOOK_LEAD 0.8 — the look completes its arc at 80 % of the segment and rests
+ *   on the destination framing while the body brakes in. The look therefore turns with the
+ *   travel (starts and peaks with the position; stops with the travel up to the lead, then
+ *   the body settles under a landed look; never turns faster per unit of rail than 1.875 ×
+ *   the segment's own average — the smoothstep peak over the lead span) and no held point's
+ *   parallax reaches the gaze. The pass-through rate kink is closed by construction FOR THE
+ *   NONLOCKED BLENDS: at every stop whose segments blend angularly the gaze-turn rate is
+ *   zero on both sides (w flat at 0 and at 1 across each stop's neighbourhood). A locked
+ *   dolly keeps its held-point parallax — the locked branch bypasses the angular blend, so a
+ *   transverse eye motion still rotates the gaze direction (the gallery's corridor dollies
+ *   point along their travel axis and carry none). Equal source/destination points remain a
+ *   locked dolly for the whole
  *   segment (the point is held). There is no turn span, no reference widening and no
  *   near-field exemption — the former exemption's distance weight is now the rule for every
  *   segment.
  *   Partial intents and retargets use this same position-only law, not a separate wall clock.
- *   Reversals re-anchor at the current base gaze and retrace it; pass-through stops are met on
+ *   Reversals re-anchor at the look in force and retrace it; pass-through stops are met on
  *   their committed framings. Stops retain their exact committed targets and position objects.
+ * - Departure absorbs the look (B10, the 2026-11-16 owner report; amends this bullet's anchor
+ *   clause and the re-clamp sentence below): at every anchor the press path creates — a press
+ *   from rest (at a stop or mid-segment) and a reversal's turnaround — the source aim freezes
+ *   at the LOOK IN FORCE: the base gaze composed with the user's offset (composeAim, additive
+ *   in degrees, the exact rendered direction), and the offset is ABSORBED — both look fields
+ *   return to zero in the same frame, so the view does not jump. The arc then runs from where
+ *   the visitor looks to the destination's committed framing, and every arrival is the
+ *   author's frame exactly (the S0b monument pause lands on the pedestal whatever was
+ *   dragged). A never-dragged walk is bit-identical in every sample: offset 0 ⇒ source =
+ *   committed framing. Drags made while walking ride on top and are absorbed at the next
+ *   anchor; pass-through stops and mid-walk presses neither anchor nor absorb. Reduced
+ *   motion's cut absorbs at the same press edge: the cut lands on the destination's committed
+ *   pose exactly. Within an anchor the base gaze stays a function of rail position alone; the
+ *   anchor's frozen source is the one history the law carries (B9 already carried it at
+ *   reversals). The realized turn is the angle between the visitor's look and the author's
+ *   next frame; the head law's MAX_SWING_DEG 90 governs the DEFAULT gaze and has no
+ *   absorbed-look universal bound — the census row in tests/rail-anchor.test.ts records each
+ *   rail's worst corner instead (the square's 90.7° at S0's full down-left look; rooms with
+ *   wider look rows reach further).
  * - Look limits use the same distance weight from the rows in force at the segment's anchor to
- *   the destination's rows, over the whole remaining segment. User offsets are re-clamped on
- *   every transition, not reset. Offsets are degrees: yaw > 0 turns right, pitch > 0 looks up.
+ *   the destination's rows, over the whole remaining segment. Offsets are degrees: yaw > 0
+ *   turns right, pitch > 0 looks up. User offsets are re-clamped on every transition — and
+ *   absorbed (zeroed, their direction folded into the anchor) at every anchor the press path
+ *   creates (B10); never silently reset anywhere else.
  * - Motion: a WALK — a signed motion along u at a declared cruise pace, alive while INTENT is
  *   alive, braking to the next stop in its heading when intent ends. Presses assert intent and
  *   never pick destinations (walkPress); the aggregate release ends or extends it
@@ -159,7 +183,7 @@ export const LOOK_LEAD = 0.8; // B9b: the base gaze (and its limits) completes t
 const STOP_EPS = 1e-9;
 const KNOT_EPS = 1e-6;
 const TAU = Math.PI * 2;
-type Angles = Readonly<{ yaw: number; pitch: number }>;
+export type Angles = Readonly<{ yaw: number; pitch: number }>;
 type Place = Readonly<{ i: number; t: number }>;
 
 const clamp = (x: number, lo: number, hi: number): number => Math.min(hi, Math.max(lo, x));
@@ -183,6 +207,18 @@ const kOf = (rail: Rail, u: number): number => clamp(u, 0, 1) * (stopCount(rail)
 const yawPitch = (d: Vec3): Angles => ({
   yaw: Math.atan2(d[0], -d[2]),
   pitch: Math.atan2(d[1], Math.hypot(d[0], d[2])),
+});
+/** B10's composition surface: the rendered direction's angles — the base aim with the look
+ * offset added. The rail's own angles are RADIANS; the look offsets are DEGREES (the
+ * user-facing unit main.ts feeds through DEG2RAD), so composeAim is the unit bridge. The
+ * addition keeps a zero offset exact in IEEE (x + 0 === x) — that is what keeps the golden
+ * fence bit-for-bit; never compose through vectors or rotations. The signs agree across the
+ * codebase: look.yaw > 0 turns right (rail's atan2(dx, −dz) yaw and main.ts's −look.yaw
+ * world-up rotation), pitch > 0 looks up (the host's rotateOnAxis(right, +pitch)). Pinned
+ * against the host's raw rotations in tests/rail-anchor.test.ts. */
+export const composeAim = (base: Angles, look: LookOffset): Angles => ({
+  yaw: base.yaw + (look.yaw * Math.PI) / 180,
+  pitch: base.pitch + (look.pitch * Math.PI) / 180,
 });
 const lerpLimits = (a: LookLimits, b: LookLimits, w: number): LookLimits => ({
   yaw: lerp(a.yaw, b.yaw, w),
@@ -229,14 +265,16 @@ const runControl = (rail: Rail, run: Run, index: number): Vec3 => {
   return stopAt(rail, index).position;
 };
 
-/** R18-ux verdict 2 (kept by B9, reworded): a segment's source aim, re-anchored at a
- * mid-segment reversal: `anchorApplies` holds only while u lies between anchor.u0 and dest in
- * the same segment. Past the destination, the anchor is stale and the next segment's origin
- * stop takes over. */
+/** R18-ux verdict 2 (kept by B9, reworded; B10 widened the window): a segment's source aim.
+ * `anchorApplies` holds while k lies in the anchor's own leg — between u0 and dest inclusive —
+ * which also lets a departure anchor frozen AT a stop serve the backward leg it starts (the
+ * old floor test could not: the walk leaves the anchor's integer cell on its first step).
+ * Reachable k never leaves [u0, dest] until the anchor expires — past the destination the
+ * next segment's origin stop takes over, and the pass-through integer clear retires it
+ * mid-leg. */
 const anchorApplies = (anchor: LookAnchor | null, k: number, dest: number): boolean =>
   anchor !== null &&
-  Math.floor(anchor.u0) === Math.floor(k) &&
-  (dest >= anchor.u0 ? k >= anchor.u0 : k <= anchor.u0);
+  (dest >= anchor.u0 ? k >= anchor.u0 && k <= dest : k <= anchor.u0 && k >= dest);
 
 type TurnFrame = Readonly<{
   a: LookAnchor;
@@ -374,13 +412,65 @@ const settle = (rail: Rail, s: RailState): RailState => ({
   ...settleLook(s, sampleLimits(rail, s)),
 });
 
+/** The direction angles of `point` as seen from `eye`, materialized back on the same ray — the
+ * anchor point is a direction carrier; this turns it into a lookAt target at the eye asked. */
+const aimPoint = (eye: Vec3, point: Vec3): Vec3 => {
+  const dir = forward(yawPitch([point[0] - eye[0], point[1] - eye[1], point[2] - eye[2]]));
+  const reach = dist(point, eye);
+  return [eye[0] + dir[0] * reach, eye[1] + dir[1] * reach, eye[2] + dir[2] * reach];
+};
+
+/** B10: an anchor freezes the look in force — the base gaze composed with the user's offset,
+ * materialized on the base target's own ray — and the caller absorbs the offset in the same
+ * frame (both look fields to zero; the view does not jump). A zero offset hands the base
+ * target back bit-exact, so the never-dragged arcs and the golden fence stand unchanged. */
+const lookAnchor = (u0: number, pose: Pose): LookAnchor => {
+  if (pose.look.yaw === 0 && pose.look.pitch === 0) {
+    return { u0, point: pose.target, limits: pose.limits };
+  }
+  const dir = forward(
+    composeAim(
+      yawPitch([
+        pose.target[0] - pose.position[0],
+        pose.target[1] - pose.position[1],
+        pose.target[2] - pose.position[2],
+      ]),
+      pose.look,
+    ),
+  );
+  const reach = dist(pose.target, pose.position);
+  return {
+    u0,
+    point: [
+      pose.position[0] + dir[0] * reach,
+      pose.position[1] + dir[1] * reach,
+      pose.position[2] + dir[2] * reach,
+    ],
+    limits: pose.limits,
+  };
+};
+
 export function samplePose(rail: Rail, state: RailState): Pose {
   const { i, t } = locate(rail, state.u);
   const position = samplePosition(rail, state.u);
   const limits = sampleLimits(rail, state);
   const look = clampLook(state.look, limits);
-  if (t === 0) return { position, target: committedTarget(rail, i), limits, look };
-  if (t === 1) return { position, target: committedTarget(rail, i + 1), limits, look };
+  if (t === 0 || t === 1) {
+    const j = t === 0 ? i : i + 1;
+    const committed = committedTarget(rail, j);
+    // B10: a departure anchor that carries an absorbed look (its point off the committed
+    // framing) renders that frozen direction as the base aim — the absorbed offset's view
+    // does not jump. A zero-offset anchor's point IS the committed target, so the never-
+    // dragged fence pose stays bit-exact.
+    const a = state.anchor;
+    if (
+      a !== null &&
+      (a.point[0] !== committed[0] || a.point[1] !== committed[1] || a.point[2] !== committed[2])
+    ) {
+      return { position, target: aimPoint(position, a.point), limits, look };
+    }
+    return { position, target: committed, limits, look };
+  }
   const frame = turnFrame(rail, kOf(rail, state.u), state.heading, state.anchor);
   if (dist(frame.a.point, frame.D) === 0) {
     // A locked dolly holds its shared point: the subject stays centred while the eye travels.
@@ -656,7 +746,11 @@ export function advance(rail: Rail, state: RailState, deltaMs: number): RailStat
           ...s,
           u: turn / (n - 1),
           heading: newHeading,
-          anchor: { u0: turn, point: pose.target, limits: pose.limits },
+          // B10: the turnaround anchors at the look in force (composed) and absorbs the
+          // offset — the back leg starts from where the visitor actually looks.
+          anchor: lookAnchor(turn, pose),
+          look: NO_LOOK,
+          lookTarget: NO_LOOK,
         };
         const j = nextStopIndex(rail, turn, newHeading);
         if (j !== null && (heldNow || leaseMs > 0)) {
@@ -725,6 +819,10 @@ export function walkPress(
         heading: direction,
         anchor: null,
         dwellMs: REDUCED_DWELL_MS,
+        // B10: the cut absorbs the look at the same press edge — it lands on the destination's
+        // committed pose exactly (§8's promise made true for the rendered view).
+        look: NO_LOOK,
+        lookTarget: NO_LOOK,
       }),
       boundary: null,
     };
@@ -846,20 +944,20 @@ export function walkPress(
   }
   // At rest: a fresh edge (or the OS tail of a held key) starts the walk toward the next stop
   // in direction; a fresh edge at a settled rail end returns the boundary intent instead.
+  // B10: the departure anchors at the look in force (composed with the user's offset) and
+  // absorbs the offset — at a stop and mid-segment alike. The u0 snaps to the stop's integer
+  // when the rest sits on one, so a never-dragged departure reads bit-exact as the anchor-less
+  // fallback it replaces; a zero offset hands the committed framing back bit-exact.
   const kHere = kOf(rail, state.u);
+  const near = Math.round(kHere);
+  const u0 = Math.abs(kHere - near) < STOP_EPS ? near : kHere;
   const j = nextStopIndex(rail, kHere, direction);
   if (j === null) {
     return repeat
       ? { state, boundary: null } // a hold never opens a door
       : { state, boundary: direction > 0 ? 'forward' : 'backward' };
   }
-  let anchor: LookAnchor | null = null;
-  if (Math.abs(kHere - Math.round(kHere)) >= STOP_EPS) {
-    // A mid-segment start (a seeded or cut rest): the look in force here anchors the arc.
-    const pose = samplePose(rail, { ...state, heading: direction, walk: null });
-    anchor = { u0: kHere, point: pose.target, limits: pose.limits };
-  }
-  // A departure from a stop leaves the anchor null: the fence pose is the origin aim.
+  const anchor = lookAnchor(u0, samplePose(rail, { ...state, heading: direction, walk: null }));
   const walk: Walk = {
     heading: direction,
     phase: 'accel',
@@ -875,7 +973,14 @@ export function walkPress(
     heldMs: 0,
   };
   return {
-    state: settle(rail, { ...state, walk, heading: direction, anchor }),
+    state: settle(rail, {
+      ...state,
+      walk,
+      heading: direction,
+      anchor,
+      look: NO_LOOK,
+      lookTarget: NO_LOOK,
+    }),
     boundary: null,
   };
 }

@@ -12,6 +12,7 @@ import { describe, expect, it } from 'vitest';
 import {
   advance,
   LOOK_LEAD,
+  committedTarget,
   moving,
   type RailState,
   REDUCED_DWELL_MS,
@@ -372,7 +373,9 @@ describe('law F: the reversal (opposite press mid-cruise)', () => {
     expect(reversed.walk?.phase).toBe('brake');
     expect(reversed.walk?.reversalTo).toBe(-1);
     expect(reversed.walk?.brakeTo).toBeNull();
-    expect(reversed.anchor).toBeNull(); // the anchor sets at the TURNAROUND, not the press
+    // B10: the departure anchor rides from the press (stop 0's committed framing, bit-exact);
+    // the TURNAROUND replaces it with the look in force there (asserted below).
+    expect(reversed.anchor?.point).toEqual(committedTarget(STAIR, 0));
     // Pressed at cruise v_c: T = 420 · v/v_c = 420, the turnaround at k = 0.66 + 0.14 = 0.80.
     let state = reversed;
     let turned: RailState | null = null;

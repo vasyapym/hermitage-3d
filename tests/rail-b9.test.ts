@@ -313,7 +313,9 @@ describe('B9 keeps the recorded rows', () => {
     expect(reversed.walk?.phase).toBe('brake'); // the reversal, braking to the turnaround
     expect(reversed.walk?.reversalTo).toBe(-1);
     expect(reversed.heading).toBe(1); // the heading flips AT the turnaround, not at the press
-    expect(reversed.anchor).toBeNull();
+    // B10: the departure anchor rides from the press (G0's committed framing, bit-exact);
+    // the TURNAROUND replaces it with the look in force there (asserted below).
+    expect(reversed.anchor?.point).toEqual(committedTarget(rail, 0));
     // The reversal press stays held: the intent departs at the turnaround, walks back
     // through B0's framings, and the hard rail end rests it at G0.
     let state = reversed;
