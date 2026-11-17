@@ -65,3 +65,8 @@ level's hash distribution over the visible row is not enumerated; the AgX ratio 
 measured on the probe's exposure, not the owner's phone exposure (the eye ratified the
 look regardless).
 
+
+## Gates — passed · deferred-not-waived → who carries · owed
+Scope-local: validate GREEN on the lane's branch (JS 286,070 on their base) and on the merged tree (JS **286,021** — the composition with rg-move's −55 lands +23 over 285,998, the drift +6 over the lane's +17; the dictionary interactions compose non-additively) · RU 7,448 · vitest 1,165/1 skipped.
+The FULL e2e/golden battery = THIS merge's (the one deferred from the rg-move merge; 1.7 h): **112 passed / 4 failed — the goldens ALL GREEN, 0 flips on the reconciled tree** — the lane's declared d-S0-dec-night flip MEASURED HELD (the targeted --update-snapshots found no drift; the rendered delta under DEC-045's t=0.1 threshold — fewer flips than declared, the second such case this week after jordan-bands' ×3→1). The 4 failures = the recorded classes: smoke 176/301 + touch-rail 306 (the machine-stall class; CI green = the authority) + entrance-title's square-jump row (the row's THIRD documented stall-cadence occurrence — the negative stamp arithmetic across the jump's double card cycle; the page snapshot proves the app's state perfect — the caption 'S1 · the arch opens' settled; the row's history: CI 41362175165's twice-in-run + the hardening commits 0002ab1/13fecd9). The fixtures 1812-360 race rows PASSED this run. CI run 44107679937: the draw-calls SwiftShader known reds only → **the merge verdict PASS**.
+Owed: nothing from this lane — the owner's-eye probes of the rg-move B9c laws and the B9d question live in the rg-move trail (docs/archive/2026-11-17-rgmove.md).
