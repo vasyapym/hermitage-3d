@@ -2,8 +2,11 @@
 // turn). One field row over EVERY committed segment (both headings): between two stops the
 // aim is exactly the arc between their framings × the lead weight g(wd) — B9b (2026-11-16):
 // the arc completes at 80 % of the anchor's remaining segment and rests on the destination
-// framing; locked dollies hold their point; the look is history-free (a reversal re-anchors
-// and retraces under the same law); the pacing turns with the travel, never faster per unit
+// framing; locked dollies hold their point; the look is position-, heading- and anchor-
+// determined with no independent clock (a fresh opposite heading reads its own anchored
+// shape — the linear law's cross-heading point-equality is retired intentionally; a
+// reversal re-anchors at the look in force and retraces it under the same law); the
+// pacing turns with the travel, never faster per unit
 // of rail than 1.875 × the segment's average. No camera, no DOM — pure rail law.
 import { describe, expect, it } from 'vitest';
 import { contract as contract1812 } from '../rooms/1812/contract';

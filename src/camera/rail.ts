@@ -30,8 +30,12 @@
  *   position; stops with the travel up to the lead, then the body settles under a landed
  *   look; never turns faster per unit of rail than 1.875 × the segment's own average — the
  *   smoothstep peak over the lead span) and no held point's parallax reaches the gaze. The
- *   pass-through rate kink is closed by construction: the gaze-turn rate is zero on both
- *   sides of every stop. Equal source/destination points remain a locked dolly for the whole
+ *   pass-through rate kink is closed by construction FOR THE NONLOCKED BLENDS: at every stop
+ *   whose segments blend angularly the gaze-turn rate is zero on both sides (w flat at 0 and
+ *   at 1 across each stop's neighbourhood). A locked dolly keeps its held-point parallax —
+ *   the locked branch bypasses the angular blend, so a transverse eye motion still rotates
+ *   the gaze direction (the gallery's corridor dollies point along their travel axis and
+ *   carry none). Equal source/destination points remain a locked dolly for the whole
  *   segment (the point is held). There is no turn span, no reference widening and no
  *   near-field exemption — the former exemption's distance weight is now the rule for every
  *   segment.

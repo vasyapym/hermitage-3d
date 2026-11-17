@@ -382,7 +382,10 @@ pick destinations; the wheel's travel (and its sustained-scroll boundary pass) i
   ≈ 1.41 s and the body rests at 2.06 s — the look leads the stop by ≈ 0.65 s). Still no
   clock and no RailState field. The formerly accepted pass-through consequence
   («cruising through a stop makes the gaze-turn RATE discontinuous there») is CLOSED by
-  construction: the gaze-turn rate is zero on both sides of every stop.
+  construction FOR THE NONLOCKED BLENDS: at every stop whose segments blend angularly the
+  gaze-turn rate is zero on both sides of the stop. A locked dolly keeps its held-point
+  parallax (the locked branch bypasses the angular blend; a transverse eye motion still
+  rotates the gaze direction) — the gallery's axis-aligned corridor dollies carry none.
 - **Gaze law (B9, supersedes R19-ux C's departure turn)**: authored SUBJECTS and the
   subjectless next/back fallback remain unchanged; stop poses remain bit-identical. Between
   two stops the base gaze travels the arc between their two committed framings and nothing
@@ -396,8 +399,12 @@ pick destinations; the wheel's travel (and its sustained-scroll boundary pass) i
   position and stops with the travel up to the lead, then the body settles under a landed
   look, never turning faster per unit of rail than 1.875 × the segment's own average (the
   smoothstep peak over the lead span), and no held point's parallax reaches the gaze. The base gaze is a function of
-  rail position alone: Forward and Back, walks, partial intents, retargets
-  and reversals read the same look at the same point; pass-through stops are met on their
+  rail position, heading and the active anchor alone — no independent clock: within one
+  anchored segment, Forward and Back, walks, partial intents, retargets
+  and reversals read the same look at the same point; a fresh opposite heading anchors at
+  its own origin and reads its own shape (the lead made the fresh-heading shapes differ —
+  the linear law's cross-heading point-equality is retired intentionally, 2026-11-16);
+  pass-through stops are met on their
   committed poses. Equal source and destination points remain a locked dolly throughout
   (the point is held). There is no turn span, no TURN_REF_DEG widening and no near-field
   exemption: the former exemption's distance weight is now the rule. An APPROACH point
