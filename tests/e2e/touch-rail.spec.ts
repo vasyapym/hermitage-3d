@@ -32,7 +32,8 @@ const SLUGS: Readonly<Record<string, string>> = {
 // 'J1b'/'J2b' trail a letter, so the walk assertions read this map instead of a regex.
 // The 2026-11-12/13 stops round: S0b/Shb (the square's quarter-point inserts) join their
 // room's walk order; the 2026-11-16 walk re-choreography keeps the gallery's G0b (the
-// entry-leg insert, on the re-authored mouth subject) and reinstates that round's Gjb/G1b.
+// entry-leg insert, on the re-authored mouth subject) and reinstates that round's Gjb (the
+// 2026-11-17 walk re-tune retires G1b).
 const STOPS: Record<string, number> = {
   S0: 0,
   S0b: 1, // the 2026-11-12/13 stops round: the first quarter-point insert
@@ -44,8 +45,7 @@ const STOPS: Record<string, number> = {
   Gj: 2, // the corner stop (the §8 stop table)
   Gjb: 3, // the 2026-11-16 re-choreography: the reinstated axis rest at the Gj→G1 midpoint
   G1: 4,
-  G1b: 5, // the reinstated axis rest at the G1→G2 midpoint
-  G2: 6,
+  G2: 5, // the 2026-11-17 walk re-tune (the rg-move lane) retires the axis rest G1b
   J0: 0,
   J1: 1,
   J1b: 2,

@@ -61,7 +61,6 @@ export type CaptionKey =
   | 'caption.gj'
   | 'caption.gjb'
   | 'caption.g1'
-  | 'caption.g1b'
   | 'caption.g2'
   | 'caption.m0'
   | 'caption.m1'
