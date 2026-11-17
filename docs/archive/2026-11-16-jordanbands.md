@@ -95,6 +95,37 @@ jordan J4 day/dusk/night (the layout change re-bakes everything jordan); possibl
 east tie-break shows in its framing). The goldens re-baseline at the MERGE only (the wave
 precedent); the FULL e2e/golden gate rides the last-merging session.
 
+## The dark-median re-measure (the owed item, 2026-11-17, unblocked at the wave's close)
+
+- The instrument: `tools/probes/jordan-dark-median.mjs` (committed) — the dry row from the
+  bake EXRs (the reencode formula, the per-cell stored medians, Blender headless) paired by
+  cell index with the published ktx2's decoded texels (the repo's basis transcoder in Node,
+  cTFRGBA32). Two statistics over the allocated-interior population, both sides the same
+  statistic: the GLOBAL (every interior texel) and the DARK (the cells whose dry per-cell
+  median sits in (10, 100] — the 2c's «dark-median at stored ~70» class; the ~0 black cells
+  — the metallic gilt's diffuse — excluded as degenerate).
+- **The verdict: PASS at every state — global −1 / 0 / −1, dark +1 / 0 / −1** (the day's
+  dark population 314 cells · the dusk's 1,527 · the night's 2,385). The q255/clevel 2
+  bought the dark end back; the F3 target ≥ −10 holds with an order-of-magnitude margin.
+- **The instrument laws (the bugs the re-measure caught):**
+  - ORIENTATION: the transcoder's cTFRGBA32 output rows are TOP-DOWN while the atlas is
+    bottom-up («row 0 at v=0») — the ktx2 sample reads row (RES−1−y). The non-flipped read
+    prints a phantom loss (day −34 · dusk −18 · night −18) — the same artifact class as the
+    2c's recorded −22/−16 numbers, which this instrument cannot reproduce on the same dry
+    row (the q128 A/B: the dark +1): the 2c's numbers were almost certainly the same
+    mirrored-read artifact.
+  - PAIRING: the population's order is the cells.json file order (the pairing key) — a
+    positional sort scrambles the dry↔ktx2 pairs (the day's dark median printed 0).
+- The flags' measured effect: q128 vs q255 on the same dry — the medians tie (±1); the
+  per-texel deltas mean ~0.7 (the q255 the truer decode); the +267 kB is the price of the
+  marginal per-texel fidelity — kept (a revert would buy nothing measurable).
+- The dead ends, recorded for the next session: `require()` of the transcoder returns an
+  empty namespace (the repo's type=module — copy it as .cjs); `--python-expr` breaks on the
+  multiline scripts (write a temp file, pass `--python`); the KTX2File decode API =
+  isValid / getWidth / getImageTranscodedSizeInBytes(mip, layer, face, fmt) /
+  startTranscoding / transcodeImage(dst, 0, 0, 0, 13, 0, −1, −1), with initializeBasis()
+  after the runtime init (the KTX2Loader's exact pattern).
+
 ## The displaced parked row (verbatim, the pre-fix text)
 
 > - **The day state + s upper-tier wall bands (the Jordan Staircase; PARKED 2026-11-16, the owner + s sighting + the decisive test):** the upper parts of the north wall + s pilaster strips and the zones flanking/below the upper windows read as dark evening-like bands at every hour — at night the read is consistent (all-dark), at day it reads wrong. MEASURED: the owner + s June-noon det test (`#/jordan?at=2026-06-22T12:00:00Z&det=1`, one-hot day) KEPT the bands → the hour-blend hypothesis is REFUTED; the bands live in the DAY lightmap itself (the screenshot: IMG_4685.PNG, the November 10:52 deployed view). Mechanism candidates, ranked: (a) the day bake + s upper-tier underlight — the sky path is throttled by the swap glass (the 2c-measured fact: the world ×4 barely moved the diffuse walls; the walls are sun-bounce-fed) and the ~15° sun paints the floor/stairs, not the y 13–16.5 tier; (b) the pilasters + centroid-shared lm cells (the BAKE_TEMPLATE_INSTANCE centroid law: all 16 shafts carry the representative + s baked shading — the upper rows dark at the representative propagate to every shaft); (c) the lm cell-patchwork legibility on the pale walls (the slice-1 eye flag, never dispositioned). Levers for the fixing session: the day sky + s reach to the upper tier through the glass (the swap transmission or a reveal-side path), the upper tier + s direct exposure in the bake, the representative-cell policy for the shafts. The next session starts from the sighting conditions (the screenshot) + the June-noon persistence fact; the door-heading/2b wall-articulation rounds touch the same wall — coordinate.
