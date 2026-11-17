@@ -14,16 +14,18 @@ The creative's spec adopted (the decision: data-only for moves 1 and 3–4; the 
 
 ## Measured
 
-The unit battery: vitest 252/252 over stops/rail-b9/rail-walk/rail/look/i18n; biome clean (9 files); tsc clean. Build/budget/e2e/probes DEFERRED NOT WAIVED (the owner's bake session co-tenants the machine; the quiet-machine law) — the spec predicts ≈ +170 B gz JS / +55 RU (ledger refined at the measured run). The displaced design rows (the 83°/6.10° linear field rows, the five-stop §7 note) live in this file's Verdicts/history pending the close compaction.
+The unit battery: vitest 252/252 over stops/rail-b9/rail-walk/rail/look/i18n; biome clean (9 files); tsc clean. Build/budget: JS 285,892 (+263 of the declared ≤ +400) · RU 7,474 (+114 of ≤ +150) — vs the proposed operating ceiling 285,707: +185 gz OVER → the owner plate pending (the ledger row carries it). The targeted e2e (quiet, one run + one re-run): touch-rail fine-pointer GREEN (the STOPS walk order verified live); the smoke walk rows (arrow 176 + keyboard 300) local-red — the recorded machine-stall class: two runs, two DIFFERENT timeout points (run 1 wedged its poll at the G1 leg; run 2 PASSED every gallery leg, both airlock transits and the jordan entry, dying only at the final home swap on the spent budget), the trace cadence p50 288 ms / p99 1.16 s / max 2.5 s = the reference machine's recorded stall profile; CI green = the authority (the ownersteer precedent for smoke 176 verbatim); the honest note: the re-choreography's +2 gallery legs tighten the row's own budget further (the walk-row verdict rides the merge PR's CI).
 
 ## Hunt / found / fixed
 
 Found at integration: the spec's re-pin list missed tests/rail.test.ts (fixed); the smoke keyboard count 44 → 46 (the spec's forward-only count — fixed by the composition law); the subagent's historical-note transcription checked against main («MEASURED at 44 calls» was the original's own figure — faithful, no fix).
+Found at review 2a (Sol 6.1, both fixed at 2496396, text-only): the law prose promised history-free/retracing that B9b no longer provides (the base gaze is now stated as a function of position, heading and the active anchor; the cross-heading point-equality's retirement recorded as intentional); the universal «zero rate on both sides of every stop» overclaimed past the locked-dolly branch (qualified to the nonlocked blends, the held-point parallax excepted). Review 2b (Sol 6.1): zero findings; its open questions resolved (the count 46 confirmed; the bytes measured; the captions mechanically clean; the e2e consistency by inspection → the live targeted run).
+Found at the e2e verification: the smoke walk rows local-red ×2 at DIFFERENT steps (see Measured) — the recorded stall class, CI = the authority; the deferred Sol-2a strengthening item (a real anchor-clearing crossing test) parked.
 
 ## Gates — passed · deferred-not-waived → who carries · owed
 
-Passed: records-check at the lane marking and at the integrated state; the unit battery + tsc + biome local (252/252).
-Deferred NOT waived: pnpm build + budget (the byte prediction's verdict), the e2e smoke/touch-rail targeted rows, the framing stills (probes/rg-walk-capture.mjs written, not run — the G0b mouth's dusk/night «lit» read is the flagged capture question), the review passes 2a/2b, the FULL e2e/golden gate + the CI verdict — the gates ride tomorrow's quiet window and the owner's merge signal.
+Passed: records-check at the lane marking and at the integrated state; the unit battery + tsc + biome local (252/252); the build + budget (the measured numbers above); the touch-rail fine-pointer e2e row (live, green); the framing stills captured (probes/rg-walk-after/, six frames — day/dusk × G0/G0b/Gj; the mouth reads warm/lit at dusk, the owner's eye-read pending).
+Deferred NOT waived: the smoke walk rows' verdict = CI at the merge PR (the recorded stall class; the local reds ×2 diagnosed above); the FULL e2e/golden gate + the CI verdict + the golden re-baselines (predicted zero flips — G1's pose untouched) ride the owner's merge signal; the owner's eye-reads (the stills, the HUD caption fit, the Forward-walk feel); the keyboard row's 46-call CI timing.
 
 ## Sources
 
