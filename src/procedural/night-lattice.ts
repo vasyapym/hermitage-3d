@@ -26,6 +26,7 @@ import {
   Vector3,
 } from 'three';
 import {
+  DARK_PANE_TONE,
   isSurroundPartId,
   latticeVisible,
   levelOf,
@@ -84,8 +85,12 @@ function openingFor(partId: PartId): SurroundOpening {
 function paneMaterial(level: PaneLevel): MeshStandardMaterial {
   const [r, g, b] = WINDOW_WARM_LINEAR;
   const emissive = level === 'dark' ? new Color(0, 0, 0) : new Color().setRGB(r, g, b);
+  // The dark pane's albedo is the facade-shadow round's DARK_PANE_TONE (the dim warm
+  // reflection), not the recess's near-black — the black cards printed as impossible
+  // shadows on the warm-lit wall band (the 2026-11-17 sighting).
+  const color = level === 'dark' ? new Color().setRGB(...DARK_PANE_TONE) : RECESS_HEX;
   const material = new MeshStandardMaterial({
-    color: RECESS_HEX,
+    color,
     emissive,
     emissiveIntensity: 0,
     roughness: 1,
