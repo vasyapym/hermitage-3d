@@ -199,12 +199,16 @@ describe('B10: the departure absorbs the look', () => {
     expect(turn.lookTarget).toEqual({ yaw: 0, pitch: 0 });
     expect(turn.anchor).not.toBeNull();
     // the no-jump law AT THE INSTANT: the anchor's frozen source is the base arc aim at the
-    // turnaround composed with the absorbed look — read at the anchor's own u0, exactly
+    // turnaround composed with the absorbed look — read at the anchor's own u0, exactly.
+    // Under B9b the field is NOT cross-heading symmetric (the lead runs each leg its own
+    // way), so the expected base is the FORWARD reading in force at the turnaround: the pose
+    // advance sampled there had heading +1 and the departure anchor — rebuilt literally.
     const u0 = turn.anchor?.u0 ?? 0;
     const atInstant = samplePose(rail, {
       ...turn,
       u: u0 / (rail.stops.length - 1),
-      anchor: null,
+      heading: 1,
+      anchor: { u0: 0, point: committedTarget(rail, 0), limits: stopOrThrow(rail, 0).look },
       look: { yaw: 10, pitch: 0 },
       lookTarget: { yaw: 10, pitch: 0 },
     });

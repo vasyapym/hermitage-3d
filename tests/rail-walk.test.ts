@@ -11,8 +11,8 @@
 import { describe, expect, it } from 'vitest';
 import {
   advance,
-  LOOK_LEAD,
   committedTarget,
+  LOOK_LEAD,
   moving,
   type RailState,
   REDUCED_DWELL_MS,
