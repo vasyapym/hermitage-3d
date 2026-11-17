@@ -285,10 +285,9 @@ describe('B10: the departure absorbs the look', () => {
     expect(dir[1]).toBeCloseTo(v[1] * Math.cos(lift) + h * Math.sin(lift), 9);
   });
 
-  // PHASE 2: re-measure on the six-stop rail. The recorded census rows (square 90.7 /
-  // gallery 91.0 / jordan 84.1 / 1812 141.7 — the rail header, docs) were measured on the
-  // SEVEN-stop gallery; the 2026-11-17 walk re-tune (the rg-move lane) retires G1b, so the
-  // gallery's number changes — it is recomputed by a run later, never guessed here.
+  // The census re-measured on the SIX-stop rail (the rg-move PHASE 2 run, 2026-11-17): all
+  // four recorded numbers STAND — square 90.7 / gallery 91.0 (the worst departure lives on
+  // the passage leg 1→2; G1b's removal never touched it) / jordan 84.1 / 1812 141.7.
   it('the absorbed-look swing census: each rail records its stop-departure worst for the eye', () => {
     for (const rail of [
       SQUARE_RAIL,

@@ -179,7 +179,9 @@ describe('authored subjects (R-UX5 §8, D6)', () => {
       const pose = samplePose(AIMED, restingAt(s));
       const share = angleDeg(aDir, unitDir(pose.target, pose.position));
       if (s <= 1 - LOOK_LAG) {
-        expect(share, `the held source share at s ${s}`).toBeCloseTo(0, 6);
+        // The hold is exact in law (w ≡ 0); the read dust ~8.5e-7° rides the direction
+        // rebuild (target = position + forward · reach, re-derived) — 5 digits calibrates it.
+        expect(share, `the held source share at s ${s}`).toBeCloseTo(0, 5);
       } else {
         expect(share, `mid-turn arc share at s ${s}`).toBeGreaterThan(0);
         expect(share, `arc share short of the arrival at s ${s}`).toBeLessThan(chord);
