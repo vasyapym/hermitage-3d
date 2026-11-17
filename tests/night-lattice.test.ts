@@ -2,6 +2,7 @@
  * Night lattice builder (DEC-019; ROADMAP Phase 2b). Node Vitest; three core only, no DOM.
  */
 import {
+  Color,
   InstancedMesh,
   Matrix4,
   MeshStandardMaterial,
@@ -14,6 +15,7 @@ import { RECESS_HEX, surroundOpening } from '../src/procedural/facade-builder';
 import type { Placement } from '../src/procedural/facade-solver';
 import { buildNightLattice, type LatticeSource } from '../src/procedural/night-lattice';
 import {
+  DARK_PANE_TONE,
   K_LEVEL,
   PANE_LEVELS,
   PANE_STANDOFF,
@@ -48,6 +50,8 @@ function surroundFixture(): Placement[] {
   return out;
 }
 const source = (placements: readonly Placement[]) => ({ placements }) satisfies LatticeSource;
+
+const darkToneHex = new Color().setRGB(...DARK_PANE_TONE).getHex();
 
 describe('night-lattice: structure', () => {
   it('builds one InstancedMesh per level, in level order, inside one group', () => {
@@ -98,7 +102,11 @@ describe('night-lattice: structure', () => {
       expect(mesh.instanceMatrix.usage).toBe(StaticDrawUsage);
       expect(mesh.boundingSphere).not.toBeNull();
       expect(lattice.materials[level].type).toBe('MeshStandardMaterial');
-      expect(lattice.materials[level].color.getHex()).toBe(RECESS_HEX);
+      // The facade-shadow round (2026-11-17): the dark pane's albedo lifted off the
+      // recess's near-black — the dim tone law, not the «indistinguishable» law.
+      expect(lattice.materials[level].color.getHex()).toBe(
+        level === 'dark' ? darkToneHex : RECESS_HEX,
+      );
     }
   });
 });
@@ -169,10 +177,13 @@ describe('night-lattice: setNight', () => {
     }
     expect(lattice.materials.bright.emissiveIntensity).toBe(PEAK_EMISSIVE_INTENSITY);
   });
-  it('keeps the dark level indistinguishable from the recess inside night frames', () => {
+  it('keeps the dark level at the dim-tone law inside night frames', () => {
     const lattice = buildNightLattice(source(surroundFixture()));
     lattice.setNight(1);
-    expect(lattice.materials.dark.color.getHex()).toBe(RECESS_HEX);
+    // The facade-shadow round's law: the dark pane reads the wall dressing at half the
+    // response (the dim tone), never the recess's near-black — the black cards printed
+    // as impossible shadows on the hemisphere's warm-lit wall band (the owner's sighting).
+    expect(lattice.materials.dark.color.getHex()).toBe(darkToneHex);
     expect(lattice.materials.dark.emissive.getHex()).toBe(0);
     expect(lattice.materials.dark.emissiveIntensity).toBe(0);
   });

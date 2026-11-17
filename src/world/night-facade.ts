@@ -38,6 +38,16 @@ export type LinearRgb = readonly [r: number, g: number, b: number];
 export const WINDOW_WARM_LINEAR = [1, 0.58, 0.24] as const satisfies LinearRgb;
 /** TUNING TARGET (DEC-019): pane stand-off in front of the recess panel face, kit units. */
 export const PANE_STANDOFF = 0.01;
+/**
+ * TUNING TARGET (the facade-shadow round, 2026-11-17): the dark pane's albedo. The dark
+ * cards used to read the recess's near-black (RECESS_HEX) and printed as impossible
+ * «shadows of lamps which don't exist» on the hemisphere's warm-lit wall band (the
+ * owner's IMG_4688 sighting). The unlit window now reads as the wall's dressing at half
+ * the response — NEUTRAL albedo on purpose: the warm hue comes from the light (the same
+ * that warms the wall), so the card cannot out-salience the wall at equal luminance.
+ * Linear channels, like WINDOW_WARM_LINEAR. Measured ratio card/wall ≈ 0.5.
+ */
+export const DARK_PANE_TONE: LinearRgb = [0.37, 0.36, 0.35];
 export const SURROUND_PART_PREFIX = 'surround-';
 export function isSurroundPartId(partId: string): boolean {
   return partId.startsWith(SURROUND_PART_PREFIX);
