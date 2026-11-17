@@ -46,10 +46,10 @@
  *   former exemption's distance weight is now the rule for every segment. The law is
  *   position-only: the rotation cannot outlast the body (both rest at wd = 1); a rotation that
  *   settles AFTER the body is a clock law, deliberately not taken (B9d, docs §8). Capture
- *   safety is structural: there is NO post-arrival motion — no settle exists to race a
- *   capture, so «the settle completes before any capture» holds by absence; every capture
- *   reads the rest pose, which IS the committed object (w = 1 at wd = 1 exactly; the
- *   roomReady hold + the 300 ms margin are not exercised by any motion).
+ *   safety is by absence: there is NO post-arrival settle, so a capture taken AFTER ARRIVAL
+ *   reads the committed rest pose (w = 1 at wd = 1 exactly — the roomReady hold + the 300 ms
+ *   margin stay the harness's explicit arrival prerequisite; a capture taken MID-SEGMENT
+ *   reads an intermediate pose, as the position law intends).
  *   Partial intents and retargets use this same position-only law, not a separate wall clock.
  *   Reversals re-anchor at the look in force and retrace it; pass-through stops are met on
  *   their committed framings. Stops retain their exact committed targets and position objects.

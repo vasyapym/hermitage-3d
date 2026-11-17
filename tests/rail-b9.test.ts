@@ -196,7 +196,7 @@ describe('B9 pacing: the look turns with the travel', () => {
   // the segment (the hold keeps w ≡ 0 across the first 20 %) — the per-rail pan rate still
   // peaks at 1.5/LOOK_LAG = 1.875 × the segment's own average (the same value as B9b's; the
   // peak's s moved 0.4 → 0.6), and the share left after 62 % of the segment is travelled is
-  // 1 − g(0.62) of the arc (0.463 of it — the mirror identity recomputes: 1 − g_old(0.38)).
+  // 1 − g(0.62) of the arc (0.463 of it — the mirror identity recomputes: g_old(0.38)).
   const VC = 1 / WALK_CRUISE_MS;
   const k = (rail: Rail, s: RailState): number => s.u * (rail.stops.length - 1);
   const yawOf = (pose: ReturnType<typeof samplePose>): number =>

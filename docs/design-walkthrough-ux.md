@@ -386,9 +386,10 @@ pick destinations; the wheel's travel (and its sustained-scroll boundary pass) i
   1.875 × the segment's average per unit of rail. Position-only: the rotation rests WITH
   the body, never after it; a rotation that settles after the body is a clock law (B9d),
   costed and deferred to the owner's second play. Still no clock and no RailState field.
-  Capture safety: there is NO post-arrival motion — no settle exists to race a capture, so
-  «the settle completes before any capture» holds by absence; every capture reads the rest
-  pose, which IS the committed object.
+  Capture safety is by absence: there is NO post-arrival settle, so a capture taken AFTER
+  ARRIVAL reads the committed rest pose; a capture taken MID-SEGMENT reads an intermediate
+  pose, as the position law intends (the roomReady hold + the 300 ms margin stay the
+  harness's explicit arrival prerequisite).
   A locked dolly keeps its held-point
   parallax (the locked branch bypasses the angular blend; a transverse eye motion still
   rotates the gaze direction) — the gallery's axis-aligned corridor dollies carry none.
