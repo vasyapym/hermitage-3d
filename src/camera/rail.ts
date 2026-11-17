@@ -62,8 +62,9 @@
  *   reversals). The realized turn is the angle between the visitor's look and the author's
  *   next frame; the head law's MAX_SWING_DEG 90 governs the DEFAULT gaze and has no
  *   absorbed-look universal bound — the census row in tests/rail-anchor.test.ts records each
- *   rail's worst corner instead (the square's 90.7° at S0's full down-left look; rooms with
- *   wider look rows reach further).
+ *   rail's stop-departure worst over BOTH directions of every leg (the square's 90.7° at S0's
+ *   full down-left look; rooms with wider look rows reach further; turnaround anchors are a
+ *   separate surface the eye probes cover).
  * - Look limits use the same distance weight from the rows in force at the segment's anchor to
  *   the destination's rows, over the whole remaining segment. Offsets are degrees: yaw > 0
  *   turns right, pitch > 0 looks up. User offsets are re-clamped on every transition — and

@@ -459,12 +459,13 @@ pick destinations; the wheel's travel (and its sustained-scroll boundary pass) i
   anchor's frozen source is the one history the law carries (B9 already carried it at
   reversals). The realized turn's size is the angle between the visitor's look and the
   author's next frame; the head law's MAX_SWING_DEG 90 governs the DEFAULT gaze and has no
-  absorbed-look universal bound — the census row records each rail's worst corner instead
-  (the square's 90.7° at S0's full down-left look; the rooms' extremes ride their own wide
-  look rows — 1812's ±90 rows reach 141.7°). The rail-anchor tests pin the fence, the
-  no-jump, the absorption, the turnaround, the cut, the dolly and the sign. The owner's-eye
-  probes: S0 drag +30 → a ≈ 15° glide onto the pedestal; S0 drag −30 → a ≈ 77° glide that
-  turns MORE than today's 48° but lands on the frame — the eye rules.
+  absorbed-look universal bound — the census row records each rail's stop-departure worst
+  over both directions of every leg instead (the square's 90.7° at S0's full down-left look;
+  the rooms' extremes ride their own wide look rows — 1812's ±90 rows reach 141.7°; the
+  turnaround anchors are a separate surface the eye probes cover). The rail-anchor tests
+  pin the fence, the no-jump, the absorption, the turnaround, the cut, the dolly and the
+  sign. The owner's-eye probes: S0 drag +30 → a ≈ 15° glide onto the pedestal; S0 drag −30 →
+  a ≈ 77° glide that turns MORE than today's 48° but lands on the frame — the eye rules.
 - Reduced motion (R18-ux, verdict 2; amended movement-ux): a fresh press edge cuts to the next
   stop under REDUCED_DWELL_MS 600 (a press during the dwell is dropped, repeats are ignored; the
   boundary is checked before the dwell); a cut lands on the

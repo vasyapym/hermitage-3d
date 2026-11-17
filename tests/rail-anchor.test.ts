@@ -281,7 +281,7 @@ describe('B10: the departure absorbs the look', () => {
     expect(dir[1]).toBeCloseTo(v[1] * Math.cos(lift) + h * Math.sin(lift), 9);
   });
 
-  it('the absorbed-look swing census: each rail records its worst corner for the eye', () => {
+  it('the absorbed-look swing census: each rail records its stop-departure worst for the eye', () => {
     for (const rail of [
       SQUARE_RAIL,
       galleryContract.rail,
@@ -291,29 +291,38 @@ describe('B10: the departure absorbs the look', () => {
       let worst = 0;
       let where = '';
       for (let i = 0; i + 1 < rail.stops.length; i++) {
-        const from = stopOrThrow(rail, i);
-        const to = stopOrThrow(rail, i + 1);
-        const srcAim = radAim(from.position, committedTarget(rail, i));
-        const dstAim = aimOf(to.position, committedTarget(rail, i + 1));
-        const dst = forwardOf(dstAim.yaw, dstAim.pitch);
-        for (const yawOff of [-from.look.yaw, from.look.yaw]) {
-          for (const pitchOff of [from.look.pitchUp, -from.look.pitchDown]) {
-            const composed = composeAim(srcAim, { yaw: yawOff, pitch: pitchOff });
-            const src = forwardOf(composed.yaw * DEG, composed.pitch * DEG);
-            const dot = Math.max(
-              -1,
-              Math.min(1, src[0] * dst[0] + src[1] * dst[1] + src[2] * dst[2]),
-            );
-            const angle = Math.acos(dot) * DEG;
-            if (angle > worst) {
-              worst = angle;
-              where = `stop ${i} yaw ${yawOff} pitch ${pitchOff}`;
+        // BOTH departure directions of the leg: i→i+1 under stop i's rows, i+1→i under stop
+        // i+1's rows — the source framing and the look rows differ per side. Turnaround
+        // anchors are a separate surface (their source is the mid-leg look in force); the
+        // owner's-eye probes cover them interactively — this row never claims them.
+        for (const leg of [
+          { fromIdx: i, toIdx: i + 1 },
+          { fromIdx: i + 1, toIdx: i },
+        ]) {
+          const from = stopOrThrow(rail, leg.fromIdx);
+          const to = stopOrThrow(rail, leg.toIdx);
+          const srcAim = radAim(from.position, committedTarget(rail, leg.fromIdx));
+          const dstAim = aimOf(to.position, committedTarget(rail, leg.toIdx));
+          const dst = forwardOf(dstAim.yaw, dstAim.pitch);
+          for (const yawOff of [-from.look.yaw, from.look.yaw]) {
+            for (const pitchOff of [from.look.pitchUp, -from.look.pitchDown]) {
+              const composed = composeAim(srcAim, { yaw: yawOff, pitch: pitchOff });
+              const src = forwardOf(composed.yaw * DEG, composed.pitch * DEG);
+              const dot = Math.max(
+                -1,
+                Math.min(1, src[0] * dst[0] + src[1] * dst[1] + src[2] * dst[2]),
+              );
+              const angle = Math.acos(dot) * DEG;
+              if (angle > worst) {
+                worst = angle;
+                where = `stop ${leg.fromIdx}→${leg.toIdx} yaw ${yawOff} pitch ${pitchOff}`;
+              }
             }
           }
         }
       }
       const label = rail.stops === SQUARE_RAIL.stops ? 'square' : 'room';
-      console.info(`B10 census ${label}: worst ${worst.toFixed(1)}° at ${where}`);
+      console.info(`B10 census ${label}: stop-departure worst ${worst.toFixed(1)}° at ${where}`);
       expect(worst, `${label}'s worst absorbed swing`).toBeLessThanOrEqual(180);
     }
   });
