@@ -312,6 +312,21 @@ def parse_args():
     parser.add_argument('--out', '--stage', dest='out')
     parser.add_argument('--preview', action='store_true',
                         help='quarter-resolution layout check; never published')
+    # Decision-bake overrides (the bands round's probes; never published): a census
+    # plate or a lever falsifier runs the committed chain with one knob turned. Each
+    # defaults to the committed law when absent.
+    parser.add_argument('--res', type=int, default=None,
+                        help='override the chart bake resolution (census/decision plates)')
+    parser.add_argument('--samples', type=int, default=None,
+                        help='override BAKE_SAMPLES (census/decision plates)')
+    parser.add_argument('--world', type=float, default=None,
+                        help='override WORLD_STRENGTH for this run (the F2 decision bake)')
+    parser.add_argument('--sun', type=float, default=None,
+                        help='override SUN_STRENGTH for this run; 0 skips add_sun '
+                             '(the world-only falsifier plate)')
+    parser.add_argument('--dump-layout', action='store_true', dest='dump_layout',
+                        help='write lm/layout.json: per representative datablock, per face '
+                             'lm cell + world corners + normal (the census input)')
     parser.add_argument('out_positional', nargs='?')
     args = parser.parse_args(argv)
     out = args.out or args.out_positional
@@ -322,7 +337,7 @@ def parse_args():
         fail(f'unknown room {args.room!r}; expected one of {list(ROOMS)}')
     if state not in STATES:
         fail(f'unknown state {args.state!r}; expected one of {list(STATES)}')
-    return args.room, state, Path(out).resolve(), args.preview
+    return args.room, state, Path(out).resolve(), args.preview, args
 
 
 def build_room(room, stage):
@@ -626,9 +641,9 @@ def apply_stage_spill_parts(materials, room, state):
     return {'paneApplied': True, 'paneProof': proofs}
 
 
-def add_sun(scene, room):
+def add_sun(scene, room, strength=None):
     data = bpy.data.lights.new('ZIMNY_SUN', 'SUN')
-    data.energy = SUN_STRENGTH[room]
+    data.energy = SUN_STRENGTH[room] if strength is None else strength
     data.angle = math.radians(SUN_ANGLE_DEG)
     data.color = (1.0, 1.0, 1.0)
     data.use_shadow = True
@@ -818,7 +833,7 @@ def add_jordan_rig(scene, namespace, meshes, scale=1.0):
     }
 
 
-def build_world(scene, room, state):
+def build_world(scene, room, state, strength=None):
     world = bpy.data.worlds.new('ZIMNY_BAKE_WORLD')
     world.use_nodes = True
     tree = world.node_tree
@@ -826,7 +841,7 @@ def build_world(scene, room, state):
     output = tree.nodes.new('ShaderNodeOutputWorld')
     background = tree.nodes.new('ShaderNodeBackground')
     background.inputs['Color'].default_value = (1.0, 1.0, 1.0, 1.0)
-    base = WORLD_STRENGTH[room][state]
+    base = WORLD_STRENGTH[room][state] if strength is None else strength
     background.inputs['Strength'].default_value = base
     if state == 'dusk' and DUSK_GLOW_GAIN > 0.0:
         # Horizon glow toward the below-horizon sun: base + gain * max(dot, 0) ^ power.
@@ -965,20 +980,68 @@ def bake_targets(objects, room):
     for obj in sorted(objects, key=lambda item: item.name):
         grouped.setdefault(obj.data.name, []).append(obj)
     targets = []
+    reps = []
     for name in sorted(grouped):
         group = grouped[name]
         if mode == 'centroid' and len(group) > 1:
             centre_x = sum(obj.location.x for obj in group) / len(group)
             centre_y = sum(obj.location.y for obj in group) / len(group)
             centre_z = sum(obj.location.z for obj in group) / len(group)
-            chosen = min(group, key=lambda obj: ((obj.location.x - centre_x) ** 2
-                                                 + (obj.location.y - centre_y) ** 2
-                                                 + (obj.location.z - centre_z) ** 2,
-                                                 obj.name))
+            # Build unsorted (RNA objects are not orderable — an exact dist2 tie must
+            # never fall into tuple comparison), then sort by the committed law's key:
+            # (dist2, object name) — exact ties resolve to the lexicographically lowest
+            # name. Log pick + runner-up so the next session reads them instead of
+            # re-deriving the law (the bands round's pins).
+            keyed = [(((obj.location.x - centre_x) ** 2
+                       + (obj.location.y - centre_y) ** 2
+                       + (obj.location.z - centre_z) ** 2), obj) for obj in group]
+            keyed.sort(key=lambda item: (item[0], item[1].name))
+            chosen = keyed[0][1]
+            runner = keyed[1] if len(keyed) > 1 else None
+            reps.append({'datablock': name, 'groupSize': len(group),
+                         'pick': f'{chosen.name} @ ({chosen.location.x:.3f}, '
+                                 f'{chosen.location.y:.3f}, {chosen.location.z:.3f})',
+                         'dist2': round(keyed[0][0], 6),
+                         'runnerUp': None if runner is None else
+                                     f'{runner[1].name} @ d2 {runner[0]:.6f}'})
         else:
             chosen = group[0]
         targets.append(chosen)
-    return targets
+    for rep in reps:
+        print(f"ZIMNY_REP {rep['datablock']}: pick {rep['pick']} (d2 {rep['dist2']}, "
+              f"runner-up {rep['runnerUp']})", flush=True)
+    return targets, reps
+
+
+def dump_layout(path, targets, grid):
+    # The bands census input: per representative datablock, per face — the lm cell it
+    # inks (cells.json's per-object consecutive runs: first_cell + face index) and the
+    # face's world corners + normal at the representative's own placement.
+    cells = json.loads((path.parent / 'cells.json').read_text(encoding='utf-8'))['cells']
+    owned = {}
+    for key, row in cells.items():
+        cx, cy = (int(part) for part in key.split(','))
+        owned.setdefault(row['object'], []).append(cy * grid + cx)
+    layout = {}
+    for obj in targets:
+        name = obj.data.name
+        runs = sorted(owned.get(name, []))
+        if not runs:
+            fail(f'layout dump: datablock {name!r} owns no lm cells in cells.json')
+        first = runs[0]
+        matrix = obj.matrix_world
+        normal_matrix = matrix.to_3x3()
+        faces = []
+        for pi, poly in enumerate(obj.data.polygons):
+            cell = first + pi
+            faces.append({'cell': f'{cell % grid},{cell // grid}',
+                          'corners': [list(matrix @ obj.data.vertices[i].co)
+                                      for i in poly.vertices],
+                          'normal': list((normal_matrix @ poly.normal).normalized())})
+        layout[name] = {'firstCell': first, 'faces': faces}
+    path.write_text(json.dumps(layout, sort_keys=True, indent=2) + '\n', encoding='utf8')
+    total = sum(len(row['faces']) for row in layout.values())
+    print(f'ZIMNY_LAYOUT {path} ({total} faces)', flush=True)
 
 
 def bake_lightmap(scene, meshes, targets, materials, res, margin_px):
@@ -1249,15 +1312,20 @@ def print_summary(summary):
 
 
 def main():
-    room, state, stage, preview = parse_args()
+    room, state, stage, preview, opts = parse_args()
     stage.mkdir(parents=True, exist_ok=True)
     namespace, scene, meshes = build_room(room, stage)
     charts = chart_contract(namespace)
     lm_grid = builder_constant(namespace, 'LM_GRID', required=False)
     samples = PREVIEW_SAMPLES if preview else BAKE_SAMPLES
+    if opts.samples is not None:
+        samples = opts.samples
     if preview:
         for spec in charts:
             spec['res'] = max(spec['res'] // 4, 256)
+    if opts.res is not None:
+        for spec in charts:
+            spec['res'] = opts.res
     white_point = WHITE_POINT[room]
     if isinstance(white_point, dict):
         if state not in white_point:
@@ -1290,9 +1358,11 @@ def main():
     if RIG_STATE_SCALE.get(room, {}).get(state, 0.0) > 0.0:
         rig = add_jordan_rig(scene, namespace, meshes,
                              scale=RIG_STATE_SCALE[room][state])
-    if state == 'day':
-        add_sun(scene, room)
-    build_world(scene, room, state)
+    if state == 'day' and opts.sun != 0.0:
+        # opts.sun=0 skips the sun entirely (the world-only falsifier plate); a value
+        # overrides SUN_STRENGTH for this run (the F2 decision bake never uses it).
+        add_sun(scene, room, strength=opts.sun)
+    build_world(scene, room, state, strength=opts.world)
     add_probe_camera(scene, room)
     configure_cycles(scene, samples)
 
@@ -1327,7 +1397,9 @@ def main():
             fail(f"chart {spec['name']!r} of {room} selected no objects")
         chart_mats = ensure_materials(objects)
         bake_mats = duplicate_chart_materials(objects) if spec['objectPrefixes'] else chart_mats
-        targets = bake_targets(objects, room)
+        targets, reps = bake_targets(objects, room)
+        if opts.dump_layout and lm_grid:
+            dump_layout(lm_dir / 'layout.json', targets, lm_grid)
         collapsed = (collapse_frame_backfaces(objects, namespace['_LAYOUT']['frames'])
                      if spec['objectPrefixes'] else [])
         image = bake_lightmap(scene, meshes, targets, bake_mats, spec['res'], margin_px)
@@ -1431,6 +1503,10 @@ def main():
     # spill must not add a `"stageSpill": null` byte-diff to the siblings' summaries.
     if spill is not None:
         summary['stageSpill'] = spill
+    # The representative picks land only where the centroid mode ran with multi-instance
+    # groups (jordan's split rosters); every-else rooms keep their summaries byte-stable.
+    if reps:
+        summary['reps'] = reps
     # RG-F3 (the proof-law rows): paneApplied + paneProof land only for rooms that declare
     # pane spill rows; the door's spillApplied rows above are untouched.
     if pane_spill is not None:

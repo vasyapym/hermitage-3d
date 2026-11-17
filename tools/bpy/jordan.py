@@ -64,7 +64,9 @@ LM_RES = 2048
 LM_PAD_PX = 2
 LM_GRID = 64
 LM_CAPACITY = LM_GRID * LM_GRID
-LM_CELLS = {'expected': 3150, 'warn': 3400, 'max': 4096}
+# The bands fix (2026-11-16): the per-wall/per-tier template split adds 2 extra pilaster
+# datablocks (2 x 24 faces), 2 extra bases (2 x 8) and 1 extra frame (16) — 3150 + 80.
+LM_CELLS = {'expected': 3230, 'warn': 3400, 'max': 4096}
 # Filled from the actual envelope allocation; 1536 is no longer a safe barrier.
 LM_PART2_FIRST_CELL = 0
 LM_CELL_MAP = {'res': LM_RES, 'grid': LM_GRID, 'pad': LM_PAD_PX, 'cells': {}}
@@ -1202,9 +1204,18 @@ def main():
         ('chandelier', build_chandelier, ['gilt', 'chandelier_glow']),
         ('sconce', build_sconce, ['plaster_warm', 'sconce_glow']),
         ('cornice', build_cornice, ['plaster_warm']),
-        ('pilaster', build_pilaster, ['plaster_warm', 'gilt']),
-        ('pilaster_base', build_pilaster_base, ['plaster_warm']),
-        ('window_frame', build_window_frame, ['plaster_warm']),
+        # The bands fix (2026-11-16): one template datablock PER WALL (pilaster,
+        # pilaster_base: north/south/east by placement) and PER TIER (window_frame:
+        # lower/upper) — bake.py's centroid representative then runs inside each group
+        # instead of once across all 16 shafts. Same builders; identical geometry.
+        ('pilaster_n', build_pilaster, ['plaster_warm', 'gilt']),
+        ('pilaster_s', build_pilaster, ['plaster_warm', 'gilt']),
+        ('pilaster_e', build_pilaster, ['plaster_warm', 'gilt']),
+        ('pilaster_base_n', build_pilaster_base, ['plaster_warm']),
+        ('pilaster_base_s', build_pilaster_base, ['plaster_warm']),
+        ('pilaster_base_e', build_pilaster_base, ['plaster_warm']),
+        ('window_frame_lo', build_window_frame, ['plaster_warm']),
+        ('window_frame_hi', build_window_frame, ['plaster_warm']),
     ):
         b = MeshBuilder(name)
         builder(b)
@@ -1226,7 +1237,9 @@ def main():
         draws += prims
         if name == 'pane':
             envelope_cells = cells
-        if name in ('baluster', 'column', 'sconce', 'pilaster', 'pilaster_base', 'window_frame'):
+        if name in ('baluster', 'column', 'sconce', 'pilaster_n', 'pilaster_s', 'pilaster_e',
+                    'pilaster_base_n', 'pilaster_base_s', 'pilaster_base_e',
+                    'window_frame_lo', 'window_frame_hi'):
             ob = bpy.data.objects[name]
             templates[name] = ob.data
             bpy.data.objects.remove(ob, do_unlink=True)
@@ -1264,12 +1277,16 @@ def main():
     for z, y in SCONCE_EAST:
         put('sconce', (X_E, y, z), math.pi / 2)
     # Keep the committed roster: east shafts pass through the landing; bases
-    # remain at Y_FLOOR. Their shared bake-chart representative is bake.py's job.
+    # remain at Y_FLOOR. The wall/tier split (the bands fix) picks each instance's
+    # template by position; bake.py's centroid representative runs inside each group.
+    tier_centres = [(sill + head) / 2 for sill, head in WIN_TIERS]
     for x, z, rot_y in PILASTERS:
-        put('pilaster', (x, PILASTER_Y0, z), rot_y)
-        put('pilaster_base', (x, Y_FLOOR, z), rot_y)
+        wall = 'n' if z == Z_N else ('s' if z == Z_S else 'e')
+        put(f'pilaster_{wall}', (x, PILASTER_Y0, z), rot_y)
+        put(f'pilaster_base_{wall}', (x, Y_FLOOR, z), rot_y)
     for x, y in WINDOW_FRAMES:
-        put('window_frame', (x, y, Z_N), math.pi)
+        tier = 'lo' if y == tier_centres[0] else 'hi'
+        put(f'window_frame_{tier}', (x, y, Z_N), math.pi)
     drawn = sum(row['triangles'] * row['instances'] for row in meshes.values())
     draws_naive = sum(primitives[name] * row['instances'] for name, row in meshes.items())
     if BAKE:
@@ -1359,12 +1376,14 @@ def main():
                               'capital': PILASTER_CAPITAL, 'abacusTopY': round(PILASTER_Y0 + PILASTER_CAPITAL[-1][3], 6),
                               'base': PILASTER_BASE, 'baseY': Y_FLOOR, 'northX': PILASTER_NORTH_X,
                               'southX': PILASTER_SOUTH_X, 'eastZ': PILASTER_EAST_Z, 'roster': PILASTERS,
-                              'N': meshes['pilaster']['instances'], 'basesN': meshes['pilaster_base']['instances'],
+                              'N': sum(meshes[f'pilaster_{w}']['instances'] for w in ('n', 's', 'e')),
+                              'basesN': sum(meshes[f'pilaster_base_{w}']['instances'] for w in ('n', 's', 'e')),
                               'templateFront': '-Z',
                               'rotYRadians': {'north': math.pi, 'south': 0.0, 'east': math.pi / 2}},
                 'windowFrames': {'opening': WINDOW_FRAME_OPEN, 'architrave': WINDOW_ARCH, 'sill': WINDOW_SILL,
                                  'baysX': WIN_X, 'roster': WINDOW_FRAMES, 'wall': 'north', 'wallZ': Z_N,
-                                 'rotYRadians': math.pi, 'N': meshes['window_frame']['instances']},
+                                 'rotYRadians': math.pi,
+                                 'N': sum(meshes[f'window_frame_{t}']['instances'] for t in ('lo', 'hi'))},
                 'slots': {'base': KIT_BASE, 'accent': KIT_ACCENT,
                           'law': 'materials[i] is builder slot i; one glTF primitive per used slot'},
             },
@@ -1383,9 +1402,11 @@ def main():
                         'rotYRadians': {'west': -math.pi / 2, 'north': math.pi, 'east': math.pi / 2},
                         'bracket': SCONCE_BRACKET, 'glowBox': SCONCE_GLOW_BOX,
                         'emissionStrength': SCONCE_GLOW_EMISSION[1], 'emissionColour': SCONCE_GLOW_EMISSION[0]},
-            'lmInstancePolicy': 'instanced props share their template lightmap cells; '
-                                'bake.py selects the centroid representative for Jordan; '
-                                'runtime ADR-0013 probe scalars remain unchanged',
+            'lmInstancePolicy': 'instanced props bake one representative per wall/tier group '
+                                '(pilaster x3, pilaster_base x3, window_frame x2 datablocks; '
+                                'the day upper-tier bands fix); bake.py selects the centroid '
+                                'representative inside each group; runtime ADR-0013 probe '
+                                'scalars remain unchanged',
             'kitRefs': 'solids: twice face centroid minus interior centroid; lathe sides: '
                        'radially outward; caps: beyond ends; ring inner: centre; niche faces: '
                        'HALL_REF; niche reveals: cavity centre; frame returns: radially outward',

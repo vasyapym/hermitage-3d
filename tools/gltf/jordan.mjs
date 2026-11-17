@@ -71,9 +71,17 @@ export const EXPECTED_INSTANCES = {
   chandelier: 1,
   sconce: 10,
   cornice: 1,
-  pilaster: 16,
-  pilaster_base: 16,
-  window_frame: 12,
+  // The bands fix (2026-11-16): one template datablock per wall / per tier so bake.py's
+  // centroid representative runs inside each group (the old single-datablock rows
+  // pilaster 16 / pilaster_base 16 / window_frame 12 are gone with the split).
+  pilaster_n: 7,
+  pilaster_s: 5,
+  pilaster_e: 4,
+  pilaster_base_n: 7,
+  pilaster_base_s: 5,
+  pilaster_base_e: 4,
+  window_frame_lo: 6,
+  window_frame_hi: 6,
 };
 export const MATERIAL_SLOTS = {
   shell: ['plaster_warm', 'marble_floor'],
@@ -86,9 +94,14 @@ export const MATERIAL_SLOTS = {
   chandelier: ['gilt', 'chandelier_glow'],
   sconce: ['plaster_warm', 'sconce_glow'],
   cornice: ['plaster_warm'],
-  pilaster: ['plaster_warm', 'gilt'],
-  pilaster_base: ['plaster_warm'],
-  window_frame: ['plaster_warm'],
+  pilaster_n: ['plaster_warm', 'gilt'],
+  pilaster_s: ['plaster_warm', 'gilt'],
+  pilaster_e: ['plaster_warm', 'gilt'],
+  pilaster_base_n: ['plaster_warm'],
+  pilaster_base_s: ['plaster_warm'],
+  pilaster_base_e: ['plaster_warm'],
+  window_frame_lo: ['plaster_warm'],
+  window_frame_hi: ['plaster_warm'],
 };
 export const EMISSIVE_MATERIALS = { pane: 3, sconce_glow: 1, chandelier_glow: 1 }; // 2c: the chips normalize so the tint survives
 export const METALLIC_MATERIALS = { gilt: 0.5 };

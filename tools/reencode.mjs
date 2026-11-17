@@ -142,14 +142,17 @@ const PATCH_PAINTS = {
 };
 
 // Pinned transcode flags — the same ETC1S economics as the bake (§5: linear irradiance data).
+// The bands round (2026-11-16, F3): qlevel 128 → 255, clevel 1 → 2 — the dark tier's
+// gradation was losing −22 stored points at the median (the 2c method); the target is
+// ≥ −10. jordan is the only percentile-led room, so this table moves its lm alone.
 const TOKTX_FLAGS = [
   '--t2',
   '--encode',
   'etc1s',
   '--clevel',
-  '1',
+  '2',
   '--qlevel',
-  '128',
+  '255',
   '--threads',
   '1',
   '--assign_oetf',
