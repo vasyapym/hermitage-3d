@@ -1,8 +1,10 @@
 // B9 — the field look law (design-walkthrough-ux.md §8, supersedes R19-ux C's departure
 // turn). One field row over EVERY committed segment (both headings): between two stops the
-// aim is exactly the arc between their framings × the lead weight g(wd) — B9b (2026-11-16):
-// the arc completes at 80 % of the anchor's remaining segment and rests on the destination
-// framing; locked dollies hold their point; the look is position-, heading- and anchor-
+// aim is exactly the arc between their framings × the lag weight g(wd) — B9c (2026-11-17,
+// the rg-move lane; supersedes B9b's lead): the look HOLDS the anchor's aim across the first
+// 20 % of the anchor's remaining segment and plays its whole arc across the last 80 %,
+// landing on the destination framing exactly at the stop; locked dollies hold their point;
+// the look is position-, heading- and anchor-
 // determined with no independent clock (a fresh opposite heading reads its own anchored
 // shape — the linear law's cross-heading point-equality is retired intentionally; a
 // reversal re-anchors at the look in force and retraces it under the same law); the
@@ -15,7 +17,7 @@ import { contract as galleryContract } from '../rooms/rastrelli-gallery/contract
 import {
   advance,
   committedTarget,
-  LOOK_LEAD,
+  LOOK_LAG,
   type RailState,
   restingAt,
   sampleLimits,
@@ -34,9 +36,12 @@ const DEG = 180 / Math.PI;
 const FRAME = 16 + 2 / 3; // the walk rows' cadence — no real timers, event-split slices
 const S = [1e-10, 0.05, 0.25, 0.5, 0.75, 0.95, 1 - 1e-10] as const;
 const EPS_DEG = 1e-7;
-// B9b (the 2026-11-16 re-choreography): the one weight over the lead span — the base gaze
-// (and the limits) complete the segment's arc at 80 % of the anchor's remaining segment.
-const g = (s: number): number => smoothstep(Math.min(1, s / LOOK_LEAD));
+// B9c (2026-11-17, the rg-move lane; supersedes B9b's lead): the one weight over the lag
+// span — the base gaze (and the limits) hold the anchor's aim across the first 1 − LOOK_LAG
+// of the anchor's remaining segment and play the arc across the last LOOK_LAG. The mirror
+// identity holds exactly (g_new(s) = 1 − g_old(1 − s), g_old(s) = smoothstep(min(1,
+// s / LOOK_LEAD))); every recomputed pin below was sanity-checked against it.
+const g = (s: number): number => smoothstep(Math.max(0, 1 - (1 - s) / LOOK_LAG));
 
 const aimOf = (position: Vec3, target: Vec3): { yaw: number; pitch: number } => {
   const dx = target[0] - position[0];
@@ -88,11 +93,13 @@ describe('B9 field: between two stops the look is the arc between their framings
               continue;
             }
             const got = aimOf(pose.position, pose.target);
-            // B9b: the one weight is g of the covered fraction of the anchor's remaining
+            // B9c: the one weight is g of the covered fraction of the anchor's remaining
             // segment. A fresh departure anchors at its own origin stop, so the Forward
             // walk (from stop i) covers s and the Back walk (from stop i + 1) covers
             // 1 − s — the same law both ways, each over its own anchored arc (the old
-            // linear weight made the two coincide point-for-point; the lead retires that).
+            // linear weight made the two coincide point-for-point; the lead retired that,
+            // and the lag keeps the per-heading arcs — the hold reads the source aim
+            // exactly across the first 20 %).
             const t = heading === 1 ? g(s) : g(1 - s);
             const [from, to] = heading === 1 ? [end.a, end.b] : [end.b, end.a];
             const wantYaw = from.yaw + wrapDeg(to.yaw - from.yaw) * t;
@@ -104,10 +111,11 @@ describe('B9 field: between two stops the look is the arc between their framings
           }
         }
       });
-      it(`${room} ${i}→${i + 1}: limits read the lead blend on both headings (B9b)`, () => {
+      it(`${room} ${i}→${i + 1}: limits read the lag blend on both headings (B9c)`, () => {
         // The limits move with the same one weight, anchored per heading (the old
-        // both-headings-equal pin was a linear-weight consequence; the lead retires it —
-        // the stop fences still read each stop's own rows bit-exactly).
+        // both-headings-equal pin was a linear-weight consequence; the lead retired it —
+        // the stop fences still read each stop's own rows bit-exactly, and the hold keeps
+        // the anchor's rows across the first 1 − LOOK_LAG).
         const rowsA = sampleLimits(rail, restingAt(stopParameter(rail, i)));
         const rowsB = sampleLimits(rail, restingAt(stopParameter(rail, i + 1)));
         for (const s of S) {
@@ -130,22 +138,23 @@ describe('B9 field: between two stops the look is the arc between their framings
           }
         }
       });
-      it(`${room} ${i}→${i + 1}: for wd ≥ LOOK_LEAD the base gaze rests on the destination framing (B9b)`, () => {
-        // B9b's lead: past 80 % of the anchor's remaining segment the look IS the
-        // destination's committed framing — the body brakes in under a landed look. wd is
-        // the fraction covered from the segment's origin, so the backward heading reads
-        // the pin at s = 1 − wd.
+      it(`${room} ${i}→${i + 1}: for wd ≤ 1 − LOOK_LAG the base gaze holds the source aim exactly (B9c)`, () => {
+        // B9c's lag: across the first 1 − LOOK_LAG of the anchor's remaining segment the
+        // look IS the anchor's source framing (w ≡ 0 — the body departs under the look it
+        // left with). wd is the fraction covered from the segment's origin, so the backward
+        // heading reads the pin at s = 1 − wd (wd 0 sits on the source stop itself). The
+        // landing pin keeps the fence: at wd = 1 the destination framing, exact.
         for (const heading of [1, -1] as const) {
-          for (const wd of [LOOK_LEAD, 0.85, 0.95, 1 - 1e-10]) {
+          for (const wd of [0, 0.1, 1 - LOOK_LAG]) {
             const s = heading === 1 ? wd : 1 - wd;
             const pose = samplePose(rail, midState(rail, i, s, heading));
             if (locked) {
               expect(pose.target).toEqual(committedTarget(rail, i));
               continue;
             }
-            const dest = heading === 1 ? i + 1 : i;
-            const destPose = samplePose(rail, restingAt(stopParameter(rail, dest)));
-            const want = aimOf(destPose.position, destPose.target);
+            const src = heading === 1 ? i : i + 1;
+            const srcPose = samplePose(rail, restingAt(stopParameter(rail, src)));
+            const want = aimOf(srcPose.position, srcPose.target);
             const got = aimOf(pose.position, pose.target);
             expect(
               Math.abs(wrapDeg(got.yaw - want.yaw)),
@@ -156,6 +165,25 @@ describe('B9 field: between two stops the look is the arc between their framings
               `pitch heading ${heading} wd ${wd}`,
             ).toBeLessThanOrEqual(EPS_DEG);
           }
+          // The landing pin (kept from B9b): wd = 1 ⇒ the destination framing, exact.
+          const s = heading === 1 ? 1 - 1e-10 : 1e-10;
+          const pose = samplePose(rail, midState(rail, i, s, heading));
+          if (locked) {
+            expect(pose.target).toEqual(committedTarget(rail, i));
+            continue;
+          }
+          const dest = heading === 1 ? i + 1 : i;
+          const destPose = samplePose(rail, restingAt(stopParameter(rail, dest)));
+          const want = aimOf(destPose.position, destPose.target);
+          const got = aimOf(pose.position, pose.target);
+          expect(
+            Math.abs(wrapDeg(got.yaw - want.yaw)),
+            `landing yaw heading ${heading}`,
+          ).toBeLessThanOrEqual(EPS_DEG);
+          expect(
+            Math.abs(got.pitch - want.pitch),
+            `landing pitch heading ${heading}`,
+          ).toBeLessThanOrEqual(EPS_DEG);
         }
       });
     }
@@ -163,11 +191,12 @@ describe('B9 field: between two stops the look is the arc between their framings
 });
 
 describe('B9 pacing: the look turns with the travel', () => {
-  // B9b (2026-11-16): the aim is still a pure function of the travelled distance
-  // (position-only), but the weight is the lead's smoothstep over the first 80 % of the
-  // segment — the per-rail pan rate peaks at 1.5/LOOK_LEAD = 1.875 × the segment's own
-  // average (the amended B9 clause), and the share left after 62 % of the segment is
-  // travelled is 1 − g(0.62) of the arc (the old 1 − 0.62 pin, reshaped).
+  // B9c (2026-11-17, the rg-move lane): the aim is still a pure function of the travelled
+  // distance (position-only), but the weight is the lag's smoothstep over the last 80 % of
+  // the segment (the hold keeps w ≡ 0 across the first 20 %) — the per-rail pan rate still
+  // peaks at 1.5/LOOK_LAG = 1.875 × the segment's own average (the same value as B9b's; the
+  // peak's s moved 0.4 → 0.6), and the share left after 62 % of the segment is travelled is
+  // 1 − g(0.62) of the arc (0.463 of it — the mirror identity recomputes: 1 − g_old(0.38)).
   const VC = 1 / WALK_CRUISE_MS;
   const k = (rail: Rail, s: RailState): number => s.u * (rail.stops.length - 1);
   const yawOf = (pose: ReturnType<typeof samplePose>): number =>
@@ -177,7 +206,7 @@ describe('B9 pacing: the look turns with the travel', () => {
     ['jordan J2b→J3', jordanContract.rail, 4],
   ];
   for (const [label, rail, i] of cases) {
-    it(`${label}: the walk pan never turns faster per unit of rail than 1.875 × the arc (B9b)`, () => {
+    it(`${label}: the walk pan never turns faster per unit of rail than 1.875 × the arc (B9c)`, () => {
       const end = framings(rail, i);
       const arc = Math.abs(wrapDeg(end.b.yaw - end.a.yaw));
       let state = walkPress(rail, restingAt(stopParameter(rail, i)), 1, false, false).state;
@@ -205,11 +234,12 @@ describe('B9 pacing: the look turns with the travel', () => {
         prevK = k(rail, state);
       }
       expect(sawCruise, 'the walk reached its cruise').toBe(true);
-      // The B9b field law at the averaged pace: never faster per unit of rail than the
-      // smoothstep lead's peak 1.875 × the segment's own arc (the position-only law keeps
-      // the bound through the accel ramp too).
+      // The B9c field law at the averaged pace: never faster per unit of rail than the
+      // smoothstep lag's peak 1.875 × the segment's own arc — the same value as B9b's (the
+      // peak's s moved 0.4 → 0.6; the position-only law keeps the bound through the hold
+      // and the accel ramp too).
       expect(worstPerRail).toBeLessThanOrEqual(arc * 1.875 * 1.001);
-      // The cruise pan's per-ms rate: the lead shape × the constant cruise speed — never
+      // The cruise pan's per-ms rate: the lag shape × the constant cruise speed — never
       // past arc·1.875·v_c (the old constant arc·v_c pin retired with the linear weight).
       expect(peakCruiseRate).toBeLessThanOrEqual(arc * 1.875 * VC * 1.001);
     });
@@ -238,7 +268,8 @@ describe('B9 keeps the recorded rows', () => {
     // the door on G0b→Gj — and re-authored G0b level: its GALLERY_MOUTH subject sits at
     // eye height, so the recorded 6.1009° Back settle at G0b retires (the pitch rows are
     // 3.06° → 0° and 0° → 0°); G0's own 3.06° fence keeps its unchanged data. The
-    // mid-segment samples read the B9b lead weight g(s), not the old linear distance
+    // mid-segment samples read the B9c lag weight g(s) — the hold keeps the source aim
+    // across the first 20 % — not the old linear distance
     // fraction (the old 83.0°/6.1009° rows retire with the 2026-11-14 split).
     const rail = galleryContract.rail;
     const end0 = framings(rail, 0);
@@ -251,8 +282,8 @@ describe('B9 keeps the recorded rows', () => {
     expect(Math.abs(wrapDeg(end1.b.yaw - end1.a.yaw))).toBeCloseTo(61.0, 1);
     expect(end1.a.pitch).toBeCloseTo(0, 9);
     expect(end1.b.pitch).toBeCloseTo(0, 9); // the 6.10° down-settle is gone
-    // Segment 0: the pitch settles 3.06° → 0°, monotone decreasing, every sample
-    // a + (b − a)·g(s) within EPS.
+    // Segment 0: the pitch settles 3.06° → 0°, monotone non-increasing (the B9c hold keeps
+    // the source's 3.06° across the first 20 %), every sample a + (b − a)·g(s) within EPS.
     let last = Number.POSITIVE_INFINITY;
     for (let step = 1; step <= 99; step += 1) {
       const s = step / 100; // forward: from the G0 framing (3.06°) down toward G0b's 0°
@@ -274,10 +305,13 @@ describe('B9 keeps the recorded rows', () => {
     }
   });
 
-  it('the pass-through rate closes by construction: the gaze-turn rate → 0 at both ends of the gallery pans (B9b)', () => {
-    // B9b's recorded consequence: the rate is zero on both sides of every stop — the
-    // finite-difference gaze rate vanishes as s → 0⁺ and as s → 1⁻ (and the lead point
-    // itself is a zero-slope join), so a hold crossing a stop never snaps the gaze.
+  it('the pass-through rate closes by construction: the outgoing side is the exact hold, the incoming side a zero-slope join (B9c)', () => {
+    // B9c's recorded consequence — the flat side SWAPS vs B9b: the OUTGOING side of every
+    // stop is the hold (w ≡ 0 across the next segment's first 1 − LOOK_LAG), so the
+    // finite-difference gaze rate there is exactly the float dust; the INCOMING side is
+    // the zero-slope landing (w → 1 quadratically — the mirror of B9b's flat lead tail),
+    // its FD rate O(h) — ≈ 7.5·h/LOOK_LAG of the arc per unit s for step h (≈ 1.4e-3 at
+    // s = 1 − 2e-4) — bounded, never a kink.
     const rail = galleryContract.rail;
     for (const segment of [0, 1]) {
       const end = framings(rail, segment);
@@ -295,13 +329,20 @@ describe('B9 keeps the recorded rows', () => {
           (h * arc)
         );
       };
-      for (const s of [1e-4, LOOK_LEAD - 1e-4, LOOK_LEAD, 1 - 2e-4]) {
-        expect(rateAt(s), `segment ${segment} rate/arc at s ${s}`).toBeLessThanOrEqual(0.01);
+      // The hold: both FD samples sit inside w ≡ 0 — the rate is the aim-comparison dust.
+      for (const s of [1e-4, 0.1, 1 - LOOK_LAG - 1e-4]) {
+        expect(rateAt(s), `segment ${segment} hold rate/arc at s ${s}`).toBeLessThanOrEqual(1e-9);
+      }
+      // The zero-slope landing: the FD rate is O(h), bounded well under the old 0.01 bar.
+      for (const s of [1 - 2e-4]) {
+        expect(rateAt(s), `segment ${segment} landing rate/arc at s ${s}`).toBeLessThanOrEqual(
+          0.01,
+        );
       }
     }
   });
 
-  it('a mid-walk reversal re-anchors AT THE TURNAROUND on the field: both legs pin to their anchored arcs (B9b)', () => {
+  it('a mid-walk reversal re-anchors AT THE TURNAROUND on the field: both legs pin to their anchored arcs (B9c)', () => {
     const rail = galleryContract.rail;
     const uA = stopParameter(rail, 0);
     const uB = stopParameter(rail, 1);
@@ -333,10 +374,11 @@ describe('B9 keeps the recorded rows', () => {
     expect(state.walk).toBeNull();
     expect(state.u).toBe(uA); // G0
     for (const s of [0.39, 0.3, 0.2, 0.1, 0.01]) {
-      // B9b: each heading reads its own anchored arc — the fresh Back departure from G0b
+      // B9c: each heading reads its own anchored arc — the fresh Back departure from G0b
       // covers 1 − s of its remaining segment toward the framing it departs from, the
-      // fresh Forward departure from G0 covers s. The old cross-heading point-equality
-      // was a linear-weight consequence; the lead retires it (the look is a function of
+      // fresh Forward departure from G0 covers s (the hold keeps the source aim across
+      // the first 20 % of each). The old cross-heading point-equality
+      // was a linear-weight consequence; the lead retired it (the look is a function of
       // (u, heading, anchor)), so both headings pin to their own law here. The target
       // POINT carries the reach of its own destination (the synthetic ray's length), so
       // the aim compares, not the point.
@@ -418,12 +460,13 @@ describe('B9 keeps the recorded rows', () => {
 });
 
 describe('R22-ux: the military corner-run hold', () => {
-  it('military M3→M4: a held east look rides the limiting blend linearly in the lead weight to the doors framing', () => {
+  it('military M3→M4: a held east look rides the limiting blend linearly in the lag weight to the doors framing', () => {
     const rail = contract1812.rail;
     const end = framings(rail, 3); // the two endpoint base-gaze angles, from the file's helper
     // M3: south base + held yaw −90 (clamped by the ±90 row) composes to due east (90°).
     // M4: the doors base yaw clamped by the ±40 row composes to the square-on doors view.
-    // B9b: the base gaze AND the limits both move with the one lead weight g(s), so the
+    // B9c: the base gaze AND the limits both move with the one lag weight g(s) (held at
+    // the anchor's across the first 20 %), so the
     // composed view stays linear in that weight (the old linear-in-s read retires).
     const atDoor = end.b.yaw - 40;
     for (const s of S) {

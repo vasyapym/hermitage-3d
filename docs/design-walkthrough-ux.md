@@ -375,15 +375,18 @@ pick destinations; the wheel's travel (and its sustained-scroll boundary pass) i
   the dwell — a door press opens even inside it).
 - The B9 gaze law below is position-only (the walk re-times u, not the look);
   pass-through stops are met on their committed framings and the arrival poses stay exact
-  (the golden fence holds by construction). B9b (2026-11-16, the rg-walk-tune round)
-  reshapes the ONE weight: w = smoothstep(min(1, wd / LOOK_LEAD)), LOOK_LEAD 0.8 — the
-  base gaze completes its arc at 80 % of the anchor's remaining segment and rests on the
-  destination framing while the body brakes in (on an isolated tap the look lands at
-  ≈ 1.41 s and the body rests at 2.06 s — the look leads the stop by ≈ 0.65 s). Still no
-  clock and no RailState field. The formerly accepted pass-through consequence
-  («cruising through a stop makes the gaze-turn RATE discontinuous there») is CLOSED by
-  construction FOR THE NONLOCKED BLENDS: at every stop whose segments blend angularly the
-  gaze-turn rate is zero on both sides of the stop. A locked dolly keeps its held-point
+  (the golden fence holds by construction). B9b (2026-11-16, the rg-walk-tune round; phasing
+  superseded by B9c) reshaped the ONE weight into a LEAD (the arc completed at 80 % and the
+  body braked under a landed look). B9c (2026-11-17, the rg-move lane; keeps B9's arc) is
+  the lead's mirror: one weight, w = smoothstep(max(0, 1 − (1 − wd)/LOOK_LAG)), LOOK_LAG
+  0.8 — the look HOLDS the anchor's aim (the departure framing, or the look in force —
+  B10) across the first 20 % of the segment — the body starts first — and plays its whole
+  arc across the last 80 %, landing on the author's frame exactly at the stop; the
+  gaze-turn rate is zero on both sides of every nonlocked stop (no kink), never above
+  1.875 × the segment's average per unit of rail. Position-only: the rotation rests WITH
+  the body, never after it; a rotation that settles after the body is a clock law (B9d),
+  costed and deferred to the owner's second play. Still no clock and no RailState field.
+  A locked dolly keeps its held-point
   parallax (the locked branch bypasses the angular blend; a transverse eye motion still
   rotates the gaze direction) — the gallery's axis-aligned corridor dollies carry none.
 - **Gaze law (B9, supersedes R19-ux C's departure turn)**: authored SUBJECTS and the
@@ -392,13 +395,14 @@ pick destinations; the wheel's travel (and its sustained-scroll boundary pass) i
   else: the source aim is frozen at the departure eye (or at the look in force at a
   reversal), the destination aim is frozen at the destination eye, yaw takes the shortest
   arc and pitch blends linearly, both with one weight — the distance fraction covered of
-  the anchor's remaining segment, reshaped by the lead (B9b, 2026-11-16): the look
-  completes its arc at LOOK_LEAD 0.8 of the remaining segment and rests on the destination
-  framing while the body brakes in (on an isolated tap the look lands at ≈ 1.41 s, the
-  body rests at 2.06 s). The look therefore turns with the travel: it starts with the
-  position and stops with the travel up to the lead, then the body settles under a landed
-  look, never turning faster per unit of rail than 1.875 × the segment's own average (the
-  smoothstep peak over the lead span), and no held point's parallax reaches the gaze. The base gaze is a function of
+  the anchor's remaining segment, reshaped by the lag (B9c, 2026-11-17; the lead B9b's
+  mirror): the look HOLDS the anchor's aim across the first 20 % of the segment — the body
+  starts first — and plays its whole arc across the last 80 %, landing on the destination
+  framing exactly at the stop (on an isolated tap the sweep plays ≈ 0.5–1.75 s while the
+  body runs and brakes, both resting together at 2.06 s). The look therefore trails the
+  travel: the position starts first, the look peaks at 60 % of the segment, never turning
+  faster per unit of rail than 1.875 × the segment's own average (the
+  smoothstep peak over the lag span), and no held point's parallax reaches the gaze. The base gaze is a function of
   rail position, heading and the active anchor alone — no independent clock: within one
   anchored segment, Forward and Back, walks, partial intents, retargets
   and reversals read the same look at the same point; a fresh opposite heading anchors at
