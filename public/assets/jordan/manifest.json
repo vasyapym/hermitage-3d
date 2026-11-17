@@ -3,26 +3,26 @@
   "files": [
     {
       "path": "jordan.glb",
-      "bytes": 237556,
-      "sha256": "cdd526ded9cca7b196e0445ad235aae6c110d84943ca1e2238670a1ef24fcc93",
+      "bytes": 241864,
+      "sha256": "4c77522f6dcdceb6043c16965b6a04f3d0597fc4b2b307cee71f2fd4a4805ae0",
       "kind": "glb"
     },
     {
       "path": "lm/day.ktx2",
-      "bytes": 358260,
-      "sha256": "c4b3ae53b13048233dbf5ac5ad8aea77237382cdd79ad834d3238666e2539ef7",
+      "bytes": 469019,
+      "sha256": "90142a3ec9940441de3897ab54a2ebe2d91b393d44607345c170207338bfc7f2",
       "kind": "ktx2"
     },
     {
       "path": "lm/dusk.ktx2",
-      "bytes": 299077,
-      "sha256": "be38e5cdb35331f5b6c6994158cf1c1cd01be110265895a5f610a8b27166fac3",
+      "bytes": 388348,
+      "sha256": "3d4bc940f58e93b0d46a77f6b761612ccaec3feb7cf75ad3d9182b2430a7522f",
       "kind": "ktx2"
     },
     {
       "path": "lm/night.ktx2",
-      "bytes": 260617,
-      "sha256": "f7fa86df7cc8e3a323874ce45c37b1c00f99c79a69418032830828ae9898e733",
+      "bytes": 338168,
+      "sha256": "d6f89a6658043905167b497432316cad84177565a00ee22ef2188d4604761e42",
       "kind": "ktx2"
     },
     {
@@ -119,25 +119,55 @@
         "triangles": 24
       },
       {
-        "name": "pilaster",
-        "instances": 16,
+        "name": "pilaster_n",
+        "instances": 7,
         "primitives": 2,
         "triangles": 48
       },
       {
-        "name": "pilaster_base",
-        "instances": 16,
+        "name": "pilaster_base_n",
+        "instances": 7,
         "primitives": 1,
         "triangles": 16
       },
       {
-        "name": "window_frame",
-        "instances": 12,
+        "name": "pilaster_s",
+        "instances": 5,
+        "primitives": 2,
+        "triangles": 48
+      },
+      {
+        "name": "pilaster_base_s",
+        "instances": 5,
+        "primitives": 1,
+        "triangles": 16
+      },
+      {
+        "name": "pilaster_e",
+        "instances": 4,
+        "primitives": 2,
+        "triangles": 48
+      },
+      {
+        "name": "pilaster_base_e",
+        "instances": 4,
+        "primitives": 1,
+        "triangles": 16
+      },
+      {
+        "name": "window_frame_lo",
+        "instances": 6,
+        "primitives": 1,
+        "triangles": 32
+      },
+      {
+        "name": "window_frame_hi",
+        "instances": 6,
         "primitives": 1,
         "triangles": 32
       }
     ],
-    "trianglesUnique": 6236,
+    "trianglesUnique": 6396,
     "trianglesDrawn": 21872,
     "extensionsRequired": [
       "EXT_meshopt_compression",
