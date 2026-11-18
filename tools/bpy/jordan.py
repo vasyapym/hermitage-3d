@@ -66,7 +66,9 @@ LM_GRID = 64
 LM_CAPACITY = LM_GRID * LM_GRID
 # The bands fix (2026-11-16): the per-wall/per-tier template split adds 2 extra pilaster
 # datablocks (2 x 24 faces), 2 extra bases (2 x 8) and 1 extra frame (16) — 3150 + 80.
-LM_CELLS = {'expected': 3230, 'warn': 3400, 'max': 4096}
+# The ghost-split (2026-11-18): +144 (the ghost-split: the north shafts 24×7) —
+# 3230 + 144 = 3374; warn 3400 stays (tight cap), max unchanged.
+LM_CELLS = {'expected': 3374, 'warn': 3400, 'max': 4096}
 # Filled from the actual envelope allocation; 1536 is no longer a safe barrier.
 LM_PART2_FIRST_CELL = 0
 LM_CELL_MAP = {'res': LM_RES, 'grid': LM_GRID, 'pad': LM_PAD_PX, 'cells': {}}
@@ -1208,7 +1210,16 @@ def main():
         # pilaster_base: north/south/east by placement) and PER TIER (window_frame:
         # lower/upper) — bake.py's centroid representative then runs inside each group
         # instead of once across all 16 shafts. Same builders; identical geometry.
-        ('pilaster_n', build_pilaster, ['plaster_warm', 'gilt']),
+        # The ghost-split round (2026-11-18): the north group per-PIER — the sconce
+        # rig's halo on the 79.0 representative must not copy to the six fixture-less
+        # piers.
+        ('pilaster_n0', build_pilaster, ['plaster_warm', 'gilt']),
+        ('pilaster_n1', build_pilaster, ['plaster_warm', 'gilt']),
+        ('pilaster_n2', build_pilaster, ['plaster_warm', 'gilt']),
+        ('pilaster_n3', build_pilaster, ['plaster_warm', 'gilt']),
+        ('pilaster_n4', build_pilaster, ['plaster_warm', 'gilt']),
+        ('pilaster_n5', build_pilaster, ['plaster_warm', 'gilt']),
+        ('pilaster_n6', build_pilaster, ['plaster_warm', 'gilt']),
         ('pilaster_s', build_pilaster, ['plaster_warm', 'gilt']),
         ('pilaster_e', build_pilaster, ['plaster_warm', 'gilt']),
         ('pilaster_base_n', build_pilaster_base, ['plaster_warm']),
@@ -1237,7 +1248,9 @@ def main():
         draws += prims
         if name == 'pane':
             envelope_cells = cells
-        if name in ('baluster', 'column', 'sconce', 'pilaster_n', 'pilaster_s', 'pilaster_e',
+        if name in ('baluster', 'column', 'sconce', 'pilaster_n0', 'pilaster_n1',
+                    'pilaster_n2', 'pilaster_n3', 'pilaster_n4', 'pilaster_n5', 'pilaster_n6',
+                    'pilaster_s', 'pilaster_e',
                     'pilaster_base_n', 'pilaster_base_s', 'pilaster_base_e',
                     'window_frame_lo', 'window_frame_hi'):
             ob = bpy.data.objects[name]
@@ -1282,7 +1295,12 @@ def main():
     tier_centres = [(sill + head) / 2 for sill, head in WIN_TIERS]
     for x, z, rot_y in PILASTERS:
         wall = 'n' if z == Z_N else ('s' if z == Z_S else 'e')
-        put(f'pilaster_{wall}', (x, PILASTER_Y0, z), rot_y)
+        if wall == 'n':
+            # The ghost-split (2026-11-18): the north shaft per-PIER — pier index
+            # from position (PILASTER_NORTH_X == PIER_X, so index always exists).
+            put(f'pilaster_n{PIER_X.index(x)}', (x, PILASTER_Y0, z), rot_y)
+        else:
+            put(f'pilaster_{wall}', (x, PILASTER_Y0, z), rot_y)
         put(f'pilaster_base_{wall}', (x, Y_FLOOR, z), rot_y)
     for x, y in WINDOW_FRAMES:
         tier = 'lo' if y == tier_centres[0] else 'hi'
@@ -1376,7 +1394,8 @@ def main():
                               'capital': PILASTER_CAPITAL, 'abacusTopY': round(PILASTER_Y0 + PILASTER_CAPITAL[-1][3], 6),
                               'base': PILASTER_BASE, 'baseY': Y_FLOOR, 'northX': PILASTER_NORTH_X,
                               'southX': PILASTER_SOUTH_X, 'eastZ': PILASTER_EAST_Z, 'roster': PILASTERS,
-                              'N': sum(meshes[f'pilaster_{w}']['instances'] for w in ('n', 's', 'e')),
+                              'N': sum(meshes[f'pilaster_{w}']['instances'] for w in ('s', 'e'))
+                                   + sum(meshes[f'pilaster_n{i}']['instances'] for i in range(7)),
                               'basesN': sum(meshes[f'pilaster_base_{w}']['instances'] for w in ('n', 's', 'e')),
                               'templateFront': '-Z',
                               'rotYRadians': {'north': math.pi, 'south': 0.0, 'east': math.pi / 2}},
