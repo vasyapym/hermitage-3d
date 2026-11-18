@@ -34,3 +34,4 @@ trap 0.
 6. **Licensing.** No photography of real interiors as textures; every source cited in `ATTRIBUTIONS.md`; every artistic deviation recorded in `docs/artistic-license.md` in the phase it appears.
 7. **Git hygiene.** Stage only files you authored; never commit `.DS_Store`, build junk or `probes/` scratch.
 8. **Core stays core.** Adding a room never touches `src/engine/` or `src/world/`; if it feels like it must, stop and raise the question instead of hacking through.
+9. **Content is assets-first.** New scene content (geometry, materials, lightmap content, textures) rides the room's own budgets (payload / texture / tris / draws / decode-cells), not the shared JS line — zero JS for content by default; new runtime behavior is the only JS spender and declares its delta against the shared envelope (the DEC-045 pattern; details: `docs/STATE.md` → Standing protocol → «Standing construction path»).

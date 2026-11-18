@@ -8,10 +8,11 @@ changes). Live state = Now + every lane not yet MERGED + the last 3 MERGED round
 
 ### Now
 
-Tree: main @ the jordan-ghost-split merge (ff 6dc6f1b; the FULL gate VERDICT: PASS — the chromium 75/4 = the walk-stall class, the golden 36/37 = the 1812-360 race class, the jordan flips did not materialize — no re-baselines; the CI reds = the draw-calls class only); no PARALLEL lanes open.
+Tree: main @ the jordan-ghost-split merge (ff 6dc6f1b; the FULL gate VERDICT: PASS — the chromium 75/4 = the walk-stall class, the golden 36/37 = the 1812-360 race class, the jordan flips did not materialize — no re-baselines; the CI reds = the draw-calls class only). PARALLEL: jordan-next (round jordan-fixtures, the fixture FORM slice — worktree ~/Documents/hermitage-3d-jordan-next, branch jordan-next off main 3da446d; the atlas-sequencing law AS-1..6 and the FIXTURE_LM_BLOCK publish at its census B0 for the co-tenant lane).
 Budgets (the verified ledger — the merged tree's own `pnpm build && pnpm budget`): JS 285,984/350,000 · RU 7,427/12,000 · jordan 1,548,343/7,000,000 · military-gallery 3,008,700/4,000,000 · rastrelli-gallery 855,438/2,000,000 · basis 584,862/600,000.
 Owed: the machinery round per DEC-045 (the exterior asset program; geometry rounds wait behind it) · the jordan 2b wall articulation (the next slice) · the axial photograph (the fixture FORM) · the doorway residual parked (docs/parking-lot.md) · the draw-calls SwiftShader CI debt (the pre-existing class).
 
+- 2026-11-18 · OPENED PARALLEL jordan-next (round jordan-fixtures — the fixture FORM slice; worktree ~/Documents/hermitage-3d-jordan-next, branch off 3da446d; briefs in vault hermitage-3d-2026-11-18): the restored creative ruling — #1 the fixture FORM (sconces ×10 + chandelier ×1 kit-shaped archetypes + the opaque `crystal`; the J1b gaze subject), #2 the ceiling (the j2 caption names an unbuilt plafond), #3 the 2b wall articulation (likely the other lane's) · enumerate-first: the census B0 → ADMIT-FULL / ADMIT-SCONCES-ONLY / FALSIFIED, then C1–C6, the sconces-only reduction pre-declared · zero-JS archetypes in a NEW tools/bpy/jordan_fixtures.py (ONE additive FIXTURE_FORM hook in jordan.py); FIXTURE_LM_SCALE 0.25 + NO-REPACK; W pinned, the gains/encode pins stand; ONE 3-state re-bake (~147 min) · budgets on the room's lines: payload ≤ +280K · texture ≤ +80K · tris ≤ +15K · draws ≤ +4 · cells ≤ +20 → 3,494 · JS/RU +0 · goldens census-predicted (D5), possibly empty · K1–K7 · AS-1..6 binds the co-tenant — the ledger row carries the full shape
 - 2026-11-18 · LANDED feel-tune (main direct, solo-lane; the FULL battery waived per the solo-merge ruling — the deferred battery already ran PASS on this weight form): the owner's play of B9c — LOOK_LAG 0.8 → 0.9 (the hold 20 % → 10 %; the rotation enters earlier; the smoothstep keeps the ramp/settle shape; the dial = the declared tuning target, the mirror rows re-pinned) + the room titles' verbosity trimmed (RU+EN, the e2e rows re-pointed) · JS −37 → 285,984 · RU −21 → 7,427 · validate GREEN · no DEC — → docs/archive/2026-11-18-feeltune.md
 - 2026-11-17 · MERGED facade-shadow (the orchestrator integrated the lane's branch; the FULL e2e/golden battery = THIS merge's — the one deferred from rg-move; **the battery VERDICT: 112 passed / 4 failed (1.7 h) — the 4 = the recorded classes (the 3 walk rows stall + the entrance-title square-jump row's third documented stall-cadence occurrence, the negative stamp arithmetic — the app state proven perfect in the snapshot, CI green = the authority); the goldens 0 flips on the reconciled tree (B9c + B10 + the tone), the confirm inside the battery; CI = the draw-calls known reds only → the finale PASS**) — DEC-048 · the dark pane tone (the night lattice's dark cards read the wall's dressing ×0.5, neutral — the «impossible lamp shadows» sighting fixed; the brief's two menu options measured inapplicable; the declared d-S0-dec-night flip measured HELD under t=0.1) · the day byte-identical · JS +23 → 286,021 (the composition drift +6) · RU +0 · the confirm 37/37 · the eye accepted — → docs/archive/2026-11-17-facadeshadow.md
 
@@ -37,6 +38,20 @@ docs/briefs/). Owner reads Russian; briefs and code in English.
 - **mechanical** (bpy kits, wiring, docs, number-pinned work) → a cheaper fast model. Its briefs
   pin every contract explicitly; the orchestrator validates harder.
 - Trivial mechanical work stays orchestrator-direct (no relay at all — the r24b/R006 precedent).
+
+**Standing construction path — assets-first, zero JS for content by default (owner,
+2026-11-18; the DEC-045 pattern).** New scene content (geometry, materials, lightmap
+content, texture rows) is authored through the asset program and rides the ROOM's own
+budgets (payload / texture / tris / draws / decode-cells) — the shared JS line is spent
+only by new RUNTIME behavior (a new stop = contract data + captions (RU); a new emissive
+class = blend-gl; new UI text = RU). The mechanism: a room module binds whatever the glb
++ manifest contain at mount, so static content needs no src/ change. Precedents on
+record: rg-look — a ZERO-JS room round (payload +478,000, JS +0); jordan-bands and
+jordan-ghost-split — JS +0; DEC-045's square program: «assets-first owner-ratified, zero
+JS for content by default», wiring ≤ 2,048 B gz. Every brief composes this as a fact; a
+slice that needs runtime behavior declares its JS delta against the shared envelope
+explicitly. DEC-045's numeric cap rows (KIT 6 meshes / 18,000 tris / …) stay
+SQUARE-scoped until the machinery round generalizes them.
 
 **Standing situation — the repair-cascade shape (measured; the rastrelli-gallery RG-F1
 precedent, 2026-11-05/06).** A verdict-law for a repair/assembly program can be tested, hold,
