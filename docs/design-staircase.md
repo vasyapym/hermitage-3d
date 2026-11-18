@@ -258,7 +258,7 @@ Rail: Catmull-Rom through stop positions with two helper points per flight for t
 > law of walkthrough-ux §8 (B9, supersedes R19-ux C's departure turn): the base gaze
 > travels exactly the arc between the two stops' framings with the distance fraction as
 > its one weight, reshaped by the lag (B9c, 2026-11-17: w = smoothstep(max(0, 1 − (1 −
-> wd)/LOOK_LAG)), LOOK_LAG 0.8 — the look holds the anchor's aim across the first 20 % and
+> wd)/LOOK_LAG)), LOOK_LAG 0.9 — the look holds the anchor's aim across the first 10 % and
 > lands with the body at the stop; the lead B9b is superseded) — no departure-turn
 > span, no near-field class (its former exemption's
 > distance weight is now every pair's law), no held-point parallax.

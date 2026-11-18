@@ -47,11 +47,9 @@ test('arrows move, Enter jumps — the jump takes the cold-entry path (§6.4)', 
   await page.keyboard.press('Enter');
   await expect(page.locator('#index-dialog')).toBeHidden();
   // The card carries the destination's sentence title (the sticky breadcrumb row)…
-  await expect(page.locator('#caption-title')).toHaveAttribute(
-    'data-shown',
-    'Jordan Staircase — the ascent',
-    { timeout: 60_000 },
-  );
+  await expect(page.locator('#caption-title')).toHaveAttribute('data-shown', 'Jordan Staircase', {
+    timeout: 60_000,
+  });
   // …and the arrival lands on the room's stop 0, the URL the state.
   const hud = page.locator('#hud');
   await expect(hud).toHaveAttribute('data-room', 'jordan', { timeout: 90_000 });

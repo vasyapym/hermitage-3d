@@ -291,9 +291,9 @@ export const ru = {
   'notes.errorTitle': 'Примечания к фасаду недоступны',
   'notes.errorIntro': 'Спецификация фасада не сходится. {issues}',
 
-  'data.titleGallery': 'Галерея Растрелли\u00A0— путь внутрь',
+  'data.titleGallery': 'Галерея Растрелли',
   'data.title1812': 'Военная галерея 1812\u00A0года\u00A0— через Гербовый зал',
-  'data.titleJordan': 'Иорданская лестница\u00A0— подъём',
+  'data.titleJordan': 'Иорданская лестница',
   'data.titleSquare': 'Дворцовая площадь',
   'data.kindCornerRisalit': 'угловой ризалит',
   'data.kindStretch': 'прясло',

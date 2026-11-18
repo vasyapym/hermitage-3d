@@ -99,7 +99,7 @@ describe('the declared pacing constants (the walk law’s own exports)', () => {
     // B9c (2026-11-17, the rg-move lane; supersedes B9b's LOOK_LEAD): the gaze lag
     // fraction — the look holds the anchor's aim across the first 20 % of the anchor's
     // remaining segment and plays its whole arc across the last 80 %, landing with the body.
-    expect(LOOK_LAG).toBe(0.8);
+    expect(LOOK_LAG).toBe(0.9);
   });
 });
 

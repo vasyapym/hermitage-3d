@@ -281,9 +281,9 @@ export const en = {
   'notes.errorTitle': 'Facade notes unavailable',
   'notes.errorIntro': 'The facade spec does not close. {issues}',
 
-  'data.titleGallery': 'Rastrelli Gallery — the way in',
+  'data.titleGallery': 'Rastrelli Gallery',
   'data.title1812': 'Military Gallery of 1812 — through the Armorial Hall',
-  'data.titleJordan': 'Jordan Staircase — the ascent',
+  'data.titleJordan': 'Jordan Staircase',
   'data.titleSquare': 'Palace Square',
   'data.kindCornerRisalit': 'cornerRisalit',
   'data.kindStretch': 'stretch',

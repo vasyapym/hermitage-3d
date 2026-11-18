@@ -380,7 +380,7 @@ pick destinations; the wheel's travel (and its sustained-scroll boundary pass) i
   body braked under a landed look). B9c (2026-11-17, the rg-move lane; keeps B9's arc) is
   the lead's mirror: one weight, w = smoothstep(max(0, 1 − (1 − wd)/LOOK_LAG)), LOOK_LAG
   0.8 — the look HOLDS the anchor's aim (the departure framing, or the look in force —
-  B10) across the first 20 % of the segment — the body starts first — and plays its whole
+  B10) across the first 1 − LOOK_LAG of the segment (10 % at the declared dial) — the body starts first — and plays its whole
   arc across the last 80 %, landing on the author's frame exactly at the stop; the
   gaze-turn rate is zero on both sides of every nonlocked stop (no kink), never above
   1.875 × the segment's average per unit of rail. Position-only: the rotation rests WITH
@@ -400,7 +400,7 @@ pick destinations; the wheel's travel (and its sustained-scroll boundary pass) i
   reversal), the destination aim is frozen at the destination eye, yaw takes the shortest
   arc and pitch blends linearly, both with one weight — the distance fraction covered of
   the anchor's remaining segment, reshaped by the lag (B9c, 2026-11-17; the lead B9b's
-  mirror): the look HOLDS the anchor's aim across the first 20 % of the segment — the body
+  mirror): the look HOLDS the anchor's aim across the first 1 − LOOK_LAG of the segment (10 % at the declared dial) — the body
   starts first — and plays its whole arc across the last 80 %, landing on the destination
   framing exactly at the stop (on an isolated tap the sweep plays ≈ 0.5–1.75 s while the
   body runs and brakes, both resting together at 2.06 s). The look therefore trails the

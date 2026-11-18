@@ -144,11 +144,9 @@ test('smoke walk: the graph returns the ledger to boot values', async ({ page })
   // above the seed-stop caption — the cold entry's card-first shape, now titled. The sticky
   // data-shown breadcrumb catches the card no matter how short its window is (a staged
   // room's card lives exactly holdMs — CI polls at ~500 ms and can miss the whole window).
-  await expect(page.locator('#caption-title')).toHaveAttribute(
-    'data-shown',
-    'Rastrelli Gallery — the way in',
-    { timeout: 60_000 },
-  );
+  await expect(page.locator('#caption-title')).toHaveAttribute('data-shown', 'Rastrelli Gallery', {
+    timeout: 60_000,
+  });
   // §8.4/§1.2: the dwell shows the destination's seed-stop caption and hands over to the
   // rest frame on the same stop — the dark card never flashes a second text.
   await expect(page.locator('#caption')).toHaveText('dark; the square behind', { timeout: 60_000 });
@@ -157,11 +155,9 @@ test('smoke walk: the graph returns the ledger to boot values', async ({ page })
   await nav('/jordan');
   await expect(hud).toHaveAttribute('data-room', 'jordan', { timeout: 60_000 });
   // The transit's card titled the destination — the sticky breadcrumb proves the shape.
-  await expect(page.locator('#caption-title')).toHaveAttribute(
-    'data-shown',
-    'Jordan Staircase — the ascent',
-    { timeout: 60_000 },
-  );
+  await expect(page.locator('#caption-title')).toHaveAttribute('data-shown', 'Jordan Staircase', {
+    timeout: 60_000,
+  });
   await expectWithinBudgets(hud);
 
   // Re-target DURING the open transit: the queued chain still ends where the URL says,
@@ -253,7 +249,7 @@ test('arrow walk: the prompt click and a fresh ArrowRight at a settled end enter
   // title (the words the door label will click), then empties with the first lit frame.
   // The sticky data-shown breadcrumb (the CI poll-cadence lesson) catches the short window.
   const captionTitle = page.locator('#caption-title');
-  await expect(captionTitle).toHaveAttribute('data-shown', 'Rastrelli Gallery — the way in', {
+  await expect(captionTitle).toHaveAttribute('data-shown', 'Rastrelli Gallery', {
     timeout: 60_000,
   });
   await expect(captionTitle).toHaveAttribute('data-visible', 'false', { timeout: 60_000 });
@@ -572,11 +568,9 @@ test('smoke walk: the 1812 edge runs both ways, the ledger returns at boot', asy
   await nav('/gallery');
   await expect(hud).toHaveAttribute('data-room', 'rastrelli-gallery', { timeout: 60_000 });
   await expect(hud).not.toHaveAttribute('data-ledger-bytes', '0', { timeout: 60_000 });
-  await expect(page.locator('#caption-title')).toHaveAttribute(
-    'data-shown',
-    'Rastrelli Gallery — the way in',
-    { timeout: 60_000 },
-  );
+  await expect(page.locator('#caption-title')).toHaveAttribute('data-shown', 'Rastrelli Gallery', {
+    timeout: 60_000,
+  });
   await nav('/jordan');
   await expect(hud).toHaveAttribute('data-room', 'jordan', { timeout: 60_000 });
   // The capture point: the hold's zero means the mount COMPLETED — the ledger stops growing.
@@ -616,11 +610,9 @@ test('smoke walk: the 1812 edge runs both ways, the ledger returns at boot', asy
   // 1812 → jordan (backward through the same airlock): the entry seeds the far stop (J4)
   // and the 1812 room releases whole — the ledger reads its jordan value again.
   await nav('/jordan');
-  await expect(page.locator('#caption-title')).toHaveAttribute(
-    'data-shown',
-    'Jordan Staircase — the ascent',
-    { timeout: 60_000 },
-  );
+  await expect(page.locator('#caption-title')).toHaveAttribute('data-shown', 'Jordan Staircase', {
+    timeout: 60_000,
+  });
   await expect(hud).toHaveAttribute('data-room', 'jordan', { timeout: 60_000 });
   await expect(page.locator('#caption')).toHaveText('arrival; the portal (landing airlock)', {
     timeout: 60_000,

@@ -25,7 +25,7 @@
  *   the segment's anchor (the departure stop's committed framing, or the look in force — B10),
  *   the destination aim frozen at the destination eye, yaw on the shortest arc, pitch linear,
  *   one weight: the distance fraction covered of the anchor's remaining segment, reshaped by
- *   the lag (B9c): w = smoothstep(max(0, 1 − (1 − wd) / LOOK_LAG)), LOOK_LAG 0.8 — the look
+ *   the lag (B9c): w = smoothstep(max(0, 1 − (1 − wd) / LOOK_LAG)), LOOK_LAG 0.9 — the look
  *   HOLDS the anchor's aim across the first 1 − LOOK_LAG of the segment (the body departs
  *   under the look it left with) and plays its whole arc across the last LOOK_LAG, landing on
  *   the destination framing exactly at the stop (w = 1 at wd = 1 by construction — the
@@ -191,7 +191,7 @@ export const REDUCED_DWELL_MS = 600; // the reduced-motion cut cooldown (one cut
  * LOOK_LAG of the anchor's remaining segment and holds the anchor's aim before it. Bounded dial,
  * 0 < LOOK_LAG ≤ 1: 1 = smoothstep over the whole segment (no hold); the trail strengthens as it
  * falls. The end beat does not move with the dial (a position law rests with the body). */
-export const LOOK_LAG = 0.8;
+export const LOOK_LAG = 0.9;
 
 const STOP_EPS = 1e-9;
 const KNOT_EPS = 1e-6;

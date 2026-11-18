@@ -330,7 +330,10 @@ describe('B9 keeps the recorded rows', () => {
         );
       };
       // The hold: both FD samples sit inside w ≡ 0 — the rate is the aim-comparison dust.
-      for (const s of [1e-4, 0.1, 1 - LOOK_LAG - 1e-4]) {
+      // (The middle sample stays mid-hold: at the hold's edge the FD straddles the
+      // quadratic onset and reads O(h) — 3.7e-4 at the old 0.1 dial's boundary — not the
+      // dust, and not a kink either; the zero-slope join is asserted separately below.)
+      for (const s of [1e-4, 0.05, 1 - LOOK_LAG - 1e-4]) {
         expect(rateAt(s), `segment ${segment} hold rate/arc at s ${s}`).toBeLessThanOrEqual(1e-9);
       }
       // The zero-slope landing: the FD rate is O(h), bounded well under the old 0.01 bar.
