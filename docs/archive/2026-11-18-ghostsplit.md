@@ -18,3 +18,16 @@ The reservation row lives in docs/budget-ledger.md (top of «Open reservations»
 - **validate GREEN**: vitest 1159 passed / 1 skipped · build · budget — JS 285,984 gz of 350,000 (unchanged from main, as declared) · RU 7,427 · the jordan payload 1,548,343/7,000,000 (the dir total; the manifest files 1,543,170) · the glb 249,044 B (the draws 38 ≤ 60) · the shared basis 584,862/600,000.
 - **The expected golden flips**: J4 day/dusk/night (the lm re-encode changed all three states' textures). J3 likely HOLDS (the east cells' content unchanged — the layout renumbered only). DEC-ready note parked in the reservation row; NO self re-baseline — the DEC number from the integrating authority at the merge.
 - **The disk note**: the Data volume sat at 33 MiB free (100%) during the first verify attempt; the lane freed ~295 MB of its own scratch (the failed verify dirs + the .raw.exr intermediates). The machine-level pressure (Library/Caches 8.5 GB et al.) is the owner's to purge.
+
+## The full gate (the wave's last merger, 2026-11-18)
+
+- The merge: ff e3f10c9..6dc6f1b (main).
+- The chromium battery: 75 passed / 4 failed (1.6 h) — the 4 = the recorded walk-stall
+  class (the arrow-walk airlocks / the keyboard walk / the touch-rail connection / the
+  entrance-title); the CI's reds = the draw-calls SwiftShader class only (the authority).
+- The golden battery: 36 passed / 1 failed (11.9 m) — the 1 = the recorded 1812-360 race
+  class (the app-side fix parked in the finale's record).
+- The jordan goldens: the J4 day/dusk/night rows HELD (the per-pier split's footprint
+  absorbed by the 0.1 threshold) — no re-baselines; the DEC-ready row retired without a
+  number.
+- The verdict: PASS (the recorded classes only; zero unexpected failures).
