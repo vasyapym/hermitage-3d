@@ -3,8 +3,8 @@
   "files": [
     {
       "path": "jordan.glb",
-      "bytes": 241864,
-      "sha256": "4c77522f6dcdceb6043c16965b6a04f3d0597fc4b2b307cee71f2fd4a4805ae0",
+      "bytes": 249044,
+      "sha256": "ab686b86403ddf6327e1d8d0d44514d294cd0d747d48a43a854c54de69749bfe",
       "kind": "glb"
     },
     {
@@ -119,8 +119,8 @@
         "triangles": 24
       },
       {
-        "name": "pilaster_n",
-        "instances": 7,
+        "name": "pilaster_n0",
+        "instances": 1,
         "primitives": 2,
         "triangles": 48
       },
@@ -129,6 +129,42 @@
         "instances": 7,
         "primitives": 1,
         "triangles": 16
+      },
+      {
+        "name": "pilaster_n1",
+        "instances": 1,
+        "primitives": 2,
+        "triangles": 48
+      },
+      {
+        "name": "pilaster_n2",
+        "instances": 1,
+        "primitives": 2,
+        "triangles": 48
+      },
+      {
+        "name": "pilaster_n3",
+        "instances": 1,
+        "primitives": 2,
+        "triangles": 48
+      },
+      {
+        "name": "pilaster_n4",
+        "instances": 1,
+        "primitives": 2,
+        "triangles": 48
+      },
+      {
+        "name": "pilaster_n5",
+        "instances": 1,
+        "primitives": 2,
+        "triangles": 48
+      },
+      {
+        "name": "pilaster_n6",
+        "instances": 1,
+        "primitives": 2,
+        "triangles": 48
       },
       {
         "name": "pilaster_s",
@@ -167,7 +203,7 @@
         "triangles": 32
       }
     ],
-    "trianglesUnique": 6396,
+    "trianglesUnique": 6684,
     "trianglesDrawn": 21872,
     "extensionsRequired": [
       "EXT_meshopt_compression",

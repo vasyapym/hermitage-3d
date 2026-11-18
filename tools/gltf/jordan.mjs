@@ -74,7 +74,14 @@ export const EXPECTED_INSTANCES = {
   // The bands fix (2026-11-16): one template datablock per wall / per tier so bake.py's
   // centroid representative runs inside each group (the old single-datablock rows
   // pilaster 16 / pilaster_base 16 / window_frame 12 are gone with the split).
-  pilaster_n: 7,
+  // the ghost-split round (2026-11-18): the north shafts per-pier — one instance each
+  pilaster_n0: 1,
+  pilaster_n1: 1,
+  pilaster_n2: 1,
+  pilaster_n3: 1,
+  pilaster_n4: 1,
+  pilaster_n5: 1,
+  pilaster_n6: 1,
   pilaster_s: 5,
   pilaster_e: 4,
   pilaster_base_n: 7,
@@ -94,7 +101,13 @@ export const MATERIAL_SLOTS = {
   chandelier: ['gilt', 'chandelier_glow'],
   sconce: ['plaster_warm', 'sconce_glow'],
   cornice: ['plaster_warm'],
-  pilaster_n: ['plaster_warm', 'gilt'],
+  pilaster_n0: ['plaster_warm', 'gilt'],
+  pilaster_n1: ['plaster_warm', 'gilt'],
+  pilaster_n2: ['plaster_warm', 'gilt'],
+  pilaster_n3: ['plaster_warm', 'gilt'],
+  pilaster_n4: ['plaster_warm', 'gilt'],
+  pilaster_n5: ['plaster_warm', 'gilt'],
+  pilaster_n6: ['plaster_warm', 'gilt'],
   pilaster_s: ['plaster_warm', 'gilt'],
   pilaster_e: ['plaster_warm', 'gilt'],
   pilaster_base_n: ['plaster_warm'],
