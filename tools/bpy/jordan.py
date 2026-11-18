@@ -67,8 +67,11 @@ LM_CAPACITY = LM_GRID * LM_GRID
 # The bands fix (2026-11-16): the per-wall/per-tier template split adds 2 extra pilaster
 # datablocks (2 x 24 faces), 2 extra bases (2 x 8) and 1 extra frame (16) — 3150 + 80.
 # The ghost-split (2026-11-18): +144 (the ghost-split: the north shafts 24×7) —
-# 3230 + 144 = 3374; warn 3400 stays (tight cap), max unchanged.
-LM_CELLS = {'expected': 3374, 'warn': 3400, 'max': 4096}
+# 3230 + 144 = 3374; max unchanged.
+# The warn raised 3,400→3,500 (the ghost-split's measured atlas repack cost — 7
+# isolated rosters pay their own pad-2 footprints; the owner's call 2026-11-18;
+# the measured 3,474); the hard max 4,096 untouched.
+LM_CELLS = {'expected': 3374, 'warn': 3500, 'max': 4096}
 # Filled from the actual envelope allocation; 1536 is no longer a safe barrier.
 LM_PART2_FIRST_CELL = 0
 LM_CELL_MAP = {'res': LM_RES, 'grid': LM_GRID, 'pad': LM_PAD_PX, 'cells': {}}

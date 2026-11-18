@@ -7,13 +7,13 @@
         {
           "clippedFraction": null,
           "emitters": 0,
-          "exrSha256": "334ac8848e950b493a89af23982f385d8890f0451102d841c86cbe173904ca51",
+          "exrSha256": "8248057c4674a022141c829c4d7ccb28e773550bdfe8a08cfae7b44d8ad09040",
           "name": "arch",
           "objects": 214,
           "pad": 2,
           "peak": null,
           "res": 2048,
-          "targets": 18
+          "targets": 24
         }
       ],
       "clippedFraction": null,
@@ -25,11 +25,11 @@
       "probe": null,
       "res": 2048,
       "samples": 128,
-      "seconds": 982.9,
+      "seconds": 1508.7,
       "state": "day",
       "whitePoint": "percentile",
       "artifacts": [],
-      "cellsSha256": "2a9978bb0da3c5ee584981238188ba4cff22a9c06d571708b9e184b0371026de",
+      "cellsSha256": "e089fa278f7542ac62e2da29a71612995b73fa79e0f3a1485003f9c09b8b7f69",
       "reps": [
         {
           "datablock": "baluster",
@@ -74,13 +74,6 @@
           "runnerUp": "pilaster_e.001 @ d2 6.759997"
         },
         {
-          "datablock": "pilaster_n",
-          "dist2": 0,
-          "groupSize": 7,
-          "pick": "pilaster_n.003 @ (79.000, 86.000, 0.600)",
-          "runnerUp": "pilaster_n.002 @ d2 15.210012"
-        },
-        {
           "datablock": "pilaster_s",
           "dist2": 9.734408,
           "groupSize": 5,
@@ -114,17 +107,17 @@
         "percentile": 99.5,
         "scope": "allocated-interior",
         "transfer": "srgb",
-        "cellsSha256": "2a9978bb0da3c5ee584981238188ba4cff22a9c06d571708b9e184b0371026de",
-        "wRaw": 2.702704,
+        "cellsSha256": "e089fa278f7542ac62e2da29a71612995b73fa79e0f3a1485003f9c09b8b7f69",
+        "wRaw": 2.662714,
         "w": 0.45,
         "gain": 2.22,
         "kappa": 1,
-        "clipFraction": 0.022897,
-        "haloFraction": 0.015047,
+        "clipFraction": 0.021923,
+        "haloFraction": 0.014409,
         "artifact": {
           "rel": "lm/day.ktx2",
-          "bytes": 469019,
-          "sha256": "90142a3ec9940441de3897ab54a2ebe2d91b393d44607345c170207338bfc7f2"
+          "bytes": 490625,
+          "sha256": "987abeaebbf8dd861c5fb2691e71a37d605fb86580fbd0264cb733e367f353ae"
         }
       }
     },
@@ -134,13 +127,13 @@
         {
           "clippedFraction": null,
           "emitters": 0,
-          "exrSha256": "db0dd127e43f55c4f58284acb5ba6c753e7d56ca18ec2e0c88b0e8ffa3c6a725",
+          "exrSha256": "2a544df8d9b1a359f4a67aeda0d6c480dc03c459717dbb9cb74518671740feac",
           "name": "arch",
           "objects": 214,
           "pad": 2,
           "peak": null,
           "res": 2048,
-          "targets": 18
+          "targets": 24
         }
       ],
       "clippedFraction": null,
@@ -166,14 +159,14 @@
       },
       "res": 2048,
       "samples": 128,
-      "seconds": 1783.4,
+      "seconds": 2940.6,
       "state": "dusk",
       "whitePoint": "percentile",
       "artifacts": [
         {
           "rel": "probe/dusk.ktx2",
-          "bytes": 6390,
-          "sha256": "4bcd13e345610d62299d5604a5a78a2fd38edf7b656fb2892f9c696d87f2c991"
+          "bytes": 6362,
+          "sha256": "bd415e7cc1e7886489fa95f6823bbefbe5af7b9ba5fd52384a900f912fff7867"
         }
       ],
       "rig": {
@@ -305,7 +298,7 @@
           "sconces": 80
         }
       },
-      "cellsSha256": "2a9978bb0da3c5ee584981238188ba4cff22a9c06d571708b9e184b0371026de",
+      "cellsSha256": "e089fa278f7542ac62e2da29a71612995b73fa79e0f3a1485003f9c09b8b7f69",
       "reps": [
         {
           "datablock": "baluster",
@@ -350,13 +343,6 @@
           "runnerUp": "pilaster_e.001 @ d2 6.759997"
         },
         {
-          "datablock": "pilaster_n",
-          "dist2": 0,
-          "groupSize": 7,
-          "pick": "pilaster_n.003 @ (79.000, 86.000, 0.600)",
-          "runnerUp": "pilaster_n.002 @ d2 15.210012"
-        },
-        {
           "datablock": "pilaster_s",
           "dist2": 9.734408,
           "groupSize": 5,
@@ -390,17 +376,17 @@
         "percentile": 99.5,
         "scope": "allocated-interior",
         "transfer": "srgb",
-        "cellsSha256": "2a9978bb0da3c5ee584981238188ba4cff22a9c06d571708b9e184b0371026de",
-        "wRaw": 0.24987,
+        "cellsSha256": "e089fa278f7542ac62e2da29a71612995b73fa79e0f3a1485003f9c09b8b7f69",
+        "wRaw": 0.247161,
         "w": 0.35,
         "gain": 2.86,
         "kappa": 1,
-        "clipFraction": 0.002014,
+        "clipFraction": 0.001928,
         "haloFraction": 0,
         "artifact": {
           "rel": "lm/dusk.ktx2",
-          "bytes": 388348,
-          "sha256": "3d4bc940f58e93b0d46a77f6b761612ccaec3feb7cf75ad3d9182b2430a7522f"
+          "bytes": 404899,
+          "sha256": "2c55559a9a38594db054477e54a9358ea84da147295044f9603fcb9658eb2fdf"
         }
       }
     },
@@ -410,13 +396,13 @@
         {
           "clippedFraction": null,
           "emitters": 0,
-          "exrSha256": "ccea5f11721c914f24c8db0bd052cc6b0a33a2ece262bb23039ccfb0609b9c5d",
+          "exrSha256": "4828cd9c84de5ef4e9ac96f8efd38b692b72c04c4c648b46b7eaacb6188f345b",
           "name": "arch",
           "objects": 214,
           "pad": 2,
           "peak": null,
           "res": 2048,
-          "targets": 18
+          "targets": 24
         }
       ],
       "clippedFraction": null,
@@ -428,7 +414,7 @@
       "probe": null,
       "res": 2048,
       "samples": 128,
-      "seconds": 1566.5,
+      "seconds": 1895.4,
       "state": "nightChandeliers",
       "whitePoint": "percentile",
       "artifacts": [],
@@ -561,7 +547,7 @@
           "sconces": 800
         }
       },
-      "cellsSha256": "2a9978bb0da3c5ee584981238188ba4cff22a9c06d571708b9e184b0371026de",
+      "cellsSha256": "e089fa278f7542ac62e2da29a71612995b73fa79e0f3a1485003f9c09b8b7f69",
       "reps": [
         {
           "datablock": "baluster",
@@ -606,13 +592,6 @@
           "runnerUp": "pilaster_e.001 @ d2 6.759997"
         },
         {
-          "datablock": "pilaster_n",
-          "dist2": 0,
-          "groupSize": 7,
-          "pick": "pilaster_n.003 @ (79.000, 86.000, 0.600)",
-          "runnerUp": "pilaster_n.002 @ d2 15.210012"
-        },
-        {
           "datablock": "pilaster_s",
           "dist2": 9.734408,
           "groupSize": 5,
@@ -646,17 +625,17 @@
         "percentile": 99.5,
         "scope": "allocated-interior",
         "transfer": "srgb",
-        "cellsSha256": "2a9978bb0da3c5ee584981238188ba4cff22a9c06d571708b9e184b0371026de",
-        "wRaw": 2.353849,
+        "cellsSha256": "e089fa278f7542ac62e2da29a71612995b73fa79e0f3a1485003f9c09b8b7f69",
+        "wRaw": 2.33813,
         "w": 4,
         "gain": 0.25,
         "kappa": 1,
-        "clipFraction": 0.001353,
+        "clipFraction": 0.001296,
         "haloFraction": 0,
         "artifact": {
           "rel": "lm/night.ktx2",
-          "bytes": 338168,
-          "sha256": "d6f89a6658043905167b497432316cad84177565a00ee22ef2188d4604761e42"
+          "bytes": 351768,
+          "sha256": "e7e51ec2160fdf29af3880c9b28ddb710d46b97991c9f0355b939b244c1bff5f"
         }
       }
     }
