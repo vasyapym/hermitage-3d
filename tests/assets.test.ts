@@ -145,14 +145,13 @@ describe.each(committedRooms)('public/assets/%s (room contract)', (room) => {
   const manifest = readJson(join(dir, 'manifest.json')) as Manifest;
   it('manifest contract (§8.1): keys, id, lightmaps shape, budget shape', () => {
     expect(manifest.id).toBe(room);
-    expect(Object.keys(manifest).sort()).toEqual([
-      'budget',
-      'files',
-      'geometry',
-      'id',
-      'lightmaps',
-      'toolchain',
-    ]);
+    expect(Object.keys(manifest).sort()).toEqual(
+      room === 'square'
+        ? // DEC-045: the square kit's census block replaces the rooms' geometry summary;
+          // the nodes coherence is square-kit.test.ts's law (G3/G4/G7).
+          ['budget', 'files', 'glbSha256', 'id', 'lightmaps', 'nodes', 'toolchain']
+        : ['budget', 'files', 'geometry', 'id', 'lightmaps', 'toolchain'],
+    );
     // r17a all-or-nothing law: a lightmaps row either names exactly the three §4 states and
     // every named state's ktx2 is on disk, or (canary / not yet baked) the row is empty.
     // The empty-vs-filled check keeps both honest: no fourth state, no room with fewer.
@@ -217,7 +216,7 @@ describe.each(committedRooms)('public/assets/%s (room contract)', (room) => {
       expect(sha(buf), f.path).toBe(f.sha256);
     }
   });
-  it('geometry summary matches the committed glb', () => {
+  it.skipIf(room === 'square')('geometry summary matches the committed glb', () => {
     const glbRow = manifest.files.find((f) => f.kind === 'glb');
     const json = common.parseGlbJson(readFileSync(join(dir, glbRow?.path ?? '')));
     expect(common.geometrySummary(json)).toEqual(manifest.geometry);
@@ -225,7 +224,13 @@ describe.each(committedRooms)('public/assets/%s (room contract)', (room) => {
   it('single-buffer GLB (strict GLB rule)', () => {
     const glbRow = manifest.files.find((f) => f.kind === 'glb');
     const json = common.parseGlbJson(readFileSync(join(dir, glbRow?.path ?? '')));
-    expect(json.buffers?.length).toBe(1);
+    if (room === 'square') {
+      // DEC-045: the square kit ships zero buffers while empty (M2) and exactly one once
+      // content lands (C1) — the census enforces the same law (tools/square-kit/census.mjs).
+      expect(json.buffers?.length ?? 0).toBeLessThanOrEqual(1);
+    } else {
+      expect(json.buffers?.length).toBe(1);
+    }
     expect(json.buffers?.[0]?.uri).toBeUndefined();
   });
 });

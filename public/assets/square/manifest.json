@@ -1,0 +1,28 @@
+{
+  "id": "square",
+  "files": [
+    {
+      "path": "kit.glb",
+      "bytes": 132,
+      "sha256": "2326a84eb40ae98d0b8e406d963a47da328ee3bfd616f5c98495ea9729d49674",
+      "kind": "glb"
+    }
+  ],
+  "lightmaps": {
+    "states": [],
+    "res": null,
+    "intensity": null
+  },
+  "budget": {
+    "trianglesMax": 18000,
+    "drawsMax": 6,
+    "textureBytesMax": 1,
+    "payloadBytesMax": 1500000
+  },
+  "toolchain": {
+    "blender": "4.2.23 LTS",
+    "three": "0.186.1"
+  },
+  "nodes": [],
+  "glbSha256": "2326a84eb40ae98d0b8e406d963a47da328ee3bfd616f5c98495ea9729d49674"
+}

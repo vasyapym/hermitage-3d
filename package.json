@@ -23,6 +23,7 @@
     "asset:bake": "node tools/asset.mjs bake",
     "asset:manifest": "node tools/asset.mjs manifest",
     "asset:basis": "node tools/asset.mjs basis",
+    "kit:square": "node tools/square-kit/census.mjs && pnpm exec vitest run tests/square-kit.test.ts",
     "asset:gallery-layout": "node tools/gallery/layout.mjs",
     "asset": "node tools/asset.mjs all",
     "gallery:transcribe": "node tools/gallery/import.mjs transcribe",

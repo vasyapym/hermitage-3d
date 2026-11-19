@@ -1,10 +1,12 @@
 /**
  * DEC-045, batch M1 — design §4 fixture gates for the pure square-kit law.
- * No committed manifest or GLB exists in this batch: digest/census checks land later.
+ * Describe 6 (M2) reads the committed kit artifacts off disk: the digest and census laws.
  * S0b's committed pose rides SQUARE_RAIL (the orchestrator integration); the synthetic
  * ray keeps the arithmetic pin independent of the rail data.
  */
+import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { SQUARE_RAIL } from '../src/camera/square-rail';
 import type { Bounds, Vec3 } from '../src/world/registry';
@@ -407,5 +409,37 @@ describe('5 · the law stays pure', () => {
       expect(code).not.toMatch(pattern);
     }
     expect(code).not.toMatch(/\bexport\s+default\b|\benum\b/);
+  });
+});
+
+describe('6 · the committed kit (G2/G3/G7 — batch M2)', () => {
+  const dir = join('public', 'assets', 'square');
+  const manifest = JSON.parse(readFileSync(join(dir, 'manifest.json'), 'utf8')) as unknown;
+  const glb = readFileSync(join(dir, 'kit.glb'));
+
+  it('passes the law validator', () => {
+    if (!kit.validateSquareManifest(manifest)) {
+      throw new Error('the committed manifest fails validateSquareManifest');
+    }
+  });
+
+  it('the manifest digest names the committed glb (G7: the manifest law unit-pinned)', () => {
+    if (!kit.validateSquareManifest(manifest)) throw new Error('invalid committed manifest');
+    expect(createHash('sha256').update(glb).digest('hex')).toBe(manifest.glbSha256);
+    expect(manifest.files[0]?.sha256).toBe(manifest.glbSha256);
+  });
+
+  it('the machinery-stage kit is EMPTY (the M2-only pin; C1 replaces it with the node pins)', () => {
+    if (!kit.validateSquareManifest(manifest)) throw new Error('invalid committed manifest');
+    expect(manifest.nodes).toEqual([]);
+  });
+
+  it('the committed payload sits inside the KIT allowance', () => {
+    expect(glb.length).toBeGreaterThan(0);
+    expect(glb.length).toBeLessThanOrEqual(kit.SQUARE_KIT_ALLOW.payloadB);
+  });
+
+  it('the manifest budget row equals the kit law', () => {
+    expect(manifest).toHaveProperty('budget', { ...kit.SQUARE_KIT_BUDGET });
   });
 });
