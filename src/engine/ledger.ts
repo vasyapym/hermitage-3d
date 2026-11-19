@@ -28,7 +28,9 @@
  */
 import type { RoomId } from '../world/registry';
 
-// DEC-045, batch M1: the resident gains a kit; later batches register its GLB under square.
+// DEC-045, batch M1: the resident gains a kit. The DEC-045 type-widening ripple lands here;
+// the M3 integration ruling: the kit itself does NOT register — the resident never unmounts,
+// and a resident row would break the ledger-returns-to-boot law the smoke pins (0 at square).
 export type LedgerScope = RoomId | 'engine' | 'square';
 export type LedgerKind = 'glb' | 'ktx2' | 'texture' | 'material' | 'geometry' | 'renderTarget';
 export type LedgerRow = Readonly<{
