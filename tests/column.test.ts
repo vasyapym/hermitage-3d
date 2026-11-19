@@ -319,9 +319,18 @@ describe('8 · the shadow fit (DEC-037)', () => {
   const names = [...SPEC.matchAll(/toHaveScreenshot\('golden-([a-z0-9-]+)\.png'/g)].map(
     (m) => m[1] ?? '',
   );
-  // The six square rows the round's shadow re-fit must cover (rooms come after, via roomReady).
-  expect(queries).toHaveLength(6);
-  expect(names).toEqual(['noon', 'white-night', 's1-noon', 'dec-night', 'dec-noon', 'oct-night']);
+  // The seven square rows the shadow re-fit covers (rooms come after, via roomReady):
+  // the DEC-04x round added golden-s0b-dec-noon (the missing wall's acceptance frame).
+  expect(queries).toHaveLength(7);
+  expect(names).toEqual([
+    'noon',
+    'white-night',
+    's1-noon',
+    'dec-night',
+    'dec-noon',
+    's0b-dec-noon',
+    'oct-night',
+  ]);
 
   const worldUp = new THREE.Vector3(0, 1, 0);
   const rig = new THREE.Vector3(0, 0, SUN_SHADOW_FIT.centreZ);
@@ -371,6 +380,24 @@ describe('8 · the shadow fit (DEC-037)', () => {
       }
     });
   }
+
+  it('the kit wall casts from its west face: the fit covers the visible face, not the hidden depth', () => {
+    // DEC-04x's residual, measured (the design asked the orchestrator to read the fit's
+    // right bound): SUN_SHADOW_FIT.right 130 reaches the wall's west face (x 109.3, the
+    // visible face — every corner IN at the dec-noon basis) and stops inside the body's
+    // hidden depth (the east face x 134, lateral 134.1 — OUT). The wall's shadow comes from
+    // its west face and cornice edge; the deep body casts nothing — invisible either way.
+    const s = sampleSky(Date.parse('2026-12-21T10:00:00Z'));
+    const m = basis(s.sunDirection);
+    inFootprint(m, [109.3, 0, 100], 'the west face base (north)');
+    inFootprint(m, [109.3, 20.5, 100], 'the west face top (north)');
+    inFootprint(m, [109.3, 0, 240], 'the west face base (south)');
+    inFootprint(m, [109.3, 20.5, 240], 'the west face top (south)');
+    const east = new THREE.Vector3(134, 0, 100).sub(rig).applyMatrix4(m);
+    expect(Math.abs(east.x), 'the hidden east face sits beyond the right bound').toBeGreaterThan(
+      SUN_SHADOW_FIT.right,
+    );
+  });
 });
 
 describe('9 · the era and the source key', () => {

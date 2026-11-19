@@ -3,8 +3,8 @@
   "files": [
     {
       "path": "kit.glb",
-      "bytes": 132,
-      "sha256": "2326a84eb40ae98d0b8e406d963a47da328ee3bfd616f5c98495ea9729d49674",
+      "bytes": 80632,
+      "sha256": "aa8510d819ae1c53f55288345536f9cb2fa83f356501db31df6869005b2d6d04",
       "kind": "glb"
     }
   ],
@@ -23,6 +23,28 @@
     "blender": "4.2.23 LTS",
     "three": "0.186.1"
   },
-  "nodes": [],
-  "glbSha256": "2326a84eb40ae98d0b8e406d963a47da328ee3bfd616f5c98495ea9729d49674"
+  "nodes": [
+    {
+      "name": "el:hq-east",
+      "tris": 944,
+      "aabb": {
+        "min": [
+          109.30000305175781,
+          0,
+          100
+        ],
+        "max": [
+          134,
+          20.5,
+          240
+        ]
+      },
+      "materials": [
+        "massing",
+        "dressing",
+        "dark-pane"
+      ]
+    }
+  ],
+  "glbSha256": "aa8510d819ae1c53f55288345536f9cb2fa83f356501db31df6869005b2d6d04"
 }

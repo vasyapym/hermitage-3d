@@ -429,9 +429,21 @@ describe('6 · the committed kit (G2/G3/G7 — batch M2)', () => {
     expect(manifest.files[0]?.sha256).toBe(manifest.glbSha256);
   });
 
-  it('the machinery-stage kit is EMPTY (the M2-only pin; C1 replaces it with the node pins)', () => {
+  it('carries the one committed node el:hq-east per the design pins (C1)', () => {
     if (!kit.validateSquareManifest(manifest)) throw new Error('invalid committed manifest');
-    expect(manifest.nodes).toEqual([]);
+    expect(manifest.nodes).toHaveLength(1);
+    const node = manifest.nodes[0];
+    if (!node) throw new Error('the committed node is missing');
+    expect(node.name).toBe('el:hq-east');
+    expect(node.tris).toBe(944); // the planned ≈ 944: 12+12+12+336+144+144+36+248 ≤ 1,500
+    expect(node.tris).toBeLessThanOrEqual(kit.HQ_NODE_TRI_CAP);
+    expect(node.aabb.min[0]).toBeCloseTo(109.3, 4); // the portico's r-0.7 columns protrude
+    expect(node.aabb.max[0]).toBe(kit.HQ_FACE_X + kit.HQ_DEPTH_M);
+    expect(node.aabb.min[1]).toBe(0);
+    expect(node.aabb.max[1]).toBe(kit.HQ_CORNICE_M);
+    expect(node.aabb.min[2]).toBe(kit.HQ_Z.north);
+    expect(node.aabb.max[2]).toBe(kit.HQ_Z.south);
+    expect(node.materials).toEqual([...kit.KIT_BIND_KEYS]); // one slot per bind key = 3 draws
   });
 
   it('the committed payload sits inside the KIT allowance', () => {
