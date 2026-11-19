@@ -2,7 +2,7 @@
 /**
  * Disposal ledger — pure core (design-staircase.md §8.3, assertion layer 1 of three).
  *
- * Registers payload bytes per scope (`RoomId | 'engine'`) so the HUD ledger rows (§8.4,
+ * Registers payload bytes per scope (`RoomId | 'engine' | 'square'`) so the HUD ledger rows (§8.4,
  * DEC-018) and the CI smoke walk can assert that leaving a room returns the ledger to
  * its boot values. Round 16 registers payload bytes only — the glb ArrayBuffer and each
  * ktx2 ArrayBuffer a room fetched, labelled by the manifest row path — registered in the
@@ -28,7 +28,8 @@
  */
 import type { RoomId } from '../world/registry';
 
-export type LedgerScope = RoomId | 'engine';
+// DEC-045, batch M1: the resident gains a kit; later batches register its GLB under square.
+export type LedgerScope = RoomId | 'engine' | 'square';
 export type LedgerKind = 'glb' | 'ktx2' | 'texture' | 'material' | 'geometry' | 'renderTarget';
 export type LedgerRow = Readonly<{
   scope: LedgerScope;
