@@ -24,6 +24,27 @@
 # RG-F3 (the ruling's builder-header record): existing courtyard niche backs become declared
 # panes without new faces. 'pane' and 'stairlight' ship non-emissive; bake.py supplies their
 # separate bake-only terms.
+# RG-AUDIT «THE JUNCTION LAW» (the accepted verdict reply-2 §2, the S1+S3 combined slice —
+# batch A: the BUILDER work + the license row; the bake chain, probes and test re-pins are
+# batch B): every rib meets its vault, and every cornice meets its vault, with a readable
+# edge — a crease (occlusion pocket) + a springer where the rib foot lands on the ressaut —
+# delivered as PROJECTED RELIEF: never-exported bake proxies (build_junction_proxies -> the
+# BAKE_PROXIES collection, render-hidden by default so the committed bake chain reproduces
+# byte-identically until batch B's S2A wiring flips visibility for its own passes), baked
+# Selected-to-Active into the day+dusk lightmaps by tools/bpy/bake.py. Zero shipped geometry
+# change: the exported node list is belt-asserted equal to the committed glb's at every build
+# (fail-loud, belt_export_nodes), the tri count and the element schedule are untouched (the
+# proxies live outside the roster), the albedo plates are untouched. THE UV2 RE-WEIGHT (the
+# verdict's S3, folded into this slice by the S0 D1 finding, O1b-authorized): the atlas cell
+# density doubles on the junction's binding seats — cornice, ressaut, the pilaster capital
+# band, the arch (rib) and the vault.gallery bay field (the crease's own seat: D1 measured
+# 20.05 texels/m there and 22.40 at the arch foot, so the authored 0.05 m cove spans only
+# 1.0-1.4 texels, and 2 texels needs r >= 0.0998 > the RELIEF max_proj 0.08) — borrowed from
+# the floor (flags/band) and the remaining vault fields (vault.passage, vault.reveal; the
+# donors ride below the 14 px/m global floor by the accepted S3 borrowing — the LM_PX_PER_M_MIN
+# gate itself is untouched). The atlas still packs at LM_RES 1536 (D4: 2048 stays rejected,
+# +5,930 B over the texture cap). The bake-side constants (the per-target CAGE table, D3,
+# max_ray_distance 0.35) live in tools/probes/rg-sightline.py and are consumed by batch B.
 
 import json
 import math
@@ -115,7 +136,9 @@ CORNICE_PROFILE = (  # 8 points, (0, 2.70) -> y 3.00 and back to the wall (pinne
     (0.00, 2.70), (0.08, 2.70), (0.08, 2.78), (0.12, 2.78),
     (0.12, 2.86), (0.18, 2.86), (0.18, 3.00), (0.00, 3.00),
 )
-CORNICE_PROUD = max(d for d, _y in CORNICE_PROFILE)     # 0.17
+CORNICE_PROUD = max(d for d, _y in CORNICE_PROFILE)     # 0.18 — pinned by the builder's own
+#   assert below (CORNICE_PROUD == SHAFT_PROUD + the capital's flare); the S0 belt caught the
+#   stale 0.17 this comment used to carry (tools/probes/rg-sightline.py NOTE ON CORNICE_PROUD)
 RESSAUT_W, RESSAUT_D = 0.56, 0.10      # the cornice breaks forward over every pilaster
 END_CORNICE_BREAK = 0.90               # the end wall carries the cornice only this far from each corner
 SKIRTING_PROFILE = ((0.09, 0.00), (0.09, 0.11), (0.00, 0.14))   # stone_band, y 0..0.14
@@ -345,7 +368,9 @@ def vault_y_at(z):
     return interpolate(G_ARC, z)
 
 
-ARCH_CLEARANCE_M = min(vault_y_at(z) - y for z, y in ARCH_PROFILE)   # 0.188 (row 67)
+ARCH_CLEARANCE_M = min(vault_y_at(z) - y for z, y in ARCH_PROFILE)   # 0.17693 — the S0 belt's
+#   measured value (the stale 0.188 this comment used to carry rode an older profile read;
+#   the min rides the faceted G_ARC interpolation and the builder only asserts it > 0)
 if ARCH_CLEARANCE_M <= 0.0:
     fail(f'arch/vault clearance violated: {ARCH_CLEARANCE_M:.4f} m')
 
@@ -872,6 +897,33 @@ if abs(RESSAUT_PROUD - (G_ZC - ARCH_HALF - G_Z0)) > 1e-9:
     fail('the arch foot must land on the ressaut top edge (RESSAUT_PROUD == G_ZC - ARCH_HALF - G_Z0)')
 if abs(CORNICE_PROUD - (SHAFT_PROUD + CAPITAL_PROFILE[-1][0])) > 1e-9:
     fail('the ressaut soffit must equal the abacus top (CORNICE_PROUD == abacus proud)')
+
+# ---- «the junction law» constants (the accepted verdict reply-2 §2, batch A) ------------------
+# The projected-relief form: quarter-round coves + chamfered springer blocks, never exported,
+# baked Selected-to-Active into the day+dusk lightmaps (batch B). The seats derive from the
+# kit's own constants (PILASTER_X, G_ARC, ARCH_HALF_W, RESSAUT_*); every number below is the
+# verdict's own, and the flush facts are asserted fail-loud so the kit cannot drift away
+# from the springer's seat.
+JUNCTION = {
+    'rib_cove_r': 0.05,      # the verdict's range 0.04-0.08 (D1: 2 texels needs r >= 0.0998,
+                             # out of range -- so the UV2 re-weight above carries the fix)
+    'springer_w': 0.44,      # == ARCH_WIDTH: the springer's core spans the rib's width
+    'springer_h': 0.30,
+    'springer_proj': 0.06,   # == the ressaut seat wing (RESSAUT_HALF_W - ARCH_HALF_W): the
+                             # block fills its seat exactly, flush with the ressaut edge
+                             # (the S0 D3 flush fact); it doubles as the chamfer leg
+    'cornice_cove_r': 0.04,
+    'impost_cove_r': 0.03,
+    'max_proj': 0.08,        # the RELIEF roof: every cove's proud excursion asserts under it
+}
+if abs(JUNCTION['springer_w'] - ARCH_WIDTH) > 1e-9:
+    fail('the springer core must equal the rib width (JUNCTION springer_w == ARCH_WIDTH)')
+if abs(JUNCTION['springer_proj'] - (RESSAUT_HALF_W - ARCH_HALF_W)) > 1e-9:
+    fail('the springer projection must fill the ressaut seat wing exactly '
+         '(JUNCTION springer_proj == RESSAUT_HALF_W - ARCH_HALF_W)')
+for _cove in ('rib_cove_r', 'cornice_cove_r', 'impost_cove_r'):
+    if JUNCTION[_cove] > JUNCTION['max_proj'] + 1e-9:
+        fail(f'JUNCTION[{_cove}] breaches the RELIEF roof max_proj {JUNCTION["max_proj"]}')
 
 
 def author_schedule():
@@ -1530,6 +1582,35 @@ def shelf_pack(cells, res, first_row):
     return placed
 
 
+# ---- the UV2 re-weight (the junction law's S3, folded into this slice by S0 D1) ---------------
+# The atlas cell density is weighted per face: 2x on the junction's binding seats (cornice,
+# ressaut, the pilaster capital band, the arch ribs and the vault.gallery bay field — the
+# crease's own seat), 0.5 on the donor fields (the floor flags/band and the remaining vault
+# fields), 1.0 elsewhere. The atlas still packs at LM_RES 1536 and the schedule (face counts)
+# is untouched — only the per-face cell SIZES move, so the downstream lm.cells/patches rows
+# recompute with moved coordinates every run. The capital band rides the probe's own
+# discriminator (rg-sightline's capital_faces: the pilaster faces whose min world y >=
+# SHAFT_Y1; blender co.z is the world y per to_w).
+LM_DENSITY_DOUBLE = 2.0
+LM_DENSITY_HALF = 0.5
+LM_DENSITY_DOUBLE_ELEMENTS = ('cornice', 'ressaut', 'arch', 'vault.gallery')
+LM_DENSITY_HALF_ELEMENTS = ('floor.flags', 'floor.band', 'vault.passage', 'vault.reveal')
+LM_CAPITAL_BAND_EPS = 1e-9
+
+
+def lm_density_weight(entry):
+    """The per-face atlas density weight (see the block comment above)."""
+    face, _kind, _uid, element = entry
+    if element in LM_DENSITY_DOUBLE_ELEMENTS:
+        return LM_DENSITY_DOUBLE
+    if element in LM_DENSITY_HALF_ELEMENTS:
+        return LM_DENSITY_HALF
+    if element == 'pilaster' \
+            and min(v.co.z for v in face.verts) >= SHAFT_Y1 - LM_CAPITAL_BAND_EPS:
+        return LM_DENSITY_DOUBLE
+    return 1.0
+
+
 def finish(name, builder, materials, mode='shelf'):
     """Two UV layers: 'uv' (albedo: box projection, or the tagged cylindrical arc mapping,
     always world metres / UV_TILE_M) and 'lm' (the atlas cells).
@@ -1564,6 +1645,7 @@ def finish(name, builder, materials, mode='shelf'):
             us = [p[0] for p in uv]
             vs = [p[1] for p in uv]
             extents.append(((max(us) - min(us)) or 1.0, (max(vs) - min(vs)) or 1.0))
+        weights = [lm_density_weight(entry) for entry, _uv in faces_uv]
         px = float(LM_PX_PER_M)
         placed = None
         cell_px = None
@@ -1573,10 +1655,10 @@ def finish(name, builder, materials, mode='shelf'):
                      'cut T3/T2 (the verdict failure case (i))')
             cell_px = [
                 (
-                    min(max(int(round(du * px)), LM_CELL_MIN_PX), LM_CELL_MAX_PX),
-                    min(max(int(round(dv * px)), LM_CELL_MIN_PX), LM_CELL_MAX_PX),
+                    min(max(int(round(du * px * weight)), LM_CELL_MIN_PX), LM_CELL_MAX_PX),
+                    min(max(int(round(dv * px * weight)), LM_CELL_MIN_PX), LM_CELL_MAX_PX),
                 )
-                for du, dv in extents
+                for (du, dv), weight in zip(extents, weights)
             ]
             if os.environ.get('RGF2_DUMP_SHELF'):
                 import collections as _co
@@ -1777,6 +1859,321 @@ def covered_debug_dump(b, _covered):
         json.dump(debug, fh, indent=1)
 
 
+# ---- the junction proxies (the projected relief; batch B bakes them S2A) ----------------------
+# THE JUNCTION LAW's delivery (the accepted verdict reply-2 §2, batch A): the relief exists
+# only as BAKE PROXIES - never-exported meshes seated on the shipped surfaces, baked
+# Selected-to-Active into the day+dusk lightmaps by batch B's bake.py S2A pass. Containment
+# laws implemented here: the proxies join their own BAKE_PROXIES collection (no export
+# collection), AND the exporter's own first-class exclusion: every object in the
+# 'glTF_not_exported' collection is skipped by Blender 4.2's glTF exporter
+# (io_scene_gltf2's gather-tree filter) - the proxies are excluded structurally at birth;
+# every build belt-asserts the exported node names equal the committed glb's list
+# (belt_export_nodes, fail-loud) - the O1/O1b containment rows (no new meshes, the exported
+# node list identical). The proxy objects are render-hidden by default
+# so the committed bake chain (the night plate's flat re-bake, the O4 spirit) reproduces
+# byte-identically until batch B's S2A wiring flips visibility for its own passes; the
+# proxies live outside the room's Builder roster, so the element schedule and the tri count
+# are untouched by construction.
+BAKE_PROXIES_COLLECTION = 'BAKE_PROXIES'
+GLTF_NOT_EXPORTED_COLLECTION = 'glTF_not_exported'  # the exporter's own exclusion collection
+PROXY_ARC_SUBDIVS = 4      # each fillet quarter's subdivisions (the shells' smooth shading)
+PROXY_RUN_STEP_M = 1.0     # the straight cove runs' (cornice/impost) stationing step
+
+
+def _cross(a, b):
+    return (a[1] * b[2] - a[2] * b[1],
+            a[2] * b[0] - a[0] * b[2],
+            a[0] * b[1] - a[1] * b[0])
+
+
+def wedge_fillet(origin, n_a, n_b, radius, subdivs):
+    """One fillet cross-section in the corner of two surfaces with unit air normals n_a, n_b
+    (both pointing into the air): the tangent points sit `radius` from each surface, the arc
+    sweeps the short way between them and bulges toward the corner, and the per-point
+    normals face the air (tangent to each host at its own tangent point). Returns
+    (points, per-point air normals)."""
+    dot = max(-1.0, min(1.0, sum(n_a[i] * n_b[i] for i in range(3))))
+    bis = tuple(n_a[i] + n_b[i] for i in range(3))
+    bis_len = math.sqrt(sum(c * c for c in bis)) or 1.0
+    bis = tuple(c / bis_len for c in bis)
+    # the interior wedge angle alpha = pi - beta (beta = the normals' angle); the centre sits
+    # at radius/sin(alpha/2) along the bisector == radius*sqrt(2/(1+cos beta))
+    centre = tuple(origin[i] + radius * math.sqrt(2.0 / (1.0 + dot)) * bis[i] for i in range(3))
+    axis = _cross(n_a, n_b)
+    axis_len = math.sqrt(sum(c * c for c in axis))
+    if axis_len <= 1e-9:
+        fail('wedge_fillet: the host normals are parallel (no corner to fillet)')
+    axis = tuple(c / axis_len for c in axis)
+    beta = math.acos(dot)
+    pts, dirs = [], []
+    for j in range(subdivs + 1):
+        t = beta * j / subdivs
+        v = tuple(-n_a[i] for i in range(3))
+        uvx = _cross(axis, v)
+        vv = sum(axis[i] * v[i] for i in range(3))
+        ct, st = math.cos(t), math.sin(t)
+        d = tuple(v[i] * ct + uvx[i] * st + axis[i] * vv * (1.0 - ct) for i in range(3))
+        pts.append(tuple(centre[i] + radius * d[i] for i in range(3)))
+        dirs.append(tuple(-d[i] for i in range(3)))
+    return pts, dirs
+
+
+def _avg_dir(dirs):
+    total = tuple(sum(d[i] for d in dirs) for i in range(3))
+    length = math.sqrt(sum(c * c for c in total)) or 1.0
+    return tuple(c / length for c in total)
+
+
+def cove_strip(pb, rings, ring_dirs, mat, element):
+    """One swept fillet strip: quads between consecutive cross-section rings; each quad's
+    authored normal is its four ring normals' average (the air-facing concave side) and the
+    faces are smooth-shaded."""
+    for ra, rb, da, db in zip(rings, rings[1:], ring_dirs, ring_dirs[1:]):
+        for i in range(len(ra) - 1):
+            pb.face([ra[i], ra[i + 1], rb[i + 1], rb[i]], mat, element,
+                    _avg_dir((da[i], da[i + 1], db[i], db[i + 1])), smooth=True)
+
+
+def build_rib_coves(pb, kit, mat):
+    """22 rib-edge coves (11 ribs x 2 edges, the verdict's part list): fillet shells swept
+    along the vault's arc rows (the G_ARC stations - the same 8-segment stationing the arch
+    rows ride), seated in the vault--ring-face corner. The rib's ring plane x = x_c +- 
+    ARCH_HALF_W cuts every vault facet at exactly 90 degrees (the facet planes carry the x
+    direction), so each strip's cross-section is the 90-degree fillet: tangent to its vault
+    facet at the corner offset by rib_cove_r along the ring normal, tangent to the ring face
+    at the corner offset by rib_cove_r along the facet's air normal. The shell's vault-side
+    boundary runs the FULL rib arc, spring to crown to spring, both edges (rib_cove_len);
+    the ring-side boundary rides ~rib_cove_r into the ring face (inside the ring band: the
+    arch/vault clearance is 0.17693 and the cove's 0.05 fits it; the two spring-end
+    cross-sections dip ~3.5 cm below the spring line, buried in the ressaut/cornice-top
+    material - invisible to the bake). One ring
+    per station (that station's own facet's normals) chains the strips: the vault-side
+    boundary is exact and continuous, the cross-sections twist ~1-3 mm at the vault's own 8
+    station edges (the faceted host's vertex breaks; the form is provisional per the
+    license row)."""
+    radius = kit['rib_cove_r']
+    parts = 0
+    for x_c in PILASTER_X:
+        for s in (-1.0, 1.0):
+            x_e = x_c + s * ARCH_HALF_W
+            n_b = (s, 0.0, 0.0)                      # the rib's ring face: its air normal
+            rings, dirs = [], []
+            for k in range(G_ARC_SEGS):
+                (za, ya), (zb, yb) = G_ARC[k], G_ARC[k + 1]
+                slope = (yb - ya) / (zb - za)
+                norm = math.sqrt(1.0 + slope * slope)
+                n_a = (0.0, -1.0 / norm, slope / norm)   # the vault facet's air normal
+                for origin, is_end in (((x_e, ya, za), False), ((x_e, yb, zb), True)):
+                    if is_end and k < G_ARC_SEGS - 1:
+                        continue     # the next facet's strip re-rings this station
+                    ring, dir_ = wedge_fillet(origin, n_a, n_b, radius, PROXY_ARC_SUBDIVS)
+                    rings.append(ring)
+                    dirs.append(dir_)
+            cove_strip(pb, rings, dirs, mat, 'junction.rib_cove')
+            parts += 1
+    if parts != len(PILASTER_X) * 2:
+        fail(f'the rib coves emitted {parts} parts, expected {len(PILASTER_X) * 2}')
+
+
+def build_springers(pb, kit, mat):
+    """22 springers (11 rib feet x 2 walls): chamfered blocks seated on the ressaut top
+    strips where arch=True. The core spans the rib's width (springer_w == ARCH_WIDTH, the
+    builder's own assert pins it); the per-side projections fill the seat wings exactly
+    (springer_proj == RESSAUT_HALF_W - ARCH_HALF_W, flush with the ressaut edges - the S0 D3
+    flush fact), so the block's footprint is the ressaut top's own rectangle; the block
+    rises springer_h off the ressaut top (y G_SPRING) across the seat's full depth (proud
+    0..RESSAUT_PROUD, from the wall plane to the arch foot line); the room-facing top edge
+    is chamfered at 45 degrees with the springer_proj leg - the chamfered front top lands
+    just under the faceted vault surface at the foot line (G_SPRING + springer_h -
+    springer_proj = 3.24 vs the vault's 3.2451 there)."""
+    leg = kit['springer_proj']
+    height = kit['springer_h']
+    half_core = kit['springer_w'] / 2.0
+    half_outer = half_core + leg
+    parts = 0
+    for x_c in PILASTER_X:
+        for z_wall, in_dir in ((G_Z0, 1.0), (G_Z1, -1.0)):
+            z_room = z_wall + in_dir * RESSAUT_PROUD        # the arch foot line
+            z_chamfer = z_room - in_dir * leg               # the top face's room edge
+            y_top = G_SPRING + height
+            y_chamfer = y_top - leg
+            x0, x1 = x_c - half_outer, x_c + half_outer
+            el = 'junction.springer'
+            pb.face([(x0, G_SPRING, z_wall), (x1, G_SPRING, z_wall),
+                     (x1, G_SPRING, z_room), (x0, G_SPRING, z_room)], mat, el, (0.0, -1.0, 0.0))
+            pb.face([(x0, y_top, z_wall), (x1, y_top, z_wall),
+                     (x1, y_top, z_chamfer), (x0, y_top, z_chamfer)], mat, el, (0.0, 1.0, 0.0))
+            pb.face([(x0, G_SPRING, z_room), (x1, G_SPRING, z_room),
+                     (x1, y_chamfer, z_room), (x0, y_chamfer, z_room)],
+                    mat, el, (0.0, 0.0, in_dir))
+            pb.face([(x0, G_SPRING, z_wall), (x1, G_SPRING, z_wall),
+                     (x1, y_top, z_wall), (x0, y_top, z_wall)], mat, el, (0.0, 0.0, -in_dir))
+            for x, x_normal in ((x0, -1.0), (x1, 1.0)):
+                pb.face([(x, G_SPRING, z_wall), (x, G_SPRING, z_room),
+                         (x, y_chamfer, z_room), (x, y_top, z_chamfer), (x, y_top, z_wall)],
+                        mat, el, (x_normal, 0.0, 0.0))
+            pb.face([(x0, y_chamfer, z_room), (x1, y_chamfer, z_room),
+                     (x1, y_top, z_chamfer), (x0, y_top, z_chamfer)],
+                    mat, el, (0.0, leg, in_dir * leg))
+            parts += 1
+    if parts != len(PILASTER_X) * 2:
+        fail(f'the springers emitted {parts} parts, expected {len(PILASTER_X) * 2}')
+
+
+def gallery_facet_normal(z_wall, in_dir):
+    """The gallery vault's spring-facet air normal at the south (+1) or north (-1) wall:
+    the facet plane's slope is signed, the air rides below the facet."""
+    (z0, y0), (z1, y1) = (G_ARC[0], G_ARC[1]) if in_dir > 0 else (G_ARC[-1], G_ARC[-2])
+    slope = (y1 - y0) / (z1 - z0)
+    norm = math.sqrt(1.0 + slope * slope)
+    return (0.0, -1.0 / norm, slope / norm)
+
+
+def passage_facet_normal(side):
+    """The passage vault's spring-facet air normal at the west (-1) or east (+1) wall."""
+    (x0, y0), (x1, y1) = (P_ARC[0], P_ARC[1]) if side < 0 else (P_ARC[-1], P_ARC[-2])
+    slope = (y1 - y0) / (x1 - x0)
+    norm = math.sqrt(1.0 + slope * slope)
+    return (slope / norm, -1.0 / norm, 0.0)
+
+
+def build_cornice_coves(pb, kit, mat):
+    """The cornice-top coves (cornice_cove_r, the verdict's part list): both long-wall
+    cornice tops at y 3.00 - the corner each top's back edge makes with the gallery vault's
+    spring facet (a ~45-degree wedge: the faceted vault's first facet rises at its own
+    slope) - plus the 4 end-wall runs, where the corner is the end-wall cornice top against
+    the tympanum band (90 degrees). The spans are the cornice runs' own spans
+    (build_end_wall's cornice_run calls: the corner returns + END_CORNICE_BREAK); the cross-
+    section is constant along each run."""
+    radius = kit['cornice_cove_r']
+    end_spans = (
+        (G_Z0, CORNER_RETURN_Z[0] - RESSAUT_HALF_W),
+        (CORNER_RETURN_Z[0] + RESSAUT_HALF_W, G_Z0 + END_CORNICE_BREAK),
+        (G_Z1 - END_CORNICE_BREAK, CORNER_RETURN_Z[1] - RESSAUT_HALF_W),
+        (CORNER_RETURN_Z[1] + RESSAUT_HALF_W, G_Z1),
+    )
+    runs = [
+        (G_X0, G_X1, lambda x, _z=G_Z0: (x, G_SPRING, _z), gallery_facet_normal(G_Z0, 1.0)),
+        (G_X0, G_X1, lambda x, _z=G_Z1: (x, G_SPRING, _z), gallery_facet_normal(G_Z1, -1.0)),
+    ] + [
+        (t0, t1, lambda z, _x=G_X1: (_x, G_SPRING, z), (-1.0, 0.0, 0.0))
+        for t0, t1 in end_spans
+    ]
+    emit_cove_runs(pb, runs, radius, mat, 'junction.cornice_cove', len(runs))
+
+
+def build_impost_coves(pb, kit, mat):
+    """The impost cove (impost_cove_r, the verdict's part list) along the passage impost
+    caps: the corner each impost top's back edge (y P_SPRING at the wall plane) makes with
+    the passage vault's spring facet on the W and E walls (the E wall's band is split by the
+    gallery opening: two runs) and with the passage tympanum on the N wall (90 degrees)."""
+    radius = kit['impost_cove_r']
+    runs = [
+        (P_Z0, P_Z1, lambda z, _x=P_X0: (_x, P_SPRING, z), passage_facet_normal(-1.0)),
+        (P_Z0, G_Z0, lambda z, _x=P_X1: (_x, P_SPRING, z), passage_facet_normal(1.0)),
+        (G_Z1, P_Z1, lambda z, _x=P_X1: (_x, P_SPRING, z), passage_facet_normal(1.0)),
+        (P_X0, P_X1, lambda x, _z=P_Z0: (x, P_SPRING, _z), (0.0, 0.0, 1.0)),
+    ]
+    emit_cove_runs(pb, runs, radius, mat, 'junction.impost_cove', len(runs))
+
+
+def emit_cove_runs(pb, runs, radius, mat, element, expected):
+    """The straight fillet runs: each run is (t0, t1, origin_fn, n_b) - the corner line from
+    t0 to t1 with the horizontal impost/cornice top (air normal UP) on one side and the
+    vertical host face (air normal n_b) on the other. The cross-section is constant along
+    the run, extruded in PROXY_RUN_STEP_M steps (endpoints exact)."""
+    parts = 0
+    for t0, t1, origin_fn, n_b in runs:
+        steps = max(1, int(math.ceil((t1 - t0) / PROXY_RUN_STEP_M)))
+        rings, dirs = [], []
+        for k in range(steps + 1):
+            t = t0 + (t1 - t0) * k / steps
+            ring, dir_ = wedge_fillet(origin_fn(t), UP, n_b, radius, PROXY_ARC_SUBDIVS)
+            rings.append(ring)
+            dirs.append(dir_)
+        cove_strip(pb, rings, dirs, mat, element)
+        parts += 1
+    if parts != expected:
+        fail(f'{element} emitted {parts} runs, expected {expected}')
+
+
+def proxy_mesh_object(name, pbuild, collection, material):
+    """One proxy mesh + object: identity transform (the geometry is world-authored through
+    to_b, the shell's convention), the flat junction material, render-hidden so the
+    committed bake chain reproduces byte-identically until batch B flips visibility."""
+    pbuild.bm.normal_update()
+    me = bpy.data.meshes.new(name)
+    pbuild.bm.to_mesh(me)
+    pbuild.bm.free()
+    me.materials.append(material)
+    ob = bpy.data.objects.new(name, me)
+    collection.objects.link(ob)
+    ob.hide_render = True
+    return ob
+
+
+def build_junction_proxies(kit):
+    """THE JUNCTION PROXIES (see the block comment above): the BAKE_PROXIES collection's
+    four part objects, built deterministically from the kit's own constants and seated on
+    the shipped surfaces - 22 rib-edge coves, 22 springers, the cornice-top coves (both
+    long-wall tops + the 4 end-wall runs) and the impost cove along the passage impost
+    caps. Returns the collection."""
+    # the proxy mesh carries ONE material slot (the flat junction stucco); the part builders
+    # take the slot INDEX (the Builder's face() law), the object takes the material itself.
+    proxy_mat = flat_material('junction_proxy', STUCCO_GREY_RGB, 0.92)
+    collection = bpy.data.collections.new(BAKE_PROXIES_COLLECTION)
+    bpy.context.scene.collection.children.link(collection)
+    # the explicit export-exclusion: the exporter's own first-class law - every object in
+    # the 'glTF_not_exported' collection is skipped by Blender 4.2's glTF exporter
+    # (io_scene_gltf2's gather-tree filter), so the proxies are excluded structurally, at
+    # birth; the collection itself stays unlinked from the scene (a membership law only).
+    excluded = bpy.data.collections.new(GLTF_NOT_EXPORTED_COLLECTION)
+    for name, part_build in (
+        ('junction.rib_coves', lambda pb: build_rib_coves(pb, kit, 0)),
+        ('junction.springers', lambda pb: build_springers(pb, kit, 0)),
+        ('junction.cornice_coves', lambda pb: build_cornice_coves(pb, kit, 0)),
+        ('junction.impost_coves', lambda pb: build_impost_coves(pb, kit, 0)),
+    ):
+        pb = Builder()
+        part_build(pb)
+        ob = proxy_mesh_object(name, pb, collection, proxy_mat)
+        excluded.objects.link(ob)
+    return collection
+
+
+def committed_glb_path():
+    """The node-list belt's reference: the room's committed glb (repo-relative to this file)."""
+    return os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..',
+                        'public', 'assets', ROOM_ID, f'{ROOM_ID}.glb')
+
+
+def glb_node_names(path):
+    """A GLB's node names in file order (pure python: the JSON chunk only)."""
+    with open(path, 'rb') as fh:
+        buf = fh.read()
+    if len(buf) < 20 or buf[:4] != b'glTF' or int.from_bytes(buf[4:8], 'little') != 2:
+        fail(f'not a glTF v2 GLB: {path}')
+    if int.from_bytes(buf[16:20], 'little') != 0x4E4F534A:
+        fail(f'the first GLB chunk is not JSON: {path}')
+    json_len = int.from_bytes(buf[12:16], 'little')
+    document = json.loads(buf[20:20 + json_len].decode('utf-8'))
+    return [str(node.get('name', '')) for node in document.get('nodes', [])]
+
+
+def belt_export_nodes(glb_path):
+    """THE JUNCTION BELT (the O1/O1b containment law, fail-loud): the exported node names
+    must equal the committed glb's list exactly, in order - the proxies must leave zero
+    trace in the glb (no new meshes, the exported node list identical)."""
+    exported = glb_node_names(glb_path)
+    reference = committed_glb_path()
+    if not os.path.exists(reference):
+        fail(f'the node-list belt cannot run: no committed glb at {reference}')
+    committed = glb_node_names(reference)
+    if exported != committed:
+        fail('the exported node list drifted from the committed glb - '
+             f'exported {exported} vs committed {committed}')
+
+
 def main():
     stage = stage_dir()
     tex_dir = os.path.join(stage, 'tex')
@@ -1827,6 +2224,7 @@ def main():
         instance('sconce', me_sconce, (x, SCONCE_Y, G_Z1 - SCONCE_MOUNT_D), math.pi)
     for z in SCONCE_SEW_Z:  # 2 passage-mouth sconces on the passage's east wall, facing west
         instance('sconce', me_sconce, (P_X1, SCONCE_Y, z), -math.pi / 2)
+    build_junction_proxies(JUNCTION)
     if BAKE:
         return
     glb_path = os.path.join(stage, f'{ROOM_ID}.raw.glb')
@@ -1847,6 +2245,7 @@ def main():
         export_skins=False,
         export_morph=False,
     )
+    belt_export_nodes(glb_path)
     meshes = {
         'shell': {'triangles': t_shell, 'instances': 1, 'primitives': 6},
         'sconce': {'triangles': t_sconce, 'instances': SCONCE_COUNT, 'primitives': 2},
