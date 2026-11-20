@@ -148,6 +148,15 @@ test('golden: dec noon (winter gate)', async ({ page }) => {
   await expect(page).toHaveScreenshot('golden-dec-noon.png', SHOT);
 });
 
+// DEC-049 (the square-gap round): the missing wall's acceptance frame AND the owner's
+// daylight instrument — the S0b monument pause at the winter noon, where the Guards Corps HQ
+// east wall (the kit node el:hq-east) must read behind the Column (the T2 void
+// VOID_BACKDROP_S0B 42–47 % closed to ≤ 20 % bare field). Captured like every square scene.
+test('golden: S0b dec noon (the missing wall)', async ({ page }) => {
+  await settledPage(page, 'at=2026-12-21T10:00:00Z&det=1&stop=S0b');
+  await expect(page).toHaveScreenshot('golden-s0b-dec-noon.png', SHOT);
+});
+
 // DEC-033: an isolated lattice fence now that dec night fences two things — 15 Oct 23:00 local
 // (20:00Z): wNight === 1, wSnow === 0 (Oct 15 precedes the Nov 10 anchor; the cap hidden, the
 // slot an exact identity).

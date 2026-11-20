@@ -993,6 +993,42 @@ def build_sconce(b):
     kit_box(b, width, height, (-depth[1], -depth[0]), KIT_GLOW)
 
 
+# --- the jordan-fixtures round's ONE hook (batch B1; all form code lives in the new
+# jordan_fixtures.py, which never imports this file: the kit helpers, the anchor tables
+# and the namespace constants ride inside the namespace dict passed below). With
+# FIXTURE_FORM unset or 'placeholder' the returned row IS the committed one and every
+# byte of the build is unchanged; 'slice_e' swaps the runner's sconce row to the
+# fixture module's archetype builder (gilt + sconce_glow + crystal) and routes its
+# realize through the module's own sub-cell LM packer.
+import importlib.util as _importlib_util
+
+_jordan_fixtures_spec = _importlib_util.spec_from_file_location(
+    'jordan_fixtures', os.path.join(os.path.dirname(os.path.abspath(__file__)), 'jordan_fixtures.py'))
+jordan_fixtures = _importlib_util.module_from_spec(_jordan_fixtures_spec)
+_jordan_fixtures_spec.loader.exec_module(jordan_fixtures)
+
+# The review HIGH-3: the form env is validated STRICTLY at the load — empty/unset is
+# 'placeholder', 'slice_e' is 'slice_e', anything else fails loud here (a typo such as
+# 'slice-e' must never silently select the committed placeholder path).
+_FIXTURE_FORM_ENV = os.environ.get('FIXTURE_FORM', '')
+if _FIXTURE_FORM_ENV in ('', 'placeholder'):
+    FIXTURE_FORM = 'placeholder'
+elif _FIXTURE_FORM_ENV == 'slice_e':
+    FIXTURE_FORM = 'slice_e'
+else:
+    raise RuntimeError(f'jordan: FIXTURE_FORM {_FIXTURE_FORM_ENV!r} is not '
+                       "('placeholder' | 'slice_e')")
+
+
+def build_fixtures(kit, form):
+    """The runner's fixture rows through the fixture module (the module law: it never
+    imports jordan.py — it receives this namespace dict and reads from it). B2: the
+    module returns the chandelier assembly's three rows AND the sconce row under
+    'slice_e'; the committed two rows (the placeholder chandelier + the placeholder
+    sconce) otherwise — the byte-identical path."""
+    return jordan_fixtures.fixture_rows(kit, form)
+
+
 def wall_point(axis, plane, u, y, d):
     return (u, y, plane + d) if axis == 'z' else (plane + d, y, u)
 
@@ -1134,6 +1170,20 @@ def realize(b, material_names, first_cell):
     return len({mat for _, mat in b.faces})
 
 
+# --- the jordan-fixtures round's realize dispatcher (part of the ONE hook): under
+# slice_e the fixture datablocks realize through the fixture module's sub-cell LM
+# packer (the committed one-cell-per-mesh-FACE law is not their law); every other mesh
+# rides the committed realize unchanged, and the placeholder form never diverts.
+_committed_realize = realize
+
+
+def realize(b, material_names, first_cell):
+    if FIXTURE_FORM == 'slice_e' and b.name in ('sconce', 'chandelier', 'chandelier_arm',
+                                                'chandelier_bead'):
+        return jordan_fixtures.realize_fixture(b, material_names, first_cell)
+    return _committed_realize(b, material_names, first_cell)
+
+
 def write_lm_cells(path):
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -1206,8 +1256,10 @@ def main():
         ('baluster', build_baluster, ['gilt']),
         ('column', build_column, ['granite_grey', 'gilt']),
         ('portal', build_portal, ['plaster_warm', 'gilt']),
-        ('chandelier', build_chandelier, ['gilt', 'chandelier_glow']),
-        ('sconce', build_sconce, ['plaster_warm', 'sconce_glow']),
+        # The jordan-fixtures B2: the fixture module supplies the chandelier rows too —
+        # the committed placeholder chandelier row on the placeholder path (byte
+        # identical), the archetype assembly (stem / arm / bead) on the slice_e path.
+        *build_fixtures(globals(), FIXTURE_FORM),
         ('cornice', build_cornice, ['plaster_warm']),
         # The bands fix (2026-11-16): one template datablock PER WALL (pilaster,
         # pilaster_base: north/south/east by placement) and PER TIER (window_frame:
@@ -1251,7 +1303,8 @@ def main():
         draws += prims
         if name == 'pane':
             envelope_cells = cells
-        if name in ('baluster', 'column', 'sconce', 'pilaster_n0', 'pilaster_n1',
+        if name in ('baluster', 'column', 'sconce', 'chandelier_arm', 'chandelier_bead',
+                    'pilaster_n0', 'pilaster_n1',
                     'pilaster_n2', 'pilaster_n3', 'pilaster_n4', 'pilaster_n5', 'pilaster_n6',
                     'pilaster_s', 'pilaster_e',
                     'pilaster_base_n', 'pilaster_base_s', 'pilaster_base_e',
@@ -1292,6 +1345,14 @@ def main():
         put('sconce', (x, flight_datum(FLIGHTS[1], x) + SCONCE_ABOVE, Z_N), math.pi)
     for z, y in SCONCE_EAST:
         put('sconce', (X_E, y, z), math.pi / 2)
+    # The jordan-fixtures B2: the chandelier assembly's instances ride the module's own
+    # rosters (36 arms on the stem's tier mounts, 300 beads: the festoons between the
+    # adjacent pans + the pendants under the tiers). Empty under the placeholder form,
+    # so the committed node order is byte-identical there.
+    for location, rot_y in jordan_fixtures.arm_roster():
+        put('chandelier_arm', location, rot_y)
+    for location in jordan_fixtures.bead_roster():
+        put('chandelier_bead', location, 0.0)
     # Keep the committed roster: east shafts pass through the landing; bases
     # remain at Y_FLOOR. The wall/tier split (the bands fix) picks each instance's
     # template by position; bake.py's centroid representative runs inside each group.
@@ -1434,6 +1495,15 @@ def main():
                        'HALL_REF; niche reveals: cavity centre; frame returns: radially outward',
         },
     }
+    # The jordan-fixtures B2: the assembly's honest rows beside the committed
+    # chandelier row (which keeps reporting the RIG's derivation inputs — the rig
+    # never moves). Constructed BEFORE either serialization (the review HIGH-2): the
+    # stage summary.json and the ZIMNY_SUMMARY stdout carry the SAME
+    # declared.chandelierFixtures, and if declared_rows() raises nothing is written —
+    # an apparently finished stage file without the key cannot exist. The placeholder
+    # path never adds the key (the byte-identical law).
+    if FIXTURE_FORM == 'slice_e':
+        summary['declared']['chandelierFixtures'] = jordan_fixtures.declared_rows()
     (stage / 'summary.json').write_text(json.dumps(summary, sort_keys=True, indent=2, allow_nan=False) + '\n', encoding='utf8')
     print('ZIMNY_SUMMARY ' + json.dumps(summary, sort_keys=True, separators=(',', ':'), allow_nan=False))
 

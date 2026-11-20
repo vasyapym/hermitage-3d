@@ -1,0 +1,50 @@
+{
+  "id": "square",
+  "files": [
+    {
+      "path": "kit.glb",
+      "bytes": 80632,
+      "sha256": "aa8510d819ae1c53f55288345536f9cb2fa83f356501db31df6869005b2d6d04",
+      "kind": "glb"
+    }
+  ],
+  "lightmaps": {
+    "states": [],
+    "res": null,
+    "intensity": null
+  },
+  "budget": {
+    "trianglesMax": 18000,
+    "drawsMax": 6,
+    "textureBytesMax": 1,
+    "payloadBytesMax": 1500000
+  },
+  "toolchain": {
+    "blender": "4.2.23 LTS",
+    "three": "0.186.1"
+  },
+  "nodes": [
+    {
+      "name": "el:hq-east",
+      "tris": 944,
+      "aabb": {
+        "min": [
+          109.30000305175781,
+          0,
+          100
+        ],
+        "max": [
+          134,
+          20.5,
+          240
+        ]
+      },
+      "materials": [
+        "massing",
+        "dressing",
+        "dark-pane"
+      ]
+    }
+  ],
+  "glbSha256": "aa8510d819ae1c53f55288345536f9cb2fa83f356501db31df6869005b2d6d04"
+}

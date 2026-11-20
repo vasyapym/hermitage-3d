@@ -14,6 +14,10 @@ tools/probes/**
 !tools/probes/*.py
 !tools/probes/*.mjs
 !tools/probes/*.md
+# The jordan-fixtures B0 census REPORTS are committed records — the unanchored
+# probes/ rule above swallows the docs/probes/ DIRECTORY, so re-include it (the
+# files inside carry no rule of their own).
+!docs/probes/
 *.blend1
 *.blend2
 tools/fonts/.venv/

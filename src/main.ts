@@ -116,6 +116,7 @@ import { solveSouthFacade } from './procedural/facade-solver';
 import { GROUND_SNOW_UNIFORMS, patchGroundSnowSlot } from './procedural/ground-snow';
 import { buildNightLattice } from './procedural/night-lattice';
 import { buildSnowCap } from './procedural/snow-cap';
+import { mountSquareKit } from './procedural/square-kit-load';
 import {
   buildThroat,
   openGroundArch,
@@ -3893,6 +3894,16 @@ const tick = (timeMs: number): void => {
       .compileAsync(scene, camera)
       .then(() => {
         massingReady = true;
+        // DEC-045 (batch M3): the kit's fetch starts at the first-presented moment — the
+        // presenter's fade covers the mount; additive content, never load-bearing.
+        mountSquareKit({
+          palace,
+          materials: {
+            massing: massingMaterial,
+            dressing: facadeBuild.material,
+            'dark-pane': nightLattice.materials.dark,
+          },
+        });
         // §8.3 layer 2 baseline: the post-boot object counts, only when no room is mounted.
         if (ledger.snapshot().total === 0) {
           memoryBaseline = {
