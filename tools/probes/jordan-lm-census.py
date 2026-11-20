@@ -152,6 +152,36 @@ DARK_MEDIAN_COMMITTED = {  # docs/STATE.md 2026-11-17: the q128 re-measure at th
 }
 CHANDELIER_PINNED = {'tierRadius': (1.40, 1.00, 0.60), 'tierDy': 0.85, 'tiers': 3,
                      'source': 'the ruling B2 (tools/bpy/jordan_fixtures.py constants, stage 2)'}
+# The jordan-fixtures review (P2-8): the envelope reference is the IMMUTABLE
+# placeholder envelope — the placeholder chandelier's own glTF extremes grown
+# 0.10 per side, MEASURED once from the committed builder's constants at main
+# @ 3da446d (tools/bpy/jordan.py: CHAND_C (86.0, -74.0), CHAND_DROP_R 1.5,
+# CHAND_DROP[0] 0.12 — the 8 drop octahedra reach x/z ±(1.5 + 0.12) of (86, -74),
+# wider than the ring's outer radius 1.6; CHAND_CORE_Y 14.2 − CHAND_CORE[1] 0.8
+# = the core octahedron's lower apex 13.4; CHAND_ROD_TOP 19.9) — and hard-coded
+# here so neither a foreign --builder's namespace nor the assembly's own bbox
+# can move the fence. The assembly is judged against THIS box (da19680:
+# «envelope ⊆ placeholder +0.10/side»); comparisons stay unrounded internally.
+PLACEHOLDER_ENVELOPE_GLTF = (84.28, 13.30, -75.72, 87.72, 20.00, -72.28)
+PLACEHOLDER_ENVELOPE_SOURCE = (
+    'the placeholder chandelier\'s own glTF extremes at main @ 3da446d '
+    '(tools/bpy/jordan.py CHAND_C (86.0, -74.0), CHAND_DROP_R 1.5, CHAND_DROP[0] '
+    '0.12, CHAND_CORE_Y 14.2, CHAND_CORE[1] 0.8, CHAND_ROD_TOP 19.9), grown 0.10 '
+    'per side — hard-coded (immutable), not the assembly\'s own bbox')
+# CHANDELIER_MIN_Y (the B2 min-y fence, da19680: «min y 13.41 ≥ 13.4»): the
+# placeholder's own lowest glTF y — the core octahedron's lower apex; the
+# assembly's lowest y may never dip below it.
+CHANDELIER_MIN_Y_GLTF = 13.4
+# The jordan-fixtures review (P2-7): the EXACT per-datablock instance counts —
+# a miss is fatal to the census (main stops before any decision). The B2
+# assembly form (da19680): the stem ×1, the arm archetype ×36 (16/12/8 across
+# the pinned tiers), one bead ×300, the sconce archetype ×10. The placeholder
+# form (and B1's slice_e sconce row): 10 + 1 = 11.
+EXPECTED_FIXTURE_INSTANCES = {
+    'assembly': {'sconce': 10, 'chandelier': 1, 'chandelier_arm': 36,
+                 'chandelier_bead': 300},
+    'placeholder': {'sconce': 10, 'chandelier': 1},
+}
 
 
 def parse_args():
@@ -197,6 +227,14 @@ def parse_args():
                              'must be byte-identical to B1 while the chandelier assembly\'s '
                              'is new')
     args = parser.parse_args(argv)
+    # The jordan-fixtures review (P1-2): the baseline arguments are loud — a
+    # --uv2-baseline / --uv2-fixture-baseline without the enabling --uv2-subset-hash
+    # is an error, never a silent ignore (the committed tool never accepted the
+    # uv2 flags, so no protected output exists for this argv).
+    if (args.uv2_baseline or args.uv2_fixture_baseline) and not args.uv2_subset_hash:
+        parser.error('--uv2-baseline/--uv2-fixture-baseline require --uv2-subset-hash '
+                     '(the NO-REPACK gate) — a baseline without the enabling hash flag '
+                     'is not silently ignored')
     builder = pathlib.Path(args.builder) if args.builder else B0_CHECKOUT / 'tools' / 'bpy' / 'jordan.py'
     out = pathlib.Path(args.out) if args.out else B0_CHECKOUT / B0_STAGE
     plates = {}
@@ -307,6 +345,82 @@ def shell_bin(centre, normal, win_x, tiers):
     return 'shell_other'
 
 
+def validate_packed_schema(cells_map, meshes):
+    """The jordan-fixtures review (P2-5): the packed-fixture sidecar schema
+    validates BEFORE any classification, so the readers can never silently
+    revert to the committed one-face/one-cell model. Under the archetype form a
+    fixture datablock whose allocated cells are FEWER than its faces is packed
+    and MUST carry its faceCellMap (length == the template's polygon count) and
+    fixtureLm (cells == the datablock's own allocated run); every mapped linear
+    cell belongs to that datablock (never another owner's) and no non-fixture
+    datablock appears in the maps. Under the placeholder form the sidecars'
+    presence is tolerated and noted (the committed form never writes them) —
+    the note rides the b0 report when one is built."""
+    face_cells = cells_map.get('faceCellMap') or {}
+    fixture_lm = cells_map.get('fixtureLm') or {}
+    templates = {}
+    for obj in meshes:
+        templates.setdefault(obj.data.name, obj.data)
+    sconce = templates.get('sconce')
+    sconce_prims = (sum(1 for material in sconce.materials if material is not None)
+                    if sconce is not None else 0)
+    scene_is_slice_e = 'chandelier_arm' in templates or sconce_prims >= 3
+    grid = int(cells_map.get('grid', 64))
+    allocated = {}
+    for key, row in cells_map['cells'].items():
+        cx, cy = (int(part) for part in key.split(','))
+        allocated.setdefault(row['object'], set()).add(cy * grid + cx)
+    if not scene_is_slice_e:
+        unexpected = sorted(set(face_cells) | set(fixture_lm))
+        if not unexpected:
+            return None
+        return {'stance': ('tolerated — the committed placeholder form never writes the '
+                           'packed sidecars; their presence is noted, not rejected'),
+                'unexpectedSidecars': unexpected}
+    problems = []
+    stray = sorted(name for name in face_cells if name not in FIXTURE_DATABLOCKS)
+    if stray:
+        problems.append(f'faceCellMap carries non-fixture datablocks {stray}')
+    stray_lm = sorted(name for name in fixture_lm if name not in FIXTURE_DATABLOCKS)
+    if stray_lm:
+        problems.append(f'fixtureLm carries non-fixture datablocks {stray_lm}')
+    present = [name for name in FIXTURE_DATABLOCKS if name in templates]
+    for name in present:
+        cells_owned = allocated.get(name, set())
+        expected_faces = len(templates[name].polygons)
+        packed_needed = len(cells_owned) < expected_faces
+        if name not in face_cells:
+            if packed_needed:
+                problems.append(
+                    f'the packed sidecar faceCellMap[{name!r}] is missing ({len(cells_owned)} '
+                    f'cells for {expected_faces} faces) — the reader would silently revert '
+                    'to the one-face/one-cell model')
+            continue
+        if len(face_cells[name]) != expected_faces:
+            problems.append(f'faceCellMap[{name!r}] has {len(face_cells[name])} entries but '
+                            f'the template carries {expected_faces} faces')
+        foreign = sorted(set(face_cells[name]) - cells_owned)
+        if foreign:
+            shown = ', '.join(str(cell) for cell in foreign[:8])
+            problems.append(f'faceCellMap[{name!r}] maps faces to cells outside the '
+                            f'datablock\'s own run ({shown}'
+                            + ('…' if len(foreign) > 8 else '') + ')')
+        lm_row = fixture_lm.get(name)
+        if lm_row is None:
+            problems.append(f'the packed sidecar fixtureLm[{name!r}] is missing')
+        elif int(lm_row.get('cells', -1)) != len(cells_owned):
+            problems.append(f'fixtureLm[{name!r}] declares {lm_row.get("cells")} cells but '
+                            f'the datablock owns {len(cells_owned)}')
+    if problems:
+        raise SystemExit('census: the packed-fixture sidecar schema is broken —\n  '
+                         + '\n  '.join(problems))
+    return {'stance': 'validated before classification',
+            'faceCellMapDatablocks': sorted(name for name in face_cells),
+            'law': ('faceCellMap length == the template\'s polygon count per fixture '
+                    'datablock; every mapped cell inside the datablock\'s own '
+                    'allocated run; fixtureLm cells == the datablock\'s own cells')}
+
+
 def census_cells(namespace, cells_map, meshes):
     """Walk every mesh face to its lm cell and classify it. Returns
     {cell_key: {'bin': ..., 'datablock': ..., 'material': ...}}."""
@@ -324,6 +438,7 @@ def census_cells(namespace, cells_map, meshes):
     # inert for every committed input and the default path stays byte-identical).
     face_cells = cells_map.get('faceCellMap') or {}
     seen, out = set(), {}
+    res = int(cells_map.get('res', namespace.get('LM_RES', 2048)))
     for obj in sorted(meshes, key=lambda item: item.name):
         name = obj.data.name
         if name in seen:
@@ -339,19 +454,71 @@ def census_cells(namespace, cells_map, meshes):
         matrix = obj.matrix_world
         normal_matrix = matrix.to_3x3()
         sub_cells = face_cells.get(name)
+        if sub_cells is None or name == 'shell':
+            # The committed path — ONE face per cell (the committed law), the
+            # exact committed expressions; the shell is forced here regardless of
+            # any sidecar (its own law is one face per cell and its bins are
+            # per-face). The default path's bytes ride on these lines.
+            for pi, poly in enumerate(obj.data.polygons):
+                cell = sub_cells[pi] if sub_cells is not None else first + pi
+                key = f'{cell % grid},{cell // grid}'
+                if key not in cells:
+                    raise SystemExit(f'census: face {pi} of {name!r} maps to absent cell {key}')
+                material = cells[key]['material']
+                centre = matrix @ poly.center
+                normal = (normal_matrix @ poly.normal).normalized()
+                if name == 'shell':
+                    bin_name = shell_bin(centre, normal, win_x, tiers)
+                else:
+                    bin_name = family
+                out[key] = {'bin': bin_name, 'datablock': name, 'material': material,
+                            'world': [round(float(v), 3) for v in centre]}
+            continue
+        # The jordan-fixtures review (P2-6): the packed path (the B1/B2 sub-cell
+        # packer — several faces share one cell; the last-face-wins overwrite is
+        # gone). The cell's world position is the TEXEL-AREA-WEIGHTED mean of the
+        # packed faces' centroids, each face weighted by its lm-UV2 footprint in
+        # atlas px² (the uv polygon's shoelace area × res²) — a documented
+        # aggregate approximation (exact per-texel attribution would need the
+        # island regions cells.json does not carry; the law rides the rig
+        # statistics' cellPositionLaw field). A single-face cell keeps the face's
+        # own centroid exactly; the legacy (non-packed) path above keeps its
+        # exact committed output.
+        lm_uv = obj.data.uv_layers.get('lm')
+        per_cell_faces = {}
         for pi, poly in enumerate(obj.data.polygons):
-            cell = sub_cells[pi] if sub_cells is not None else first + pi
+            cell = sub_cells[pi]
             key = f'{cell % grid},{cell // grid}'
             if key not in cells:
                 raise SystemExit(f'census: face {pi} of {name!r} maps to absent cell {key}')
-            material = cells[key]['material']
             centre = matrix @ poly.center
-            normal = (normal_matrix @ poly.normal).normalized()
-            if name == 'shell':
-                bin_name = shell_bin(centre, normal, win_x, tiers)
+            weight = 0.0
+            if lm_uv is not None and len(poly.loop_indices) >= 3:
+                area2 = 0.0
+                loops = list(poly.loop_indices)
+                for i, loop_index in enumerate(loops):
+                    u = lm_uv.data[loop_index].uv
+                    v = lm_uv.data[loops[(i + 1) % len(loops)]].uv
+                    area2 += float(u.x) * float(v.y) - float(v.x) * float(u.y)
+                weight = abs(area2) * 0.5 * float(res) * float(res)
+            per_cell_faces.setdefault(key, []).append((centre, weight))
+        for key, faces in per_cell_faces.items():
+            material = cells[key]['material']
+            if len(faces) == 1:
+                centre = faces[0][0]
             else:
-                bin_name = family
-            out[key] = {'bin': bin_name, 'datablock': name, 'material': material,
+                total = sum(weight for _, weight in faces)
+                acc = Vector((0.0, 0.0, 0.0))
+                if total > 0.0:
+                    for face_centre, weight in faces:
+                        acc = acc + face_centre * weight
+                    centre = acc / total
+                else:
+                    # degenerate lm UVs (no measurable footprint): the plain mean
+                    for face_centre, _weight in faces:
+                        acc = acc + face_centre
+                    centre = acc / len(faces)
+            out[key] = {'bin': family, 'datablock': name, 'material': material,
                         'world': [round(float(v), 3) for v in centre]}
     return out, grid
 
@@ -481,6 +648,7 @@ def per_object_ledger(namespace, cells_map, meshes, fixture_form=None):
     instances = {}
     for obj in meshes:
         instances.setdefault(obj.data.name, []).append(obj)
+    bbox_exact = {}  # the review (P1-1/P2-8): the UNROUNDED per-datablock Blender bboxes
     fixture_lm = cells_map.get('fixtureLm') or {}
     rows = []
     for name in sorted(owned):
@@ -530,6 +698,7 @@ def per_object_ledger(namespace, cells_map, meshes, fixture_form=None):
                     hi = world.copy() if hi is None else max_vec(hi, world)
             row['worldBboxBlender'] = ([round(v, 3) for v in lo] + [round(v, 3) for v in hi])
             row['worldBboxGltf'] = to_gltf_bbox(lo, hi)
+            bbox_exact[name] = (lo.copy(), hi.copy())
         rows.append(row)
     allocated = sum(row['cells'] for row in rows)
     out = {'res': res, 'grid': grid, 'padPx': pad, 'cellPx': cell_px,
@@ -540,44 +709,55 @@ def per_object_ledger(namespace, cells_map, meshes, fixture_form=None):
                       'capacity': grid * grid, 'cellsFree': grid * grid - allocated}}
     if all(name in instances for name in ('chandelier', 'chandelier_arm', 'chandelier_bead')):
         # B2: the assembly's union world bbox + the envelope verdict (additive; the
-        # builder's declared.chandelierFixtures carries the same numbers). The union is
-        # computed from the rows' glTF bboxes directly — the envelope constants are
-        # glTF-space (the placeholder's own extremes read from CHAND_*).
-        envelope_gltf = [namespace['CHAND_C'][0] - namespace['CHAND_DROP_R']
-                         - namespace['CHAND_DROP'][0] - 0.10,
-                         namespace['CHAND_CORE_Y'] - namespace['CHAND_CORE'][1] - 0.10,
-                         namespace['CHAND_C'][1] - namespace['CHAND_DROP_R']
-                         - namespace['CHAND_DROP'][0] - 0.10,
-                         namespace['CHAND_C'][0] + namespace['CHAND_DROP_R']
-                         + namespace['CHAND_DROP'][0] + 0.10,
-                         namespace['CHAND_ROD_TOP'] + 0.10,
-                         namespace['CHAND_C'][1] + namespace['CHAND_DROP_R']
-                         + namespace['CHAND_DROP'][0] + 0.10]
-        min_y_fence = round(namespace['CHAND_CORE_Y'] - namespace['CHAND_CORE'][1], 6)
-        union = None
+        # builder's declared.chandelierFixtures carries the same numbers). The
+        # review (P1-1/P2-8): the union is computed UNROUNDED from the per-datablock
+        # Blender bboxes and carried in BOTH spaces (the glTF union is
+        # authoritative; the Blender display bbox derives from it by the builder's
+        # to_b inverse — glTF (x, y, z) -> Blender (x, -z, y), so Blender lo =
+        # (gltf x_lo, -gltf z_hi, gltf y_lo)) — the missing worldBboxBlender key
+        # that crashed the combined-flags pass cannot recur. The envelope
+        # reference is the IMMUTABLE placeholder envelope (the hard-coded
+        # B0-measured PLACEHOLDER_ENVELOPE_GLTF) — never the assembly's own bbox,
+        # never a foreign --builder's namespace constants; the verdicts compare
+        # unrounded coordinates and only the display fields round.
+        union_lo = union_hi = None
         for name in ('chandelier', 'chandelier_arm', 'chandelier_bead'):
-            for row in rows:
-                if row['object'] != name:
-                    continue
-                bbox = row['worldBboxGltf']
-                if union is None:
-                    union = list(bbox)
-                else:
-                    for axis in range(3):
-                        union[axis] = min(union[axis], bbox[axis])
-                        union[3 + axis] = max(union[3 + axis], bbox[3 + axis])
-        inside = all(envelope_gltf[axis] <= union[axis]
-                     and union[3 + axis] <= envelope_gltf[3 + axis] for axis in range(3))
+            lo, hi = bbox_exact[name]
+            union_lo = lo.copy() if union_lo is None else min_vec(union_lo, lo)
+            union_hi = hi.copy() if union_hi is None else max_vec(union_hi, hi)
+        # Blender (x, y, z) -> glTF (x, z, -y): glTF lo = (b.x, b.z, -b_hi.y),
+        # glTF hi = (b.x, b.z, -b_lo.y) — the same mapping to_gltf_bbox applies,
+        # unrounded.
+        union_gltf_exact = [union_lo.x, union_lo.z, -union_hi.y,
+                            union_hi.x, union_hi.z, -union_lo.y]
+        envelope_exact = list(PLACEHOLDER_ENVELOPE_GLTF)
+        envelope_pass = all(envelope_exact[axis] <= union_gltf_exact[axis]
+                            and union_gltf_exact[3 + axis] <= envelope_exact[3 + axis]
+                            for axis in range(3))
+        min_y_pass = CHANDELIER_MIN_Y_GLTF <= union_gltf_exact[1]
         out['chandelierAssembly'] = {
-            'worldBboxGltf': [round(v, 3) for v in union],
-            'minYGltf': round(union[1], 3), 'maxYGltf': round(union[4], 3),
-            'minYFenceGltf': min_y_fence,
-            'minYFencePass': bool(min_y_fence - 1e-9 <= union[1]),
-            'envelopeGltf': [round(v, 3) for v in envelope_gltf],
-            'envelopePass': bool(inside),
-            'law': ('the C2 pins: the assembly bbox inside the placeholder bbox grown 0.10 '
-                    'per side; the lowest y never below CHANDELIER_MIN_Y (the placeholder\'s '
-                    'own lowest = the core octahedron\'s lower apex)'),
+            'worldBboxGltf': [round(v, 3) for v in union_gltf_exact],
+            'worldBboxBlender': [round(union_gltf_exact[0], 3),
+                                 round(-union_gltf_exact[5], 3),
+                                 round(union_gltf_exact[1], 3),
+                                 round(union_gltf_exact[3], 3),
+                                 round(-union_gltf_exact[2], 3),
+                                 round(union_gltf_exact[4], 3)],
+            'unionExactGltf': [float(v) for v in union_gltf_exact],
+            'minYGltf': round(union_gltf_exact[1], 3),
+            'maxYGltf': round(union_gltf_exact[4], 3),
+            'minYFenceGltf': CHANDELIER_MIN_Y_GLTF,
+            'minYFencePass': bool(min_y_pass),
+            'envelopeGltf': [round(v, 3) for v in envelope_exact],
+            'envelopeSource': PLACEHOLDER_ENVELOPE_SOURCE,
+            'envelopePass': bool(envelope_pass),
+            'law': ('the C2 pins, on the immutable reference: the assembly\'s union '
+                    'bbox (stem + 36 arms + 300 beads, unrounded) inside the '
+                    'placeholder\'s own measured bbox grown 0.10 per side '
+                    '(hard-coded PLACEHOLDER_ENVELOPE_GLTF), and the lowest y never '
+                    'below CHANDELIER_MIN_Y (the placeholder\'s own lowest = the '
+                    'core octahedron\'s lower apex); sub-millimetre rounding can no '
+                    'longer hide a violation'),
         }
     return out
 
@@ -712,9 +892,21 @@ def atlas_hash_and_stats(checkout):
                 else:
                     if view.get('buffer', 0) != 0:
                         raise SystemExit('census: TEXCOORD_1 view outside the GLB buffer')
+                    # The review's conditional note: the uncompressed branch assumes
+                    # a tightly packed accessor. A byteStride other than the tight
+                    # element size means an interleaved layout — the naive range
+                    # would hash the wrong byte population, so reject loudly instead.
+                    tight = (components[accessor['type']]
+                             * comp_bytes[accessor['componentType']])
+                    stride = view.get('byteStride')
+                    if stride is not None and int(stride) != tight:
+                        raise SystemExit(
+                            f'census: TEXCOORD_1 view carries byteStride {stride} != the '
+                            f'tight {tight} — an interleaved layout is unsupported (the '
+                            'hash would read the wrong byte population); gather the '
+                            'accessor elements by stride or reject the encoding first')
                     offset = view['byteOffset'] + accessor.get('byteOffset', 0)
-                    length = (accessor['count'] * components[accessor['type']]
-                              * comp_bytes[accessor['componentType']])
+                    length = accessor['count'] * tight
                 piece = blob[offset:offset + length]
                 if len(piece) != length:
                     raise SystemExit('census: a TEXCOORD_1 payload reaches outside the glb binary chunk')
@@ -746,6 +938,114 @@ def atlas_hash_and_stats(checkout):
     }
 
 
+def verify_scene_identity(namespace, meshes, checkout, fixture_form_env=None):
+    """The jordan-fixtures review (P1-3): the report binds to ONE artifact
+    identity. The rebuilt scene's datablock roster (names, instance counts,
+    per-template primitive counts) is compared against the INSPECTED public
+    asset — the committed glb (the census's own struct parse) and the
+    manifest's geometry rows, which must themselves agree (the manifest's
+    jordan.glb row sha256 == the glb file's sha256). The fixture form is a
+    scene fact (the archetype's 3-primitive sconce / the chandelier_arm
+    datablock), not just an env wish: the builder's declared namespace
+    FIXTURE_FORM and the caller's env must agree with the asset's form. A
+    mismatch stops the census loudly — a placeholder rebuild beside a B2 glb is
+    a stop, not a hybrid certification. Runs only where the glb is actually
+    read (the b0 report and the uv2 subset gate); the default path never reads
+    the glb and keeps its byte-identical output."""
+    gl, _blob = glb_parse(checkout / B0_GLB)
+    meshes_glb = gl.get('meshes', [])
+    nodes_per_mesh = [0] * len(meshes_glb)
+    for node in gl.get('nodes', []):
+        if node.get('mesh') is not None:
+            nodes_per_mesh[node['mesh']] += 1
+    glb_roster = {}
+    for index, mesh in enumerate(meshes_glb):
+        name = re.sub(r'\.\d{3}$', '', str(mesh.get('name') or f'mesh_{index}'))
+        row = glb_roster.setdefault(name, {'instances': 0, 'primitives': 0})
+        row['instances'] += nodes_per_mesh[index]
+        row['primitives'] += len(mesh.get('primitives', []))
+    manifest = json.loads((checkout / B0_MANIFEST).read_text(encoding='utf8'))
+    manifest_glb_sha = next((row.get('sha256') for row in manifest.get('files', [])
+                             if row.get('path') == 'jordan.glb'), None)
+    glb_sha = hashlib.sha256((checkout / B0_GLB).read_bytes()).hexdigest()
+    manifest_rows = {row['name']: row
+                     for row in (manifest.get('geometry') or {}).get('meshes', [])}
+    scene_roster = {}
+    for obj in meshes:
+        slot_count = sum(1 for slot in obj.material_slots if slot.material is not None)
+        row = scene_roster.setdefault(obj.data.name, {'instances': 0, 'primitives': 0})
+        row['instances'] += 1
+        row['primitives'] = max(row['primitives'], slot_count)
+
+    def asset_form(roster):
+        sconce = roster.get('sconce')
+        if 'chandelier_arm' in roster or (sconce is not None and sconce['primitives'] >= 3):
+            return 'slice_e'
+        return 'placeholder'
+
+    scene_form = asset_form(scene_roster)
+    glb_form = asset_form(glb_roster)
+    builder_form = namespace.get('FIXTURE_FORM')
+    env_form = 'slice_e' if fixture_form_env == 'slice_e' else 'placeholder'
+    problems = []
+    if manifest_glb_sha is not None and manifest_glb_sha != glb_sha:
+        problems.append(f'the manifest jordan.glb row sha {manifest_glb_sha[:12]}… != the '
+                        f'inspected glb file sha {glb_sha[:12]}… — the manifest does not '
+                        'describe the inspected asset')
+    if glb_form != scene_form:
+        problems.append(f'the rebuilt scene form {scene_form!r} != the inspected glb form '
+                        f'{glb_form!r} — a hybrid certification is refused')
+    if builder_form in ('placeholder', 'slice_e'):
+        if builder_form != env_form:
+            problems.append(f'the builder declares FIXTURE_FORM {builder_form!r} but the '
+                            f'caller\'s env says {env_form!r}')
+        if builder_form == 'placeholder' and glb_form == 'slice_e':
+            problems.append('the builder declares the placeholder form while the inspected '
+                            'asset carries the slice_e assembly — the declared form '
+                            'contradicts the asset')
+    else:
+        pass  # a builder that declares no form cannot be cross-checked (noted below)
+    if set(scene_roster) != set(glb_roster):
+        problems.append('the rebuilt datablock roster differs from the inspected glb: '
+                        f'scene-only {sorted(set(scene_roster) - set(glb_roster))} · '
+                        f'glb-only {sorted(set(glb_roster) - set(scene_roster))}')
+    for name in sorted(set(scene_roster) & set(glb_roster)):
+        if scene_roster[name] != glb_roster[name]:
+            problems.append(f'datablock {name!r}: rebuilt {scene_roster[name]} vs glb '
+                            f'{glb_roster[name]}')
+    if manifest_rows and set(manifest_rows) != set(glb_roster):
+        problems.append('the manifest geometry roster differs from the inspected glb: '
+                        f'manifest-only {sorted(set(manifest_rows) - set(glb_roster))} · '
+                        f'glb-only {sorted(set(glb_roster) - set(manifest_rows))}')
+    for name in sorted(set(manifest_rows) & set(glb_roster)):
+        row = manifest_rows[name]
+        if (int(row.get('instances', -1)) != glb_roster[name]['instances']
+                or int(row.get('primitives', -1)) != glb_roster[name]['primitives']):
+            problems.append(f'manifest row {name!r} declares instances '
+                            f'{row.get("instances")}/primitives {row.get("primitives")} '
+                            f'but the glb parses {glb_roster[name]}')
+    if problems:
+        raise SystemExit('census: the rebuilt scene does not match the inspected public '
+                         'asset — the report is not certified\n  ' + '\n  '.join(problems))
+    return {'glb': rel_to_checkout(checkout / B0_GLB),
+            'glbSha256': glb_sha,
+            'manifestGlbRowSha256': manifest_glb_sha,
+            'glbManifestBind': ('match' if manifest_glb_sha == glb_sha else
+                                'absent' if manifest_glb_sha is None else 'mismatch'),
+            'glbForm': glb_form, 'sceneForm': scene_form,
+            'builderForm': builder_form,
+            'builderFormNote': (None if builder_form in ('placeholder', 'slice_e') else
+                                'the builder declares no FIXTURE_FORM — its declared '
+                                'form cannot be cross-checked'),
+            'envForm': env_form,
+            'sceneRoster': scene_roster, 'glbRoster': glb_roster,
+            'pass': True,
+            'law': ('the rebuilt datablock roster (names, instances, per-template '
+                    'primitives) == the inspected glb == the manifest geometry rows; '
+                    'the fixture form is a scene fact checked against the builder\'s '
+                    'declared FIXTURE_FORM and the caller\'s env')}
+
+
 def uv2_subset_hash(checkout, baseline=None, fixture_baseline=None):
     """The B1 NO-REPACK instrument: sha256 over every NON-fixture mesh's TEXCOORD_1
     accessor stored payload bytes, meshes in file order, primitives in order, shared
@@ -773,9 +1073,20 @@ def uv2_subset_hash(checkout, baseline=None, fixture_baseline=None):
         else:
             if view.get('buffer', 0) != 0:
                 raise SystemExit('census: TEXCOORD_1 view outside the GLB buffer')
+            # The review's conditional note (same law as the atlas hash): a
+            # byteStride other than the tight element size = an interleaved
+            # layout — reject loudly, never hash the wrong byte population.
+            tight = (components[accessor['type']]
+                     * comp_bytes[accessor['componentType']])
+            stride = view.get('byteStride')
+            if stride is not None and int(stride) != tight:
+                raise SystemExit(
+                    f'census: TEXCOORD_1 view carries byteStride {stride} != the tight '
+                    f'{tight} — an interleaved layout is unsupported (the subset hash '
+                    'would read the wrong byte population); gather the accessor '
+                    'elements by stride or reject the encoding first')
             offset = view['byteOffset'] + accessor.get('byteOffset', 0)
-            length = (accessor['count'] * components[accessor['type']]
-                      * comp_bytes[accessor['componentType']])
+            length = accessor['count'] * tight
         piece = blob[offset:offset + length]
         if len(piece) != length:
             raise SystemExit('census: a TEXCOORD_1 payload reaches outside the glb '
@@ -1061,19 +1372,67 @@ def rig_light_stats_exr(namespace, census_cells, cells_map, rig, exr_path, radiu
     return {'radiusM': radius_m,
             'population': ('linear Rec.709 luminance over the interior texels of the lm cells '
                            'whose world centroid sits within the radius of the lamp'),
+            'cellPositionLaw': ('the packed cell\'s world position = the TEXEL-AREA-WEIGHTED '
+                                'mean of the packed faces\' centroids (each face weighted by '
+                                'its lm-UV2 footprint in atlas px², measured post-transform) '
+                                '— a documented aggregate approximation: exact per-texel '
+                                'attribution would need the island regions cells.json does '
+                                'not carry; single-face cells keep the face\'s own centroid '
+                                'and the legacy non-packed path keeps its committed output'),
             'lamps': lamps_out}
 
 
-def clamp_baseline(checkout, namespace, census_cells, cells_map):
+def clamp_baseline(checkout, namespace, census_cells, cells_map, atlas_sha=None):
     """D4: per state — raw pre-clamp percentile P, band, W, clamp side, margin
-    |P − W| / W, clipped fraction; night's per-rig-light stats when the EXRs exist.
-    EXR-first (re-measured exactly like tools/bpy/lm_percentile.py); the committed
-    bake-log encode rows are the degradation source when the staged EXRs are absent."""
+    |P − W| / W, clipped fraction; night's per-rig-light stats when the staged
+    EXRs VERIFY. EXR-first (re-measured exactly like tools/bpy/lm_percentile.py),
+    but the review (P1-4/P2-9): EXISTENCE IS NOT PROVENANCE. One can_measure
+    predicate per state: the state's EXR exists AND the staged cells.json exists
+    AND the bake identity holds — the staged cells.json's sha256 == the bake-log
+    encode row's cellsSha256, and the committed log's geometry sidecar
+    (tools/bake-logs/jordan.json geometry.geometrySha256 / atlasHash256) matches
+    the current asset identities (the glb file's sha256, the manifest's jordan.glb
+    row, the census's own re-measured ATLAS_HASH). When provenance cannot be
+    established the committed-log figures stand with the honest label — the
+    report never calls an unverified cache «exr (re-measured)»."""
     bake_log_path = checkout / B0_BAKE_LOG
     manifest_path = checkout / B0_MANIFEST
     stage_root = checkout / B0_STAGE
     log = json.loads(bake_log_path.read_text(encoding='utf8'))
     manifest = json.loads(manifest_path.read_text(encoding='utf8'))
+    # --- the bake identity (P1-4): the log's geometry sidecar binds the bake to
+    # the committed asset; the manifest binds the glb row to the file; the
+    # census's own ATLAS_HASH re-measure closes the atlas half of the AS-4 law.
+    glb_sha = hashlib.sha256((checkout / B0_GLB).read_bytes()).hexdigest()
+    manifest_glb_sha = next((row.get('sha256') for row in manifest.get('files', [])
+                             if row.get('path') == 'jordan.glb'), None)
+    log_geometry = log.get('geometry') or {}
+    log_geometry_sha = log_geometry.get('geometrySha256')
+    log_atlas_sha = log_geometry.get('atlasHash256')
+    provenance_problems = []
+    if log_geometry_sha is None:
+        provenance_problems.append(
+            'the bake log carries no geometry.geometrySha256 sidecar (the AS-4 identity '
+            'is absent) — a staged EXR cache cannot be bound to the committed asset')
+    elif log_geometry_sha != glb_sha:
+        provenance_problems.append(
+            f'the bake log geometrySha256 {log_geometry_sha[:12]}… != the committed glb '
+            f'sha {glb_sha[:12]}… — the staged cache belongs to another asset revision')
+    if manifest_glb_sha is None:
+        provenance_problems.append(
+            'the manifest carries no jordan.glb row — the asset identity has no '
+            'committed binding')
+    elif manifest_glb_sha != glb_sha:
+        provenance_problems.append(
+            f'the manifest glb row sha {manifest_glb_sha[:12]}… != the committed glb sha '
+            f'{glb_sha[:12]}…')
+    if log_atlas_sha is None:
+        provenance_problems.append(
+            'the bake log carries no atlasHash256 — the atlas identity is unchecked')
+    elif atlas_sha is not None and log_atlas_sha != atlas_sha:
+        provenance_problems.append(
+            f'the bake log atlasHash256 {log_atlas_sha[:12]}… != the census re-measured '
+            f'ATLAS_HASH {atlas_sha[:12]}…')
     state_keys = {'day': ('day', 'day'), 'duskChandeliers': ('dusk', 'dusk'),
                   'nightChandeliers': ('nightChandeliers', 'night')}
     states = {}
@@ -1092,11 +1451,54 @@ def clamp_baseline(checkout, namespace, census_cells, cells_map):
             raise SystemExit(f'census: W {w} sits on neither edge of band {band} ({state})')
         exr = stage_root / f'bake-{file_name}' / 'lm' / f'{file_name}.exr'
         cells_path = stage_root / f'bake-{file_name}' / 'lm' / 'cells.json'
+        state_problems = []
+        if not exr.exists():
+            state_problems.append(f'the staged EXR is missing at {rel_to_checkout(exr)}')
+        if not cells_path.exists():
+            state_problems.append(
+                f'the staged cells.json is missing at {rel_to_checkout(cells_path)}')
+        log_cells_sha = encode.get('cellsSha256')
+        cells_sha = None
+        if cells_path.exists():
+            cells_sha = hashlib.sha256(cells_path.read_bytes()).hexdigest()
+            if log_cells_sha is None:
+                state_problems.append(
+                    'the bake-log encode row carries no cellsSha256 — the staged cells '
+                    'cannot be bound to the bake')
+            elif cells_sha != log_cells_sha:
+                state_problems.append(
+                    f'the staged cells.json sha {cells_sha[:12]}… != the bake-log '
+                    f'cellsSha256 {log_cells_sha[:12]}…')
+            staged_summary_path = stage_root / f'bake-{file_name}' / 'summary.json'
+            if staged_summary_path.exists():
+                staged_cells_sha = None
+                try:
+                    staged_cells_sha = json.loads(
+                        staged_summary_path.read_text(encoding='utf8')).get('cellsSha256')
+                except (ValueError, OSError):
+                    staged_cells_sha = None
+                if staged_cells_sha is not None and staged_cells_sha != cells_sha:
+                    state_problems.append(
+                        'the staged bake summary cellsSha256 disagrees with the staged '
+                        'cells.json file')
+        can_measure = not provenance_problems and not state_problems
         row = {'state': state, 'logKey': log_key, 'band': list(band), 'w': w,
                'clampSide': clamp_side, 'percentile': encode['percentile'],
                'scope': encode['scope'], 'kappa': encode['kappa'], 'gain': encode['gain'],
-               'source': 'exr (re-measured)' if exr.exists() else 'bake-log (committed figures)'}
-        if exr.exists() and cells_path.exists():
+               'source': ('exr (re-measured)' if can_measure else
+                          'bake-log (committed figures) — the staged EXR cache is not '
+                          'verified for this asset/log'),
+               'exrProvenance': {'verified': can_measure,
+                                 'stagedExr': exr.exists(),
+                                 'stagedCells': cells_path.exists(),
+                                 'stagedCellsSha256': cells_sha,
+                                 'logCellsSha256': log_cells_sha,
+                                 'glbSha256': glb_sha,
+                                 'manifestGlbRowSha256': manifest_glb_sha,
+                                 'logGeometrySha256': log_geometry_sha,
+                                 'logAtlasHash256': log_atlas_sha,
+                                 'problems': provenance_problems + state_problems}}
+        if can_measure:
             measured = measure_percentile_exr(exr, cells_path, encode['percentile'], w)
             row['rawPercentileP'] = measured['wRaw']
             row['clippedFraction'] = measured['clipFraction']
@@ -1110,22 +1512,33 @@ def clamp_baseline(checkout, namespace, census_cells, cells_map):
             row['clippedFraction'] = encode['clipFraction']
             row['haloFraction'] = encode['haloFraction']
             if state == 'nightChandeliers':
-                row['rigLightStats'] = 'SKIPPED-NO-EXR'
+                row['rigLightStats'] = ('SKIPPED-NO-EXR' if not exr.exists()
+                                        else 'SKIPPED-EXR-UNVERIFIED')
         row['marginPct'] = round(abs(row['rawPercentileP'] - w) / w * 100.0, 4)
         states[state] = row
     return {
         'exrStagedRoot': rel_to_checkout(stage_root),
-        'exrPresent': any(state['source'].startswith('exr') for state in states.values()),
+        'exrPresent': any(state['exrProvenance']['verified'] for state in states.values()),
+        'provenanceLaw': ('existence is not provenance (the review P1-4): a staged EXR is '
+                          're-measured only when the bake identity holds — the staged '
+                          'cells.json sha256 == the bake-log encode cellsSha256, and the '
+                          'log geometry sidecar (geometrySha256/atlasHash256) matches the '
+                          'committed glb sha, the manifest glb row and the census\'s own '
+                          're-measured ATLAS_HASH; otherwise the committed-log figures '
+                          'stand with the honest label'),
         'states': states,
         'darkMedianCommitted': DARK_MEDIAN_COMMITTED,
         'populationLaw': ('the lm-percentile population: allocated-interior Rec.709 luminance '
                           'excluding the pane/sconce_glow/chandelier_glow emitter chips '
                           '(LM_ENCODE.excludeMaterials)'),
-        'degradation': ('no staged EXRs → the committed bake-log encode rows carry wRaw, W, '
-                        'gain, kappa, clipFraction and haloFraction as measured on this exact '
-                        'bake chain; the night per-rig-light stats report SKIPPED-NO-EXR; '
-                        'the ktx2 stays undecoded (the ETC1S transcoder is node-side — the '
-                        'census stays python-side deterministic)')}
+        'degradation': ('no VERIFIED staged EXRs → the committed bake-log encode rows carry '
+                        'wRaw, W, gain, kappa, clipFraction and haloFraction as measured on '
+                        'this exact bake chain; the night per-rig-light stats report '
+                        'SKIPPED-NO-EXR (the EXR missing) or SKIPPED-EXR-UNVERIFIED (the EXR '
+                        'present but its bake identity unproven — an unverified cache is '
+                        'never reported as re-measured); the ktx2 stays undecoded (the '
+                        'ETC1S transcoder is node-side — the census stays python-side '
+                        'deterministic)')}
 
 
 def self_check(checkout, cells_count, atlas, fixture_form=None):
@@ -1168,22 +1581,37 @@ def self_check(checkout, cells_count, atlas, fixture_form=None):
 
 
 def completeness(cells_map, meshes, checkout):
-    """D5: all 11 fixtures and every rig light enumerated, with the light-to-fixture
-    pairing. bake.py derives lamp k from the same builder-roster order put() walks
-    (west, then north, then east), so lamp k pairs with the k-th sconce instance in
-    name order (the committed naming follows creation order). B2: once the glb carries
-    the chandelier assembly (the stem + the arm archetype ×36 + the bead ×300), the
-    expected fixture instance count is 10 + 1 + 36 + 300 = 347 and the chandelier lamps
-    pair with the assembly's stem object (the rig never moves)."""
+    """D5: all fixtures and every rig light enumerated, with the light-to-fixture
+    pairing. The review (P2-7): the per-datablock instance counts are EXACT and
+    a miss is fatal to the census — the assembly form (chandelier_arm present)
+    demands sconce 10 · chandelier 1 · chandelier_arm 36 · chandelier_bead 300
+    (da19680), the placeholder form sconce 10 · chandelier 1; no other fixture
+    datablock may exist. main() stops before any decision on a miss. The lamp
+    pairing stays as recorded: bake.py derives lamp k from the same
+    builder-roster order put() walks (west, then north, then east), so lamp k
+    pairs with the k-th sconce instance in NAME ORDER and the chandelier lamps
+    pair with the 'chandelier' datablock by name — placement is not re-derived
+    here; the caveat rides the lightToFixtureLaw field."""
     by_datablock = {}
     for obj in meshes:
         by_datablock.setdefault(obj.data.name, []).append(obj)
     assembly = 'chandelier_arm' in by_datablock
+    expected = dict(EXPECTED_FIXTURE_INSTANCES['assembly' if assembly else 'placeholder'])
     fixtures = []
+    counts_pass = True
     for datablock in sorted(FIXTURE_DATABLOCKS):
         objects = by_datablock.get(datablock, [])
+        expected_count = expected.get(datablock, 0)
+        row_pass = len(objects) == expected_count
+        counts_pass = counts_pass and row_pass
         fixtures.append({'datablock': datablock, 'instances': len(objects),
+                         'expected': expected_count, 'pass': row_pass,
                          'objects': sorted(obj.name for obj in objects)})
+    unexpected = sorted(name for name in by_datablock
+                        if name not in FIXTURE_DATABLOCKS
+                        and ('sconce' in name or 'chandelier' in name))
+    if unexpected:
+        counts_pass = False
     log = json.loads((checkout / B0_BAKE_LOG).read_text(encoding='utf8'))
     rig = log['states']['nightChandeliers']['rig']
     lamps = ([('sconce', index, position) for index, position in enumerate(rig['sconcePositions'])]
@@ -1198,9 +1626,10 @@ def completeness(cells_map, meshes, checkout):
         pairing.append({'lamp': f'{kind}[{index}]', 'positionGltf': position,
                         'fixtureInstance': instance})
     fixture_instances = sum(row['instances'] for row in fixtures)
-    expected_instances = 347 if assembly else 11
+    expected_instances = sum(expected.values())
     return {'fixtures': fixtures, 'fixtureInstances': fixture_instances,
             'fixtureInstancesExpected': expected_instances,
+            'expectedPerDatablock': expected, 'unexpectedFixtureDatablocks': unexpected,
             'assembly': assembly,
             'rigLights': {'sconce': len(rig['sconcePositions']),
                           'chandelierRing': len(rig['dropPositions']),
@@ -1208,52 +1637,73 @@ def completeness(cells_map, meshes, checkout):
                           'source': ('tools/bake-logs/jordan.json nightChandeliers rig rows '
                                      '(derived from the builder namespace by tools/bpy/bake.py)')},
             'lightToFixture': pairing,
-            'pass': (fixture_instances == expected_instances and len(lamps) == 19
+            'lightToFixtureLaw': ('lamp k pairs with the k-th sconce instance in NAME ORDER '
+                                  '(the committed naming follows creation order) and the '
+                                  'chandelier lamps pair with the \'chandelier\' datablock '
+                                  'by name — the pairing is recorded, not re-derived '
+                                  'against placement (the caveat stands)'),
+            'pass': (counts_pass and fixture_instances == expected_instances
+                     and len(lamps) == 19
                      and all(row['fixtureInstance'] is not None for row in pairing))}
 
 
 def envelope_holds_tiers(per_object_rows, per_object=None):
-    """The D5 ADMIT-SCONCES-ONLY envelope reading: the placeholder chandelier's world
-    bbox grown 0.10 per side must hold the 3 pinned tiers (radii 1.40/1.00/0.60 — the
-    widest ring's diameter must fit; DY 0.85 — the two-tier vertical span must fit).
-    Literal ring geometry; B2's CHANDELIER_FIT scale is reported beside it. B2: when the
-    per-object block carries the chandelier assembly's union bbox (the placeholder is
-    retired), the assembly's own bbox is the envelope subject."""
-    assembly = (per_object or {}).get('chandelierAssembly') if per_object else None
-    if assembly is not None:
-        lo, hi = assembly['worldBboxBlender'][:3], assembly['worldBboxBlender'][3:]
-        grown_lo, grown_hi = None, None
-        def _v(x, y, z):
-            return Vector((x, y, z))
-        union_lo = _v(*[round(v, 3) for v in lo])
-        union_hi = _v(*[round(v, 3) for v in hi])
-        horizontal = min(union_hi.x - union_lo.x, union_hi.y - union_lo.y) + 2 * 0.10
-        vertical = (union_hi.z - union_lo.z) + 2 * 0.10
-        tiers = CHANDELIER_PINNED
-        fits = horizontal >= 2 * tiers['tierRadius'][0] and vertical >= 2 * tiers['tierDy']
-        fit = min(horizontal / (2 * tiers['tierRadius'][0]), vertical / (2 * tiers['tierDy']))
-        return {'subject': 'the B2 chandelier assembly (union of the stem, the 36 arms '
-                           'and the 300 beads)',
-                'bboxBlender': assembly['worldBboxBlender'], 'envelopeGrowM': 0.10,
-                'horizontalAvailableM': round(horizontal, 4),
-                'verticalAvailableM': round(vertical, 4),
-                'pinnedTiers': tiers, 'impliedFitScale': round(fit, 4), 'holds': bool(fits),
-                'law': ('literal ring geometry: the widest ring diameter and the two-tier '
-                        'span inside the bbox grown 0.10 per side (B2); the arm archetypes '
-                        'hang inside the rings and scale with CHANDELIER_FIT')}
-    row = next(row for row in per_object_rows if row['object'] == 'chandelier')
-    lo, hi = row['worldBboxBlender'][:3], row['worldBboxBlender'][3:]
-    horizontal = min(hi[0] - lo[0], hi[1] - lo[1]) + 2 * 0.10
-    vertical = (hi[2] - lo[2]) + 2 * 0.10
+    """The D5 envelope reading against the IMMUTABLE PLACEHOLDER envelope
+    (the review P2-8): the hard-coded B0-measured placeholder extremes grown
+    0.10 per side (PLACEHOLDER_ENVELOPE_GLTF) — never the subject's own bbox,
+    never a foreign --builder's namespace constants. The pinned tiers (radii
+    1.40/1.00/0.60 — the widest ring's diameter must fit; DY 0.85 — the
+    two-tier vertical span must fit) are tested against the ENVELOPE's own
+    spans in glTF space (the horizontal axes are the glTF x/z pair, the
+    vertical axis is glTF y; the mapping to Blender is to_b's inverse). B2:
+    when the per-object block carries the chandelier assembly, the union bbox
+    is consumed from the ledger's glTF union (the review P1-1 — the Blender
+    display bbox is emitted beside it and derives by the to_b inverse), and
+    the ledger's unrounded envelopePass / minYFencePass verdicts ride the
+    result for decide()'s hard-failure enforcement. Coordinates compare
+    unrounded internally; only the display fields round."""
+    env = PLACEHOLDER_ENVELOPE_GLTF
+    horizontal = min(env[3] - env[0], env[5] - env[2])  # the glTF x/z pair = horizontal
+    vertical = env[4] - env[1]                          # the glTF y = vertical
     tiers = CHANDELIER_PINNED
     fits = horizontal >= 2 * tiers['tierRadius'][0] and vertical >= 2 * tiers['tierDy']
     fit = min(horizontal / (2 * tiers['tierRadius'][0]), vertical / (2 * tiers['tierDy']))
-    return {'bboxBlender': row['worldBboxBlender'], 'envelopeGrowM': 0.10,
-            'horizontalAvailableM': round(horizontal, 4), 'verticalAvailableM': round(vertical, 4),
+    law = ('literal ring geometry on the immutable reference: the widest ring '
+           'diameter and the two-tier span inside the hard-coded placeholder '
+           'envelope (the placeholder bbox grown 0.10 per side); the arm '
+           'archetypes hang inside the rings and scale with CHANDELIER_FIT')
+    if (per_object or {}).get('chandelierAssembly') is not None:
+        assembly = per_object['chandelierAssembly']
+        union = assembly.get('unionExactGltf') or assembly['worldBboxGltf']
+        return {'subject': 'the B2 chandelier assembly (union of the stem, the 36 arms '
+                           'and the 300 beads)',
+                'envelopeGltf': list(env), 'envelopeSource': PLACEHOLDER_ENVELOPE_SOURCE,
+                'envelopeGrowM': 0.10,
+                'bboxGltf': [round(float(v), 3) for v in union],
+                'bboxBlender': assembly.get('worldBboxBlender'),
+                'horizontalAvailableM': round(horizontal, 4),
+                'verticalAvailableM': round(vertical, 4),
+                'pinnedTiers': tiers, 'impliedFitScale': round(fit, 4), 'holds': bool(fits),
+                'envelopePass': assembly.get('envelopePass'),
+                'minYFencePass': assembly.get('minYFencePass'),
+                'minYFenceGltf': assembly.get('minYFenceGltf', CHANDELIER_MIN_Y_GLTF),
+                'law': law + (' The assembly\'s own union must also sit inside the '
+                              'envelope and above the min-y fence — both verdicts are '
+                              'computed unrounded in per_object_ledger and enforced by '
+                              'the decision as hard failures.')}
+    row = next(row for row in per_object_rows if row['object'] == 'chandelier')
+    return {'subject': "the rebuilt placeholder chandelier ('chandelier' datablock)",
+            'envelopeGltf': list(env), 'envelopeSource': PLACEHOLDER_ENVELOPE_SOURCE,
+            'envelopeGrowM': 0.10,
+            'bboxBlender': row['worldBboxBlender'],
+            'bboxGltf': row.get('worldBboxGltf'),
+            'horizontalAvailableM': round(horizontal, 4),
+            'verticalAvailableM': round(vertical, 4),
             'pinnedTiers': tiers, 'impliedFitScale': round(fit, 4), 'holds': bool(fits),
-            'law': ('literal ring geometry: the widest ring diameter and the two-tier span '
-                    'inside the bbox grown 0.10 per side (B2); the arm archetypes hang inside '
-                    'the rings and scale with CHANDELIER_FIT')}
+            'envelopePass': None, 'minYFencePass': None,
+            'law': law + (' The rebuilt placeholder\'s own measured bbox is displayed '
+                          'beside the immutable reference; the roster identity '
+                          '(b0.identity) binds the rebuild to the committed asset.')}
 
 
 def decide(b0):
@@ -1273,14 +1723,29 @@ def decide(b0):
     block_cells = (b0['freeBlocks']['largestFreeRect'] or {'cells': 0})['cells']
     night_margin = b0['clampBaseline']['states']['nightChandeliers']['marginPct']
     envelope = envelope_holds_tiers(b0['perObject']['objects'], b0['perObject'])
+    # The review (P2-8): envelope / min-y failures are HARD failures enforced
+    # independently of the admission ranking — ADMIT-FULL is refused on any of
+    # them; the ladder then yields ADMIT-SCONCES-ONLY while the sconce path
+    # holds (the FALSIFIED ranking keeps its own law) or stops as UNRESOLVED.
+    envelope_hard_failures = []
+    if not envelope['holds']:
+        envelope_hard_failures.append(
+            'the pinned tiers do not fit the immutable placeholder envelope')
+    if envelope.get('envelopePass') is False:
+        envelope_hard_failures.append(
+            'the assembly union overflows the immutable placeholder envelope')
+    if envelope.get('minYFencePass') is False:
+        envelope_hard_failures.append(
+            'the assembly dips below CHANDELIER_MIN_Y (the min-y fence)')
     beyond_sconce_need = block_cells > SCONCE_NEED_CELLS
     admit_full = (sconce_peak >= 0.10 and chandelier_peak >= 0.10
-                  and block_cells >= FIXTURE_LM_BLOCK_CELLS and night_margin >= 5.0)
+                  and block_cells >= FIXTURE_LM_BLOCK_CELLS and night_margin >= 5.0
+                  and not envelope_hard_failures)
     falsified = (j1b_sconce < 0.20
                  and all(shares[stop]['allFixtures'] < 0.10
                          for stop in shares if stop != 'J1b'))
     sconces_only = (chandelier_peak < 0.30 or not beyond_sconce_need
-                    or not envelope['holds'])
+                    or not envelope['holds'] or bool(envelope_hard_failures))
     if j4_total == 0.0:
         j4 = {'sharePct': 0.0,
               'line': 'J4: fixture share 0 → «zero J4 golden flips» becomes a hard pin'}
@@ -1304,6 +1769,7 @@ def decide(b0):
                          'stops for an owner ruling'),
                 'unresolved': {'admitFull': admit_full, 'falsified': falsified,
                                'sconcesOnly': sconces_only},
+                'envelope': envelope, 'envelopeHardFailures': envelope_hard_failures,
                 'j4': j4}
     line = (f'DECISION {verdict} — sconce peak {sconce_peak:.4f}% at {sconce_stop} · '
             f'chandelier peak {chandelier_peak:.4f}% at {chandelier_stop} · '
@@ -1314,6 +1780,7 @@ def decide(b0):
             'j1bSconcePct': round(j1b_sconce, 4), 'j4FixtureSharePct': j4_total,
             'largestFreeRectCells': block_cells, 'nightMarginPct': night_margin,
             'beyondSconceNeed': bool(beyond_sconce_need), 'envelope': envelope,
+            'envelopeHardFailures': envelope_hard_failures,
             'admitFull': {key: value for key, value in (
                 ('sconce ≥ 0.10%', sconce_peak >= 0.10),
                 ('chandelier ≥ 0.10%', chandelier_peak >= 0.10),
@@ -1329,10 +1796,36 @@ def main():
     builder, out, plates, w, flags = parse_args()
     out.mkdir(parents=True, exist_ok=True)
     namespace, cells_map, meshes = build_scene(builder, out)
-    census, grid = census_cells(namespace, cells_map, meshes)
     cells_count = len(cells_map['cells'])
+    # The review (P2-5): the --assert-max gate moves BEFORE classification — the
+    # count is already in cells_map, so the gate fires even when census_cells()
+    # would fail later on a drifted sidecar.
     if flags['assert_max'] is not None and cells_count > flags['assert_max']:
         raise SystemExit(f'census: {cells_count} cells exceed --assert-max {flags["assert_max"]}')
+    # The review (P2-5): the packed-fixture sidecar schema validates BEFORE
+    # classification — the readers can never silently revert to the committed
+    # one-face/one-cell model on a lost sidecar.
+    packed_note = validate_packed_schema(cells_map, meshes)
+    analysis_flags = ('per_object', 'free_blocks', 'frame_share', 'clamp_baseline')
+    analysis_on = any(flags[key] for key in analysis_flags)
+    # The review (P1-3): wherever the census actually reads the public glb (the
+    # b0 report's atlas/draw stats, the uv2 subset gates), the rebuilt scene is
+    # bound to that inspected artifact FIRST — a mismatch stops the census
+    # loudly; a placeholder rebuild beside a B2 glb is a stop, not a hybrid
+    # certification.
+    identity = None
+    if analysis_on or flags['uv2_subset_hash']:
+        identity = verify_scene_identity(namespace, meshes, B0_CHECKOUT,
+                                         os.environ.get('FIXTURE_FORM'))
+    # The review (P2-6): the view-layer update moves BEFORE census_cells for
+    # every pass that reads world positions — the rig statistics must see
+    # post-transform positions. The committed census never needed the transforms
+    # (only the shell's bins read world coords and the shell is built
+    # in-place), so the no-flag path keeps its byte-identical output — the
+    # update runs only under the flags the committed tool never accepted.
+    if analysis_on or flags['uv2_subset_hash']:
+        bpy.context.view_layer.update()
+    census, grid = census_cells(namespace, cells_map, meshes)
     rects = cell_rects(census, grid, int(cells_map.get('res', namespace.get('LM_RES', 2048))),
                        int(cells_map.get('padPx', namespace.get('LM_PAD_PX', 2))))
     per_state = {}
@@ -1372,15 +1865,13 @@ def main():
     # --- the jordan-fixtures B0 additions (additive: nothing above moved; the new
     # sections ride under report['b0'] and print after ZIMNY_CENSUS-END) ---
     b0 = None
-    if any(flags[key] for key in ('per_object', 'free_blocks', 'frame_share', 'clamp_baseline')):
-        # The builder places instances (put -> place) without a depsgraph tick, so
-        # matrix_world reads identity until a view-layer update. The committed census
-        # never needed the transforms (only the shell's bins read world coords and the
-        # shell is built in-place); the B0 consumers do — update ONCE here, inside the
-        # B0 block, so the no-flag path keeps its byte-identical output.
-        bpy.context.view_layer.update()
+    if analysis_on:
         b0 = {'flags': {key: bool(value) for key, value in flags.items() if key != 'json'},
               'builder': rel_to_checkout(builder), 'checkout': rel_to_checkout(B0_CHECKOUT)}
+        if identity is not None:
+            b0['identity'] = identity
+        if packed_note is not None:
+            b0['packedSchema'] = packed_note
         if flags['per_object']:
             b0['perObject'] = per_object_ledger(namespace, cells_map, meshes,
                                                 os.environ.get('FIXTURE_FORM'))
@@ -1391,7 +1882,8 @@ def main():
         if flags['frame_share']:
             b0['frameShare'] = frame_share(namespace, meshes)
         if flags['clamp_baseline']:
-            b0['clampBaseline'] = clamp_baseline(B0_CHECKOUT, namespace, census, cells_map)
+            b0['clampBaseline'] = clamp_baseline(B0_CHECKOUT, namespace, census, cells_map,
+                                                 atlas_sha=b0['atlasHash']['sha256'])
         b0['selfCheck'] = self_check(B0_CHECKOUT, cells_count, b0['atlasHash'],
                                      os.environ.get('FIXTURE_FORM'))
         b0['completeness'] = completeness(cells_map, meshes, B0_CHECKOUT)
@@ -1406,10 +1898,25 @@ def main():
             print('ZIMNY_CENSUS-STOP self-check FAILED — the report is not accepted; '
                   'fix the probe, never the room (K7)')
             raise SystemExit(1)
-        if all(flags[key] for key in ('per_object', 'free_blocks', 'frame_share',
-                                      'clamp_baseline')):
+        if not b0['completeness']['pass']:
+            # The review (P2-7): an incomplete census is FATAL to the decision —
+            # no ADMIT-FULL / ADMIT-SCONCES-ONLY certifies a missing or extra
+            # fixture instance; the report still writes and the exit is nonzero.
+            report['b0'] = b0
+            report_text = json.dumps(report, sort_keys=True, indent=2) + '\n'
+            (out / 'census.json').write_text(report_text, encoding='utf8')
+            if flags['json']:
+                json_path = pathlib.Path(flags['json'])
+                json_path.parent.mkdir(parents=True, exist_ok=True)
+                json_path.write_text(report_text, encoding='utf8')
+            print('ZIMNY_CENSUS-STOP completeness FAILED — the census is incomplete; '
+                  'no admission verdict on an incomplete census')
+            raise SystemExit(1)
+        if all(flags[key] for key in analysis_flags):
             b0['decision'] = decide(b0)
         report['b0'] = b0
+    elif identity is not None:
+        report['identity'] = identity
     if flags['uv2_subset_hash']:
         # The B1 NO-REPACK gate: the non-fixture UV2 subset hash vs the baseline glb.
         # The B2 addition: the per-datablock fixture subsets + the B1 sconce-unchanged
@@ -1468,27 +1975,45 @@ def main():
         if 'decision' in b0 and b0['decision']['verdict'] == 'UNRESOLVED':
             raise SystemExit('census: the D5 conditions resolve to no pinned decision — '
                              'the report is written; stop for an owner ruling')
-        if 'uv2SubsetHash' in report:
-            row = report['uv2SubsetHash']
-            line = (f'ZIMNY_CENSUS-B1 uv2 subset (non-fixture): {row["checkout"]["sha256"]} '
-                    f'({row["checkout"]["texcoord1Accessors"]} accessors, '
-                    f'{row["checkout"]["texcoord1PayloadBytes"]} B)')
-            if 'baseline' in row:
-                line += (f' | baseline {row["baseline"]["sha256"]} '
-                         f'({row["baseline"]["texcoord1PayloadBytes"]} B) → '
-                         f'NO-REPACK {"PASS" if row["noRepackPass"] else "FAIL"}')
-            print(line)
-            for name, subset in sorted(row['checkoutFixtureSubsets'].items()):
-                print(f'ZIMNY_CENSUS-B2 fixture subset {name}: {subset["sha256"]} '
-                      f'({subset["texcoord1Accessors"]} accessors, '
-                      f'{subset["texcoord1PayloadBytes"]} B)')
-            if 'sconceUnchangedPass' in row:
-                print('ZIMNY_CENSUS-B2 sconce subset vs the B1 baseline: '
-                      + ('PASS' if row['sconceUnchangedPass'] else 'FAIL'))
-                for name, ok in sorted(row['fixtureSubsetsUnchanged'].items()):
-                    print(f'ZIMNY_CENSUS-B2 fixture subset {name} unchanged vs the '
-                          f'baseline: {"PASS" if ok else "FAIL"}')
-            print('ZIMNY_CENSUS-B1-END')
+    if 'uv2SubsetHash' in report:
+        # The review (P1-2): the subset results print independently of the B0
+        # analysis block — with --uv2-subset-hash alone the stdout is no longer
+        # suppressed under `if b0 is not None`.
+        row = report['uv2SubsetHash']
+        line = (f'ZIMNY_CENSUS-B1 uv2 subset (non-fixture): {row["checkout"]["sha256"]} '
+                f'({row["checkout"]["texcoord1Accessors"]} accessors, '
+                f'{row["checkout"]["texcoord1PayloadBytes"]} B)')
+        if 'baseline' in row:
+            line += (f' | baseline {row["baseline"]["sha256"]} '
+                     f'({row["baseline"]["texcoord1PayloadBytes"]} B) → '
+                     f'NO-REPACK {"PASS" if row["noRepackPass"] else "FAIL"}')
+        print(line)
+        for name, subset in sorted(row['checkoutFixtureSubsets'].items()):
+            print(f'ZIMNY_CENSUS-B2 fixture subset {name}: {subset["sha256"]} '
+                  f'({subset["texcoord1Accessors"]} accessors, '
+                  f'{subset["texcoord1PayloadBytes"]} B)')
+        if 'sconceUnchangedPass' in row:
+            print('ZIMNY_CENSUS-B2 sconce subset vs the B1 baseline: '
+                  + ('PASS' if row['sconceUnchangedPass'] else 'FAIL'))
+            for name, ok in sorted(row['fixtureSubsetsUnchanged'].items()):
+                print(f'ZIMNY_CENSUS-B2 fixture subset {name} unchanged vs the '
+                      f'baseline: {"PASS" if ok else "FAIL"}')
+        print('ZIMNY_CENSUS-B1-END')
+        # The review (P1-2): a REQUESTED baseline comparison that fails exits
+        # NONZERO after the diagnostics are written — an external JSON validator
+        # is not the enforcement layer.
+        gate_failures = []
+        if 'noRepackPass' in row and not row['noRepackPass']:
+            gate_failures.append(
+                'NO-REPACK: the non-fixture UV2 subset moved vs the requested baseline '
+                + str(row.get('baselineGlb')))
+        if 'sconceUnchangedPass' in row and not row['sconceUnchangedPass']:
+            gate_failures.append(
+                'the sconce subset is not byte-identical to the requested fixture '
+                'baseline ' + str(row.get('fixtureBaselineGlb')))
+        if gate_failures:
+            print('ZIMNY_CENSUS-STOP uv2 subset gate FAILED — ' + ' · '.join(gate_failures))
+            raise SystemExit(1)
 
 
 main()
