@@ -3,8 +3,8 @@
   "files": [
     {
       "path": "jordan.glb",
-      "bytes": 261508,
-      "sha256": "71a29ecea7914aeb7d74e92c76fd382863ed673714b49941a6071314b8589204",
+      "bytes": 337064,
+      "sha256": "a804457349d61ee45d1c74ca3b08b3803de10794ba13cd2e44f32d8ea5c0307b",
       "kind": "glb"
     },
     {
@@ -91,8 +91,8 @@
       {
         "name": "chandelier",
         "instances": 1,
-        "primitives": 2,
-        "triangles": 356
+        "primitives": 1,
+        "triangles": 444
       },
       {
         "name": "cornice",
@@ -117,6 +117,18 @@
         "instances": 10,
         "primitives": 3,
         "triangles": 361
+      },
+      {
+        "name": "chandelier_arm",
+        "instances": 36,
+        "primitives": 3,
+        "triangles": 121
+      },
+      {
+        "name": "chandelier_bead",
+        "instances": 300,
+        "primitives": 1,
+        "triangles": 8
       },
       {
         "name": "pilaster_n0",
@@ -203,8 +215,8 @@
         "triangles": 32
       }
     ],
-    "trianglesUnique": 7021,
-    "trianglesDrawn": 25242,
+    "trianglesUnique": 7238,
+    "trianglesDrawn": 32086,
     "extensionsRequired": [
       "EXT_meshopt_compression",
       "KHR_mesh_quantization",

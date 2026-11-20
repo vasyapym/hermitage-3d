@@ -85,6 +85,7 @@ import hashlib
 import json
 import math
 import pathlib
+import re
 import struct
 import sys
 import os
@@ -109,7 +110,10 @@ CLAMP_BANDS = {'day': (0.2, 0.45), 'duskChandeliers': (0.35, 0.45),
                'nightChandeliers': (4.0, 4.5)}  # tools/gltf/jordan.mjs LM_ENCODE.clamp
 LM_PERCENTILE_P = 99.5  # LM_ENCODE.percentile (the bake-log rows record the same)
 EXCLUDED_EMITTERS = ('pane', 'sconce_glow', 'chandelier_glow')  # LM_ENCODE.excludeMaterials
-FIXTURE_DATABLOCKS = ('sconce', 'chandelier')  # jordan.py's runner rows — the placeholders today
+FIXTURE_DATABLOCKS = ('sconce', 'chandelier', 'chandelier_arm', 'chandelier_bead')  # jordan.py's
+# runner rows — the placeholders ('sconce', 'chandelier') today; the B2 slice_e build
+# carries the chandelier assembly's archetypes too (the extra names are inert for every
+# committed placeholder input)
 FIXTURE_LM_BLOCK_CELLS = 6  # B4's NO-REPACK law
 SCONCE_NEED_CELLS = 2  # the B4 estimate's shape (a 64×32 px strip); B1's packer re-measures
 STOPS = (  # rooms/jordan/contract.ts, glTF coords: (id, eye = the stop position, subject)
@@ -131,6 +135,14 @@ SELF_CHECK = {'cells': 3474, 'draws': 38, 'drawnTris': 21872,
 # cells stay 3,474 (the sub-cell packer keeps the datablock's own 12 cells) and the W
 # record is untouched (no bake in B1).
 SELF_CHECK_B1 = {'cells': 3474, 'draws': 39, 'drawnTris': 25242,
+                 'w': {'day': 0.45, 'duskChandeliers': 0.35, 'nightChandeliers': 4.0}}
+# The jordan-fixtures B2 self-check pins (the slice_e form with the chandelier
+# assembly): the placeholder chandelier's 2 primitives/356 tris ×1 swap for the stem's
+# 1/444 + the arm archetype's 3/121 ×36 + the bead's 1/8 ×300 — draws 39 − 2 + 5 = 42
+# (the unique-primitive gate, the round's exact ceiling), drawn tris 25,242 − 356 +
+# (444 + 4,356 + 2,400) = 32,086; cells stay 3,474 (the three datablocks split exactly
+# the retired 214) and the W record is untouched (no bake in B2).
+SELF_CHECK_B2 = {'cells': 3474, 'draws': 42, 'drawnTris': 32086,
                  'w': {'day': 0.45, 'duskChandeliers': 0.35, 'nightChandeliers': 4.0}}
 DARK_MEDIAN_COMMITTED = {  # docs/STATE.md 2026-11-17: the q128 re-measure at the wave's close
     'global': {'day': -1, 'dusk': 0, 'nightChandeliers': -1},
@@ -178,6 +190,12 @@ def parse_args():
     parser.add_argument('--uv2-baseline', default=None, metavar='PATH',
                         help='B1: the baseline glb (3da446d) to compare the subset hash '
                              'against; without it only this checkout\'s hash is computed')
+    # --- the jordan-fixtures B2 addition (additive; nothing above moved) ---
+    parser.add_argument('--uv2-fixture-baseline', default=None, metavar='PATH',
+                        help='B2: the baseline glb (B1 e7db9e6) to compare the per-datablock '
+                             'fixture subset hashes against — the sconce archetype\'s UV2 '
+                             'must be byte-identical to B1 while the chandelier assembly\'s '
+                             'is new')
     args = parser.parse_args(argv)
     builder = pathlib.Path(args.builder) if args.builder else B0_CHECKOUT / 'tools' / 'bpy' / 'jordan.py'
     out = pathlib.Path(args.out) if args.out else B0_CHECKOUT / B0_STAGE
@@ -197,7 +215,9 @@ def parse_args():
              'frame_share': args.frame_share, 'clamp_baseline': args.clamp_baseline,
              'assert_max': args.assert_max, 'json': args.json,
              'uv2_subset_hash': args.uv2_subset_hash,
-             'uv2_baseline': pathlib.Path(args.uv2_baseline) if args.uv2_baseline else None}
+             'uv2_baseline': pathlib.Path(args.uv2_baseline) if args.uv2_baseline else None,
+             'uv2_fixture_baseline': (pathlib.Path(args.uv2_fixture_baseline)
+                                      if args.uv2_fixture_baseline else None)}
     return builder, out, plates, w, flags
 
 
@@ -439,14 +459,16 @@ def max_vec(a, b):
     return Vector((max(a.x, b.x), max(a.y, b.y), max(a.z, b.z)))
 
 
-def per_object_ledger(namespace, cells_map, meshes):
+def per_object_ledger(namespace, cells_map, meshes, fixture_form=None):
     """D2: per lightmapped datablock — the cells (the committed law is ONE cell per mesh
     FACE, so islands == faces == cells touched == cells owned exclusively today), the
     texel area, the per-primitive material split; the placeholder fixtures' rows carry
     their glow areas and world bboxes (the GLOW_AREA_PARITY / CHANDELIER_ENVELOPE bases).
     The jordan-fixtures B1 sub-cell packer: a datablock named by cells.json's fixtureLm
     reports its true islands (the packer's per-solid units), the island box texels and
-    the sub-cell law beside the committed fields."""
+    the sub-cell law beside the committed fields. B2: when the glb carries the chandelier
+    assembly, an additive chandelierAssembly row records the union world bbox, the min-y
+    fence and the envelope verdict (the builder's own declared rows carry the same)."""
     grid = int(cells_map.get('grid', namespace.get('LM_GRID', 64)))
     res = int(cells_map.get('res', namespace.get('LM_RES', 2048)))
     pad = int(cells_map.get('padPx', namespace.get('LM_PAD_PX', 2)))
@@ -485,7 +507,10 @@ def per_object_ledger(namespace, cells_map, meshes):
             row['texelAreaPx'] = packed['islandBoxPx']
             row['texelAreaCellInteriorsPx'] = len(entries) * inner_px
         if name in FIXTURE_DATABLOCKS:
-            row['fixturePlaceholder'] = True
+            # B2: the flag is honest — under the slice_e form the placeholders are
+            # retired (the chandelier assembly replaced its own); the committed
+            # placeholder form keeps every fixture row marked.
+            row['fixturePlaceholder'] = fixture_form != 'slice_e'
             template = instances[name][0].data
             glow_area, total_area = 0.0, 0.0
             for poly in template.polygons:
@@ -507,12 +532,54 @@ def per_object_ledger(namespace, cells_map, meshes):
             row['worldBboxGltf'] = to_gltf_bbox(lo, hi)
         rows.append(row)
     allocated = sum(row['cells'] for row in rows)
-    return {'res': res, 'grid': grid, 'padPx': pad, 'cellPx': cell_px,
-            'innerPxPerCell': inner_px,
-            'islandsLaw': 'one cell per mesh FACE (committed)',
-            'objects': rows,
-            'totals': {'objects': len(rows), 'cells': allocated,
-                       'capacity': grid * grid, 'cellsFree': grid * grid - allocated}}
+    out = {'res': res, 'grid': grid, 'padPx': pad, 'cellPx': cell_px,
+           'innerPxPerCell': inner_px,
+           'islandsLaw': 'one cell per mesh FACE (committed)',
+           'objects': rows,
+           'totals': {'objects': len(rows), 'cells': allocated,
+                      'capacity': grid * grid, 'cellsFree': grid * grid - allocated}}
+    if all(name in instances for name in ('chandelier', 'chandelier_arm', 'chandelier_bead')):
+        # B2: the assembly's union world bbox + the envelope verdict (additive; the
+        # builder's declared.chandelierFixtures carries the same numbers). The union is
+        # computed from the rows' glTF bboxes directly — the envelope constants are
+        # glTF-space (the placeholder's own extremes read from CHAND_*).
+        envelope_gltf = [namespace['CHAND_C'][0] - namespace['CHAND_DROP_R']
+                         - namespace['CHAND_DROP'][0] - 0.10,
+                         namespace['CHAND_CORE_Y'] - namespace['CHAND_CORE'][1] - 0.10,
+                         namespace['CHAND_C'][1] - namespace['CHAND_DROP_R']
+                         - namespace['CHAND_DROP'][0] - 0.10,
+                         namespace['CHAND_C'][0] + namespace['CHAND_DROP_R']
+                         + namespace['CHAND_DROP'][0] + 0.10,
+                         namespace['CHAND_ROD_TOP'] + 0.10,
+                         namespace['CHAND_C'][1] + namespace['CHAND_DROP_R']
+                         + namespace['CHAND_DROP'][0] + 0.10]
+        min_y_fence = round(namespace['CHAND_CORE_Y'] - namespace['CHAND_CORE'][1], 6)
+        union = None
+        for name in ('chandelier', 'chandelier_arm', 'chandelier_bead'):
+            for row in rows:
+                if row['object'] != name:
+                    continue
+                bbox = row['worldBboxGltf']
+                if union is None:
+                    union = list(bbox)
+                else:
+                    for axis in range(3):
+                        union[axis] = min(union[axis], bbox[axis])
+                        union[3 + axis] = max(union[3 + axis], bbox[3 + axis])
+        inside = all(envelope_gltf[axis] <= union[axis]
+                     and union[3 + axis] <= envelope_gltf[3 + axis] for axis in range(3))
+        out['chandelierAssembly'] = {
+            'worldBboxGltf': [round(v, 3) for v in union],
+            'minYGltf': round(union[1], 3), 'maxYGltf': round(union[4], 3),
+            'minYFenceGltf': min_y_fence,
+            'minYFencePass': bool(min_y_fence - 1e-9 <= union[1]),
+            'envelopeGltf': [round(v, 3) for v in envelope_gltf],
+            'envelopePass': bool(inside),
+            'law': ('the C2 pins: the assembly bbox inside the placeholder bbox grown 0.10 '
+                    'per side; the lowest y never below CHANDELIER_MIN_Y (the placeholder\'s '
+                    'own lowest = the core octahedron\'s lower apex)'),
+        }
+    return out
 
 
 def free_blocks(cells_map, namespace):
@@ -670,6 +737,8 @@ def atlas_hash_and_stats(checkout):
         'texcoord1Accessors': len(seen),
         'texcoord1PayloadBytes': payload_bytes,
         'meshes': len(meshes),
+        'meshNames': sorted({re.sub(r'\.\d{3}$', '', str(mesh.get('name') or f'mesh_{i}'))
+                             for i, mesh in enumerate(meshes)}),
         'meshNodes': sum(instances),
         'draws': draws,
         'drawsLaw': 'unique primitives (the committed draw gate; naive node draws are info-only)',
@@ -677,54 +746,87 @@ def atlas_hash_and_stats(checkout):
     }
 
 
-def uv2_subset_hash(checkout, baseline=None):
+def uv2_subset_hash(checkout, baseline=None, fixture_baseline=None):
     """The B1 NO-REPACK instrument: sha256 over every NON-fixture mesh's TEXCOORD_1
     accessor stored payload bytes, meshes in file order, primitives in order, shared
     accessors once (the ATLAS_HASH law minus the fixture datablocks — the lane's own
     islands may re-UV, nothing else may move a byte). Compared against the baseline glb
-    (3da446d) when one is given: equal → the NO-REPACK law holds."""
+    (3da446d) when one is given: equal → the NO-REPACK law holds. B2: every fixture
+    datablock's OWN subset hash is reported beside it, and when a fixture baseline is
+    given (B1's committed glb) the sconce archetype's subset must be byte-identical
+    while the chandelier assembly's are new."""
     import re
 
-    def walk(path):
+    def accessor_piece(prim, gl, blob, accessors, views, components, comp_bytes):
+        attributes = prim.get('attributes') or {}
+        if 'TEXCOORD_1' not in attributes:
+            raise SystemExit(f'census: mesh primitive without TEXCOORD_1')
+        accessor_index = attributes['TEXCOORD_1']
+        accessor = accessors[accessor_index]
+        view = views[accessor['bufferView']]
+        meshopt = (view.get('extensions') or {}).get('EXT_meshopt_compression')
+        if meshopt is not None:
+            if accessor.get('byteOffset') not in (None, 0):
+                raise SystemExit('census: meshopt TEXCOORD_1 with a byteOffset — '
+                                 'the subset-hash law needs an update')
+            offset, length = meshopt['byteOffset'], meshopt['byteLength']
+        else:
+            if view.get('buffer', 0) != 0:
+                raise SystemExit('census: TEXCOORD_1 view outside the GLB buffer')
+            offset = view['byteOffset'] + accessor.get('byteOffset', 0)
+            length = (accessor['count'] * components[accessor['type']]
+                      * comp_bytes[accessor['componentType']])
+        piece = blob[offset:offset + length]
+        if len(piece) != length:
+            raise SystemExit('census: a TEXCOORD_1 payload reaches outside the glb '
+                             'binary chunk')
+        return piece
+
+    def walk(path, fixture=False):
         gl, blob = glb_parse(path)
         accessors, views = gl.get('accessors', []), gl.get('bufferViews', [])
         comp_bytes = {5120: 1, 5121: 1, 5122: 2, 5123: 2, 5124: 4, 5125: 4, 5126: 4}
         components = {'SCALAR': 1, 'VEC2': 2, 'VEC3': 3, 'VEC4': 4, 'MAT2': 4, 'MAT3': 9,
                       'MAT4': 16}
         seen, pieces, payload_bytes, meshes_seen = set(), [], 0, 0
+        fixture_subsets = {}
         for mesh in gl.get('meshes', []):
             name = re.sub(r'\.\d{3}$', '', str(mesh.get('name') or ''))
-            if name in FIXTURE_DATABLOCKS:
+            is_fixture = name in FIXTURE_DATABLOCKS
+            if bool(is_fixture) != fixture:
                 continue
             meshes_seen += 1
+            if not fixture:
+                # The non-fixture walk stays ONE shared digest across meshes (the B1 law);
+                # shared accessors hash once in mesh order.
+                for prim in mesh.get('primitives', []):
+                    accessor_index = prim.get('attributes', {}).get('TEXCOORD_1')
+                    if accessor_index in seen:
+                        continue
+                    seen.add(accessor_index)
+                    piece = accessor_piece(prim, gl, blob, accessors, views, components,
+                                           comp_bytes)
+                    pieces.append(piece)
+                    payload_bytes += len(piece)
+                continue
+            # The fixture walk: a per-datablock subset digest (the B2 additions report;
+            # shared accessors hash once inside their datablock).
+            subset_seen, subset_pieces, subset_bytes = set(), [], 0
             for prim in mesh.get('primitives', []):
-                attributes = prim.get('attributes') or {}
-                if 'TEXCOORD_1' not in attributes:
-                    raise SystemExit(f'census: mesh {name!r} primitive without TEXCOORD_1')
-                accessor_index = attributes['TEXCOORD_1']
-                if accessor_index in seen:
+                accessor_index = prim.get('attributes', {}).get('TEXCOORD_1')
+                if accessor_index in subset_seen:
                     continue
-                seen.add(accessor_index)
-                accessor = accessors[accessor_index]
-                view = views[accessor['bufferView']]
-                meshopt = (view.get('extensions') or {}).get('EXT_meshopt_compression')
-                if meshopt is not None:
-                    if accessor.get('byteOffset') not in (None, 0):
-                        raise SystemExit('census: meshopt TEXCOORD_1 with a byteOffset — '
-                                         'the subset-hash law needs an update')
-                    offset, length = meshopt['byteOffset'], meshopt['byteLength']
-                else:
-                    if view.get('buffer', 0) != 0:
-                        raise SystemExit('census: TEXCOORD_1 view outside the GLB buffer')
-                    offset = view['byteOffset'] + accessor.get('byteOffset', 0)
-                    length = (accessor['count'] * components[accessor['type']]
-                              * comp_bytes[accessor['componentType']])
-                piece = blob[offset:offset + length]
-                if len(piece) != length:
-                    raise SystemExit('census: a TEXCOORD_1 payload reaches outside the glb '
-                                     'binary chunk')
-                pieces.append(piece)
-                payload_bytes += length
+                subset_seen.add(accessor_index)
+                piece = accessor_piece(prim, gl, blob, accessors, views, components,
+                                       comp_bytes)
+                subset_pieces.append(piece)
+                subset_bytes += len(piece)
+            fixture_subsets[name] = {
+                'sha256': hashlib.sha256(b''.join(subset_pieces)).hexdigest(),
+                'texcoord1Accessors': len(subset_seen),
+                'texcoord1PayloadBytes': subset_bytes}
+        if fixture:
+            return fixture_subsets
         return {'sha256': hashlib.sha256(b''.join(pieces)).hexdigest(),
                 'texcoord1Accessors': len(seen), 'texcoord1PayloadBytes': payload_bytes,
                 'nonFixtureMeshes': meshes_seen}
@@ -736,12 +838,27 @@ def uv2_subset_hash(checkout, baseline=None):
            'glb': rel_to_checkout(checkout / B0_GLB),
            'excludedDatablocks': list(FIXTURE_DATABLOCKS)}
     row['checkout'] = walk(checkout / B0_GLB)
+    row['checkoutFixtureSubsets'] = walk(checkout / B0_GLB, fixture=True)
     if baseline is not None:
         row['baseline'] = walk(baseline)
         row['baselineGlb'] = rel_to_checkout(baseline)
         row['noRepackPass'] = (row['checkout']['sha256'] == row['baseline']['sha256']
                                and row['checkout']['texcoord1PayloadBytes']
                                == row['baseline']['texcoord1PayloadBytes'])
+    if fixture_baseline is not None:
+        row['fixtureBaseline'] = walk(fixture_baseline, fixture=True)
+        row['fixtureBaselineGlb'] = rel_to_checkout(fixture_baseline)
+        checkout_subsets = row['checkoutFixtureSubsets']
+        baseline_subsets = row['fixtureBaseline']
+        common = sorted(set(checkout_subsets) & set(baseline_subsets))
+        row['fixtureSubsetsUnchanged'] = {
+            name: checkout_subsets[name]['sha256'] == baseline_subsets[name]['sha256']
+            for name in common}
+        # The B2 law: the sconce archetype's UV2 is byte-identical to B1; the chandelier
+        # assembly's subsets are new (absent from the B1 baseline).
+        row['sconceUnchangedPass'] = (
+            'sconce' in checkout_subsets and 'sconce' in baseline_subsets
+            and checkout_subsets['sconce']['sha256'] == baseline_subsets['sconce']['sha256'])
     return row
 
 
@@ -811,7 +928,9 @@ def frame_share(namespace, meshes):
         totals = {}
         for label, hit_counts in counts.items():
             for cls, pixels in hit_counts.items():
-                key = (datablock_of[label], cls)
+                family = ('chandelier' if datablock_of[label].startswith('chandelier')
+                          else datablock_of[label])
+                key = (family, cls)
                 totals[key] = totals.get(key, 0) + pixels
         total_px = width * height
 
@@ -1012,13 +1131,20 @@ def clamp_baseline(checkout, namespace, census_cells, cells_map):
 def self_check(checkout, cells_count, atlas, fixture_form=None):
     """D5: cells / draws / drawn triangles / W against main @ 3da446d. A miss means the
     probe is wrong — fix the probe, never the room. Under the B1 slice_e form the room
-    legitimately carries the archetype: the expected set is the B1 pins above (the
-    committed pins stay when FIXTURE_FORM is unset or 'placeholder')."""
+    legitimately carries the archetype: the expected set is the B1 pins above; once the
+    glb also carries the B2 chandelier assembly (chandelier_arm present), the expected
+    set is the B2 pins; the committed pins stay when FIXTURE_FORM is unset or
+    'placeholder'."""
     manifest = json.loads((checkout / B0_MANIFEST).read_text(encoding='utf8'))
     intensity = manifest['lightmaps']['intensity']
     measured_w = {'day': float(intensity['day']), 'duskChandeliers': float(intensity['dusk']),
                   'nightChandeliers': float(intensity['nightChandeliers'])}
-    expected = SELF_CHECK_B1 if fixture_form == 'slice_e' else SELF_CHECK
+    if 'chandelier_arm' in atlas.get('meshNames', []):
+        expected = SELF_CHECK_B2
+    elif fixture_form == 'slice_e':
+        expected = SELF_CHECK_B1
+    else:
+        expected = SELF_CHECK
     checks = {
         'cells': {'measured': cells_count, 'expected': expected['cells'],
                   'source': "the builder's cells.json (this run)"},
@@ -1045,10 +1171,14 @@ def completeness(cells_map, meshes, checkout):
     """D5: all 11 fixtures and every rig light enumerated, with the light-to-fixture
     pairing. bake.py derives lamp k from the same builder-roster order put() walks
     (west, then north, then east), so lamp k pairs with the k-th sconce instance in
-    name order (the committed naming follows creation order)."""
+    name order (the committed naming follows creation order). B2: once the glb carries
+    the chandelier assembly (the stem + the arm archetype ×36 + the bead ×300), the
+    expected fixture instance count is 10 + 1 + 36 + 300 = 347 and the chandelier lamps
+    pair with the assembly's stem object (the rig never moves)."""
     by_datablock = {}
     for obj in meshes:
         by_datablock.setdefault(obj.data.name, []).append(obj)
+    assembly = 'chandelier_arm' in by_datablock
     fixtures = []
     for datablock in sorted(FIXTURE_DATABLOCKS):
         objects = by_datablock.get(datablock, [])
@@ -1068,23 +1198,49 @@ def completeness(cells_map, meshes, checkout):
         pairing.append({'lamp': f'{kind}[{index}]', 'positionGltf': position,
                         'fixtureInstance': instance})
     fixture_instances = sum(row['instances'] for row in fixtures)
+    expected_instances = 347 if assembly else 11
     return {'fixtures': fixtures, 'fixtureInstances': fixture_instances,
-            'fixtureInstancesExpected': 11,
+            'fixtureInstancesExpected': expected_instances,
+            'assembly': assembly,
             'rigLights': {'sconce': len(rig['sconcePositions']),
                           'chandelierRing': len(rig['dropPositions']),
                           'chandelierCore': 1, 'total': len(lamps),
                           'source': ('tools/bake-logs/jordan.json nightChandeliers rig rows '
                                      '(derived from the builder namespace by tools/bpy/bake.py)')},
             'lightToFixture': pairing,
-            'pass': (fixture_instances == 11 and len(lamps) == 19
+            'pass': (fixture_instances == expected_instances and len(lamps) == 19
                      and all(row['fixtureInstance'] is not None for row in pairing))}
 
 
-def envelope_holds_tiers(per_object_rows):
+def envelope_holds_tiers(per_object_rows, per_object=None):
     """The D5 ADMIT-SCONCES-ONLY envelope reading: the placeholder chandelier's world
     bbox grown 0.10 per side must hold the 3 pinned tiers (radii 1.40/1.00/0.60 — the
     widest ring's diameter must fit; DY 0.85 — the two-tier vertical span must fit).
-    Literal ring geometry; B2's CHANDELIER_FIT scale is reported beside it."""
+    Literal ring geometry; B2's CHANDELIER_FIT scale is reported beside it. B2: when the
+    per-object block carries the chandelier assembly's union bbox (the placeholder is
+    retired), the assembly's own bbox is the envelope subject."""
+    assembly = (per_object or {}).get('chandelierAssembly') if per_object else None
+    if assembly is not None:
+        lo, hi = assembly['worldBboxBlender'][:3], assembly['worldBboxBlender'][3:]
+        grown_lo, grown_hi = None, None
+        def _v(x, y, z):
+            return Vector((x, y, z))
+        union_lo = _v(*[round(v, 3) for v in lo])
+        union_hi = _v(*[round(v, 3) for v in hi])
+        horizontal = min(union_hi.x - union_lo.x, union_hi.y - union_lo.y) + 2 * 0.10
+        vertical = (union_hi.z - union_lo.z) + 2 * 0.10
+        tiers = CHANDELIER_PINNED
+        fits = horizontal >= 2 * tiers['tierRadius'][0] and vertical >= 2 * tiers['tierDy']
+        fit = min(horizontal / (2 * tiers['tierRadius'][0]), vertical / (2 * tiers['tierDy']))
+        return {'subject': 'the B2 chandelier assembly (union of the stem, the 36 arms '
+                           'and the 300 beads)',
+                'bboxBlender': assembly['worldBboxBlender'], 'envelopeGrowM': 0.10,
+                'horizontalAvailableM': round(horizontal, 4),
+                'verticalAvailableM': round(vertical, 4),
+                'pinnedTiers': tiers, 'impliedFitScale': round(fit, 4), 'holds': bool(fits),
+                'law': ('literal ring geometry: the widest ring diameter and the two-tier '
+                        'span inside the bbox grown 0.10 per side (B2); the arm archetypes '
+                        'hang inside the rings and scale with CHANDELIER_FIT')}
     row = next(row for row in per_object_rows if row['object'] == 'chandelier')
     lo, hi = row['worldBboxBlender'][:3], row['worldBboxBlender'][3:]
     horizontal = min(hi[0] - lo[0], hi[1] - lo[1]) + 2 * 0.10
@@ -1116,7 +1272,7 @@ def decide(b0):
     j4_total = shares['J4']['allFixtures']
     block_cells = (b0['freeBlocks']['largestFreeRect'] or {'cells': 0})['cells']
     night_margin = b0['clampBaseline']['states']['nightChandeliers']['marginPct']
-    envelope = envelope_holds_tiers(b0['perObject']['objects'])
+    envelope = envelope_holds_tiers(b0['perObject']['objects'], b0['perObject'])
     beyond_sconce_need = block_cells > SCONCE_NEED_CELLS
     admit_full = (sconce_peak >= 0.10 and chandelier_peak >= 0.10
                   and block_cells >= FIXTURE_LM_BLOCK_CELLS and night_margin >= 5.0)
@@ -1226,7 +1382,8 @@ def main():
         b0 = {'flags': {key: bool(value) for key, value in flags.items() if key != 'json'},
               'builder': rel_to_checkout(builder), 'checkout': rel_to_checkout(B0_CHECKOUT)}
         if flags['per_object']:
-            b0['perObject'] = per_object_ledger(namespace, cells_map, meshes)
+            b0['perObject'] = per_object_ledger(namespace, cells_map, meshes,
+                                                os.environ.get('FIXTURE_FORM'))
         if flags['free_blocks']:
             b0['freeBlocks'] = free_blocks(cells_map, namespace)
         # the ATLAS_HASH is cheap (one glb parse) and every D5 consumer needs it
@@ -1255,7 +1412,10 @@ def main():
         report['b0'] = b0
     if flags['uv2_subset_hash']:
         # The B1 NO-REPACK gate: the non-fixture UV2 subset hash vs the baseline glb.
-        report['uv2SubsetHash'] = uv2_subset_hash(B0_CHECKOUT, flags['uv2_baseline'])
+        # The B2 addition: the per-datablock fixture subsets + the B1 sconce-unchanged
+        # gate (both additive; the default path untouched).
+        report['uv2SubsetHash'] = uv2_subset_hash(B0_CHECKOUT, flags['uv2_baseline'],
+                                                  flags['uv2_fixture_baseline'])
     out_path = out / 'census.json'
     out_path.write_text(json.dumps(report, sort_keys=True, indent=2) + '\n', encoding='utf8')
     if flags['json']:
@@ -1308,17 +1468,27 @@ def main():
         if 'decision' in b0 and b0['decision']['verdict'] == 'UNRESOLVED':
             raise SystemExit('census: the D5 conditions resolve to no pinned decision — '
                              'the report is written; stop for an owner ruling')
-    if 'uv2SubsetHash' in report:
-        row = report['uv2SubsetHash']
-        line = (f'ZIMNY_CENSUS-B1 uv2 subset (non-fixture): {row["checkout"]["sha256"]} '
-                f'({row["checkout"]["texcoord1Accessors"]} accessors, '
-                f'{row["checkout"]["texcoord1PayloadBytes"]} B)')
-        if 'baseline' in row:
-            line += (f' | baseline {row["baseline"]["sha256"]} '
-                     f'({row["baseline"]["texcoord1PayloadBytes"]} B) → '
-                     f'NO-REPACK {"PASS" if row["noRepackPass"] else "FAIL"}')
-        print(line)
-        print('ZIMNY_CENSUS-B1-END')
+        if 'uv2SubsetHash' in report:
+            row = report['uv2SubsetHash']
+            line = (f'ZIMNY_CENSUS-B1 uv2 subset (non-fixture): {row["checkout"]["sha256"]} '
+                    f'({row["checkout"]["texcoord1Accessors"]} accessors, '
+                    f'{row["checkout"]["texcoord1PayloadBytes"]} B)')
+            if 'baseline' in row:
+                line += (f' | baseline {row["baseline"]["sha256"]} '
+                         f'({row["baseline"]["texcoord1PayloadBytes"]} B) → '
+                         f'NO-REPACK {"PASS" if row["noRepackPass"] else "FAIL"}')
+            print(line)
+            for name, subset in sorted(row['checkoutFixtureSubsets'].items()):
+                print(f'ZIMNY_CENSUS-B2 fixture subset {name}: {subset["sha256"]} '
+                      f'({subset["texcoord1Accessors"]} accessors, '
+                      f'{subset["texcoord1PayloadBytes"]} B)')
+            if 'sconceUnchangedPass' in row:
+                print('ZIMNY_CENSUS-B2 sconce subset vs the B1 baseline: '
+                      + ('PASS' if row['sconceUnchangedPass'] else 'FAIL'))
+                for name, ok in sorted(row['fixtureSubsetsUnchanged'].items()):
+                    print(f'ZIMNY_CENSUS-B2 fixture subset {name} unchanged vs the '
+                          f'baseline: {"PASS" if ok else "FAIL"}')
+            print('ZIMNY_CENSUS-B1-END')
 
 
 main()

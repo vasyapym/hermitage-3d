@@ -74,6 +74,9 @@ export const EXPECTED_INSTANCES = {
   column: 2,
   portal: 1,
   chandelier: 1,
+  // The jordan-fixtures B2: the chandelier assembly's archetype datablocks ride the
+  // slice_e build only (the placeholder path keeps the committed roster byte-identical).
+  ...(FIXTURE_FORM === 'slice_e' ? { chandelier_arm: 36, chandelier_bead: 300 } : {}),
   sconce: 10,
   cornice: 1,
   // The bands fix (2026-11-16): one template datablock per wall / per tier so bake.py's
@@ -103,7 +106,20 @@ export const MATERIAL_SLOTS = {
   baluster: ['gilt'],
   column: ['granite_grey', 'gilt'],
   portal: ['plaster_warm', 'gilt'],
-  chandelier: ['gilt', 'chandelier_glow'],
+  // The jordan-fixtures B2: the chandelier assembly's slots — the stem's one gilt
+  // primitive; the arm archetype's gilt/glow/crystal; the bead's crystal. The
+  // placeholder path keeps the committed rows byte-identical and carries NO extra keys
+  // (the slot/instance roster join would fail on them).
+  chandelier:
+    FIXTURE_FORM === 'slice_e'
+      ? ['gilt'] // the stem: the assembly's one in-place gilt primitive
+      : ['gilt', 'chandelier_glow'],
+  ...(FIXTURE_FORM === 'slice_e'
+    ? {
+        chandelier_arm: ['gilt', 'chandelier_glow', 'crystal'],
+        chandelier_bead: ['crystal'],
+      }
+    : {}),
   sconce:
     FIXTURE_FORM === 'slice_e'
       ? ['gilt', 'sconce_glow', 'crystal']
