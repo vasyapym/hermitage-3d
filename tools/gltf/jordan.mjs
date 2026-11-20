@@ -38,6 +38,11 @@ export const LM_ENCODE = {
   round: 2,
 };
 
+// The jordan-fixtures round's driver rows (reported edits): under FIXTURE_FORM='slice_e'
+// the sconce archetype carries gilt + sconce_glow + crystal (the opaque new material);
+// the placeholder path keeps the committed rows byte-identical.
+const FIXTURE_FORM = process.env.FIXTURE_FORM === 'slice_e' ? 'slice_e' : 'placeholder';
+
 export const ROOM = {
   id: ROOM_ID,
   title: 'Jordan Staircase',
@@ -99,7 +104,10 @@ export const MATERIAL_SLOTS = {
   column: ['granite_grey', 'gilt'],
   portal: ['plaster_warm', 'gilt'],
   chandelier: ['gilt', 'chandelier_glow'],
-  sconce: ['plaster_warm', 'sconce_glow'],
+  sconce:
+    FIXTURE_FORM === 'slice_e'
+      ? ['gilt', 'sconce_glow', 'crystal']
+      : ['plaster_warm', 'sconce_glow'],
   cornice: ['plaster_warm'],
   pilaster_n0: ['plaster_warm', 'gilt'],
   pilaster_n1: ['plaster_warm', 'gilt'],
@@ -117,7 +125,10 @@ export const MATERIAL_SLOTS = {
   window_frame_hi: ['plaster_warm'],
 };
 export const EMISSIVE_MATERIALS = { pane: 3, sconce_glow: 1, chandelier_glow: 1 }; // 2c: the chips normalize so the tint survives
-export const METALLIC_MATERIALS = { gilt: 0.5 };
+export const METALLIC_MATERIALS = {
+  gilt: 0.5,
+  ...(FIXTURE_FORM === 'slice_e' ? { crystal: 0.6 } : {}),
+};
 
 // Albedo-only arguments. Jordan lightmaps must NOT inherit --genmipmap;
 // reencode.mjs assigns their sRGB DFD flag without converting encoded pixels.
@@ -310,7 +321,11 @@ function gateConventions(json) {
     const name = baseName(m.name ?? `material_${i}`);
     const expected = METALLIC_MATERIALS[name] ?? 0;
     const factor = m.pbrMetallicRoughness?.metallicFactor ?? 1;
-    if (factor !== expected) fail(`material ${name}: metallicFactor ${factor} != ${expected}`);
+    // float32 transport: Blender's export round-trips the factor through f32 (0.6 reads
+    // back 0.6000000238418579); the committed factors (0, 0.5) are exact, so this
+    // tolerance changes no committed verdict — it only admits the f32 artefact.
+    if (Math.abs(factor - expected) > 1e-6)
+      fail(`material ${name}: metallicFactor ${factor} != ${expected}`);
   }
 }
 

@@ -3,8 +3,8 @@
   "files": [
     {
       "path": "jordan.glb",
-      "bytes": 249044,
-      "sha256": "ab686b86403ddf6327e1d8d0d44514d294cd0d747d48a43a854c54de69749bfe",
+      "bytes": 261508,
+      "sha256": "71a29ecea7914aeb7d74e92c76fd382863ed673714b49941a6071314b8589204",
       "kind": "glb"
     },
     {
@@ -115,8 +115,8 @@
       {
         "name": "sconce",
         "instances": 10,
-        "primitives": 2,
-        "triangles": 24
+        "primitives": 3,
+        "triangles": 361
       },
       {
         "name": "pilaster_n0",
@@ -203,8 +203,8 @@
         "triangles": 32
       }
     ],
-    "trianglesUnique": 6684,
-    "trianglesDrawn": 21872,
+    "trianglesUnique": 7021,
+    "trianglesDrawn": 25242,
     "extensionsRequired": [
       "EXT_meshopt_compression",
       "KHR_mesh_quantization",

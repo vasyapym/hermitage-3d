@@ -993,6 +993,29 @@ def build_sconce(b):
     kit_box(b, width, height, (-depth[1], -depth[0]), KIT_GLOW)
 
 
+# --- the jordan-fixtures round's ONE hook (batch B1; all form code lives in the new
+# jordan_fixtures.py, which never imports this file: the kit helpers, the anchor tables
+# and the namespace constants ride inside the namespace dict passed below). With
+# FIXTURE_FORM unset or 'placeholder' the returned row IS the committed one and every
+# byte of the build is unchanged; 'slice_e' swaps the runner's sconce row to the
+# fixture module's archetype builder (gilt + sconce_glow + crystal) and routes its
+# realize through the module's own sub-cell LM packer.
+import importlib.util as _importlib_util
+
+_jordan_fixtures_spec = _importlib_util.spec_from_file_location(
+    'jordan_fixtures', os.path.join(os.path.dirname(os.path.abspath(__file__)), 'jordan_fixtures.py'))
+jordan_fixtures = _importlib_util.module_from_spec(_jordan_fixtures_spec)
+_jordan_fixtures_spec.loader.exec_module(jordan_fixtures)
+
+FIXTURE_FORM = os.environ.get('FIXTURE_FORM', 'placeholder')
+
+
+def build_fixtures(kit, form):
+    """The runner's sconce row, wired through the fixture module (the module law: it
+    never imports jordan.py — it receives this namespace dict and reads from it)."""
+    return jordan_fixtures.sconce_row(kit, form)
+
+
 def wall_point(axis, plane, u, y, d):
     return (u, y, plane + d) if axis == 'z' else (plane + d, y, u)
 
@@ -1134,6 +1157,19 @@ def realize(b, material_names, first_cell):
     return len({mat for _, mat in b.faces})
 
 
+# --- the jordan-fixtures round's realize dispatcher (part of the ONE hook): under
+# slice_e the sconce archetype realizes through the fixture module's sub-cell LM
+# packer (the committed one-cell-per-mesh-FACE law is not its law); every other mesh
+# rides the committed realize unchanged, and the placeholder form never diverts.
+_committed_realize = realize
+
+
+def realize(b, material_names, first_cell):
+    if FIXTURE_FORM == 'slice_e' and b.name == 'sconce':
+        return jordan_fixtures.realize_sconce(b, material_names, first_cell)
+    return _committed_realize(b, material_names, first_cell)
+
+
 def write_lm_cells(path):
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -1207,7 +1243,7 @@ def main():
         ('column', build_column, ['granite_grey', 'gilt']),
         ('portal', build_portal, ['plaster_warm', 'gilt']),
         ('chandelier', build_chandelier, ['gilt', 'chandelier_glow']),
-        ('sconce', build_sconce, ['plaster_warm', 'sconce_glow']),
+        *build_fixtures(globals(), FIXTURE_FORM),
         ('cornice', build_cornice, ['plaster_warm']),
         # The bands fix (2026-11-16): one template datablock PER WALL (pilaster,
         # pilaster_base: north/south/east by placement) and PER TIER (window_frame:

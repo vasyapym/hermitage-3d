@@ -125,6 +125,13 @@ STOPS = (  # rooms/jordan/contract.ts, glTF coords: (id, eye = the stop position
 # never the room; if cells.json legitimately differs, STOP and report.
 SELF_CHECK = {'cells': 3474, 'draws': 38, 'drawnTris': 21872,
               'w': {'day': 0.45, 'duskChandeliers': 0.35, 'nightChandeliers': 4.0}}
+# The jordan-fixtures B1 self-check pins (the slice_e form): the sconce row swaps the
+# placeholder's 2 primitives/24 tris ×10 for the archetype's 3/361 ×10 — draws
+# 38 − 2 + 3 = 39 (the unique-primitive gate), drawn tris 21,872 − 240 + 3,610 = 25,242;
+# cells stay 3,474 (the sub-cell packer keeps the datablock's own 12 cells) and the W
+# record is untouched (no bake in B1).
+SELF_CHECK_B1 = {'cells': 3474, 'draws': 39, 'drawnTris': 25242,
+                 'w': {'day': 0.45, 'duskChandeliers': 0.35, 'nightChandeliers': 4.0}}
 DARK_MEDIAN_COMMITTED = {  # docs/STATE.md 2026-11-17: the q128 re-measure at the wave's close
     'global': {'day': -1, 'dusk': 0, 'nightChandeliers': -1},
     'dark': {'day': 1, 'dusk': 0, 'nightChandeliers': -1},
@@ -163,6 +170,14 @@ def parse_args():
                         help='D5: fail loud when the cells count exceeds N (the K1 gate)')
     parser.add_argument('--json', default=None, metavar='PATH',
                         help='write the extended report to PATH in addition to <out>/census.json')
+    # --- the jordan-fixtures B1 addition (additive; nothing above moved) ---
+    parser.add_argument('--uv2-subset-hash', action='store_true',
+                        help='B1: sha256 over the NON-fixture TEXCOORD_1 accessor stored '
+                             'payload bytes in mesh order (the ATLAS_HASH law minus the '
+                             'fixture datablocks) — the NO-REPACK gate')
+    parser.add_argument('--uv2-baseline', default=None, metavar='PATH',
+                        help='B1: the baseline glb (3da446d) to compare the subset hash '
+                             'against; without it only this checkout\'s hash is computed')
     args = parser.parse_args(argv)
     builder = pathlib.Path(args.builder) if args.builder else B0_CHECKOUT / 'tools' / 'bpy' / 'jordan.py'
     out = pathlib.Path(args.out) if args.out else B0_CHECKOUT / B0_STAGE
@@ -180,7 +195,9 @@ def parse_args():
             w[state] = float(value)
     flags = {'per_object': args.per_object, 'free_blocks': args.free_blocks,
              'frame_share': args.frame_share, 'clamp_baseline': args.clamp_baseline,
-             'assert_max': args.assert_max, 'json': args.json}
+             'assert_max': args.assert_max, 'json': args.json,
+             'uv2_subset_hash': args.uv2_subset_hash,
+             'uv2_baseline': pathlib.Path(args.uv2_baseline) if args.uv2_baseline else None}
     return builder, out, plates, w, flags
 
 
@@ -281,6 +298,11 @@ def census_cells(namespace, cells_map, meshes):
     for key, row in cells.items():
         cx, cy = (int(part) for part in key.split(','))
         owned.setdefault(row['object'], []).append(cy * grid + cx)
+    # The jordan-fixtures B1 sub-cell packer: the fixture datablock's faces share cells
+    # (cells.json's faceCellMap carries the per-face linear cell, written only in
+    # slice_e builds — the committed placeholder form never writes it, so this line is
+    # inert for every committed input and the default path stays byte-identical).
+    face_cells = cells_map.get('faceCellMap') or {}
     seen, out = set(), {}
     for obj in sorted(meshes, key=lambda item: item.name):
         name = obj.data.name
@@ -296,8 +318,9 @@ def census_cells(namespace, cells_map, meshes):
         family = datablock_family(name)
         matrix = obj.matrix_world
         normal_matrix = matrix.to_3x3()
+        sub_cells = face_cells.get(name)
         for pi, poly in enumerate(obj.data.polygons):
-            cell = first + pi
+            cell = sub_cells[pi] if sub_cells is not None else first + pi
             key = f'{cell % grid},{cell // grid}'
             if key not in cells:
                 raise SystemExit(f'census: face {pi} of {name!r} maps to absent cell {key}')
@@ -420,7 +443,10 @@ def per_object_ledger(namespace, cells_map, meshes):
     """D2: per lightmapped datablock — the cells (the committed law is ONE cell per mesh
     FACE, so islands == faces == cells touched == cells owned exclusively today), the
     texel area, the per-primitive material split; the placeholder fixtures' rows carry
-    their glow areas and world bboxes (the GLOW_AREA_PARITY / CHANDELIER_ENVELOPE bases)."""
+    their glow areas and world bboxes (the GLOW_AREA_PARITY / CHANDELIER_ENVELOPE bases).
+    The jordan-fixtures B1 sub-cell packer: a datablock named by cells.json's fixtureLm
+    reports its true islands (the packer's per-solid units), the island box texels and
+    the sub-cell law beside the committed fields."""
     grid = int(cells_map.get('grid', namespace.get('LM_GRID', 64)))
     res = int(cells_map.get('res', namespace.get('LM_RES', 2048)))
     pad = int(cells_map.get('padPx', namespace.get('LM_PAD_PX', 2)))
@@ -433,12 +459,14 @@ def per_object_ledger(namespace, cells_map, meshes):
     instances = {}
     for obj in meshes:
         instances.setdefault(obj.data.name, []).append(obj)
+    fixture_lm = cells_map.get('fixtureLm') or {}
     rows = []
     for name in sorted(owned):
         entries = sorted(owned[name])
         materials = {}
         for _cell, material in entries:
             materials[material] = materials.get(material, 0) + 1
+        packed = fixture_lm.get(name)
         row = {
             'object': name,
             'cells': len(entries),
@@ -451,6 +479,11 @@ def per_object_ledger(namespace, cells_map, meshes):
             'facesByMaterial': materials,
             'instances': len(instances.get(name, [])),
         }
+        if packed is not None:
+            row['islands'] = packed['islands']
+            row['islandsLaw'] = packed['islandsLaw']
+            row['texelAreaPx'] = packed['islandBoxPx']
+            row['texelAreaCellInteriorsPx'] = len(entries) * inner_px
         if name in FIXTURE_DATABLOCKS:
             row['fixturePlaceholder'] = True
             template = instances[name][0].data
@@ -642,6 +675,74 @@ def atlas_hash_and_stats(checkout):
         'drawsLaw': 'unique primitives (the committed draw gate; naive node draws are info-only)',
         'drawnTriangles': drawn_tris,
     }
+
+
+def uv2_subset_hash(checkout, baseline=None):
+    """The B1 NO-REPACK instrument: sha256 over every NON-fixture mesh's TEXCOORD_1
+    accessor stored payload bytes, meshes in file order, primitives in order, shared
+    accessors once (the ATLAS_HASH law minus the fixture datablocks — the lane's own
+    islands may re-UV, nothing else may move a byte). Compared against the baseline glb
+    (3da446d) when one is given: equal → the NO-REPACK law holds."""
+    import re
+
+    def walk(path):
+        gl, blob = glb_parse(path)
+        accessors, views = gl.get('accessors', []), gl.get('bufferViews', [])
+        comp_bytes = {5120: 1, 5121: 1, 5122: 2, 5123: 2, 5124: 4, 5125: 4, 5126: 4}
+        components = {'SCALAR': 1, 'VEC2': 2, 'VEC3': 3, 'VEC4': 4, 'MAT2': 4, 'MAT3': 9,
+                      'MAT4': 16}
+        seen, pieces, payload_bytes, meshes_seen = set(), [], 0, 0
+        for mesh in gl.get('meshes', []):
+            name = re.sub(r'\.\d{3}$', '', str(mesh.get('name') or ''))
+            if name in FIXTURE_DATABLOCKS:
+                continue
+            meshes_seen += 1
+            for prim in mesh.get('primitives', []):
+                attributes = prim.get('attributes') or {}
+                if 'TEXCOORD_1' not in attributes:
+                    raise SystemExit(f'census: mesh {name!r} primitive without TEXCOORD_1')
+                accessor_index = attributes['TEXCOORD_1']
+                if accessor_index in seen:
+                    continue
+                seen.add(accessor_index)
+                accessor = accessors[accessor_index]
+                view = views[accessor['bufferView']]
+                meshopt = (view.get('extensions') or {}).get('EXT_meshopt_compression')
+                if meshopt is not None:
+                    if accessor.get('byteOffset') not in (None, 0):
+                        raise SystemExit('census: meshopt TEXCOORD_1 with a byteOffset — '
+                                         'the subset-hash law needs an update')
+                    offset, length = meshopt['byteOffset'], meshopt['byteLength']
+                else:
+                    if view.get('buffer', 0) != 0:
+                        raise SystemExit('census: TEXCOORD_1 view outside the GLB buffer')
+                    offset = view['byteOffset'] + accessor.get('byteOffset', 0)
+                    length = (accessor['count'] * components[accessor['type']]
+                              * comp_bytes[accessor['componentType']])
+                piece = blob[offset:offset + length]
+                if len(piece) != length:
+                    raise SystemExit('census: a TEXCOORD_1 payload reaches outside the glb '
+                                     'binary chunk')
+                pieces.append(piece)
+                payload_bytes += length
+        return {'sha256': hashlib.sha256(b''.join(pieces)).hexdigest(),
+                'texcoord1Accessors': len(seen), 'texcoord1PayloadBytes': payload_bytes,
+                'nonFixtureMeshes': meshes_seen}
+    row = {'algorithm': ('sha256 over the non-fixture TEXCOORD_1 accessor stored payload '
+                         'bytes, meshes in file order (shared accessors once; meshopt views '
+                         'hash their EXT_meshopt_compression stored range; the fixture '
+                         'datablocks ' + ', '.join(FIXTURE_DATABLOCKS) + ' are excluded — '
+                         'the lane\'s own islands may re-UV)'),
+           'glb': rel_to_checkout(checkout / B0_GLB),
+           'excludedDatablocks': list(FIXTURE_DATABLOCKS)}
+    row['checkout'] = walk(checkout / B0_GLB)
+    if baseline is not None:
+        row['baseline'] = walk(baseline)
+        row['baselineGlb'] = rel_to_checkout(baseline)
+        row['noRepackPass'] = (row['checkout']['sha256'] == row['baseline']['sha256']
+                               and row['checkout']['texcoord1PayloadBytes']
+                               == row['baseline']['texcoord1PayloadBytes'])
+    return row
 
 
 def frame_share(namespace, meshes):
@@ -908,21 +1009,24 @@ def clamp_baseline(checkout, namespace, census_cells, cells_map):
                         'census stays python-side deterministic)')}
 
 
-def self_check(checkout, cells_count, atlas):
+def self_check(checkout, cells_count, atlas, fixture_form=None):
     """D5: cells / draws / drawn triangles / W against main @ 3da446d. A miss means the
-    probe is wrong — fix the probe, never the room."""
+    probe is wrong — fix the probe, never the room. Under the B1 slice_e form the room
+    legitimately carries the archetype: the expected set is the B1 pins above (the
+    committed pins stay when FIXTURE_FORM is unset or 'placeholder')."""
     manifest = json.loads((checkout / B0_MANIFEST).read_text(encoding='utf8'))
     intensity = manifest['lightmaps']['intensity']
     measured_w = {'day': float(intensity['day']), 'duskChandeliers': float(intensity['dusk']),
                   'nightChandeliers': float(intensity['nightChandeliers'])}
+    expected = SELF_CHECK_B1 if fixture_form == 'slice_e' else SELF_CHECK
     checks = {
-        'cells': {'measured': cells_count, 'expected': SELF_CHECK['cells'],
+        'cells': {'measured': cells_count, 'expected': expected['cells'],
                   'source': "the builder's cells.json (this run)"},
-        'draws': {'measured': atlas['draws'], 'expected': SELF_CHECK['draws'],
+        'draws': {'measured': atlas['draws'], 'expected': expected['draws'],
                   'source': 'the committed glb: unique primitives'},
-        'drawnTris': {'measured': atlas['drawnTriangles'], 'expected': SELF_CHECK['drawnTris'],
+        'drawnTris': {'measured': atlas['drawnTriangles'], 'expected': expected['drawnTris'],
                       'source': 'the committed glb: per-mesh triangles × mesh nodes'},
-        'w': {'measured': measured_w, 'expected': SELF_CHECK['w'],
+        'w': {'measured': measured_w, 'expected': expected['w'],
               'source': 'public/assets/jordan/manifest.json lightmaps.intensity'},
     }
     for key, row in checks.items():
@@ -1131,7 +1235,8 @@ def main():
             b0['frameShare'] = frame_share(namespace, meshes)
         if flags['clamp_baseline']:
             b0['clampBaseline'] = clamp_baseline(B0_CHECKOUT, namespace, census, cells_map)
-        b0['selfCheck'] = self_check(B0_CHECKOUT, cells_count, b0['atlasHash'])
+        b0['selfCheck'] = self_check(B0_CHECKOUT, cells_count, b0['atlasHash'],
+                                     os.environ.get('FIXTURE_FORM'))
         b0['completeness'] = completeness(cells_map, meshes, B0_CHECKOUT)
         if b0['selfCheck']['verdict'] != 'PASS':
             report['b0'] = b0
@@ -1148,6 +1253,9 @@ def main():
                                       'clamp_baseline')):
             b0['decision'] = decide(b0)
         report['b0'] = b0
+    if flags['uv2_subset_hash']:
+        # The B1 NO-REPACK gate: the non-fixture UV2 subset hash vs the baseline glb.
+        report['uv2SubsetHash'] = uv2_subset_hash(B0_CHECKOUT, flags['uv2_baseline'])
     out_path = out / 'census.json'
     out_path.write_text(json.dumps(report, sort_keys=True, indent=2) + '\n', encoding='utf8')
     if flags['json']:
@@ -1200,6 +1308,17 @@ def main():
         if 'decision' in b0 and b0['decision']['verdict'] == 'UNRESOLVED':
             raise SystemExit('census: the D5 conditions resolve to no pinned decision — '
                              'the report is written; stop for an owner ruling')
+    if 'uv2SubsetHash' in report:
+        row = report['uv2SubsetHash']
+        line = (f'ZIMNY_CENSUS-B1 uv2 subset (non-fixture): {row["checkout"]["sha256"]} '
+                f'({row["checkout"]["texcoord1Accessors"]} accessors, '
+                f'{row["checkout"]["texcoord1PayloadBytes"]} B)')
+        if 'baseline' in row:
+            line += (f' | baseline {row["baseline"]["sha256"]} '
+                     f'({row["baseline"]["texcoord1PayloadBytes"]} B) → '
+                     f'NO-REPACK {"PASS" if row["noRepackPass"] else "FAIL"}')
+        print(line)
+        print('ZIMNY_CENSUS-B1-END')
 
 
 main()
