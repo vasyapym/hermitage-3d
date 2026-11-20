@@ -11,7 +11,7 @@
  * sett module 0.12 m with 12 mm joints; footprint x ±110, z 92 (facade line) → 330 (220 × 238 m);
  * a flat darker surround beyond the footprint stands in for the unmodelled WEST/SOUTH flanks
  * (the east flank stopped being unmodelled 2026-11-19: the Guards Corps HQ east wall ships as
- * the exterior kit's node el:hq-east — DEC-04x; the surround never carried the east side);
+ * the exterior kit's node el:hq-east — DEC-049; the surround never carried the east side);
  * all tones relative to the committed ground colour (the one absolute).
  * NOT IN THE SOURCE, SO NOT MODELLED: kerbs, bollards, drains, the enclosure floor, the facade
  * pavement strip.

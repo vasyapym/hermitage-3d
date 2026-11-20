@@ -320,7 +320,7 @@ describe('8 · the shadow fit (DEC-037)', () => {
     (m) => m[1] ?? '',
   );
   // The seven square rows the shadow re-fit covers (rooms come after, via roomReady):
-  // the DEC-04x round added golden-s0b-dec-noon (the missing wall's acceptance frame).
+  // the DEC-049 round added golden-s0b-dec-noon (the missing wall's acceptance frame).
   expect(queries).toHaveLength(7);
   expect(names).toEqual([
     'noon',
@@ -382,7 +382,7 @@ describe('8 · the shadow fit (DEC-037)', () => {
   }
 
   it('the kit wall casts from its west face: the fit covers the visible face, not the hidden depth', () => {
-    // DEC-04x's residual, measured (the design asked the orchestrator to read the fit's
+    // DEC-049's residual, measured (the design asked the orchestrator to read the fit's
     // right bound): SUN_SHADOW_FIT.right 130 reaches the wall's west face (x 109.3, the
     // visible face — every corner IN at the dec-noon basis) and stops inside the body's
     // hidden depth (the east face x 134, lateral 134.1 — OUT). The wall's shadow comes from

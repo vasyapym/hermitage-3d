@@ -148,7 +148,7 @@ test('golden: dec noon (winter gate)', async ({ page }) => {
   await expect(page).toHaveScreenshot('golden-dec-noon.png', SHOT);
 });
 
-// DEC-04x (the square-gap round): the missing wall's acceptance frame AND the owner's
+// DEC-049 (the square-gap round): the missing wall's acceptance frame AND the owner's
 // daylight instrument — the S0b monument pause at the winter noon, where the Guards Corps HQ
 // east wall (the kit node el:hq-east) must read behind the Column (the T2 void
 // VOID_BACKDROP_S0B 42–47 % closed to ≤ 20 % bare field). Captured like every square scene.

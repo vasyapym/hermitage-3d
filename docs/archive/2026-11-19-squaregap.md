@@ -42,7 +42,7 @@ C1 (orchestrator-direct): the bpy content (the wall per §3: massing+plinth+тя
 census: ONE node, 944 tris ≤ 1,500, AABB [109.3,0,100]→[134,20.5,240], payload 80,632 B.
 C2 (orchestrator-direct): the records (this file + the registers + the row).
 ## Verdicts
-### DEC-04x (DEC-READY — the number from the integrating authority at the merge) — the Palace Square's exterior asset program lands with its first content: the machinery (the kit law, the chain, the late-bind loader) + the Guards Corps HQ east wall as the kit node `el:hq-east`
+### DEC-049 (DEC-READY — the number from the integrating authority at the merge) — the Palace Square's exterior asset program lands with its first content: the machinery (the kit law, the chain, the late-bind loader) + the Guards Corps HQ east wall as the kit node `el:hq-east`
 THE KIT LAW (src/world/square-kit.ts): the parked DEC-045 allowances spent (SQUARE_KIT_ALLOW 6
 meshes / 18,000 tris / 1,500,000 payload / TEX_VRAM 8,388,608; SQUARE_KIT_BUDGET = the
 manifest's budget row with the geometry-only textureBytesMax 1 fence); the bind keys
