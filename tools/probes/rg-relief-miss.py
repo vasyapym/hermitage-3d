@@ -25,6 +25,15 @@
 # would mean a miss the design forbids. The night plate is a RECORD (it carries no S2A —
 # the re-parameterization only). Exit 0 iff the verdict is 'pass'.
 #
+# THE PER-FACE MAP (the rg-audit batch C extension): the census's rows are per ISLAND ==
+# per FACE (the cells' order IS the mesh polygon order — the same dump_layout belt the
+# builder's LM_FACE_ELEMENTS roster rides), so each offending row now carries its 'face'
+# index (the roster index; the S2A writable-set exclusion is keyed on it), and the payload
+# adds 'offendingFaces' — the FULL untruncated per-face list (face, element, rect,
+# mappedTexels, missTexels, islandMean), sorted by (-missTexels, element, face). The
+# offendingIslands view stays capped at 50 rows (the printed payload's shape); the face
+# map is the derivation input, not a verdict.
+#
 # Deterministic: fixed thresholds, numpy-only arithmetic, sorted-key JSON, no clock, no
 # randomness in the payload. Blender imports are LAZY (inside the measurement path) so
 # --help works without Blender, and main() runs only under the __main__ guard.
@@ -170,6 +179,7 @@ def measure(exr_path, summary_path):
     lum = (0.2126 * plane[:, :, 0] + 0.7152 * plane[:, :, 1] + 0.0722 * plane[:, :, 2])[::-1]
 
     rows = []
+    face_rows = []
     total_miss = 0
     lit_islands = 0
     mapped_texels = 0
@@ -200,10 +210,14 @@ def measure(exr_path, summary_path):
         miss = int((area < MISS_LUM).sum())
         total_miss += miss
         if miss:
+            face = {'face': cell_index, 'element': cell['element'], 'rect': cell['rect'],
+                    'mappedTexels': count, 'missTexels': miss, 'islandMean': round(mean, 6)}
+            face_rows.append(face)
             rows.append({'islandMean': round(mean, 6), 'mappedTexels': count,
                          'missTexels': miss, 'element': cell['element'],
-                         'rect': cell['rect']})
+                         'rect': cell['rect'], 'face': cell_index})
     rows.sort(key=lambda row: (-row['missTexels'], row['element'], row['rect']))
+    face_rows.sort(key=lambda row: (-row['missTexels'], row['element'], row['face']))
     verdict = 'pass' if total_miss == 0 else 'FAIL'
     payload = {
         'litIslands': lit_islands,
@@ -211,6 +225,7 @@ def measure(exr_path, summary_path):
         'missLum': MISS_LUM,
         'litMean': LIT_MEAN,
         'missTexels': total_miss,
+        'offendingFaces': face_rows,
         'offendingIslands': rows[:50],
         'offendingIslandsShown': min(len(rows), 50),
         'plate': exr_path,

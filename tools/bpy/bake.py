@@ -341,8 +341,8 @@ S2A_STATES = ('day', 'dusk')
 S2A_MAX_RAY_DISTANCE = 0.35
 S2A_WRITE_ORDER = ('flat base use_clear=True -> arch -> vault.gallery -> vault.reveal -> '
                    'cornice -> ressaut -> impost -> vault.passage (each pass use_clear=False, '
-                   'its own writable target cells only; the flush-covered faces keep the '
-                   'flat base)')
+                   'its own writable target cells only; the flush-covered + corner-seam '
+                   'excluded faces keep the flat base)')
 S2A_TARGETS = (  # the fixed pass order (the S0 probe's S2A_TARGETS declaration order)
     ('arch', 0.0885, ('junction.rib_coves', 'junction.springers')),
     ('vault.gallery', 0.0885, ('junction.rib_coves', 'junction.cornice_coves')),
@@ -352,6 +352,44 @@ S2A_TARGETS = (  # the fixed pass order (the S0 probe's S2A_TARGETS declaration 
     ('impost', 0.06, ('junction.impost_coves',)),
     ('vault.passage', 0.06, ('junction.impost_coves',)),
 )
+#   * CORNER-SEAM EXCLUSION (batch C; the census-derived seam-face table): the S2A write's
+#     remaining defect class (the B5 miss census, tools/probes/rg-relief-miss.py): the bay
+#     cells' spring-edge texels' CATCH rays cross the cornice-top pocket and read its
+#     enclosed darkness. They HIT — the backdrop works; the ray GEOMETRY crosses the
+#     pocket — so neither the cage nor the denied subset-backdrop form can fix it. The
+#     faces whose texels went sub-0.002 (luminance < 0.002) inside lit islands
+#     (island-mean > 0.02) are EXCLUDED from the pass's writable set (the flush-covered
+#     path's precedent above): their cells keep the committed flat base, the crease still
+#     reads everywhere else.
+#     THE DERIVATION (the census's per-face map on the batch-B chain run 1 plates —
+#     the probe reproduced the record's day 10,822 / dusk 10,058 miss texels exactly):
+#     the day ∪ dusk offending faces ON S2A TARGETS = 52 —
+#       cornice 28 (the long-wall back-band runs, both walls, at the roster's ~7-stride
+#         seats + the end-wall piece 4509; the day-only members are the run's dimmer-end
+#         faces whose dusk islands fall below the lit threshold — the union covers both),
+#       vault.gallery 23 (the bay spring-edge pairs at the roster's stride-8 seats,
+#         3744..3825, + the corner face 3832; the SAME 23 faces offend in both states),
+#       impost 1 (3715, dusk-only; the day impost wrote clean).
+#     The census's NON-target offenders (pilaster 12 faces / 176 texels, wall.field
+#     15 × 1, wall.e 1 × 1, passage.field) are the FLAT BASE'S OWN dark-crease class:
+#     they sit on faces no S2A pass ever writes (they show black in the RAW pre-denoise
+#     plate — 788 texels across 54 faces at day — written by the flat bake itself, the
+#     OIDN pass then reduces them to 209/223 day/dusk denoised). They are re-sampled
+#     creases of the committed flat look, NOT the seam defect, and stay untouched.
+#     The index lists are keyed to the LM_FACE_ELEMENTS roster (the roster order IS the
+#     mesh polygon order — the dump-layout belt); any roster drift fails loud in
+#     s2a_seam_faces. THE BELT (fail loud): the post-fix census re-run must show the
+#     seam class collapsed to the flat base's own order; the exact before/after numbers
+#     ride the round record.
+S2A_SEAM_FACES = {
+    'cornice': (850, 858, 865, 872, 879, 886, 893, 900, 907, 914, 921, 929, 930,
+                2655, 2661, 2669, 2676, 2683, 2690, 2697, 2704, 2711, 2718, 2725,
+                2732, 2740, 2741, 4509),
+    'vault.gallery': (3744, 3745, 3752, 3753, 3760, 3761, 3768, 3769, 3776, 3777,
+                      3784, 3785, 3792, 3793, 3800, 3801, 3808, 3809, 3816, 3817,
+                      3824, 3825, 3832),
+    'impost': (3715,),
+}
 # The denoiser decision knob (the verdict's decision tree; a DECISION-RUN override, never a
 # DEC-044 dial): bake day/dusk WITH the committed compositor OIDN first, run the B4 junction
 # rows, and only if they fail re-run the state with ZIMNY_BAKE_DENOISE=off — the state's
@@ -1463,6 +1501,20 @@ def s2a_covered_faces(shell, faces, proxy_objs, cage):
     return excluded
 
 
+def s2a_seam_faces(elements, target):
+    """THE CORNER-SEAM EXCLUSION's fail-loud binding (see the S2A table's comment): the
+    pinned census-derived face indices must exist and carry exactly this pass's element
+    (the roster order IS the mesh polygon order — the dump-layout belt). Returns the
+    indices; empty when the target pins none."""
+    pinned = S2A_SEAM_FACES.get(target, ())
+    for pi in pinned:
+        if not 0 <= pi < len(elements) or elements[pi] != target:
+            fail(f'the corner-seam exclusion names face {pi} for {target!r} but the '
+                 "LM_FACE_ELEMENTS roster disagrees (the builder's roster order is the "
+                 'mesh polygon order — the dump-layout belt) — fail loud')
+    return pinned
+
+
 def s2a_backdrop_refused_note():
     """THE REFUSED FORM (recorded, never wired): a per-target SUBSET mesh as the ray-catch
     backdrop (the target's own faces' geometry only, materials carried) was trialled and
@@ -1524,19 +1576,23 @@ def s2a_passes(scene, namespace, shell, pad_px):
         # cell (the flat-vs-S2A scratch references are in the round notes) — the
         # whole-shell copy reproduces the committed look on every target cell except
         # the measured corner-seam bands (the bay cells' spring edges where the catch
-        # line crosses the cornice-top pocket and reads its enclosed darkness —
-        # documented in the round record with the exact counts).
+        # line crosses the cornice-top pocket and reads its enclosed darkness) — the
+        # batch-C seam-face exclusion below now keeps those cells on the flat base
+        # (S2A_SEAM_FACES + s2a_seam_faces; the derivation + counts in the table's
+        # comment and the round record).
         backdrop = shell.copy()  # same mesh data, same transform
         scene.collection.objects.link(backdrop)
         for target, cage, proxy_names in S2A_TARGETS:
             faces = s2a_target_faces(elements, target)
             proxy_objs = [proxies[name] for name in proxy_names]
             covered = s2a_covered_faces(shell, faces, proxy_objs, cage)
-            writable = [pi for pi in faces if pi not in set(covered)]
+            seam = s2a_seam_faces(elements, target)
+            seam_set = set(seam)
+            writable = [pi for pi in faces if pi not in set(covered) and pi not in seam_set]
             if not writable:
                 fail(f'the S2A pass for {target!r} has no writable faces left after the '
-                     'flush-covered exclusion — the assignment and the geometry disagree, '
-                     'fail loud')
+                     'flush-covered + corner-seam exclusions — the assignment and the '
+                     'geometry disagree, fail loud')
             saved, layer = collapse_s2a_faces(shell, writable)
             shell.data.uv_layers.active = layer
             flipped = []
@@ -1570,8 +1626,8 @@ def s2a_passes(scene, namespace, shell, pad_px):
                 proxy.select_set(False)
                 proxy.hide_render = True
             rows.append({'cageM': cage, 'excludedFaces': len(covered), 'faces': len(faces),
-                         'proxies': list(proxy_names), 'target': target,
-                         'writableFaces': len(writable)})
+                         'proxies': list(proxy_names), 'seamFaces': len(seam),
+                         'target': target, 'writableFaces': len(writable)})
     finally:
         for obj in scene.objects:
             obj.select_set(False)

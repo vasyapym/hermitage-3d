@@ -3,14 +3,14 @@
   "files": [
     {
       "path": "lm/day.ktx2",
-      "bytes": 291308,
-      "sha256": "a7913fd817f13733f4579b18ef932cea212a767a4f5c6da7baad88bd4f259c26",
+      "bytes": 290526,
+      "sha256": "21070dfc50ded69a9ec45769e72972a25c9a60b23cd0d822eba44c13e15b86a3",
       "kind": "ktx2"
     },
     {
       "path": "lm/dusk.ktx2",
-      "bytes": 261120,
-      "sha256": "a08d7e6ce790274c502836cb9eac96a04237306e77621bb95995fabe05f36578",
+      "bytes": 261009,
+      "sha256": "d4eec68c205bd6cde4f47eef67c84ba7963169a4db75ad5da903722f0e6cfe25",
       "kind": "ktx2"
     },
     {

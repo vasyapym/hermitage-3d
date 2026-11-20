@@ -5,34 +5,34 @@
       "blender": "Blender 4.2.23 LTS",
       "charts": [
         {
-          "clippedFraction": 0.0097,
+          "clippedFraction": 0.0096,
           "emitters": 0,
-          "exrSha256": "a2c5fd40697cf4a24b2ba6b74e68b2c776d33ddf9041e4c4d708ce4c99e6a1db",
+          "exrSha256": "2456c601ca89beab1fab89c7f5dcb40bb5fbdd1050b8eb0d92eccd4745db32f5",
           "name": "arch",
           "objects": 15,
           "pad": 2,
-          "peak": 2.2428,
+          "peak": 2.1524,
           "res": 1536,
           "targets": 2
         }
       ],
-      "clippedFraction": 0.0097,
+      "clippedFraction": 0.0096,
       "command": "node tools/bake.mjs rastrelli-gallery day",
       "denoiser": "OPENIMAGEDENOISE",
       "duskFixtures": null,
       "margin": 2,
-      "peak": 2.2428,
+      "peak": 2.1524,
       "probe": null,
       "res": 1536,
       "samples": 128,
-      "seconds": 3413.6,
+      "seconds": 1033.2,
       "state": "day",
       "whitePoint": 0.8,
       "artifacts": [
         {
           "rel": "lm/day.ktx2",
-          "bytes": 151328,
-          "sha256": "b0bd7a058be853a41d3cf11d753d0d65178e5cf90fed596bea78b2c926284a6d"
+          "bytes": 152276,
+          "sha256": "b767d7fdeed2b0e2ff1ba2a0c627819ecc82550d929211cf686d7570f4e79a5b"
         }
       ],
       "s2a": {
@@ -46,6 +46,7 @@
               "junction.rib_coves",
               "junction.springers"
             ],
+            "seamFaces": 0,
             "target": "arch",
             "writableFaces": 110
           },
@@ -57,8 +58,9 @@
               "junction.rib_coves",
               "junction.cornice_coves"
             ],
+            "seamFaces": 23,
             "target": "vault.gallery",
-            "writableFaces": 96
+            "writableFaces": 73
           },
           {
             "cageM": 0.09,
@@ -67,6 +69,7 @@
             "proxies": [
               "junction.rib_coves"
             ],
+            "seamFaces": 0,
             "target": "vault.reveal",
             "writableFaces": 1
           },
@@ -77,8 +80,9 @@
             "proxies": [
               "junction.cornice_coves"
             ],
+            "seamFaces": 28,
             "target": "cornice",
-            "writableFaces": 202
+            "writableFaces": 174
           },
           {
             "cageM": 0.03,
@@ -87,6 +91,7 @@
             "proxies": [
               "junction.springers"
             ],
+            "seamFaces": 0,
             "target": "ressaut",
             "writableFaces": 170
           },
@@ -97,8 +102,9 @@
             "proxies": [
               "junction.impost_coves"
             ],
+            "seamFaces": 1,
             "target": "impost",
-            "writableFaces": 18
+            "writableFaces": 17
           },
           {
             "cageM": 0.06,
@@ -107,11 +113,12 @@
             "proxies": [
               "junction.impost_coves"
             ],
+            "seamFaces": 0,
             "target": "vault.passage",
             "writableFaces": 84
           }
         ],
-        "writeOrder": "flat base use_clear=True -> arch -> vault.gallery -> vault.reveal -> cornice -> ressaut -> impost -> vault.passage (each pass use_clear=False, its own writable target cells only; the flush-covered faces keep the flat base)"
+        "writeOrder": "flat base use_clear=True -> arch -> vault.gallery -> vault.reveal -> cornice -> ressaut -> impost -> vault.passage (each pass use_clear=False, its own writable target cells only; the flush-covered + corner-seam excluded faces keep the flat base)"
       }
     },
     "dusk": {
@@ -120,11 +127,11 @@
         {
           "clippedFraction": 0.0028,
           "emitters": 14,
-          "exrSha256": "dec3c87e710732325ec755750540d3b31487c4d3c7b719529e9e14f8be637f00",
+          "exrSha256": "eb7d0ae6569029c315d1926c017b99a1c2acfca0449b82706e563f0891e216e3",
           "name": "arch",
           "objects": 1,
           "pad": 2,
-          "peak": 2.1054,
+          "peak": 2.1056,
           "res": 1536,
           "targets": 1
         }
@@ -134,7 +141,7 @@
       "denoiser": "OPENIMAGEDENOISE",
       "duskFixtures": true,
       "margin": 2,
-      "peak": 2.1054,
+      "peak": 2.1056,
       "probe": {
         "clippedFraction": 0.0003,
         "peak": 6.0587,
@@ -152,14 +159,14 @@
       },
       "res": 1536,
       "samples": 128,
-      "seconds": 3571.5,
+      "seconds": 1153.4,
       "state": "dusk",
       "whitePoint": 0.8,
       "artifacts": [
         {
           "rel": "lm/dusk.ktx2",
-          "bytes": 125034,
-          "sha256": "449f3a73a67677bfafac251c6ab51e852067255a5de8a7d86f80fbe63cfb20f6"
+          "bytes": 124858,
+          "sha256": "0b8bcf90c3d1adaff6965c8547bd4cdee869081b011e5793f32b101cb26a64e6"
         },
         {
           "rel": "probe/dusk.ktx2",
@@ -178,6 +185,7 @@
               "junction.rib_coves",
               "junction.springers"
             ],
+            "seamFaces": 0,
             "target": "arch",
             "writableFaces": 110
           },
@@ -189,8 +197,9 @@
               "junction.rib_coves",
               "junction.cornice_coves"
             ],
+            "seamFaces": 23,
             "target": "vault.gallery",
-            "writableFaces": 96
+            "writableFaces": 73
           },
           {
             "cageM": 0.09,
@@ -199,6 +208,7 @@
             "proxies": [
               "junction.rib_coves"
             ],
+            "seamFaces": 0,
             "target": "vault.reveal",
             "writableFaces": 1
           },
@@ -209,8 +219,9 @@
             "proxies": [
               "junction.cornice_coves"
             ],
+            "seamFaces": 28,
             "target": "cornice",
-            "writableFaces": 202
+            "writableFaces": 174
           },
           {
             "cageM": 0.03,
@@ -219,6 +230,7 @@
             "proxies": [
               "junction.springers"
             ],
+            "seamFaces": 0,
             "target": "ressaut",
             "writableFaces": 170
           },
@@ -229,8 +241,9 @@
             "proxies": [
               "junction.impost_coves"
             ],
+            "seamFaces": 1,
             "target": "impost",
-            "writableFaces": 18
+            "writableFaces": 17
           },
           {
             "cageM": 0.06,
@@ -239,11 +252,12 @@
             "proxies": [
               "junction.impost_coves"
             ],
+            "seamFaces": 0,
             "target": "vault.passage",
             "writableFaces": 84
           }
         ],
-        "writeOrder": "flat base use_clear=True -> arch -> vault.gallery -> vault.reveal -> cornice -> ressaut -> impost -> vault.passage (each pass use_clear=False, its own writable target cells only; the flush-covered faces keep the flat base)"
+        "writeOrder": "flat base use_clear=True -> arch -> vault.gallery -> vault.reveal -> cornice -> ressaut -> impost -> vault.passage (each pass use_clear=False, its own writable target cells only; the flush-covered + corner-seam excluded faces keep the flat base)"
       }
     },
     "nightChandeliers": {
@@ -252,7 +266,7 @@
         {
           "clippedFraction": 0.0026,
           "emitters": 14,
-          "exrSha256": "898df657b13527145c3ecc7c4a4a6f3a08455319ce3d019ed3f34123324ce6f9",
+          "exrSha256": "56fdfab82ae38f37a24e266342ea842fa5b4182be108fa60d6b1715e5df7b2c2",
           "name": "arch",
           "objects": 1,
           "pad": 2,
@@ -270,7 +284,7 @@
       "probe": null,
       "res": 1536,
       "samples": 128,
-      "seconds": 2324.2,
+      "seconds": 751.1,
       "state": "nightChandeliers",
       "whitePoint": 0.8,
       "artifacts": [
@@ -285,16 +299,16 @@
   "postEncode": {
     "day": [
       {
-        "bytes": 291308,
+        "bytes": 290526,
         "rel": "lm/day.ktx2",
-        "sha256": "a7913fd817f13733f4579b18ef932cea212a767a4f5c6da7baad88bd4f259c26"
+        "sha256": "21070dfc50ded69a9ec45769e72972a25c9a60b23cd0d822eba44c13e15b86a3"
       }
     ],
     "dusk": [
       {
-        "bytes": 261120,
+        "bytes": 261009,
         "rel": "lm/dusk.ktx2",
-        "sha256": "a08d7e6ce790274c502836cb9eac96a04237306e77621bb95995fabe05f36578"
+        "sha256": "d4eec68c205bd6cde4f47eef67c84ba7963169a4db75ad5da903722f0e6cfe25"
       }
     ],
     "nightChandeliers": [
@@ -327,7 +341,7 @@
         ],
         "stagedExr": {
           "path": "bake-day/lm/day.exr",
-          "sha256": "a2c5fd40697cf4a24b2ba6b74e68b2c776d33ddf9041e4c4d708ce4c99e6a1db"
+          "sha256": "2456c601ca89beab1fab89c7f5dcb40bb5fbdd1050b8eb0d92eccd4745db32f5"
         }
       },
       "dusk": {
@@ -352,7 +366,7 @@
         ],
         "stagedExr": {
           "path": "bake-dusk/lm/dusk.exr",
-          "sha256": "dec3c87e710732325ec755750540d3b31487c4d3c7b719529e9e14f8be637f00"
+          "sha256": "eb7d0ae6569029c315d1926c017b99a1c2acfca0449b82706e563f0891e216e3"
         }
       },
       "nightChandeliers": {
@@ -377,7 +391,7 @@
         ],
         "stagedExr": {
           "path": "bake-night/lm/night.exr",
-          "sha256": "898df657b13527145c3ecc7c4a4a6f3a08455319ce3d019ed3f34123324ce6f9"
+          "sha256": "56fdfab82ae38f37a24e266342ea842fa5b4182be108fa60d6b1715e5df7b2c2"
         }
       }
     }

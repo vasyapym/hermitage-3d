@@ -85,8 +85,8 @@ describe('rastrelli-gallery state (RG-F4)', () => {
     const dusk = MANIFEST.files.find((f) => f.path === 'lm/dusk.ktx2');
     const night = MANIFEST.files.find((f) => f.path === 'lm/night.ktx2');
     expect(glb?.sha256).toBe('f84078184ba4e1541d874b0a60897cfe80de0b0c710c16f9955e0f8511a4a85d');
-    expect(day?.sha256).toBe('a7913fd817f13733f4579b18ef932cea212a767a4f5c6da7baad88bd4f259c26');
-    expect(dusk?.sha256).toBe('a08d7e6ce790274c502836cb9eac96a04237306e77621bb95995fabe05f36578');
+    expect(day?.sha256).toBe('21070dfc50ded69a9ec45769e72972a25c9a60b23cd0d822eba44c13e15b86a3');
+    expect(dusk?.sha256).toBe('d4eec68c205bd6cde4f47eef67c84ba7963169a4db75ad5da903722f0e6cfe25');
     expect(night?.sha256).toBe('27bb7c1eedd4e9cbb7e90e617da3e1ae00a817b7fa8f11ba5cf43a311b6f55e9');
   });
 
@@ -103,8 +103,8 @@ describe('rastrelli-gallery state (RG-F4)', () => {
       .reduce((acc, f) => acc + f.bytes, 0);
     expect(sum).toBeLessThanOrEqual(MANIFEST.budget.payloadBytesMax);
     expect(tex).toBeLessThanOrEqual(MANIFEST.budget.textureBytesMax);
-    expect(sum).toBe(1145494); // the junction-law manifest (the UV2 re-weight's plates + the S2A relief); a dial change updates this pin
-    expect(tex).toBe(892790);
+    expect(sum).toBe(1144601); // the junction-law manifest (the UV2 re-weight's plates + the S2A relief); a dial change updates this pin
+    expect(tex).toBe(891897);
     expect(MANIFEST.geometry?.trianglesDrawn).toBe(10868); // the file-level law rides tests/assets.test.ts
   });
 });
