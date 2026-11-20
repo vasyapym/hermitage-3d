@@ -7,6 +7,16 @@
 //   JORDAN_BANDS_ROUND=before node ...                           # out dir probes/jordan-bands-before
 //   JORDAN_BANDS_BASE=http://127.0.0.1:4176 node ...             # shoot an ALREADY-served dist
 //   JORDAN_BANDS_ONLY='^(day-|dusk-)' node ...                   # restrict the battery
+//   node ... --preset fixtures21 --tag before                    # the jordan-fixtures B0 battery
+//
+// The jordan-fixtures round's ADDITIVE flags (with no flag the battery above is
+// unchanged): --preset picks the battery grid — 'bands' is the committed 24-frame grid,
+// 'fixtures21' is the jordan-fixtures D3 battery: the THREE lightmap states (day / dusk /
+// night, at the §4.4 golden det instants — tests/e2e/golden.spec.ts DET_AT) × the FULL
+// rail J0..J4 (rooms/jordan/contract.ts) × the ONE landscape viewport (the D1 render
+// size 1280×720) = 21 frames at the authored look; the HUD draws / tris / tier log kept.
+// --tag NAMES the output dir (probes/jordan-bands-<tag>), the same naming the
+// JORDAN_BANDS_ROUND env drives when --tag is absent.
 //
 // Camera law: the rail stops' own poses (rooms/jordan/contract.ts) — the runtime derives
 // the camera per frame from the rail, so the probe does NOT override it; the bars project
@@ -32,22 +42,59 @@ if (!/^[a-z0-9-]+$/.test(ROUND)) {
   console.error(`jordan-bands-capture: bad JORDAN_BANDS_ROUND name (regex ^[a-z0-9-]+$)`);
   process.exit(2);
 }
-const OUT = join(ROOT, 'probes', `jordan-bands-${ROUND}`);
+// The jordan-fixtures B0 additions: --preset <name> and --tag <name> (additive — no flag
+// is the committed battery, byte-identical behaviour). Unknown flags fail loud.
+const argv = process.argv.slice(2);
+function flagValue(flag) {
+  const index = argv.indexOf(flag);
+  if (index === -1) return null;
+  if (index + 1 >= argv.length) {
+    console.error(`jordan-bands-capture: ${flag} requires a value`);
+    process.exit(2);
+  }
+  return argv[index + 1];
+}
+const PRESET = flagValue('--preset') ?? 'bands';
+const TAG = flagValue('--tag');
+for (const [index, item] of argv.entries()) {
+  if (item === '--preset' || item === '--tag') continue;
+  if (argv[index - 1] === '--preset' || argv[index - 1] === '--tag') continue;
+  console.error(`jordan-bands-capture: unknown argument ${item}`);
+  process.exit(2);
+}
+if (!['bands', 'fixtures21'].includes(PRESET)) {
+  console.error(`jordan-bands-capture: unknown --preset ${PRESET} (bands | fixtures21)`);
+  process.exit(2);
+}
+if (TAG !== null && !/^[a-z0-9-]+$/.test(TAG)) {
+  console.error(`jordan-bands-capture: bad --tag name (regex ^[a-z0-9-]+$)`);
+  process.exit(2);
+}
+const OUT = join(ROOT, 'probes', TAG ? `jordan-bands-${TAG}` : `jordan-bands-${ROUND}`);
 const ONLY = process.env.JORDAN_BANDS_ONLY ? new RegExp(process.env.JORDAN_BANDS_ONLY) : null;
 
 // The committed golden det instants (tests/e2e/golden.spec.ts) + the owner's decisive
 // June-noon test instant (docs/parking-lot.md: the sighting conditions).
 const DET_AT = {
   'day-golden': '2026-06-22T03:18:00Z',
+  // The §4.4 golden day instant (tests/e2e/golden.spec.ts DET_AT) — the fixtures21
+  // preset's day state rides the same committed instant under the plain name.
+  day: '2026-06-22T03:18:00Z',
   'day-noon': '2026-06-22T12:00:00Z',
   dusk: '2026-06-20T21:50:00Z',
   night: '2026-02-17T16:25:00Z',
 };
-// The wall stops (rooms/jordan/contract.ts): J1b aims just off the north wall (the
-// bands' primary measuring stop), J3/J4 are the landing stops (the owner's sighting
-// stop + the east-wall check). Poses are the CONTRACT's committed values.
+// The rail stops (rooms/jordan/contract.ts): pos = the stop's position (the eye — feet
+// on treads + 1.7), target = the stop's authored subject. J1b aims just off the north
+// wall (the bands' primary measuring stop), J3/J4 are the landing stops (the owner's
+// sighting stop + the east-wall check), J0/J1/J2/J2b complete the rail for fixtures21.
+// Poses are the CONTRACT's committed values.
 const STOPS = {
+  J0: { pos: [67.2, 1.7, -67.6], target: [69.2, 7.5, -84] },
+  J1: { pos: [67.2, 4.1, -73.5], target: [69.2, 7.5, -84] },
   J1b: { pos: [67.2, 6.7, -79.0], target: [75.1, 9.5, -85.5] },
+  J2: { pos: [68.6, 6.7, -83.3], target: [82.0, 11.7, -83.6] },
+  J2b: { pos: [74.5, 9.1, -83.3], target: [82.0, 11.7, -83.6] },
   J3: { pos: [80.4, 11.7, -83.3], target: [92, 13, -74] },
   J4: { pos: [82.5, 11.7, -78.5], target: [92, 13, -74] },
 };
@@ -55,10 +102,25 @@ const VIEWPORTS = {
   p: { width: 720, height: 1280 },
   l: { width: 1280, height: 720 },
 };
+// The battery presets (the D3 spec): 'bands' is the committed 24-frame grid; fixtures21
+// is 3 lightmap states × the full rail J0..J4 × the ONE landscape viewport = 21 frames.
+const BATTERIES = {
+  bands: {
+    states: ['day-golden', 'day-noon', 'dusk', 'night'],
+    stops: ['J1b', 'J3', 'J4'],
+    views: ['p', 'l'],
+  },
+  fixtures21: {
+    states: ['day', 'dusk', 'night'],
+    stops: ['J0', 'J1', 'J1b', 'J2', 'J2b', 'J3', 'J4'],
+    views: ['l'],
+  },
+};
+const BATTERY = BATTERIES[PRESET];
 const FRAMES = [];
-for (const state of ['day-golden', 'day-noon', 'dusk', 'night']) {
-  for (const stop of ['J1b', 'J3', 'J4']) {
-    for (const view of ['p', 'l']) {
+for (const state of BATTERY.states) {
+  for (const stop of BATTERY.stops) {
+    for (const view of BATTERY.views) {
       FRAMES.push([state, stop, view]);
     }
   }

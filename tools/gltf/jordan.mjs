@@ -38,6 +38,20 @@ export const LM_ENCODE = {
   round: 2,
 };
 
+// The jordan-fixtures round's driver rows (reported edits): under FIXTURE_FORM='slice_e'
+// the sconce archetype carries gilt + sconce_glow + crystal (the opaque new material);
+// the placeholder path keeps the committed rows byte-identical. The env is validated
+// STRICTLY (the review HIGH-3): empty/unset = 'placeholder', 'slice_e' = 'slice_e',
+// anything else fails loud at the load — no silent fallback to placeholder (a typo such
+// as 'slice-e' must never masquerade as the committed form).
+function fixtureFormEnv() {
+  const raw = process.env.FIXTURE_FORM ?? '';
+  if (raw === '' || raw === 'placeholder') return 'placeholder';
+  if (raw === 'slice_e') return 'slice_e';
+  return fail(`FIXTURE_FORM ${JSON.stringify(raw)} is not 'placeholder' or 'slice_e'`);
+}
+const FIXTURE_FORM = fixtureFormEnv();
+
 export const ROOM = {
   id: ROOM_ID,
   title: 'Jordan Staircase',
@@ -69,6 +83,9 @@ export const EXPECTED_INSTANCES = {
   column: 2,
   portal: 1,
   chandelier: 1,
+  // The jordan-fixtures B2: the chandelier assembly's archetype datablocks ride the
+  // slice_e build only (the placeholder path keeps the committed roster byte-identical).
+  ...(FIXTURE_FORM === 'slice_e' ? { chandelier_arm: 36, chandelier_bead: 300 } : {}),
   sconce: 10,
   cornice: 1,
   // The bands fix (2026-11-16): one template datablock per wall / per tier so bake.py's
@@ -98,8 +115,24 @@ export const MATERIAL_SLOTS = {
   baluster: ['gilt'],
   column: ['granite_grey', 'gilt'],
   portal: ['plaster_warm', 'gilt'],
-  chandelier: ['gilt', 'chandelier_glow'],
-  sconce: ['plaster_warm', 'sconce_glow'],
+  // The jordan-fixtures B2: the chandelier assembly's slots — the stem's one gilt
+  // primitive; the arm archetype's gilt/glow/crystal; the bead's crystal. The
+  // placeholder path keeps the committed rows byte-identical and carries NO extra keys
+  // (the slot/instance roster join would fail on them).
+  chandelier:
+    FIXTURE_FORM === 'slice_e'
+      ? ['gilt'] // the stem: the assembly's one in-place gilt primitive
+      : ['gilt', 'chandelier_glow'],
+  ...(FIXTURE_FORM === 'slice_e'
+    ? {
+        chandelier_arm: ['gilt', 'chandelier_glow', 'crystal'],
+        chandelier_bead: ['crystal'],
+      }
+    : {}),
+  sconce:
+    FIXTURE_FORM === 'slice_e'
+      ? ['gilt', 'sconce_glow', 'crystal']
+      : ['plaster_warm', 'sconce_glow'],
   cornice: ['plaster_warm'],
   pilaster_n0: ['plaster_warm', 'gilt'],
   pilaster_n1: ['plaster_warm', 'gilt'],
@@ -117,7 +150,10 @@ export const MATERIAL_SLOTS = {
   window_frame_hi: ['plaster_warm'],
 };
 export const EMISSIVE_MATERIALS = { pane: 3, sconce_glow: 1, chandelier_glow: 1 }; // 2c: the chips normalize so the tint survives
-export const METALLIC_MATERIALS = { gilt: 0.5 };
+export const METALLIC_MATERIALS = {
+  gilt: 0.5,
+  ...(FIXTURE_FORM === 'slice_e' ? { crystal: 0.6 } : {}),
+};
 
 // Albedo-only arguments. Jordan lightmaps must NOT inherit --genmipmap;
 // reencode.mjs assigns their sRGB DFD flag without converting encoded pixels.
@@ -309,8 +345,22 @@ function gateConventions(json) {
   for (const [i, m] of materials.entries()) {
     const name = baseName(m.name ?? `material_${i}`);
     const expected = METALLIC_MATERIALS[name] ?? 0;
-    const factor = m.pbrMetallicRoughness?.metallicFactor ?? 1;
-    if (factor !== expected) fail(`material ${name}: metallicFactor ${factor} != ${expected}`);
+    const raw = m.pbrMetallicRoughness?.metallicFactor;
+    // glTF default: an absent metallicFactor reads as 1 (and fails, unless the table
+    // itself expected 1 — it never does).
+    const factor = raw ?? 1;
+    // The review MEDIUM-7: a nonnumeric value must FAIL the gate — the old
+    // `Math.abs(factor - expected) > 1e-6` comparison is false for NaN (a nonnumeric
+    // string coerces to NaN) and silently passed. Require a finite number first.
+    if (typeof factor !== 'number' || !Number.isFinite(factor))
+      fail(`material ${name}: metallicFactor ${String(raw)} is not a finite number`);
+    // float32 transport: Blender's export round-trips the factor through f32 (the
+    // slice_e crystal's 0.6 reads back 0.6000000238418579). The committed factors
+    // (0, 0.5) are exact and pass STRICT equality — the ≤1e-6 tolerance is ONLY the
+    // crystal's 0.6 f32 artefact (a drifted 0.5000005 gilt or a 0±ε non-metal now
+    // fails, closing the tolerance hole the blanket |Δ| ≤ 1e-6 opened).
+    if (factor !== expected && !(expected === 0.6 && Math.abs(factor - expected) <= 1e-6))
+      fail(`material ${name}: metallicFactor ${factor} != ${expected}`);
   }
 }
 

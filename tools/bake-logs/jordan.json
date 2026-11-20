@@ -1,5 +1,10 @@
 {
   "room": "jordan",
+  "geometry": {
+    "geometrySha256": "a804457349d61ee45d1c74ca3b08b3803de10794ba13cd2e44f32d8ea5c0307b",
+    "atlasHash256": "de0425a9c5c377fda5bdb0ce8a74937bfb23332e399535de5dc8b479408abc30",
+    "law": "AS-4: a lightmap set is valid only for the GEOMETRY_SHA + ATLAS_HASH in its sidecar — this bake binds the B2-frozen slice_e glb (commit da19680). The census re-measures both on the committed glb (sha256 + the TEXCOORD_1 ATLAS_HASH) and reproduces them exactly (jordan-fixtures B3, 2026-11-20). NOTE: tools/bake.mjs rewrites {room, states} on the next bake and drops this key — the next bake's own validity is its own sidecar."
+  },
   "states": {
     "day": {
       "blender": "Blender 4.2.23 LTS",
@@ -7,13 +12,13 @@
         {
           "clippedFraction": null,
           "emitters": 0,
-          "exrSha256": "8248057c4674a022141c829c4d7ccb28e773550bdfe8a08cfae7b44d8ad09040",
+          "exrSha256": "23614e88a1fbfd284ed5d3b05c7d8f160cd03ea86ab13c02a132829573068007",
           "name": "arch",
-          "objects": 214,
+          "objects": 550,
           "pad": 2,
           "peak": null,
           "res": 2048,
-          "targets": 24
+          "targets": 26
         }
       ],
       "clippedFraction": null,
@@ -25,11 +30,11 @@
       "probe": null,
       "res": 2048,
       "samples": 128,
-      "seconds": 1508.7,
+      "seconds": 2747.1,
       "state": "day",
       "whitePoint": "percentile",
       "artifacts": [],
-      "cellsSha256": "e089fa278f7542ac62e2da29a71612995b73fa79e0f3a1485003f9c09b8b7f69",
+      "cellsSha256": "30a0594b84a961e321ad68aa552f22bced499ef3ba1791ef43212c5da7f74944",
       "reps": [
         {
           "datablock": "baluster",
@@ -37,6 +42,20 @@
           "groupSize": 151,
           "pick": "baluster.060 @ (80.100, 76.956, 10.000)",
           "runnerUp": "baluster.059 @ d2 11.880336"
+        },
+        {
+          "datablock": "chandelier_arm",
+          "dist2": 0.395674,
+          "groupSize": 36,
+          "pick": "chandelier_arm.016 @ (86.580, 73.845, 14.282)",
+          "runnerUp": "chandelier_arm.018 @ d2 0.395674"
+        },
+        {
+          "datablock": "chandelier_bead",
+          "dist2": 1.009588,
+          "groupSize": 300,
+          "pick": "chandelier_bead.254 @ (86.746, 73.332, 14.300)",
+          "runnerUp": "chandelier_bead.255 @ d2 1.009588"
         },
         {
           "datablock": "column",
@@ -107,17 +126,17 @@
         "percentile": 99.5,
         "scope": "allocated-interior",
         "transfer": "srgb",
-        "cellsSha256": "e089fa278f7542ac62e2da29a71612995b73fa79e0f3a1485003f9c09b8b7f69",
-        "wRaw": 2.662714,
+        "cellsSha256": "30a0594b84a961e321ad68aa552f22bced499ef3ba1791ef43212c5da7f74944",
+        "wRaw": 2.645531,
         "w": 0.45,
         "gain": 2.22,
         "kappa": 1,
-        "clipFraction": 0.021923,
-        "haloFraction": 0.014409,
+        "clipFraction": 0.021517,
+        "haloFraction": 0.014146,
         "artifact": {
           "rel": "lm/day.ktx2",
-          "bytes": 490625,
-          "sha256": "987abeaebbf8dd861c5fb2691e71a37d605fb86580fbd0264cb733e367f353ae"
+          "bytes": 465767,
+          "sha256": "e257f5cd9f260a28a7451d404c19b6208f8bb55bab78e95c2584aaef94812214"
         }
       }
     },
@@ -127,13 +146,13 @@
         {
           "clippedFraction": null,
           "emitters": 0,
-          "exrSha256": "2a544df8d9b1a359f4a67aeda0d6c480dc03c459717dbb9cb74518671740feac",
+          "exrSha256": "5d7f56ea1a817cbf84e55f5a00b6f2a57afc5f5a674049bd41fb3132c42b3a92",
           "name": "arch",
-          "objects": 214,
+          "objects": 550,
           "pad": 2,
           "peak": null,
           "res": 2048,
-          "targets": 24
+          "targets": 26
         }
       ],
       "clippedFraction": null,
@@ -143,8 +162,8 @@
       "margin": 2,
       "peak": null,
       "probe": {
-        "clippedFraction": 0.0003,
-        "peak": 4.2676,
+        "clippedFraction": 0,
+        "peak": 1.0725,
         "point": [
           79,
           9,
@@ -159,14 +178,14 @@
       },
       "res": 2048,
       "samples": 128,
-      "seconds": 2940.6,
+      "seconds": 6109,
       "state": "dusk",
       "whitePoint": "percentile",
       "artifacts": [
         {
           "rel": "probe/dusk.ktx2",
-          "bytes": 6362,
-          "sha256": "bd415e7cc1e7886489fa95f6823bbefbe5af7b9ba5fd52384a900f912fff7867"
+          "bytes": 6302,
+          "sha256": "191da75961efa1e20783116ebe029e33ea912c8e4eb74641985cccb770035033"
         }
       ],
       "rig": {
@@ -227,7 +246,6 @@
         "dropRule": "ring y = drop_centre_y - max(0.35, drop_half + radius + 0.05); azimuths = the builder kit_circle law (8 of CHAND_SEG)",
         "fixtures": [
           "pane",
-          "chandelier",
           "sconce",
           "sconce.001",
           "sconce.002",
@@ -237,57 +255,93 @@
           "sconce.006",
           "sconce.007",
           "sconce.008",
-          "sconce.009"
+          "sconce.009",
+          "chandelier_arm",
+          "chandelier_arm.001",
+          "chandelier_arm.002",
+          "chandelier_arm.003",
+          "chandelier_arm.004",
+          "chandelier_arm.005",
+          "chandelier_arm.006",
+          "chandelier_arm.007",
+          "chandelier_arm.008",
+          "chandelier_arm.009",
+          "chandelier_arm.010",
+          "chandelier_arm.011",
+          "chandelier_arm.012",
+          "chandelier_arm.013",
+          "chandelier_arm.014",
+          "chandelier_arm.015",
+          "chandelier_arm.016",
+          "chandelier_arm.017",
+          "chandelier_arm.018",
+          "chandelier_arm.019",
+          "chandelier_arm.020",
+          "chandelier_arm.021",
+          "chandelier_arm.022",
+          "chandelier_arm.023",
+          "chandelier_arm.024",
+          "chandelier_arm.025",
+          "chandelier_arm.026",
+          "chandelier_arm.027",
+          "chandelier_arm.028",
+          "chandelier_arm.029",
+          "chandelier_arm.030",
+          "chandelier_arm.031",
+          "chandelier_arm.032",
+          "chandelier_arm.033",
+          "chandelier_arm.034",
+          "chandelier_arm.035"
         ],
         "scale": 0.1,
         "sconcePositions": [
           [
-            66.63,
+            66.568,
             2.666071,
             -69.5
           ],
           [
-            66.63,
+            66.568,
             3.558929,
             -71.5
           ],
           [
-            66.63,
+            66.568,
             4.451786,
             -73.5
           ],
           [
-            66.63,
+            66.568,
             5.344643,
             -75.5
           ],
           [
-            66.63,
+            66.568,
             6.2375,
             -77.5
           ],
           [
             71.2,
             7.978571,
-            -85.37
+            -85.432
           ],
           [
             75.1,
             9.719643,
-            -85.37
+            -85.432
           ],
           [
             79,
             11.460714,
-            -85.37
+            -85.432
           ],
           [
-            91.37,
+            91.432,
             12.65,
             -82
           ],
           [
-            91.37,
+            91.432,
             12.65,
             -66
           ]
@@ -298,7 +352,7 @@
           "sconces": 80
         }
       },
-      "cellsSha256": "e089fa278f7542ac62e2da29a71612995b73fa79e0f3a1485003f9c09b8b7f69",
+      "cellsSha256": "30a0594b84a961e321ad68aa552f22bced499ef3ba1791ef43212c5da7f74944",
       "reps": [
         {
           "datablock": "baluster",
@@ -306,6 +360,20 @@
           "groupSize": 151,
           "pick": "baluster.060 @ (80.100, 76.956, 10.000)",
           "runnerUp": "baluster.059 @ d2 11.880336"
+        },
+        {
+          "datablock": "chandelier_arm",
+          "dist2": 0.395674,
+          "groupSize": 36,
+          "pick": "chandelier_arm.016 @ (86.580, 73.845, 14.282)",
+          "runnerUp": "chandelier_arm.018 @ d2 0.395674"
+        },
+        {
+          "datablock": "chandelier_bead",
+          "dist2": 1.009588,
+          "groupSize": 300,
+          "pick": "chandelier_bead.254 @ (86.746, 73.332, 14.300)",
+          "runnerUp": "chandelier_bead.255 @ d2 1.009588"
         },
         {
           "datablock": "column",
@@ -376,17 +444,17 @@
         "percentile": 99.5,
         "scope": "allocated-interior",
         "transfer": "srgb",
-        "cellsSha256": "e089fa278f7542ac62e2da29a71612995b73fa79e0f3a1485003f9c09b8b7f69",
-        "wRaw": 0.247161,
+        "cellsSha256": "30a0594b84a961e321ad68aa552f22bced499ef3ba1791ef43212c5da7f74944",
+        "wRaw": 0.194362,
         "w": 0.35,
         "gain": 2.86,
         "kappa": 1,
-        "clipFraction": 0.001928,
-        "haloFraction": 0,
+        "clipFraction": 0.000458,
+        "haloFraction": 0.000027,
         "artifact": {
           "rel": "lm/dusk.ktx2",
-          "bytes": 404899,
-          "sha256": "2c55559a9a38594db054477e54a9358ea84da147295044f9603fcb9658eb2fdf"
+          "bytes": 376486,
+          "sha256": "727cb1dca27a6ebf5e1be7de5cc7cd15a4850e21befbf5844411a725a13d7a36"
         }
       }
     },
@@ -396,13 +464,13 @@
         {
           "clippedFraction": null,
           "emitters": 0,
-          "exrSha256": "4828cd9c84de5ef4e9ac96f8efd38b692b72c04c4c648b46b7eaacb6188f345b",
+          "exrSha256": "9309a2bcce9a00df16eab9cfc878a5a71ecdac5f10bf1898cb7a635f26becdea",
           "name": "arch",
-          "objects": 214,
+          "objects": 550,
           "pad": 2,
           "peak": null,
           "res": 2048,
-          "targets": 24
+          "targets": 26
         }
       ],
       "clippedFraction": null,
@@ -414,7 +482,7 @@
       "probe": null,
       "res": 2048,
       "samples": 128,
-      "seconds": 1895.4,
+      "seconds": 6270.5,
       "state": "nightChandeliers",
       "whitePoint": "percentile",
       "artifacts": [],
@@ -476,7 +544,6 @@
         "dropRule": "ring y = drop_centre_y - max(0.35, drop_half + radius + 0.05); azimuths = the builder kit_circle law (8 of CHAND_SEG)",
         "fixtures": [
           "pane",
-          "chandelier",
           "sconce",
           "sconce.001",
           "sconce.002",
@@ -486,57 +553,93 @@
           "sconce.006",
           "sconce.007",
           "sconce.008",
-          "sconce.009"
+          "sconce.009",
+          "chandelier_arm",
+          "chandelier_arm.001",
+          "chandelier_arm.002",
+          "chandelier_arm.003",
+          "chandelier_arm.004",
+          "chandelier_arm.005",
+          "chandelier_arm.006",
+          "chandelier_arm.007",
+          "chandelier_arm.008",
+          "chandelier_arm.009",
+          "chandelier_arm.010",
+          "chandelier_arm.011",
+          "chandelier_arm.012",
+          "chandelier_arm.013",
+          "chandelier_arm.014",
+          "chandelier_arm.015",
+          "chandelier_arm.016",
+          "chandelier_arm.017",
+          "chandelier_arm.018",
+          "chandelier_arm.019",
+          "chandelier_arm.020",
+          "chandelier_arm.021",
+          "chandelier_arm.022",
+          "chandelier_arm.023",
+          "chandelier_arm.024",
+          "chandelier_arm.025",
+          "chandelier_arm.026",
+          "chandelier_arm.027",
+          "chandelier_arm.028",
+          "chandelier_arm.029",
+          "chandelier_arm.030",
+          "chandelier_arm.031",
+          "chandelier_arm.032",
+          "chandelier_arm.033",
+          "chandelier_arm.034",
+          "chandelier_arm.035"
         ],
         "scale": 1,
         "sconcePositions": [
           [
-            66.63,
+            66.568,
             2.666071,
             -69.5
           ],
           [
-            66.63,
+            66.568,
             3.558929,
             -71.5
           ],
           [
-            66.63,
+            66.568,
             4.451786,
             -73.5
           ],
           [
-            66.63,
+            66.568,
             5.344643,
             -75.5
           ],
           [
-            66.63,
+            66.568,
             6.2375,
             -77.5
           ],
           [
             71.2,
             7.978571,
-            -85.37
+            -85.432
           ],
           [
             75.1,
             9.719643,
-            -85.37
+            -85.432
           ],
           [
             79,
             11.460714,
-            -85.37
+            -85.432
           ],
           [
-            91.37,
+            91.432,
             12.65,
             -82
           ],
           [
-            91.37,
+            91.432,
             12.65,
             -66
           ]
@@ -547,7 +650,7 @@
           "sconces": 800
         }
       },
-      "cellsSha256": "e089fa278f7542ac62e2da29a71612995b73fa79e0f3a1485003f9c09b8b7f69",
+      "cellsSha256": "30a0594b84a961e321ad68aa552f22bced499ef3ba1791ef43212c5da7f74944",
       "reps": [
         {
           "datablock": "baluster",
@@ -555,6 +658,20 @@
           "groupSize": 151,
           "pick": "baluster.060 @ (80.100, 76.956, 10.000)",
           "runnerUp": "baluster.059 @ d2 11.880336"
+        },
+        {
+          "datablock": "chandelier_arm",
+          "dist2": 0.395674,
+          "groupSize": 36,
+          "pick": "chandelier_arm.016 @ (86.580, 73.845, 14.282)",
+          "runnerUp": "chandelier_arm.018 @ d2 0.395674"
+        },
+        {
+          "datablock": "chandelier_bead",
+          "dist2": 1.009588,
+          "groupSize": 300,
+          "pick": "chandelier_bead.254 @ (86.746, 73.332, 14.300)",
+          "runnerUp": "chandelier_bead.255 @ d2 1.009588"
         },
         {
           "datablock": "column",
@@ -625,17 +742,17 @@
         "percentile": 99.5,
         "scope": "allocated-interior",
         "transfer": "srgb",
-        "cellsSha256": "e089fa278f7542ac62e2da29a71612995b73fa79e0f3a1485003f9c09b8b7f69",
-        "wRaw": 2.33813,
+        "cellsSha256": "30a0594b84a961e321ad68aa552f22bced499ef3ba1791ef43212c5da7f74944",
+        "wRaw": 1.115335,
         "w": 4,
         "gain": 0.25,
         "kappa": 1,
-        "clipFraction": 0.001296,
-        "haloFraction": 0,
+        "clipFraction": 0.000281,
+        "haloFraction": 0.000022,
         "artifact": {
           "rel": "lm/night.ktx2",
-          "bytes": 351768,
-          "sha256": "e7e51ec2160fdf29af3880c9b28ddb710d46b97991c9f0355b939b244c1bff5f"
+          "bytes": 329589,
+          "sha256": "1e35694936b998474d6b019aa6310a706f920973c8cd8f3b9b3672cb4d8025f4"
         }
       }
     }
