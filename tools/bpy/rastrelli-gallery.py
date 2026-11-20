@@ -2215,6 +2215,13 @@ def main():
     me_shell, t_shell, lm_shell = finish(
         'shell', b, [mat_pale, mat_stone, mat_stucco, mat_band, mat_stair, mat_pane],
         mode='shelf')
+    if BAKE:
+        # BATCH B's S2A wiring (the junction law): bake.py reads the shell's face→element
+        # map straight from this exec namespace — the roster order IS the mesh polygon
+        # order (the dump_layout belt's correspondence), and the bake stage prints no
+        # summary, so the map rides here instead of a stage file. The strip cells are the
+        # sconce datablock's; the S2A targets are all shell elements.
+        globals()['LM_FACE_ELEMENTS'] = tuple(row['element'] for row in lm_shell['cells'])
     sconce_b = build_sconce()
     me_sconce, t_sconce, lm_strip = finish(
         'sconce', sconce_b, [mat_iron, mat_glow], mode='strip')

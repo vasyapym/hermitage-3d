@@ -249,6 +249,9 @@ function record(state, result, artifacts, blenderVersion, mod) {
   // The bands round: per-group representative picks; absent on every room whose bake
   // emits no multi-instance centroid groups (the sibling byte-stability law).
   if (summary.reps) row.reps = summary.reps;
+  // RG-AUDIT batch B (the junction law): the S2A provenance rides only when the bake EMITS
+  // it (rastrelli-gallery day/dusk); absent rows on every other room/state (byte-stability).
+  if (summary.s2a) row.s2a = summary.s2a;
   if (mod.LM_ENCODE?.mode === 'percentile') {
     row.encode = plantEncode(mod, state, summary); // the D2 retired whitePoint row's +1
   }

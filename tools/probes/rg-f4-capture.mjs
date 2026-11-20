@@ -12,6 +12,11 @@
 //   RG_F4_ROUND=before node ...                            # out dir probes/rg-f4-before (default after)
 //   RG_F4_BASE=http://127.0.0.1:4177 node ...              # shoot an ALREADY-served dist (the bench flow)
 //   RG_F4_ONLY='^(day-|dusk-|night-g0$)' node ...          # restrict the battery (partial run)
+//   RG_F4_GRID=24x16 node ...  |  node ... --grid 24x16    # the junction rows' 24×16 grid
+//                                                          # (16 rows × 24 cols, row-major
+//                                                          # top→bottom, per-cell mean 0–255;
+//                                                          # the rg-audit S1 instrument; the
+//                                                          # default 6×4 path is untouched)
 //
 // Frame storage law (the Sol-review hardening): frames + reads.md land ONLY under probes/
 // (gitignored, local-only); this tool stages nothing and publishes nothing. A run EVICTS
@@ -35,6 +40,29 @@ if (!/^[a-z0-9-]+$/.test(ROUND)) {
 }
 const OUT = join(ROOT, 'probes', `rg-f4-${ROUND}`);
 const ONLY = process.env.RG_F4_ONLY ? new RegExp(process.env.RG_F4_ONLY) : null;
+// THE GRID LAW (the rg-audit S1 instrument): RG_F4_GRID or --grid <cols>x<rows> picks the
+// in-page luminance grid; the DEFAULT 6x4 path is byte-identical to the committed tool
+// (the same 6 cols × 4 rows, row-major top→bottom, the same every-2nd-pixel sampler).
+// 24x16 = the junction rows' instrument (16 rows × 24 cols) — the bars derive their grids
+// from the PNGs full-sample either way, so the flag only widens the recorded grid.
+const GRID_ARGV = (() => {
+  const argv = process.argv.slice(2);
+  const at = argv.indexOf('--grid');
+  return at >= 0 && argv[at + 1] ? argv[at + 1] : null;
+})();
+const GRID_SPEC = (GRID_ARGV ?? process.env.RG_F4_GRID ?? '6x4').trim();
+if (!/^\d+x\d+$/.test(GRID_SPEC)) {
+  console.error(`rg-f4-capture: bad grid ${GRID_SPEC} (expected <cols>x<rows>, e.g. 24x16)`);
+  process.exit(2);
+}
+const [GRID_COLS, GRID_ROWS] = GRID_SPEC.split('x').map((n) => Number.parseInt(n, 10));
+if (
+  !Number.isInteger(GRID_COLS) || !Number.isInteger(GRID_ROWS) ||
+  GRID_COLS < 1 || GRID_ROWS < 1 || GRID_COLS > 64 || GRID_ROWS > 64
+) {
+  console.error(`rg-f4-capture: bad grid ${GRID_SPEC} (1..64 per axis)`);
+  process.exit(2);
+}
 
 // The committed golden det instants (tests/e2e/golden.spec.ts).
 const DET_AT = {
@@ -166,7 +194,7 @@ for (const [state, stop] of FRAMES) {
       timeout: 60_000,
     });
 
-    const stats = await page.evaluate(async (b64) => {
+    const stats = await page.evaluate(async ({ b64, cols, rows }) => {
       const blob = await (await fetch(`data:image/png;base64,${b64}`)).blob();
       const bmp = await createImageBitmap(blob);
       const cv = document.createElement('canvas');
@@ -175,8 +203,6 @@ for (const [state, stop] of FRAMES) {
       const ctx = cv.getContext('2d');
       ctx.drawImage(bmp, 0, 0);
       const { data, width, height } = ctx.getImageData(0, 0, bmp.width, bmp.height);
-      const cols = 6,
-        rows = 4;
       const cellW = width / cols,
         cellH = height / rows;
       const grid = Array.from({ length: rows }, () => Array.from({ length: cols }, () => 0));
@@ -198,8 +224,8 @@ for (const [state, stop] of FRAMES) {
         }
       }
       const gridOut = grid.map((row, r) => row.map((v, c) => Math.round(v / gridN[r][c])));
-      return { mean: +(sum / n).toFixed(1), lit: +(lit / n).toFixed(4), grid: gridOut };
-    }, shot.toString('base64'));
+      return { cols, mean: +(sum / n).toFixed(1), grid: gridOut, lit: +(lit / n).toFixed(4), rows };
+    }, { b64: shot.toString('base64'), cols: GRID_COLS, rows: GRID_ROWS });
 
     const hudState = await page.evaluate(() => {
       const el = document.querySelector('#hud');
@@ -217,7 +243,8 @@ for (const [state, stop] of FRAMES) {
     console.log(
       `${name}: mean ${stats.mean} lit ${stats.lit} draws ${hudState.draws} tris ${hudState.tris} tier ${hudState.tier}`,
     );
-    console.log(`  grid: ${JSON.stringify(stats.grid)}`);
+    console.log(GRID_SPEC === '6x4' ? `  grid: ${JSON.stringify(stats.grid)}`
+      : `  grid ${GRID_SPEC}: ${JSON.stringify(stats.grid)}`);
     if (failedAssets.length) {
       failed += 1;
       logRows.push(`| ${name} | FAILED-ASSETS (${failedAssets.slice(0, 3).join(' · ')}) | | | | |`);

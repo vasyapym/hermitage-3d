@@ -270,6 +270,95 @@ RIG_STATE_SCALE = {'jordan': {'day': 0.0, 'dusk': 0.1, 'nightChandeliers': 1.0}}
 # nearest the roster's centroid.
 BAKE_TEMPLATE_INSTANCE = {'jordan': 'centroid'}
 
+# ---- RG-AUDIT «THE JUNCTION LAW» (batch B): the S2A (Selected-to-Active) pass table ---------
+# The accepted verdict + the S0 amendments' design contract, wired for rastrelli-gallery.
+# Every other room (and the night state) keeps the exact committed flat path: absent from
+# these tables = byte-identical behaviour, the standing sibling law.
+#
+#   * STATES_S2A = {day, dusk} ONLY. The night bake runs the committed flat path on the new
+#     UVs (re-parameterization only — NO S2A, no proxies visible). A recorded ruling (O4):
+#     the night relief stays owner-gated; do not extend S2A to night.
+#   * Targets and their assigned proxies (RECONCILED against the geometry when wiring; a
+#     target with no proxies, an unknown proxy, or a target naming no shell faces fails
+#     loud — a silent empty write would publish a corrupted relief):
+#       arch            <- junction.rib_coves + junction.springers
+#       vault.gallery   <- junction.rib_coves + junction.cornice_coves
+#       vault.reveal    <- junction.rib_coves
+#       vault.passage   <- junction.impost_coves
+#       ressaut         <- junction.springers
+#       cornice         <- junction.cornice_coves
+#       impost          <- junction.impost_coves
+#     The reconciliation notes (each checked against the proxy host pairs):
+#       - vault.passage rides the IMPOST coves: their W/E runs' corner lines ARE the passage
+#         vault's own spring edges (the builder's build_impost_coves), and the rib coves
+#         never leave the gallery (G_ARC at the pilaster ring planes) — the literal
+#         rib_coves row cannot reach that vault. This matches the S0 CAGE fits row
+#         ('vault.passage': the impost cove radius fits its 0.06 cage).
+#       - vault.gallery carries the cornice coves: the long-wall runs' vault-side tangent
+#         bands ARE the gallery vault's spring facets (the first/last row of every bay), so
+#         the cornice crease must read on the vault side too (the verdict's binding seats:
+#         cornice + the vault.gallery bay field). The SPRINGERS do NOT ride vault.gallery:
+#         the blocks' tops poke through the vault's spring facets over their full seat
+#         depth (the top 3.30 vs the facet 3.00..3.2451 from the wall to the foot line),
+#         so a vault texel's catch line pierces the block's solid near the wall — its ray
+#         samples the block's buried back face or its flush underside (dark/bright bands
+#         inside lit bay cells). The springer relief rides the ARCH bake instead (the ring
+#         faces' spring wedges catch the blocks' room-facing sides legitimately) and the
+#         RESSAUT bake (the seats).
+#       - the tympanum faces beside the end-wall cornice runs and the north impost run are
+#         NOT S2A targets (absent from the table) — their cells keep the committed flat bake.
+#   * FLUSH-COVERED FACES (the write-region reconciliation): a target face whose CATCH line
+#     (origin = the face centre offset cage along the normal, direction -normal) pierces
+#     one of the pass's proxies through a BACK face within the cage band is EXCLUDED from
+#     the pass's write: the springer blocks fill the ressaut seat wings EXACTLY (the S0
+#     flush fact), so the seat faces' catch lines start inside the blocks and would sample
+#     enclosed dark faces — the pass keeps the committed flat base for them instead (the
+#     seats are runtime-invisible: the blocks cover them, never exported). The exclusion
+#     is measured per pass and rides the summary's s2a provenance.
+#   * CAGE per target = the S0 D3 table (tools/probes/rg-sightline.py cage mode), pinned:
+#     arch 0.0885, vault.gallery 0.0885, vault.reveal 0.09, cornice 0.04, ressaut 0.03,
+#     impost 0.06, vault.passage 0.06; max_ray_distance 0.35 rides every target.
+#   * WRITE ORDER (the fail-loud last-writer semantics): per state, the atlas's FIRST write
+#     is the committed FLAT bake (use_clear=True — byte-identical to the committed law);
+#     the S2A passes then run in the FIXED order below, each with use_clear=False, writing
+#     ONLY its own target's cells (the non-target lm UVs are collapsed to (-1,-1) for the
+#     pass and restored right after — the collapse_frame_backfaces precedent). The pass
+#     write sets are DISJOINT by construction (one element set per pass, one pass per
+#     element), so every cell's last writer is either its owning S2A pass or the flat base;
+#     the EXTEND margins may bleed into neighbouring pads (never sampled: the pad law keeps
+#     every mapped cell >= 2 px inside its allocation), exactly as the committed flat bake.
+#   * Per pass: selected = {a coincident COPY of the target mesh (the same mesh data, the
+#     same transform — the ray-catch backdrop) + the proxies assigned to that target};
+#     active = the target (the shell, unselected — the scratch-validated S2A mechanics: an
+#     unselected active receives the bake; the catch BVH = the selected set; a catch MISS
+#     keeps the prior texel value — measured on the bench).
+#   * Proxy visibility: the proxies live in the builder's BAKE_PROXIES collection with
+#     hide_render=True; each pass flips its own proxies' hide_render (their light transport)
+#     AND selects them (the catch BVH), then restores exactly. The committed flat path (the
+#     night bake, the siblings) never sees them: hidden AND deselected there.
+S2A_ROOM = 'rastrelli-gallery'
+S2A_STATES = ('day', 'dusk')
+S2A_MAX_RAY_DISTANCE = 0.35
+S2A_WRITE_ORDER = ('flat base use_clear=True -> arch -> vault.gallery -> vault.reveal -> '
+                   'cornice -> ressaut -> impost -> vault.passage (each pass use_clear=False, '
+                   'its own writable target cells only; the flush-covered faces keep the '
+                   'flat base)')
+S2A_TARGETS = (  # the fixed pass order (the S0 probe's S2A_TARGETS declaration order)
+    ('arch', 0.0885, ('junction.rib_coves', 'junction.springers')),
+    ('vault.gallery', 0.0885, ('junction.rib_coves', 'junction.cornice_coves')),
+    ('vault.reveal', 0.09, ('junction.rib_coves',)),
+    ('cornice', 0.04, ('junction.cornice_coves',)),
+    ('ressaut', 0.03, ('junction.springers',)),
+    ('impost', 0.06, ('junction.impost_coves',)),
+    ('vault.passage', 0.06, ('junction.impost_coves',)),
+)
+# The denoiser decision knob (the verdict's decision tree; a DECISION-RUN override, never a
+# DEC-044 dial): bake day/dusk WITH the committed compositor OIDN first, run the B4 junction
+# rows, and only if they fail re-run the state with ZIMNY_BAKE_DENOISE=off — the state's
+# charts then encode from the RAW (un-denoised) bake plates (fixed seed, deterministic).
+# Committed runs never set the knob: absent = the committed OIDN path, byte-identical.
+DENOISE_ENV = 'ZIMNY_BAKE_DENOISE'
+
 # D3 (jordan slice 2): the bake lamp rig. Common: POINT lamps, use_shadow,
 # visible_camera/visible_glossy off, clearance 0.03 m (JORDAN_RIG_CLEARANCE). Derived
 # from the BUILDER's own constants in the exec namespace (SCONCE_*, FLIGHTS,
@@ -1307,6 +1396,192 @@ def restore_frame_backfaces(saved):
         layer.data[li].uv = uv
 
 
+def s2a_shell_object(objects):
+    """The S2A passes' target object: the room's shell (the single datablock carrying the
+    lm shelf with every S2A target's faces). Fail loud when absent — the pass table binds
+    this room's builder."""
+    shell = next((obj for obj in objects if obj.name == 'shell'), None)
+    if shell is None:
+        fail("the S2A pass found no 'shell' object in the arch chart's bake set")
+    return shell
+
+
+def s2a_proxy_objects():
+    """The builder's BAKE_PROXIES part objects by name (the pass table's proxy vocabulary).
+    Fail loud on any miss: the proxies are never-exported, render-hidden by default; an
+    absent one means the builder and the pass table disagree."""
+    out = {}
+    for name in sorted({proxy for _t, _c, proxies in S2A_TARGETS for proxy in proxies}):
+        obj = bpy.data.objects.get(name)
+        if obj is None or obj.type != 'MESH':
+            fail(f'the S2A pass table names proxy {name!r} and the scene carries no such '
+                 "mesh object (the builder's BAKE_PROXIES collection) — fail loud")
+        out[name] = obj
+    return out
+
+
+def s2a_target_faces(elements, target):
+    """The shell polygons whose builder element is the S2A target (the roster order IS the
+    mesh polygon order — the dump_layout belt's correspondence). Empty = fail loud."""
+    faces = [i for i, element in enumerate(elements) if element == target]
+    if not faces:
+        fail(f'the S2A pass for {target!r} names no shell faces — the builder element map '
+             'and the pass table disagree, fail loud')
+    return faces
+
+
+def s2a_covered_faces(shell, faces, proxy_objs, cage):
+    """THE FLUSH-COVERED RECONCILIATION (see the S2A table's comment): a face whose CATCH
+    line pierces one of the pass's proxies' solids poisons the pass's write — the catch
+    samples the proxy's enclosed/buried faces (the springer blocks fill the ressaut seat
+    wings EXACTLY (the S0 flush fact), so the seat faces' catch lines start inside the
+    blocks). Probe: the catch ray itself — origin = the face centre offset cage along the
+    normal, direction -normal — cast against the PASS'S PROXIES ONLY (world verts; the
+    proxies are identity-transformed, the shell's convention). Poisoned iff the first hit
+    is a BACK face (dot(normal_hit, probe_dir) > 0 — the ray entered the solid) within the
+    cage band (distance <= cage * 1.0001; the block's flush underside sits at exactly
+    cage). A proxy FRONT-face hit is the relief's legitimate catch and never excludes.
+    The excluded faces keep the committed flat base (the seats are runtime-invisible: the
+    blocks cover them, never exported). Returns the excluded polygon indices."""
+    probe_bvh = BVHTree.FromPolygons(
+        [tuple(obj.matrix_world @ v.co) for obj in proxy_objs for v in obj.data.vertices],
+        [tuple(poly.vertices) for obj in proxy_objs for poly in obj.data.polygons],
+    )
+    layer = shell.data.uv_layers.get(LM_UV_LAYER)
+    if layer is None:
+        fail(f"mesh {shell.data.name!r} has no '{LM_UV_LAYER}' UV layer (the S2A pass)")
+    polys = shell.data.polygons
+    limit = cage * 1.0001 + 1e-9
+    excluded = []
+    for pi in faces:
+        poly = polys[pi]
+        origin = poly.center + poly.normal * cage
+        direction = -poly.normal
+        hit = probe_bvh.ray_cast(origin, direction, limit)
+        if hit is not None and hit[0] is not None and hit[1].dot(direction) > 1e-6:
+            excluded.append(pi)
+    return excluded
+
+
+def s2a_backdrop_refused_note():
+    """THE REFUSED FORM (recorded, never wired): a per-target SUBSET mesh as the ray-catch
+    backdrop (the target's own faces' geometry only, materials carried) was trialled and
+    REFUSED by the bench — its catch wrote uniform ~0.9 (the sky response) into every
+    target cell (measured: the arch cell 0.66-0.88 and the bay cell 0.88 vs the flat
+    0.03-0.11; the backdrop-only control run — the proxies deselected — reproduced it, so
+    the proxies were exonerated; the mesh's normals, material slots, winding order and
+    smooth flags verified identical to the shell's). The whole-shell coincident copy
+    reproduces the committed look on every target cell except the measured corner-seam
+    bands (see the S2A table's comment). Kept as a note so the next session does not
+    re-derive this."""
+
+
+def collapse_s2a_faces(obj, faces):
+    """Bake-only lm-UV edit (restored right after the pass): the non-target faces' lm UVs
+    collapse to (-1, -1) so this pass's bake writes ONLY the target's cells (the
+    collapse_frame_backfaces precedent; out-of-range UVs write no texels). The glb is
+    untouched — the runtime samples the same cells through the unchanged mesh."""
+    layer = obj.data.uv_layers.get(LM_UV_LAYER)
+    if layer is None:
+        fail(f"mesh {obj.data.name!r} has no '{LM_UV_LAYER}' UV layer (the S2A pass)")
+    keep = set(faces)
+    saved = []
+    for pi, poly in enumerate(obj.data.polygons):
+        if pi in keep:
+            continue
+        for li in poly.loop_indices:
+            saved.append((li, layer.data[li].uv.copy()))
+            layer.data[li].uv = (-1.0, -1.0)
+    return saved, layer
+
+
+def restore_s2a_faces(saved, layer):
+    for li, uv in saved:
+        layer.data[li].uv = uv
+
+
+def s2a_passes(scene, namespace, shell, pad_px):
+    """THE JUNCTION LAW'S S2A SEQUENCE for one state (day/dusk only — the S2A_STATES gate
+    sits at the call site). The committed flat bake has already written the atlas
+    (use_clear=True); these passes overwrite ONLY their own target's cells, in the fixed
+    S2A_TARGETS order, each with use_clear=False (the write-order law in the S2A table's
+    comment). Per pass: selected = {a coincident COPY of the target mesh (the same mesh
+    data, the same transform — the ray-catch backdrop) + the target's assigned proxies};
+    active = the shell (unselected — the scratch-validated S2A mechanics; a catch MISS
+    keeps the prior texel value, measured on the bench).
+    Everything flips per pass and restores in the
+    finally block, so the dusk probe render (and every later step) sees exactly the
+    committed scene."""
+    elements = builder_constant(namespace, 'LM_FACE_ELEMENTS')
+    proxies = s2a_proxy_objects()
+    rows = []
+    backdrop = None
+    try:
+        # THE RAY-CATCH BACKDROP: a coincident COPY of the target mesh (the same mesh
+        # data, the same transform). THE MEASURED RECONCILIATION: a per-target SUBSET
+        # mesh (the target's faces' geometry only) was trialled and REFUSED by the
+        # bench: its catch wrote uniform ~0.9 (the sky response) into every target
+        # cell (the flat-vs-S2A scratch references are in the round notes) — the
+        # whole-shell copy reproduces the committed look on every target cell except
+        # the measured corner-seam bands (the bay cells' spring edges where the catch
+        # line crosses the cornice-top pocket and reads its enclosed darkness —
+        # documented in the round record with the exact counts).
+        backdrop = shell.copy()  # same mesh data, same transform
+        scene.collection.objects.link(backdrop)
+        for target, cage, proxy_names in S2A_TARGETS:
+            faces = s2a_target_faces(elements, target)
+            proxy_objs = [proxies[name] for name in proxy_names]
+            covered = s2a_covered_faces(shell, faces, proxy_objs, cage)
+            writable = [pi for pi in faces if pi not in set(covered)]
+            if not writable:
+                fail(f'the S2A pass for {target!r} has no writable faces left after the '
+                     'flush-covered exclusion — the assignment and the geometry disagree, '
+                     'fail loud')
+            saved, layer = collapse_s2a_faces(shell, writable)
+            shell.data.uv_layers.active = layer
+            flipped = []
+            for name in proxy_names:
+                proxy = proxies[name]
+                proxy.hide_render = False  # light transport for THIS pass only
+                flipped.append(proxy)
+            for obj in scene.objects:
+                obj.select_set(False)
+            backdrop.select_set(True)
+            for proxy in flipped:
+                proxy.select_set(True)  # the catch BVH: the backdrop + this pass's proxies
+            bpy.context.view_layer.objects.active = shell
+            result = bpy.ops.object.bake(
+                type='DIFFUSE',
+                pass_filter={'DIRECT', 'INDIRECT'},
+                margin=pad_px,
+                margin_type='EXTEND',
+                use_selected_to_active=True,
+                cage_extrusion=cage,
+                max_ray_distance=S2A_MAX_RAY_DISTANCE,
+                target='IMAGE_TEXTURES',
+                save_mode='INTERNAL',
+                use_clear=False,
+                uv_layer=LM_UV_LAYER,
+            )
+            if 'FINISHED' not in result:
+                fail(f'the S2A pass for {target!r} returned {sorted(result)}')
+            restore_s2a_faces(saved, layer)
+            for proxy in flipped:
+                proxy.select_set(False)
+                proxy.hide_render = True
+            rows.append({'cageM': cage, 'excludedFaces': len(covered), 'faces': len(faces),
+                         'proxies': list(proxy_names), 'target': target,
+                         'writableFaces': len(writable)})
+    finally:
+        for obj in scene.objects:
+            obj.select_set(False)
+        for proxy in proxies.values():
+            proxy.hide_render = True
+        if backdrop is not None:
+            bpy.data.objects.remove(backdrop, do_unlink=True)
+    return rows
+
+
 def print_summary(summary):
     print('ZIMNY_SUMMARY ' + json.dumps(summary, sort_keys=True), flush=True)
 
@@ -1316,6 +1591,9 @@ def main():
     stage.mkdir(parents=True, exist_ok=True)
     namespace, scene, meshes = build_room(room, stage)
     charts = chart_contract(namespace)
+    # The denoiser decision knob (DENOISE_ENV): absent = the committed OIDN path, byte-identical;
+    # 'off' = a decision re-run encodes from the RAW plates (the verdict's decision tree).
+    denoise_enabled = os.environ.get(DENOISE_ENV, '').strip().lower() != 'off'
     lm_grid = builder_constant(namespace, 'LM_GRID', required=False)
     samples = PREVIEW_SAMPLES if preview else BAKE_SAMPLES
     if opts.samples is not None:
@@ -1405,8 +1683,24 @@ def main():
         image = bake_lightmap(scene, meshes, targets, bake_mats, spec['res'], margin_px)
         if collapsed:
             restore_frame_backfaces(collapsed)
+        # THE JUNCTION LAW'S S2A PASSES (batch B; rastrelli-gallery day/dusk, the arch chart
+        # only, never in preview): the committed flat bake above was the atlas's FIRST write
+        # (use_clear=True); these passes overwrite only their own target's cells with
+        # use_clear=False (the write-order law in the S2A table's comment). The night bake
+        # and every sibling room skip this block entirely — the committed flat path.
+        s2a_rows = None
+        if (room == S2A_ROOM and state in S2A_STATES and spec['name'] == 'arch'
+                and not preview):
+            s2a_rows = s2a_passes(scene, namespace, s2a_shell_object(objects), margin_px)
         save_exr(image, lm_dir / f'{prefix}{file_state}.raw.exr')
-        denoised = denoise_image(scene, image, lm_dir / f'{prefix}{file_state}.exr')
+        # The denoiser decision knob (see DENOISE_ENV): the committed path is the compositor
+        # OIDN below; a decision re-run (ZIMNY_BAKE_DENOISE=off) encodes from the RAW plate —
+        # the knob rides the summary's denoiser row so the landed form is on the record.
+        if denoise_enabled:
+            denoised = denoise_image(scene, image, lm_dir / f'{prefix}{file_state}.exr')
+        else:
+            save_exr(image, lm_dir / f'{prefix}{file_state}.exr')
+            denoised = image
         paint = PANE_PAINT.get(room)
         # The 'atEncode' rooms (rastrelli-gallery) paint per PUBLISHED state at re-encode —
         # their states are composed of the rig EXRs here, so this bake-time application
@@ -1480,7 +1774,7 @@ def main():
         'cellsSha256': cells_sha,
         'charts': chart_rows,
         'clippedFraction': arch_row['clippedFraction'],
-        'denoiser': DENOISER,
+        'denoiser': DENOISER if denoise_enabled else 'none',
         'device': 'CPU',
         'duskFixtures': DUSK_FIXTURES[room] if state == 'dusk' else None,
         'files': [{'bytes': os.path.getsize(path), 'rel': rel} for rel, path in files],
@@ -1512,6 +1806,13 @@ def main():
     if pane_spill is not None:
         summary['paneApplied'] = pane_spill['paneApplied']
         summary['paneProof'] = pane_spill['paneProof']
+    # RG-AUDIT batch B (the junction law): the S2A provenance lands ONLY when the S2A passes
+    # ran (rastrelli-gallery day/dusk, the arch chart) — the standing emit-gated provenance
+    # pattern (rig / reps / paneProof); every other room and the night state stay byte-stable.
+    if s2a_rows is not None:
+        summary['s2a'] = {'maxRayDistanceM': S2A_MAX_RAY_DISTANCE,
+                          'passes': s2a_rows,
+                          'writeOrder': S2A_WRITE_ORDER}
     print_summary(summary)
 
 
