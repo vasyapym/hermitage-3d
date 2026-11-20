@@ -123,6 +123,7 @@ figures sourced 28/28/17/10) · the 1977 corner lanterns + the candelabra (the l
 closed STRICTER; an exception row needed) · the day-look census round (the owner's steer; this
 round handed it its first instrument — golden-s0b-dec-noon).
 ## Mentioned elsewhere
+ARCHIVE-APPEND 2026-11-20 — the owner's IMG_4707 sighting (the deployed build, the dragged right-look at night; verbatim: «see - IMG_4707.PNG . is it supposed to look like this? it looks ugly»): the HQ at night reads as an unlit flat slab with sticker-like windows — the geometry is the DEC-045 pilot's intended stylization, the NIGHT emptiness is the recorded gap; the sighting PROMOTES the successors: (1) the HQ's own night lattice (the windows join the lattice's three stock materials — the kit quads bind per-window stock placeholders, ~+0 payload · ~+200–400 B JS) — the top pick answering the owner's night preference; (2) the window recess depth (+~500 tris, still ≤ 1,500 — kills the sticker read); (3) the HQ's own tone (the owner call, unpicked). The committed stops' compositions are unaffected (the golden-s0b-dec-noon frame carries the portico read; the sighting is a free-look extreme). Recorded in this file per the DEC-048 sighting precedent.
 The find/design relays: vault briefs 1–3 (deleted at the round close; the replies live in the
 vault's round-1/replies/ until then). The M2 relay NOT taken: the owner's routing call
 (orchestrator-direct for the pinned mechanical batches).

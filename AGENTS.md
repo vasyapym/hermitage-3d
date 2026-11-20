@@ -34,3 +34,4 @@ trap 0.
 6. **Licensing.** No photography of real interiors as textures; every source cited in `ATTRIBUTIONS.md`; every artistic deviation recorded in `docs/artistic-license.md` in the phase it appears.
 7. **Git hygiene.** Stage only files you authored; never commit `.DS_Store`, build junk or `probes/` scratch.
 8. **Core stays core.** Adding a room never touches `src/engine/` or `src/world/`; if it feels like it must, stop and raise the question instead of hacking through.
+9. **The square's kit is the door.** New Palace Square elements ship through the exterior kit (`public/assets/square/` — DEC-045 + DEC-049; `pnpm kit:square`, the manifest law in `src/world/square-kit.ts`); procedural/JS content is the exception and carries a justification row in the round record.
