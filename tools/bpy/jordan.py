@@ -1007,7 +1007,17 @@ _jordan_fixtures_spec = _importlib_util.spec_from_file_location(
 jordan_fixtures = _importlib_util.module_from_spec(_jordan_fixtures_spec)
 _jordan_fixtures_spec.loader.exec_module(jordan_fixtures)
 
-FIXTURE_FORM = os.environ.get('FIXTURE_FORM', 'placeholder')
+# The review HIGH-3: the form env is validated STRICTLY at the load — empty/unset is
+# 'placeholder', 'slice_e' is 'slice_e', anything else fails loud here (a typo such as
+# 'slice-e' must never silently select the committed placeholder path).
+_FIXTURE_FORM_ENV = os.environ.get('FIXTURE_FORM', '')
+if _FIXTURE_FORM_ENV in ('', 'placeholder'):
+    FIXTURE_FORM = 'placeholder'
+elif _FIXTURE_FORM_ENV == 'slice_e':
+    FIXTURE_FORM = 'slice_e'
+else:
+    raise RuntimeError(f'jordan: FIXTURE_FORM {_FIXTURE_FORM_ENV!r} is not '
+                       "('placeholder' | 'slice_e')")
 
 
 def build_fixtures(kit, form):
@@ -1485,12 +1495,16 @@ def main():
                        'HALL_REF; niche reveals: cavity centre; frame returns: radially outward',
         },
     }
-    (stage / 'summary.json').write_text(json.dumps(summary, sort_keys=True, indent=2, allow_nan=False) + '\n', encoding='utf8')
+    # The jordan-fixtures B2: the assembly's honest rows beside the committed
+    # chandelier row (which keeps reporting the RIG's derivation inputs — the rig
+    # never moves). Constructed BEFORE either serialization (the review HIGH-2): the
+    # stage summary.json and the ZIMNY_SUMMARY stdout carry the SAME
+    # declared.chandelierFixtures, and if declared_rows() raises nothing is written —
+    # an apparently finished stage file without the key cannot exist. The placeholder
+    # path never adds the key (the byte-identical law).
     if FIXTURE_FORM == 'slice_e':
-        # The jordan-fixtures B2: the assembly's honest rows beside the committed
-        # chandelier row (which keeps reporting the RIG's derivation inputs — the rig
-        # never moves). The placeholder path never adds the key (the byte-identical law).
         summary['declared']['chandelierFixtures'] = jordan_fixtures.declared_rows()
+    (stage / 'summary.json').write_text(json.dumps(summary, sort_keys=True, indent=2, allow_nan=False) + '\n', encoding='utf8')
     print('ZIMNY_SUMMARY ' + json.dumps(summary, sort_keys=True, separators=(',', ':'), allow_nan=False))
 
 

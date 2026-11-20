@@ -40,8 +40,17 @@ export const LM_ENCODE = {
 
 // The jordan-fixtures round's driver rows (reported edits): under FIXTURE_FORM='slice_e'
 // the sconce archetype carries gilt + sconce_glow + crystal (the opaque new material);
-// the placeholder path keeps the committed rows byte-identical.
-const FIXTURE_FORM = process.env.FIXTURE_FORM === 'slice_e' ? 'slice_e' : 'placeholder';
+// the placeholder path keeps the committed rows byte-identical. The env is validated
+// STRICTLY (the review HIGH-3): empty/unset = 'placeholder', 'slice_e' = 'slice_e',
+// anything else fails loud at the load — no silent fallback to placeholder (a typo such
+// as 'slice-e' must never masquerade as the committed form).
+function fixtureFormEnv() {
+  const raw = process.env.FIXTURE_FORM ?? '';
+  if (raw === '' || raw === 'placeholder') return 'placeholder';
+  if (raw === 'slice_e') return 'slice_e';
+  return fail(`FIXTURE_FORM ${JSON.stringify(raw)} is not 'placeholder' or 'slice_e'`);
+}
+const FIXTURE_FORM = fixtureFormEnv();
 
 export const ROOM = {
   id: ROOM_ID,
@@ -336,11 +345,21 @@ function gateConventions(json) {
   for (const [i, m] of materials.entries()) {
     const name = baseName(m.name ?? `material_${i}`);
     const expected = METALLIC_MATERIALS[name] ?? 0;
-    const factor = m.pbrMetallicRoughness?.metallicFactor ?? 1;
-    // float32 transport: Blender's export round-trips the factor through f32 (0.6 reads
-    // back 0.6000000238418579); the committed factors (0, 0.5) are exact, so this
-    // tolerance changes no committed verdict — it only admits the f32 artefact.
-    if (Math.abs(factor - expected) > 1e-6)
+    const raw = m.pbrMetallicRoughness?.metallicFactor;
+    // glTF default: an absent metallicFactor reads as 1 (and fails, unless the table
+    // itself expected 1 — it never does).
+    const factor = raw ?? 1;
+    // The review MEDIUM-7: a nonnumeric value must FAIL the gate — the old
+    // `Math.abs(factor - expected) > 1e-6` comparison is false for NaN (a nonnumeric
+    // string coerces to NaN) and silently passed. Require a finite number first.
+    if (typeof factor !== 'number' || !Number.isFinite(factor))
+      fail(`material ${name}: metallicFactor ${String(raw)} is not a finite number`);
+    // float32 transport: Blender's export round-trips the factor through f32 (the
+    // slice_e crystal's 0.6 reads back 0.6000000238418579). The committed factors
+    // (0, 0.5) are exact and pass STRICT equality — the ≤1e-6 tolerance is ONLY the
+    // crystal's 0.6 f32 artefact (a drifted 0.5000005 gilt or a 0±ε non-metal now
+    // fails, closing the tolerance hole the blanket |Δ| ≤ 1e-6 opened).
+    if (factor !== expected && !(expected === 0.6 && Math.abs(factor - expected) <= 1e-6))
       fail(`material ${name}: metallicFactor ${factor} != ${expected}`);
   }
 }

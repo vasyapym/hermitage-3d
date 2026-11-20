@@ -383,7 +383,12 @@ def build_sconce_archetype(b):
     # into the builder namespace: bake.py's lamp derivation + clearance check and the
     # summary's declared rows read them (ACCEPTANCE #6). The asserts have passed, so the
     # published numbers are the built truth; the height centre keeps the committed lamp
-    # height (0.25) by the anchor law and the depth centre is the candle axis.
+    # height (0.25) by the anchor law and the depth centre is the candle axis. The
+    # publish is RECORDED (the review HIGH-4): the next build's entry resets these keys
+    # to the caller's prior values, so the derived rig inputs never outlive this build.
+    global _FIXTURE_PUBLISHED
+    _FIXTURE_PUBLISHED = (_KIT, {'SCONCE_GLOW_BOX': _KIT.get('SCONCE_GLOW_BOX', _ABSENT),
+                                 'SCONCE_BRACKET': _KIT.get('SCONCE_BRACKET', _ABSENT)})
     _KIT['SCONCE_GLOW_BOX'] = derived['glowBox']
     _KIT['SCONCE_BRACKET'] = (SCONCE_BACKPLATE_D, SCONCE_BACKPLATE_W / 2.0)
     # The allocator counter consumes one cell per b.faces entry: leave exactly the
@@ -642,6 +647,11 @@ def realize_sconce(b, material_names, first_cell):
         me.materials.append(bpy.data.materials[name])
     uv = me.uv_layers.new(name='uv')
     lm = me.uv_layers.new(name='lm')
+    # Reacquire the uv handle AFTER the lm allocation (the review LOW): the second
+    # uv_layers.new() may reallocate the custom-data layer array and invalidate the
+    # first handle — realize_chandelier already reads its uv layer fresh after both
+    # allocations (me.uv_layers[0]).
+    uv = me.uv_layers[0]
     # The datablock's cells ARE first_cell + 0..SCONCE_LM_CELLS-1: the builder's
     # sentinels made the counter consume exactly this range, so the retired keys the
     # placeholder owned are re-issued here with the packed islands' material rows.
@@ -772,12 +782,21 @@ def _chand_fit():
     """CHANDELIER_FIT: one uniform scalar applied to the tier radii and DY only when the
     envelope is TIGHTER than the pinned numbers — the envelope wins. Measured: the
     envelope is LOOSER (the B0 census's implied cap scale 1.2286 horizontal), so FIT = 1
-    and the pinned radii/DY stand."""
+    and the pinned radii/DY stand. The review MEDIUM-9: the advertised auto-fit is NOT
+    implemented — fit == 1 is the ONLY supported path, asserted here; a tighter envelope
+    is a geometry revision (re-pin the tier stack), not a build-time scale."""
     env = _chand_envelope()
     horizontal = min(env['x'][1] - env['x'][0], env['z'][1] - env['z'][0])
     vertical = env['y'][1] - env['y'][0]
-    return round(min(1.0, horizontal / (2.0 * CHANDELIER_TIER_RADIUS[0]),
-                     vertical / (2.0 * CHANDELIER_TIER_DY)), 6)
+    fit = round(min(1.0, horizontal / (2.0 * CHANDELIER_TIER_RADIUS[0]),
+                    vertical / (2.0 * CHANDELIER_TIER_DY)), 6)
+    if fit != 1:
+        raise RuntimeError(
+            f'jordan_fixtures: CHANDELIER_FIT {fit} != 1 — the advertised auto-fit is '
+            'NOT implemented: only fit == 1 (the envelope looser than the pinned tier '
+            "radii/DY, the B0 census's implied 1.2286 cap) is supported; a tighter "
+            'envelope is a geometry revision, not a build-time scale')
+    return fit
 
 
 def _chand_tier_pans():
@@ -908,16 +927,23 @@ def core_lamp_y():
     committed CHAND_* rows: the 200 W point descends JORDAN_RIG_CORE_STEP from
     JORDAN_RIG_CORE_BASE_Y until its sphere clears the core octahedron's SOLID by
     JORDAN_RIG_CORE_GAP. The descent is always on the CHAND_C axis, where the solid
-    distance is 0 inside the octahedron and (lower_apex − y) below it (the perpendicular
-    feet leave the lower faces; every vertex/edge clamps to the apex). Verified against
+    distance is 0 inside the octahedron, (lower_apex − y) below it and (y − upper_apex)
+    above it (the perpendicular feet leave the lower/upper faces; every vertex/edge
+    clamps to the apex — the review MEDIUM-10's max() form). Verified against
     bake.py's full octahedron_distance at these constants: 230 steps → y 13.15."""
     centre_y = _k('CHAND_CORE_Y')
     half_y = _k('CHAND_CORE')[1]
-    apex = round(centre_y - half_y, 6)
+    lower = round(centre_y - half_y, 6)
+    upper = round(centre_y + half_y, 6)
     y = JORDAN_RIG_CORE_BASE_Y
     steps = 0
     while True:
-        distance = 0.0 if centre_y - half_y <= y <= centre_y + half_y else round(apex - y, 6)
+        # The review MEDIUM-10: the on-axis replica's solid distance covers a rig start
+        # ABOVE the core (y - upper), INSIDE it (0) and BELOW it (lower - y) — the raw
+        # `apex - y` form descends through a core it starts above and reports a
+        # negative gap there. On the committed descent (base 14.3 inside the core)
+        # both forms agree; this one also survives a later rig change.
+        distance = round(max(lower - y, 0.0, y - upper), 6)
         if distance - JORDAN_RIG_CORE_RADIUS >= JORDAN_RIG_CORE_GAP - 1e-9:
             return round(y, 6)
         steps += 1
@@ -1595,14 +1621,46 @@ def realize_fixture(b, material_names, first_cell):
 
 # --- the hook's row (jordan.py's ONE call) ------------------------------------------
 
+# The review HIGH-4's reset law: what a slice_e build published into the caller's kit
+# (the derived rig inputs in build_sconce_archetype) is undone at the NEXT build's
+# entry, so a placeholder build after a slice_e build in ONE interpreter reads the
+# caller's own rows again — never the previous build's derived ones. The _ABSENT
+# sentinel marks "the kit did not carry the key before the publish" (the undo removes
+# it again instead of writing the marker object).
+_ABSENT = object()
+_FIXTURE_PUBLISHED = None  # (the kit dict, {key: prior value | _ABSENT}) of the last build
+
+
+def _reset_carried_state(kit):
+    """Unconditionally reset the module's carried state at the entry of EVERY build:
+    the B2 module state (the pack plans, the assembly rows, the cached rosters), the
+    stored kit and the previous build's published rig inputs (the review HIGH-4: an
+    interpreter reused across builds must not leak fixture state into a placeholder
+    build, and every slice_e build re-stores the kit, re-derives the rosters and
+    re-publishes its own rig inputs at builder time)."""
+    global _KIT, _CHAND_STATE, _FIXTURE_PUBLISHED
+    if _FIXTURE_PUBLISHED is not None:
+        published_kit, prior_values = _FIXTURE_PUBLISHED
+        if kit is published_kit:
+            for key, prior in prior_values.items():
+                if prior is _ABSENT:
+                    published_kit.pop(key, None)
+                else:
+                    published_kit[key] = prior
+        _FIXTURE_PUBLISHED = None
+    _KIT = None
+    _CHAND_STATE = None
+
 
 def fixture_rows(kit, form):
     """The runner's fixture rows (B1's sconce + B2's chandelier assembly). 'placeholder'
     returns the committed rows unchanged (the byte-identical path; nothing is stored,
     nothing published); 'slice_e' stores the kit, creates the one new material and
     returns the assembly + archetype rows (their realize rides jordan.py's realize
-    dispatcher, their instances the module's rosters)."""
+    dispatcher, their instances the module's rosters). The review HIGH-4: BOTH forms
+    reset the module's carried state first (see _reset_carried_state)."""
     global _KIT
+    _reset_carried_state(kit)
     if form == 'placeholder':
         return [('chandelier', kit['build_chandelier'], ['gilt', 'chandelier_glow']),
                 ('sconce', kit['build_sconce'], ['plaster_warm', 'sconce_glow'])]
