@@ -144,6 +144,13 @@ SELF_CHECK_B1 = {'cells': 3474, 'draws': 39, 'drawnTris': 25242,
 # the retired 214) and the W record is untouched (no bake in B2).
 SELF_CHECK_B2 = {'cells': 3474, 'draws': 42, 'drawnTris': 32086,
                  'w': {'day': 0.45, 'duskChandeliers': 0.35, 'nightChandeliers': 4.0}}
+# The jordan-parallel plafond round's self-check pins (the slice_e form with the plafond
+# field + frame): the 20 field bays drop their coffers (−180 faces, −360 tris) and the
+# field (20 faces/40 tris) + the frame (58/116) join after the pane — cells 3,474 − 102
+# = 3,372 (the fixtures' retired ranges re-seat −102), draws 42 + 2 = 44, drawn tris
+# 32,086 − 204 = 31,882; the W record is untouched (no bake in the geometry pass).
+SELF_CHECK_PLAFOND = {'cells': 3372, 'draws': 44, 'drawnTris': 31882,
+                      'w': {'day': 0.45, 'duskChandeliers': 0.35, 'nightChandeliers': 4.0}}
 DARK_MEDIAN_COMMITTED = {  # docs/STATE.md 2026-11-17: the q128 re-measure at the wave's close
     'global': {'day': -1, 'dusk': 0, 'nightChandeliers': -1},
     'dark': {'day': 1, 'dusk': 0, 'nightChandeliers': -1},
@@ -1552,7 +1559,9 @@ def self_check(checkout, cells_count, atlas, fixture_form=None):
     intensity = manifest['lightmaps']['intensity']
     measured_w = {'day': float(intensity['day']), 'duskChandeliers': float(intensity['dusk']),
                   'nightChandeliers': float(intensity['nightChandeliers'])}
-    if 'chandelier_arm' in atlas.get('meshNames', []):
+    if 'plafond' in atlas.get('meshNames', []):
+        expected = SELF_CHECK_PLAFOND
+    elif 'chandelier_arm' in atlas.get('meshNames', []):
         expected = SELF_CHECK_B2
     elif fixture_form == 'slice_e':
         expected = SELF_CHECK_B1

@@ -68,10 +68,13 @@ LM_CAPACITY = LM_GRID * LM_GRID
 # datablocks (2 x 24 faces), 2 extra bases (2 x 8) and 1 extra frame (16) — 3150 + 80.
 # The ghost-split (2026-11-18): +144 (the ghost-split: the north shafts 24×7) —
 # 3230 + 144 = 3374; max unchanged.
+# The plafond round (2026-11-21): the 20 field bays drop their coffers (−180 faces) and
+# the field +20 / the frame +58 join right after the pane — 3374 − 102 = 3272; the
+# measured counter 3,372 (the fixtures' retired ranges re-seat −102); max unchanged.
 # The warn raised 3,400→3,500 (the ghost-split's measured atlas repack cost — 7
 # isolated rosters pay their own pad-2 footprints; the owner's call 2026-11-18;
 # the measured 3,474); the hard max 4,096 untouched.
-LM_CELLS = {'expected': 3374, 'warn': 3500, 'max': 4096}
+LM_CELLS = {'expected': 3272, 'warn': 3500, 'max': 4096}
 # Filled from the actual envelope allocation; 1536 is no longer a safe barrier.
 LM_PART2_FIRST_CELL = 0
 LM_CELL_MAP = {'res': LM_RES, 'grid': LM_GRID, 'pad': LM_PAD_PX, 'cells': {}}
@@ -80,13 +83,17 @@ SCONCE_GLOW_EMISSION = ((1.00, 0.78, 0.50), 1.0)  # 2c: strength 1.0 — the tin
 CHANDELIER_GLOW_EMISSION = ((1.00, 0.82, 0.58), 1.0)  # 2c: same law
 PANE_BASE_COLOR = (0.02, 0.02, 0.025)  # 2c: the pane reads as dark glass, never a lit plaster card
 GILT_METALLIC = 0.5
-TEXTURES = (('marble_floor', 512), ('plaster_warm', 512), ('granite_grey', 256), ('gilt', 256))
-TEX_SEED = {'plaster_warm': 0x504C4153, 'marble_floor': 0x4D415242, 'granite_grey': 0x4752414E, 'gilt': 0x47494C54}
+TEXTURES = (('marble_floor', 512), ('plaster_warm', 512), ('granite_grey', 256), ('gilt', 256),
+            ('plafond', 1024))
+TEX_SEED = {'plaster_warm': 0x504C4153, 'marble_floor': 0x4D415242, 'granite_grey': 0x4752414E, 'gilt': 0x47494C54,
+            'plafond': 0x504C4146}  # 'PLAF' — the ruling's seed; the open-sky plafond plate
 MATERIAL_REPEAT_M = {'plaster_warm': 4.0, 'granite_grey': 0.5, 'gilt': 0.32, 'pane': 4.0, 'sconce_glow': 4.0, 'chandelier_glow': 0.32}
 # The supplied source has no separate numeric gold-F0 record. These are the
 # exact channel means of its former gold generator, in encoded sRGB values.
 GILT_BASE = (0.88, 0.705, 0.35)
 MAT_PLASTER, MAT_MARBLE = 0, 1
+MAT_PLAFOND = 0  # the field mesh's single slot (the runner's materials list is ['plafond'])
+MAT_FRAME_GILT = 0  # the frame mesh's single slot (the runner's materials list is ['gilt'])
 KIT_BASE, KIT_GLOW = 0, 1
 KIT_ACCENT = 1
 RISERS = 35
@@ -202,6 +209,20 @@ WINDOW_FRAME_OPEN = (WIN_W, WIN_TIERS[0][1] - WIN_TIERS[0][0])
 WINDOW_ARCH = (0.18, 0.10)
 WINDOW_SILL = (0.14, 0.18, 0.06)
 WINDOW_FRAMES = tuple((cx, (sill + head) / 2) for cx in WIN_X for sill, head in WIN_TIERS)
+
+# --- the jordan-parallel plafond round (the ceiling slice; the ruling 2026-11-21) ---
+# The painted plafond: a smooth field + a gilt frame ring cut into the vault's bay grid.
+# PLAFOND_BAYS: half-open [i0,i1)×[k0,k1) ranges of the VAULT_NX×VAULT_NZ bay grid — the
+# field x spans xs[i0]..xs[i1], z spans prof[k0].z..prof[k1].z (the S5 night-pool shift:
+# the chandelier rig lamp sits at x 86, so the field reaches bay 6 to hang the lamp
+# 2.75 m inside the east bar). The margins keep today's coffers.
+PLAFOND_BAYS = ((2, 7), (2, 6))
+PLAFOND_FRAME = (0.30, 0.16)  # the gilt bar's section: w along-surface × d radial drop
+BORDER_M = 0.90               # the plate's painted margin (metres, aspect-true; the gilt bar sits on it)
+PLATE_MAX = 0.80              # the plate's stored-channel cap: the percentile encode must not clip the field
+# uv_fn-mapped one-shot plates: the metre-repeat law (MATERIAL_REPEAT_M) does not apply —
+# realize's default metre scaling would destroy the field-planar mapping.
+ONE_SHOT_MATERIALS = ('plafond',)
 
 
 def v_sub(a, b):
@@ -351,12 +372,19 @@ def quintic(t):
     return t * t * t * (t * (t * 6.0 - 15.0) + 10.0)
 
 
-def value_noise(u, v, period, seed, octave=0):
+def value_noise(u, v, period, seed, octave=0, wrap=True):
     x, y = u * period, v * period
     ix, iy = np.floor(x).astype(np.int64), np.floor(y).astype(np.int64)
     fx, fy = quintic(x - ix), quintic(y - iy)
-    x0, x1 = ix % period, (ix + 1) % period
-    y0, y1 = iy % period, (iy + 1) % period
+    # wrap tiles the lattice at `period` (the committed repeating plates); wrap=False
+    # leaves the lattice open for one-shot plates (the plafond's metre-isotropic fBm,
+    # whose periods are non-integer in the tile space).
+    if wrap:
+        x0, x1 = ix % period, (ix + 1) % period
+        y0, y1 = iy % period, (iy + 1) % period
+    else:
+        x0, x1 = ix, ix + 1
+        y0, y1 = iy, iy + 1
     a = hash01(seed, x0, y0, octave)
     b = hash01(seed, x1, y0, octave)
     c = hash01(seed, x0, y1, octave)
@@ -364,12 +392,12 @@ def value_noise(u, v, period, seed, octave=0):
     return 2.0 * ((a + (b - a) * fx) * (1.0 - fy) + (c + (d - c) * fx) * fy) - 1.0
 
 
-def fbm(u, v, periods, seed, gain=0.5, octave_offset=0):
+def fbm(u, v, periods, seed, gain=0.5, octave_offset=0, wrap=True):
     result = np.zeros_like(u, dtype=np.float64)
     weight = total = 1.0
     total = 0.0
     for octave, period in enumerate(periods):
-        result += weight * value_noise(u, v, period, seed, octave + octave_offset)
+        result += weight * value_noise(u, v, period, seed, octave + octave_offset, wrap=wrap)
         total += weight
         weight *= gain
     return result / total
@@ -439,7 +467,78 @@ def tex_gilt(n):
     return tuple(channel + leaf + detail for channel in GILT_BASE)
 
 
-TEX_FN = {'marble_floor': tex_marble_floor, 'plaster_warm': tex_plaster_warm, 'granite_grey': tex_granite_grey, 'gilt': tex_gilt}
+def tex_plafond(n):
+    """The figure-free open-sky plafond plate (S1): radial luminance dome + metre-isotropic
+    fBm cumulus + centre-facing lit rims + the aspect-true painted border. All values are
+    the stored (sRGB-encoded) plate values — the house plates' value space; the cap keeps
+    every stored channel ≤ PLATE_MAX so the percentile encode cannot clip the field."""
+    _, _, fx0, fx1, fz0, fz1 = plafond_bounds()
+    fw, fd = fx1 - fx0, fz1 - fz0
+    seed = TEX_SEED['plafond']
+    u, v = _grid(n)
+    xm, ym = u * fw, v * fd
+    ix, iy = (np.arange(n, dtype=np.int64)[None, :], np.arange(n, dtype=np.int64)[:, None])
+
+    # The radial dome: rn ∈ 0..1 from the plate centre; t = quintic smoothstep of rn^1.2.
+    rn = np.minimum(1.0, np.hypot(2.0 * u - 1.0, 2.0 * v - 1.0))
+    t = quintic(np.clip(rn ** 1.2, 0.0, 1.0))
+    sky_r = 0.86 + (0.36 - 0.86) * t
+    sky_g = 0.80 + (0.42 - 0.80) * t
+    sky_b = 0.66 + (0.55 - 0.66) * t
+    dome = 0.62 - 0.30 * t
+    lum = 0.2126 * sky_r + 0.7152 * sky_g + 0.0722 * sky_b
+    s_r, s_g, s_b = sky_r * dome / lum, sky_g * dome / lum, sky_b * dome / lum
+
+    # The cumulus: 4 octaves, lacunarity 2, gain 0.5, metre coords at 3.476 m per base
+    # lattice step (3.5 cycles across the field depth); the one-shot lattice (wrap=False).
+    base = 3.476
+    f = fbm(u * fw / base, v * fd / base, (1, 2, 4, 8), seed, wrap=False)
+    p2, p98 = np.percentile(f, 2.0), np.percentile(f, 98.0)
+    f01 = np.clip((f - p2) / (p98 - p2), 0.0, 1.0) * 0.90 + 0.05
+    f01 = f01 - 0.12 * (1.0 - quintic(np.clip(rn / 0.6, 0.0, 1.0)))
+    m = quintic(np.clip((f01 - 0.45) / 0.25, 0.0, 1.0))
+    body_r = s_r * (1.0 - 0.15 * m) + 0.02 * m
+    body_g = s_g * (1.0 - 0.15 * m)
+    body_b = s_b * (1.0 - 0.15 * m) + 0.04 * m
+
+    # The lit rims: central-difference gradient; a cloud edge whose body lies away from
+    # the plate centre faces the centre and catches the warm rim.
+    gv, gu = np.gradient(f01)
+    norm = np.maximum(np.hypot(gu, gv), 1e-12)
+    dcx, dcy = fw / 2 - xm, fd / 2 - ym
+    dcl = np.maximum(np.hypot(dcx, dcy), 1e-12)
+    facing = np.clip(-(gu * dcx + gv * dcy) / (norm * dcl), 0.0, 1.0)
+    rb = m * (1.0 - quintic(np.clip((f01 - 0.52) / 0.14, 0.0, 1.0)))
+    rim_gain = rb * facing * (1.0 - 0.5 * t)
+    r = body_r + 0.12 * rim_gain
+    g = body_g + 0.09 * rim_gain
+    b = body_b + 0.04 * rim_gain
+
+    # The painted border: ochre body, a darker shadow line, a light bead — measured
+    # outward from the picture edge in metres (aspect-true).
+    bu, bv = BORDER_M / fw, BORDER_M / fd
+    in_band = (u < bu) | (u > 1.0 - bu) | (v < bv) | (v > 1.0 - bv)
+    dist = np.maximum(np.maximum(bu - u, u - (1.0 - bu)) * fw,
+                      np.maximum(bv - v, v - (1.0 - bv)) * fd)
+    bead = in_band & (dist <= 0.08)
+    shadow = in_band & (dist > 0.08) & (dist <= 0.24)
+    o_r, o_g, o_b = 0.55, 0.42, 0.22
+    r = np.where(bead, o_r * 1.25, np.where(shadow, o_r * 0.70, np.where(in_band, o_r, r)))
+    g = np.where(bead, o_g * 1.25, np.where(shadow, o_g * 0.70, np.where(in_band, o_g, g)))
+    b = np.where(bead, o_b * 1.25, np.where(shadow, o_b * 0.70, np.where(in_band, o_b, b)))
+
+    # The canvas grain, everywhere, then the stored-channel cap.
+    g01 = hash01(seed, np.broadcast_to(ix, u.shape), np.broadcast_to(iy, u.shape))
+    r = r + 0.02 * (g01 * 2.0 - 1.0)
+    g = g + 0.02 * (g01 * 2.0 - 1.0)
+    b = b + 0.02 * (g01 * 2.0 - 1.0)
+    r, g, b = np.minimum(r, PLATE_MAX), np.minimum(g, PLATE_MAX), np.minimum(b, PLATE_MAX)
+    assert max(np.max(r), np.max(g), np.max(b)) <= PLATE_MAX + 1e-12
+    return r, g, b
+
+
+TEX_FN = {'marble_floor': tex_marble_floor, 'plaster_warm': tex_plaster_warm, 'granite_grey': tex_granite_grey, 'gilt': tex_gilt,
+          'plafond': tex_plafond}
 
 
 def write_texture(name, size, tex_dir):
@@ -463,7 +562,8 @@ def write_texture(name, size, tex_dir):
     return img
 
 
-def make_material(name, image, roughness, emission=None, metallic=0.0, base_color=None):
+def make_material(name, image, roughness, emission=None, metallic=0.0, base_color=None,
+                  extension='REPEAT'):
     mat = bpy.data.materials.new(name)
     mat.use_nodes = True
     nt = mat.node_tree
@@ -478,7 +578,9 @@ def make_material(name, image, roughness, emission=None, metallic=0.0, base_colo
         tex = nt.nodes.new('ShaderNodeTexImage')
         tex.image = image
         tex.interpolation = 'Linear'
-        tex.extension = 'REPEAT'
+        # 'REPEAT' tiles (the committed metre-repeat plates); 'CLIP' clamps — the glTF
+        # exporter maps it to CLAMP_TO_EDGE, the one-shot plafond plate's sampler law.
+        tex.extension = extension
         uvn = nt.nodes.new('ShaderNodeUVMap')
         uvn.uv_map = 'uv'
         nt.links.new(uvn.outputs['UV'], tex.inputs['Vector'])
@@ -639,6 +741,30 @@ def vault_profile():
     return pts
 
 
+def vault_arc():
+    """The profile's circle, shared by the plafond frame's radial drop law (the ruling:
+    n = ((yc − y), (zc − z)) / radius — unit on the arc, normalized off it)."""
+    half = (Z_S - Z_N) / 2
+    rise = Y_CROWN - VAULT_SPRING_Y
+    radius = (half * half + rise * rise) / (2 * rise)
+    return (Y_CROWN - radius), (Z_N + Z_S) / 2, radius
+
+
+def plafond_bounds():
+    """The field's bounds, computed from the bay arrays — never literals. Returns
+    (prof, xs, fx0, fx1, fz0, fz1)."""
+    prof = vault_profile()
+    xs = [X_W + (X_E - X_W) * i / VAULT_NX for i in range(VAULT_NX + 1)]
+    fx0, fx1 = xs[PLAFOND_BAYS[0][0]], xs[PLAFOND_BAYS[0][1]]
+    fz0, fz1 = prof[PLAFOND_BAYS[1][0]][1], prof[PLAFOND_BAYS[1][1]][1]
+    return prof, xs, fx0, fx1, fz0, fz1
+
+
+def plafond_uv(p, fx0, fx1, fz0, fz1):
+    """The field-planar albedo mapping: (x, z) → 0..1 over the field bounds (S2)."""
+    return ((p[0] - fx0) / (fx1 - fx0), (p[2] - fz0) / (fz1 - fz0))
+
+
 def build_end_walls(b):
     prof = vault_profile()
     zc = (Z_N + Z_S) / 2
@@ -652,15 +778,23 @@ def build_end_walls(b):
                   MAT_PLASTER, HALL_REF)
 
 
-def build_vault(b):
-    prof = vault_profile()
-    xs = [X_W + (X_E - X_W) * i / VAULT_NX for i in range(VAULT_NX + 1)]
+def build_vault(b, field=None, frame=None):
+    prof, xs, fx0, fx1, fz0, fz1 = plafond_bounds()
     t = COFFER_INSET
     for i in range(VAULT_NX):
         for k in range(VAULT_NZ):
             (ya, za), (yb, zb) = prof[k], prof[k + 1]
             p00, p10 = (xs[i], ya, za), (xs[i + 1], ya, za)
             p11, p01 = (xs[i + 1], yb, zb), (xs[i], yb, zb)
+            if field is not None and PLAFOND_BAYS[0][0] <= i < PLAFOND_BAYS[0][1] \
+                    and PLAFOND_BAYS[1][0] <= k < PLAFOND_BAYS[1][1]:
+                # The painted field's own bay: one smooth quad on the vault surface, the
+                # field-planar albedo mapping (S2); no coffer. The auto-orient via
+                # HALL_REF faces it down into the room, like every vault face.
+                field.add([p00, p10, p11, p01], MAT_PLAFOND, HALL_REF,
+                          uv=[plafond_uv(p, fx0, fx1, fz0, fz1) for p in (p00, p10, p11, p01)],
+                          smooth_group='plafond')
+                continue
             n = unit(newell([p00, p10, p11, p01]))
             if v_dot(n, v_sub(HALL_REF, p00)) > 0:
                 n = v_scale(n, -1.0)
@@ -675,6 +809,84 @@ def build_vault(b):
             for quad in ([q00, q10, r10, r00], [q10, q11, r11, r10], [q11, q01, r01, r11], [q01, q00, r00, r01]):
                 b.add(quad, MAT_PLASTER, rc, smooth_group='vault')
             b.add([r00, r10, r11, r01], MAT_PLASTER, HALL_REF, smooth_group='vault')
+    if frame is not None:
+        build_plafond_frame(frame)
+
+
+def _frame_face(b, corners, outward, group):
+    """One frame face with an explicit reference point so the auto-orient keeps the
+    desired normal: ref = the face centroid stepped out along `outward`."""
+    cx = sum(p[0] for p in corners) / 4
+    cy = sum(p[1] for p in corners) / 4
+    cz = sum(p[2] for p in corners) / 4
+    ref = (cx + outward[0] * 0.5, cy + outward[1] * 0.5, cz + outward[2] * 0.5)
+    b.add(corners, MAT_FRAME_GILT, ref, smooth_group=group)
+
+
+def build_plafond_frame(b):
+    """The gilt stucco ring on the field boundary (S3): box bars w along-surface × d
+    radial, one island (smooth group) per run; the x-bars own the corners (extended w/2
+    each way + the end caps), the z-bars trim w/2 along their end tangents and butt the
+    x-bars' inner faces. 10 x-bar segments × 3 faces + 8 z-bar segments × 3 faces + 4
+    end caps = 58 quads."""
+    w, d = PLAFOND_FRAME
+    w2 = w / 2
+    prof, xs, fx0, fx1, fz0, fz1 = plafond_bounds()
+    yc, zc, _ = vault_arc()
+
+    def drop(p):
+        ny, nz = yc - p[1], zc - p[2]
+        length = math.hypot(ny, nz)
+        return (p[0], p[1] + d * ny / length, p[2] + d * nz / length)
+
+    radius = vault_arc()[2]
+
+    def arc_y(z):
+        return yc + math.sqrt(radius * radius - (z - zc) * (z - zc))
+
+    def face_outward(nvec):
+        return (0.0, nvec[0], nvec[1])
+
+    # The x-bars: south z=fz0 (the field toward +z), north z=fz1 (the field toward −z).
+    for z_line, inward, group in ((fz0, 1.0, 'fr_s'), (fz1, -1.0, 'fr_n')):
+        y_line, y_in, y_out = arc_y(z_line), arc_y(z_line + inward * w2), arc_y(z_line - inward * w2)
+        zin, zout = z_line + inward * w2, z_line - inward * w2
+        xa, xb = fx0 - w2, fx1 + w2  # the corner square belongs to the x-bar
+        edges = [xa] + [xs[i] for i in range(PLAFOND_BAYS[0][0] + 1, PLAFOND_BAYS[0][1])] + [xb]
+        for sa, sb in zip(edges, edges[1:]):
+            inner = [(sa, y_in, zin), (sb, y_in, zin)]
+            outer = [(sa, y_out, zout), (sb, y_out, zout)]
+            _frame_face(b, inner + [drop(inner[1]), drop(inner[0])], (0.0, 0.0, inward), group)
+            _frame_face(b, outer + [drop(outer[1]), drop(outer[0])], (0.0, 0.0, -inward), group)
+            _frame_face(b, [drop(inner[0]), drop(inner[1]), drop(outer[1]), drop(outer[0])],
+                        face_outward((yc - y_line, zc - z_line)), group)
+        # The end caps close the bar's cross-section at both outer ends.
+        for cap_x, cap_out in ((xa, (-1.0, 0.0, 0.0)), (xb, (1.0, 0.0, 0.0))):
+            _frame_face(b, [(cap_x, y_in, zin), (cap_x, y_out, zout),
+                            drop((cap_x, y_out, zout)), drop((cap_x, y_in, zin))], cap_out, group)
+
+    # The z-bars: west x=fx0 (the field toward +x), east x=fx1 (the field toward −x);
+    # the runs follow the profile CHORDS (the field's own edge), trimmed w/2 at their
+    # ends so they butt the x-bars' inner faces.
+    for x_line, inward, group in ((fx0, 1.0, 'fr_w'), (fx1, -1.0, 'fr_e')):
+        line = [prof[k] for k in range(PLAFOND_BAYS[1][0], PLAFOND_BAYS[1][1] + 1)]
+        # Trim w/2 along each end's own chord direction (2D in the profile plane; the
+        # committed vector helpers are 3-component).
+        (y0, z0), (y1, z1) = line[0], line[1]
+        l0 = math.hypot(y1 - y0, z1 - z0)
+        v0 = (x_line, y0 + (y1 - y0) * w2 / l0, z0 + (z1 - z0) * w2 / l0)
+        (yN, zN), (yM, zM) = line[-1], line[-2]
+        lN = math.hypot(yN - yM, zN - zM)
+        vN = (x_line, yN - (yN - yM) * w2 / lN, zN - (zN - zM) * w2 / lN)
+        run = [v0] + [(x_line, p[0], p[1]) for p in line[1:-1]] + [vN]
+        x_in, x_out = x_line + inward * w2, x_line - inward * w2
+        for pa, pb in zip(run, run[1:]):
+            a_in, b_in = (x_in, pa[1], pa[2]), (x_in, pb[1], pb[2])
+            a_out, b_out = (x_out, pa[1], pa[2]), (x_out, pb[1], pb[2])
+            _frame_face(b, [a_in, b_in, drop(b_in), drop(a_in)], (inward, 0.0, 0.0), group)
+            _frame_face(b, [a_out, b_out, drop(b_out), drop(a_out)], (-inward, 0.0, 0.0), group)
+            _frame_face(b, [drop(a_in), drop(b_in), drop(b_out), drop(a_out)],
+                        face_outward(((yc - (pa[1] + pb[1]) / 2), (zc - (pa[2] + pb[2]) / 2))), group)
 
 
 def build_vestibule(b):
@@ -1148,6 +1360,9 @@ def realize(b, material_names, first_cell):
         LM_CELL_MAP['cells'][key] = {'object': b.name, 'material': material}
         mapped = b.uvs[pi]
         if mapped is None:
+            if material in ONE_SHOT_MATERIALS:
+                raise RuntimeError(f'{b.name}: the one-shot material {material} carries no '
+                                   f'uv_fn mapping (the metre-repeat law must not apply)')
             if material == 'marble_floor':
                 mapped = marble_planar_uv(pts)
             else:
@@ -1159,11 +1374,11 @@ def realize(b, material_names, first_cell):
             fu, fv = (pu - u0) / du, (pv - v0) / dv
             lm.data[loop].uv = ((cx * cell + LM_PAD_PX + fu * inner) / LM_RES,
                                 (cy * cell + LM_PAD_PX + fv * inner) / LM_RES)
-    if any(group == 'vault' for group in b.smooth_groups):
+    if any(group in ('vault', 'plafond') for group in b.smooth_groups):
         me.shade_smooth()
         me.set_sharp_from_angle(angle=math.radians(30.0))
         for pi, poly in enumerate(me.polygons):
-            poly.use_smooth = b.smooth_groups[pi] == 'vault'
+            poly.use_smooth = b.smooth_groups[pi] in ('vault', 'plafond')
     me.update()
     ob = bpy.data.objects.new(b.name, me)
     bpy.context.scene.collection.objects.link(ob)
@@ -1242,14 +1457,19 @@ def main():
     make_material('chandelier_glow', images['gilt'], 0.35, CHANDELIER_GLOW_EMISSION)
     make_material('granite_grey', images['granite_grey'], 0.6)
     make_material('gilt', images['gilt'], 0.35, metallic=GILT_METALLIC)
+    # The plafond plate: rough matte painting, no metal, no emission; the one-shot
+    # sampler law (CLIP → the glTF CLAMP_TO_EDGE) — the field-planar UVs span 0..1.
+    make_material('plafond', images['plafond'], 0.85, extension='CLIP')
     shell, pane = MeshBuilder('shell'), MeshBuilder('pane')
+    plafond, plafond_frame = MeshBuilder('plafond'), MeshBuilder('plafond_frame')
     build_floor(shell)
     build_north_wall(shell, pane)
     build_south_wall(shell)
     build_end_walls(shell)
-    build_vault(shell)
+    build_vault(shell, field=plafond, frame=plafond_frame)
     build_vestibule(shell)
-    runners = [(shell, ['plaster_warm', 'marble_floor']), (pane, ['pane'])]
+    runners = [(shell, ['plaster_warm', 'marble_floor']), (pane, ['pane']),
+               (plafond, ['plafond']), (plafond_frame, ['gilt'])]
     for name, builder, mats in (
         ('stairs', build_stairs, ['marble_floor']),
         ('rail', build_rail, ['gilt']),
@@ -1391,6 +1611,13 @@ def main():
             'portholes': {'radiusM': PORT_R, 'depthM': PORT_DEPTH, 'y': list(PORT_Y), 'segments': PORT_SEG},
             'vault': {'springY': VAULT_SPRING_Y, 'crownY': Y_CROWN, 'facets': VAULT_NZ, 'coffers': [VAULT_NX, VAULT_NZ],
                       'cofferDepthM': COFFER_DEPTH, 'shading': 'smooth shared vault topology; sharp from angle 30 degrees'},
+            'plafond': {'bays': PLAFOND_BAYS, 'frameSectionM': PLAFOND_FRAME, 'borderM': BORDER_M,
+                        'plateMax': PLATE_MAX, 'meshes': ['plafond', 'plafond_frame'],
+                        'plate': {'name': 'plafond', 'size': 1024, 'seed': hex(TEX_SEED['plafond']),
+                                  'space': 'stored sRGB-encoded; figure-free open sky',
+                                  'sampler': 'CLAMP_TO_EDGE (one-shot)'},
+                        'uv': 'field-planar (x, z) → 0..1 over the field bounds; the metre-repeat law exempted',
+                        'shading': 'smooth shared plafond topology; sharp from angle 30 degrees'},
             'vestibule': {'x': list(VEST_X), 'z': list(VEST_Z), 'ceilingY': VEST_H,
                           'door': {'x': list(DOOR_X), 'head': DOOR_H}},
             'landingY': LANDING_Y,

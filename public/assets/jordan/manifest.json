@@ -3,8 +3,8 @@
   "files": [
     {
       "path": "jordan.glb",
-      "bytes": 337064,
-      "sha256": "a804457349d61ee45d1c74ca3b08b3803de10794ba13cd2e44f32d8ea5c0307b",
+      "bytes": 334316,
+      "sha256": "af1027bd17c163fd4cb88b3781e11c92d88029e23c93a5e13fbb373e4501da2c",
       "kind": "glb"
     },
     {
@@ -50,6 +50,12 @@
       "kind": "ktx2"
     },
     {
+      "path": "tex/plafond.ktx2",
+      "bytes": 129028,
+      "sha256": "155b11a09a77e13894e6c7df96b28a16072af35a993c9daedb1234d95a1f3bb0",
+      "kind": "ktx2"
+    },
+    {
       "path": "tex/plaster_warm.ktx2",
       "bytes": 8790,
       "sha256": "bd2f2eb5e9e696947c6281199db7ce77181f160c340a909271345f4f0b6aa377",
@@ -62,13 +68,25 @@
         "name": "shell",
         "instances": 1,
         "primitives": 2,
-        "triangles": 3740
+        "triangles": 3380
       },
       {
         "name": "pane",
         "instances": 1,
         "primitives": 1,
         "triangles": 24
+      },
+      {
+        "name": "plafond",
+        "instances": 1,
+        "primitives": 1,
+        "triangles": 40
+      },
+      {
+        "name": "plafond_frame",
+        "instances": 1,
+        "primitives": 1,
+        "triangles": 116
       },
       {
         "name": "stairs",
@@ -215,8 +233,8 @@
         "triangles": 32
       }
     ],
-    "trianglesUnique": 7238,
-    "trianglesDrawn": 32086,
+    "trianglesUnique": 7034,
+    "trianglesDrawn": 31882,
     "extensionsRequired": [
       "EXT_meshopt_compression",
       "KHR_mesh_quantization",
