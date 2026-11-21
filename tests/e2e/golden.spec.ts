@@ -157,6 +157,15 @@ test('golden: S0b dec noon (the missing wall)', async ({ page }) => {
   await expect(page).toHaveScreenshot('golden-s0b-dec-noon.png', SHOT);
 });
 
+// The square-next round: the HQ's night lattice joins the palace's ONE night law — the
+// S0b monument pause at the winter NIGHT, the night twin of the DEC-049 acceptance
+// frame: the Column's silhouette against the lit HQ wall (the kit node's three pane
+// slots bound to the lattice stock). The owner's «I prefer night» instrument.
+test('golden: S0b dec night (the lit wall)', async ({ page }) => {
+  await settledPage(page, 'at=2026-12-21T18:00:00Z&det=1&stop=S0b');
+  await expect(page).toHaveScreenshot('golden-s0b-dec-night.png', SHOT);
+});
+
 // DEC-033: an isolated lattice fence now that dec night fences two things — 15 Oct 23:00 local
 // (20:00Z): wNight === 1, wSnow === 0 (Oct 15 precedes the Nov 10 anchor; the cap hidden, the
 // slot an exact identity).
