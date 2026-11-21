@@ -3902,6 +3902,8 @@ const tick = (timeMs: number): void => {
             massing: massingMaterial,
             dressing: facadeBuild.material,
             'dark-pane': nightLattice.materials.dark,
+            'dim-pane': nightLattice.materials.dim,
+            'bright-pane': nightLattice.materials.bright,
           },
         });
         // §8.3 layer 2 baseline: the post-boot object counts, only when no room is mounted.

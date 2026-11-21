@@ -11,12 +11,12 @@ import {
   Vector3,
 } from 'three';
 import { describe, expect, it } from 'vitest';
-import { RECESS_HEX, surroundOpening } from '../src/procedural/facade-builder';
+import { surroundOpening } from '../src/procedural/facade-builder';
 import type { Placement } from '../src/procedural/facade-solver';
 import { buildNightLattice, type LatticeSource } from '../src/procedural/night-lattice';
 import {
-  DARK_PANE_TONE,
   K_LEVEL,
+  PANE_BASE_TONE,
   PANE_LEVELS,
   PANE_STANDOFF,
   PEAK_EMISSIVE_INTENSITY,
@@ -51,7 +51,7 @@ function surroundFixture(): Placement[] {
 }
 const source = (placements: readonly Placement[]) => ({ placements }) satisfies LatticeSource;
 
-const darkToneHex = new Color().setRGB(...DARK_PANE_TONE).getHex();
+const baseToneHex = new Color().setRGB(...PANE_BASE_TONE).getHex();
 
 describe('night-lattice: structure', () => {
   it('builds one InstancedMesh per level, in level order, inside one group', () => {
@@ -93,7 +93,7 @@ describe('night-lattice: structure', () => {
       );
     }
   });
-  it('is shadow-free, static, bounded, stock material, recess base colour', () => {
+  it('is shadow-free, static, bounded, stock material, the one shared base tone', () => {
     const lattice = buildNightLattice(source(surroundFixture()));
     for (const level of PANE_LEVELS) {
       const mesh = lattice.meshes[level];
@@ -102,11 +102,11 @@ describe('night-lattice: structure', () => {
       expect(mesh.instanceMatrix.usage).toBe(StaticDrawUsage);
       expect(mesh.boundingSphere).not.toBeNull();
       expect(lattice.materials[level].type).toBe('MeshStandardMaterial');
-      // The facade-shadow round (2026-11-17): the dark pane's albedo lifted off the
-      // recess's near-black — the dim tone law, not the «indistinguishable» law.
-      expect(lattice.materials[level].color.getHex()).toBe(
-        level === 'dark' ? darkToneHex : RECESS_HEX,
-      );
+      // The facade-shadow round (2026-11-17) lifted the dark pane's albedo off the
+      // recess's near-black; the square-next round extends it to ALL three levels —
+      // the HQ kit binds the dim/bright stock at day too, and a per-level base would
+      // print a checkerboard on the sunlit west face (the R1 disproof).
+      expect(lattice.materials[level].color.getHex()).toBe(baseToneHex);
     }
   });
 });
@@ -183,7 +183,7 @@ describe('night-lattice: setNight', () => {
     // The facade-shadow round's law: the dark pane reads the wall dressing at half the
     // response (the dim tone), never the recess's near-black — the black cards printed
     // as impossible shadows on the hemisphere's warm-lit wall band (the owner's sighting).
-    expect(lattice.materials.dark.color.getHex()).toBe(darkToneHex);
+    expect(lattice.materials.dark.color.getHex()).toBe(baseToneHex);
     expect(lattice.materials.dark.emissive.getHex()).toBe(0);
     expect(lattice.materials.dark.emissiveIntensity).toBe(0);
   });

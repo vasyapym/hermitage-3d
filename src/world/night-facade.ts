@@ -48,6 +48,17 @@ export const PANE_STANDOFF = 0.01;
  * Linear channels, like WINDOW_WARM_LINEAR. Measured ratio card/wall ≈ 0.5.
  */
 export const DARK_PANE_TONE: LinearRgb = [0.37, 0.36, 0.35];
+/**
+ * The ONE unlit albedo shared by all three stock levels (the square-next round): the
+ * HQ's window quads bind the dim/bright stock at DAY too (the kit group is never
+ * hidden), and the dim/bright levels' old RECESS_HEX base would print a near-black
+ * checkerboard on the sunlit west face. The dark stock's DARK_PANE_TONE is the shared
+ * base; the warm hue stays the emissive's (the light's at w = 0). By reference — the
+ * law is the same array, not a copy. The palace lattice is hidden at wNight 0, so the
+ * palace's day frames cannot move; at night the emissive dominates and the albedo ×
+ * hemisphere term is sub-gate (the hemisphere is the night's only secondary light).
+ */
+export const PANE_BASE_TONE: LinearRgb = DARK_PANE_TONE;
 export const SURROUND_PART_PREFIX = 'surround-';
 export function isSurroundPartId(partId: string): boolean {
   return partId.startsWith(SURROUND_PART_PREFIX);

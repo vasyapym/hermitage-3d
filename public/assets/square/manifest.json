@@ -3,8 +3,8 @@
   "files": [
     {
       "path": "kit.glb",
-      "bytes": 80632,
-      "sha256": "aa8510d819ae1c53f55288345536f9cb2fa83f356501db31df6869005b2d6d04",
+      "bytes": 82760,
+      "sha256": "28ae152b3da23a82e747900e8344604ef6c6640b6bbeb54848ae08e77c00bfc1",
       "kind": "glb"
     }
   ],
@@ -42,9 +42,11 @@
       "materials": [
         "massing",
         "dressing",
-        "dark-pane"
+        "dark-pane",
+        "dim-pane",
+        "bright-pane"
       ]
     }
   ],
-  "glbSha256": "aa8510d819ae1c53f55288345536f9cb2fa83f356501db31df6869005b2d6d04"
+  "glbSha256": "28ae152b3da23a82e747900e8344604ef6c6640b6bbeb54848ae08e77c00bfc1"
 }

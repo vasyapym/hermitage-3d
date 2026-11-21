@@ -8,6 +8,9 @@
  * Budget: three InstancedMesh (one per level, one shared stock MeshStandardMaterial each) in one
  * Group — +3 draw calls, no lights, no custom materials, no fourth lightmap state. The host adds
  * the group to the palace group, so the indoors flip is inherited for free.
+ * The square-next round: all three stock levels share the ONE unlit albedo PANE_BASE_TONE —
+ * the HQ kit's window quads bind these materials at DAY too (the kit group is never hidden),
+ * so a per-level base would print a checkerboard on the sunlit HQ face.
  *
  * Geometry: a unit plane facing +z, scaled to surroundOpening(partId), centred on the recess
  * panel (x = 0, y = height / 2) a hair in front of its face (z = depth + PANE_STANDOFF), then
@@ -26,17 +29,17 @@ import {
   Vector3,
 } from 'three';
 import {
-  DARK_PANE_TONE,
   isSurroundPartId,
   latticeVisible,
   levelOf,
+  PANE_BASE_TONE,
   PANE_LEVELS,
   PANE_STANDOFF,
   type PaneLevel,
   paneIntensity,
   WINDOW_WARM_LINEAR,
 } from '../world/night-facade';
-import { RECESS_HEX, type SurroundOpening, surroundOpening } from './facade-builder';
+import { type SurroundOpening, surroundOpening } from './facade-builder';
 import type { Placement, SolvedFacade } from './facade-solver';
 
 export type LatticeSource = Pick<SolvedFacade, 'placements'>;
@@ -85,12 +88,13 @@ function openingFor(partId: PartId): SurroundOpening {
 function paneMaterial(level: PaneLevel): MeshStandardMaterial {
   const [r, g, b] = WINDOW_WARM_LINEAR;
   const emissive = level === 'dark' ? new Color(0, 0, 0) : new Color().setRGB(r, g, b);
-  // The dark pane's albedo is the facade-shadow round's DARK_PANE_TONE (the dim warm
-  // reflection), not the recess's near-black — the black cards printed as impossible
-  // shadows on the warm-lit wall band (the 2026-11-17 sighting).
-  const color = level === 'dark' ? new Color().setRGB(...DARK_PANE_TONE) : RECESS_HEX;
+  // Every stock level shares the ONE unlit albedo PANE_BASE_TONE (= DARK_PANE_TONE):
+  // the HQ's window quads bind these same materials at DAY too (the kit group is never
+  // hidden), and the dim/bright levels' old near-black RECESS_HEX base would print a
+  // checkerboard on the sunlit west face (the square-next round's R1 disproof). The
+  // warm hue stays the emissive's; the dark level keeps its zero-emissive law.
   const material = new MeshStandardMaterial({
-    color,
+    color: new Color().setRGB(...PANE_BASE_TONE),
     emissive,
     emissiveIntensity: 0,
     roughness: 1,

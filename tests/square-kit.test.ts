@@ -9,6 +9,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { SQUARE_RAIL } from '../src/camera/square-rail';
+import { levelOf } from '../src/world/night-facade';
 import type { Bounds, Vec3 } from '../src/world/registry';
 import type { SquareKitNode, SquareManifest } from '../src/world/square-kit';
 import * as kit from '../src/world/square-kit';
@@ -25,7 +26,7 @@ function hqNode(): SquareKitNode {
     name: 'el:hq-east',
     tris: 800,
     aabb: bounds([108.95, 0, 100], [134, 20.5, 240]),
-    materials: ['massing', 'dressing', 'dark-pane'],
+    materials: ['massing', 'dressing', 'dark-pane', 'dim-pane', 'bright-pane'],
   } satisfies SquareKitNode;
 }
 
@@ -71,13 +72,40 @@ describe('1 · DEC-045 constants and bind names', () => {
     expect(kit.KIT_MOUNT_STATES).toEqual(['loading', 'ready', 'failed']);
   });
 
-  it('has exactly three unique, case-sensitive shared-material bind keys', () => {
-    expect(kit.KIT_BIND_KEYS).toEqual(['massing', 'dressing', 'dark-pane']);
+  it('has exactly five unique, case-sensitive shared-material bind keys', () => {
+    expect(kit.KIT_BIND_KEYS).toEqual([
+      'massing',
+      'dressing',
+      'dark-pane',
+      'dim-pane',
+      'bright-pane',
+    ]);
     expect(new Set(kit.KIT_BIND_KEYS).size).toBe(kit.KIT_BIND_KEYS.length);
     for (const key of kit.KIT_BIND_KEYS) expect(kit.isKitBindKey(key)).toBe(true);
-    for (const key of ['Material', 'Massing', '', null, 1]) {
+    for (const key of ['Material', 'Massing', 'pane', '', null, 1]) {
       expect(kit.isKitBindKey(key)).toBe(false);
     }
+  });
+
+  it('pins the HQ pane re-slot law: the generated lit map over the palace hash space', () => {
+    expect(kit.HQ_PANE_ROWS).toBe(4);
+    expect(kit.HQ_PANE_COUNT).toBe(124);
+    expect(kit.HQ_PANE_SLOT).toEqual({ dark: 2, dim: 3, bright: 4 });
+    const table = kit.hqPaneLevelTable();
+    expect(table).toHaveLength(kit.HQ_PANE_COUNT);
+    expect(table).toMatch(/^[dib]+$/);
+    const counts: Record<string, number> = { d: 0, i: 0, b: 0 };
+    for (const ch of table) counts[ch] = (counts[ch] ?? 0) + 1;
+    const split = `dark ${counts.d ?? 0} · dim ${counts.i ?? 0} · bright ${counts.b ?? 0} of 124`;
+    for (const code of ['d', 'i', 'b'] as const) {
+      // every level present — the re-slot never degenerates to one stock material
+      expect(counts[code] ?? 0, split).toBeGreaterThanOrEqual(1);
+    }
+    // one law, one place: the SAME levelOf decides, so the table matches the hash space
+    expect(kit.hqPaneKey(0, 0)).toBe('el:hq-east/pane/b0/r0');
+    expect(kit.hqPaneKey(30, 3)).toBe('el:hq-east/pane/b30/r3');
+    expect(table[0]).toBe(kit.HQ_PANE_LEVEL_CODES[levelOf(kit.hqPaneKey(0, 0))]);
+    expect(table[table.length - 1]).toBe(kit.HQ_PANE_LEVEL_CODES[levelOf(kit.hqPaneKey(30, 3))]);
   });
 
   it('accepts only the adopted node-name grammar', () => {
@@ -443,7 +471,7 @@ describe('6 · the committed kit (G2/G3/G7 — batch M2)', () => {
     expect(node.aabb.max[1]).toBe(kit.HQ_CORNICE_M);
     expect(node.aabb.min[2]).toBe(kit.HQ_Z.north);
     expect(node.aabb.max[2]).toBe(kit.HQ_Z.south);
-    expect(node.materials).toEqual([...kit.KIT_BIND_KEYS]); // one slot per bind key = 3 draws
+    expect(node.materials).toEqual([...kit.KIT_BIND_KEYS]); // one slot per bind key = 5 draws
   });
 
   it('the committed payload sits inside the KIT allowance', () => {
@@ -453,5 +481,29 @@ describe('6 · the committed kit (G2/G3/G7 — batch M2)', () => {
 
   it('the manifest budget row equals the kit law', () => {
     expect(manifest).toHaveProperty('budget', { ...kit.SQUARE_KIT_BUDGET });
+  });
+});
+
+describe('7 · the generated lit map (the law-twin pin — Python holds data, never a law)', () => {
+  const py = readFileSync(join('tools', 'square-kit', 'build_square_kit.py'), 'utf8');
+
+  it('the bpy HQ_LEVELS table is the law table, bit-exact', () => {
+    const expected = kit.hqPaneLevelTable();
+    const match = /HQ_LEVELS = '([dib]+)'/.exec(py);
+    if (!match) {
+      throw new Error(
+        `build_square_kit.py carries no HQ_LEVELS table; paste the generated one:\n${expected}`,
+      );
+    }
+    expect(match[1]).toBe(expected);
+  });
+
+  it('the bpy LEVEL_SLOT equals the law slot map (dark 2 · dim 3 · bright 4)', () => {
+    expect(/LEVEL_SLOT = \{'d': 2, 'i': 3, 'b': 4\}/.test(py)).toBe(true);
+    expect(kit.HQ_PANE_SLOT).toEqual({ dark: 2, dim: 3, bright: 4 });
+  });
+
+  it('the bpy window loop indexes bay-major: LEVEL_SLOT[HQ_LEVELS[bay * 4 + row]]', () => {
+    expect(py).toContain('HQ_LEVELS[bay * 4 + row]');
   });
 });

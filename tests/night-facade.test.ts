@@ -6,12 +6,14 @@ import { describe, expect, it } from 'vitest';
 import { lightmapWeights } from '../src/sky/lightmap-weights';
 import { solarPosition } from '../src/sky/solar';
 import {
+  DARK_PANE_TONE,
   hashKey,
   K_LEVEL,
   LEVEL_SPLIT,
   type LinearRgb,
   latticeVisible,
   levelOf,
+  PANE_BASE_TONE,
   PANE_LEVEL_COUNT,
   PANE_LEVELS,
   type PaneLevel,
@@ -138,5 +140,11 @@ describe('night-facade: visibility and ground warm-up', () => {
     expect(mid[0]).toBeCloseTo((current[0] + WINDOW_WARM_LINEAR[0]) / 2, 12);
     expect(mid[1]).toBeCloseTo((current[1] + WINDOW_WARM_LINEAR[1]) / 2, 12);
     expect(mid[2]).toBeCloseTo((current[2] + WINDOW_WARM_LINEAR[2]) / 2, 12);
+  });
+});
+
+describe('night-facade: the one unlit albedo (the square-next round)', () => {
+  it('PANE_BASE_TONE is the dark stock tone by reference — one law, not a copy', () => {
+    expect(PANE_BASE_TONE).toBe(DARK_PANE_TONE);
   });
 });

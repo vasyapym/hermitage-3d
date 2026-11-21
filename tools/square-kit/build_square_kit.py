@@ -77,16 +77,22 @@ def main():
     bpy.ops.wm.read_factory_settings(use_empty=True)
 
     # === C1 content lands here (the node el:hq-east; design §3; the identity law above) ===
-    # The Guards Corps HQ east wall — massing-with-portico, ONE mesh ≤ 1,500 tris, three
+    # The Guards Corps HQ east wall — massing-with-portico, ONE mesh ≤ 1,500 tris, five
     # material slots. glTF frame: west face x 110, body depth 24 (east face 134), z 100–240,
     # cornice 20.5. Blender frame via the mapping law: x unchanged; y = −glTF_z (−100…−240);
     # z = glTF_y (0…20.5). Every vertex authored at WORLD coordinates, the object at the
     # origin — the identity law holds by construction. The planned tris ≈ 944: body 12,
     # plinth 12, тяга 12, 12 shafts 336, 12 bases 144, 12 capitals 144, entablature+cornice
-    # 36, 124 window quads 248.
+    # 36, 124 window quads 248. The square-next round re-slots the 124 quads into the
+    # three pane slots (dark-pane / dim-pane / bright-pane) by the GENERATED lit map —
+    # the law lives in src/world/square-kit.ts (hqPaneLevelTable over night-facade's
+    # levelOf); this file carries a pasted copy pinned bit-exact by the law's vitest
+    # gate (tests/square-kit.test.ts describe 7). Python holds data, never a law.
     m_massing = placeholder('massing', (0.5, 0.5, 0.5), 0.9)
     m_dressing = placeholder('dressing', (1.0, 1.0, 1.0), 0.85)
     m_darkpane = placeholder('dark-pane', (0.08, 0.08, 0.08), 0.6)
+    m_dimpane = placeholder('dim-pane', (0.08, 0.08, 0.08), 0.6)
+    m_brightpane = placeholder('bright-pane', (0.08, 0.08, 0.08), 0.6)
 
     FACE_X = 110.0  # the west face (glTF) — Blender x is the same axis
     Z_NORTH, Z_SOUTH = -100.0, -240.0  # Blender y = −glTF_z: north 100 → south 240
@@ -122,15 +128,21 @@ def main():
 
     bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
 
-    # The 124 window quads (dark-pane): 31 bays × 4 declared rows, flat on the west face,
-    # 0.02 proud. Rows (glTF y ranges): [1.5,4], [5,8], [10.5,14], [15,17.5]; width 2.2.
+    # The 124 window quads (the three pane slots): 31 bays × 4 declared rows, flat on the
+    # west face, 0.02 proud. Rows (glTF y ranges): [1.5,4], [5,8], [10.5,14], [15,17.5];
+    # width 2.2. The slot per window comes from the GENERATED lit map HQ_LEVELS (the law
+    # twin of src/world/square-kit.ts hqPaneLevelTable — the palace's own FNV hash and
+    # LEVEL_SPLIT decide; the real HQ's night occupancy is unsourced, the declared split
+    # stands in). Index is bay-major over the loop's own nesting order.
     ROWS = ((1.5, 4.0), (5.0, 8.0), (10.5, 14.0), (15.0, 17.5))
     BAYS = 31
     PITCH = (100.0 - 240.0) / BAYS  # Blender y step: −4.516…
     WINDOW_W = 2.2
+    HQ_LEVELS = 'ddddiiiibdddddddddddddddbbbbbbbbbbbbddddiiiiiiiiiiiiddddddddbbbbiiiiiiiiiiiiddddddddiiiiiiiibbbbiiiiiiiiiiiiddddiiiiiiiibbbb'
+    LEVEL_SLOT = {'d': 2, 'i': 3, 'b': 4}
     for bay in range(BAYS):
         centre = Z_NORTH + PITCH * (bay + 0.5)
-        for z0, z1 in ROWS:
+        for row, (z0, z1) in enumerate(ROWS):
             quads = [
                 bm.faces.new(
                     (
@@ -142,11 +154,11 @@ def main():
                 )
             ]
             for f in quads:
-                f.material_index = 2
+                f.material_index = LEVEL_SLOT[HQ_LEVELS[bay * 4 + row]]
     # The open quads' normals are wind-ambiguous — face them WEST (toward the square).
     bm.normal_update()
     for f in bm.faces:
-        if f.material_index == 2 and f.normal.x > 0:
+        if f.material_index >= 2 and f.normal.x > 0:
             f.normal_flip()
 
     # Whole-mesh white COLOR_0 (G5): the dressing primitives bind to the vertexColors kit
@@ -159,7 +171,7 @@ def main():
     me = bpy.data.meshes.new('el:hq-east')
     bm.to_mesh(me)
     bm.free()
-    for m in (m_massing, m_dressing, m_darkpane):
+    for m in (m_massing, m_dressing, m_darkpane, m_dimpane, m_brightpane):
         me.materials.append(m)
     ob = bpy.data.objects.new('el:hq-east', me)  # the object name = the glTF node name
     bpy.context.scene.collection.objects.link(ob)
