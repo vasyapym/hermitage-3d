@@ -62,7 +62,7 @@ const DARK_DRY_FLOOR = 10; // the ~0 black cells (the metallic gilt's diffuse) a
 // ---- the population (the same cells.json order — the pairing key) ----
 const population = [];
 for (const [key, row] of Object.entries(CELLS)) {
-  if (EXCLUDED.includes(row['material'])) continue;
+  if (EXCLUDED.includes(row.material)) continue;
   const [cx, cy] = key.split(',').map(Number);
   population.push([
     cy * CELL + PAD,

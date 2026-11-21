@@ -57,8 +57,12 @@ if (!/^\d+x\d+$/.test(GRID_SPEC)) {
 }
 const [GRID_COLS, GRID_ROWS] = GRID_SPEC.split('x').map((n) => Number.parseInt(n, 10));
 if (
-  !Number.isInteger(GRID_COLS) || !Number.isInteger(GRID_ROWS) ||
-  GRID_COLS < 1 || GRID_ROWS < 1 || GRID_COLS > 64 || GRID_ROWS > 64
+  !Number.isInteger(GRID_COLS) ||
+  !Number.isInteger(GRID_ROWS) ||
+  GRID_COLS < 1 ||
+  GRID_ROWS < 1 ||
+  GRID_COLS > 64 ||
+  GRID_ROWS > 64
 ) {
   console.error(`rg-f4-capture: bad grid ${GRID_SPEC} (1..64 per axis)`);
   process.exit(2);
@@ -194,38 +198,47 @@ for (const [state, stop] of FRAMES) {
       timeout: 60_000,
     });
 
-    const stats = await page.evaluate(async ({ b64, cols, rows }) => {
-      const blob = await (await fetch(`data:image/png;base64,${b64}`)).blob();
-      const bmp = await createImageBitmap(blob);
-      const cv = document.createElement('canvas');
-      cv.width = bmp.width;
-      cv.height = bmp.height;
-      const ctx = cv.getContext('2d');
-      ctx.drawImage(bmp, 0, 0);
-      const { data, width, height } = ctx.getImageData(0, 0, bmp.width, bmp.height);
-      const cellW = width / cols,
-        cellH = height / rows;
-      const grid = Array.from({ length: rows }, () => Array.from({ length: cols }, () => 0));
-      const gridN = Array.from({ length: rows }, () => Array.from({ length: cols }, () => 0));
-      let sum = 0,
-        lit = 0,
-        n = 0;
-      for (let y = 0; y < height; y += 2) {
-        for (let x = 0; x < width; x += 2) {
-          const i = (y * width + x) * 4;
-          const lum = 0.2126 * data[i] + 0.7152 * data[i + 1] + 0.0722 * data[i + 2];
-          sum += lum;
-          n += 1;
-          if (lum > 10) lit += 1;
-          const gr = Math.min(rows - 1, Math.floor(y / cellH));
-          const gc = Math.min(cols - 1, Math.floor(x / cellW));
-          grid[gr][gc] += lum;
-          gridN[gr][gc] += 1;
+    const stats = await page.evaluate(
+      async ({ b64, cols, rows }) => {
+        const blob = await (await fetch(`data:image/png;base64,${b64}`)).blob();
+        const bmp = await createImageBitmap(blob);
+        const cv = document.createElement('canvas');
+        cv.width = bmp.width;
+        cv.height = bmp.height;
+        const ctx = cv.getContext('2d');
+        ctx.drawImage(bmp, 0, 0);
+        const { data, width, height } = ctx.getImageData(0, 0, bmp.width, bmp.height);
+        const cellW = width / cols,
+          cellH = height / rows;
+        const grid = Array.from({ length: rows }, () => Array.from({ length: cols }, () => 0));
+        const gridN = Array.from({ length: rows }, () => Array.from({ length: cols }, () => 0));
+        let sum = 0,
+          lit = 0,
+          n = 0;
+        for (let y = 0; y < height; y += 2) {
+          for (let x = 0; x < width; x += 2) {
+            const i = (y * width + x) * 4;
+            const lum = 0.2126 * data[i] + 0.7152 * data[i + 1] + 0.0722 * data[i + 2];
+            sum += lum;
+            n += 1;
+            if (lum > 10) lit += 1;
+            const gr = Math.min(rows - 1, Math.floor(y / cellH));
+            const gc = Math.min(cols - 1, Math.floor(x / cellW));
+            grid[gr][gc] += lum;
+            gridN[gr][gc] += 1;
+          }
         }
-      }
-      const gridOut = grid.map((row, r) => row.map((v, c) => Math.round(v / gridN[r][c])));
-      return { cols, mean: +(sum / n).toFixed(1), grid: gridOut, lit: +(lit / n).toFixed(4), rows };
-    }, { b64: shot.toString('base64'), cols: GRID_COLS, rows: GRID_ROWS });
+        const gridOut = grid.map((row, r) => row.map((v, c) => Math.round(v / gridN[r][c])));
+        return {
+          cols,
+          mean: +(sum / n).toFixed(1),
+          grid: gridOut,
+          lit: +(lit / n).toFixed(4),
+          rows,
+        };
+      },
+      { b64: shot.toString('base64'), cols: GRID_COLS, rows: GRID_ROWS },
+    );
 
     const hudState = await page.evaluate(() => {
       const el = document.querySelector('#hud');
@@ -243,8 +256,11 @@ for (const [state, stop] of FRAMES) {
     console.log(
       `${name}: mean ${stats.mean} lit ${stats.lit} draws ${hudState.draws} tris ${hudState.tris} tier ${hudState.tier}`,
     );
-    console.log(GRID_SPEC === '6x4' ? `  grid: ${JSON.stringify(stats.grid)}`
-      : `  grid ${GRID_SPEC}: ${JSON.stringify(stats.grid)}`);
+    console.log(
+      GRID_SPEC === '6x4'
+        ? `  grid: ${JSON.stringify(stats.grid)}`
+        : `  grid ${GRID_SPEC}: ${JSON.stringify(stats.grid)}`,
+    );
     if (failedAssets.length) {
       failed += 1;
       logRows.push(`| ${name} | FAILED-ASSETS (${failedAssets.slice(0, 3).join(' · ')}) | | | | |`);
