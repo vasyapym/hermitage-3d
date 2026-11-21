@@ -39,6 +39,35 @@
 #     row 2 (rows 1->2 and 2->3) >= baseline + 4.
 #   G0b (day): the impost (the D5 rowsSpanned [5, 6], the junction-side subset): max
 #     adjacent-vertical |d| across rows 5->6 >= baseline + 3.
+# THE F5 ROWS (the RG-F5 dado + panel order; the pins from the f5-post2 capture 2026-11-21,
+# the positions derived from the contract's stop poses + the kit constants and verified
+# once on the frame — the numbers pin; they do not tune):
+#   F5-A (day-g1, the gallery panel at the niche x 32.146, the z=70 wall — the screen
+#     column 385-391): the frame's band steps through the panel: the top band rows
+#     443-449 vs the interior rows 453-470 >= +12 (the M_STUCCO-over-M_PALE albedo step;
+#     measured +22.7); the bottom band rows 475-481 vs the interior >= +12 (measured
+#     +20.5); the rail's underside line rows 435-439 vs the rail's front rows 428-432
+#     <= -8 (the fillet-shade device; measured -35.9).
+#   F5-B (night-g1): the same pins: the band steps >= +5 (measured +19.9/+18.5), the
+#     shade line <= -8 (measured -32.1).
+#   F5-C: the frame-mean drift |after - probes/rg-f4-f5-pre| <= +3.0 at every one of the
+#     13 frames (the subtlety guard; the relief must not shift the room's light).
+#   F5-D (day-g0b, the east passage wall's tall panel, the bay 63.5-66.75 — the screen
+#     column 428-441): the top band rows 313-318 vs the interior rows 325-380 >= +12
+#     (measured +12.3); the bottom band rows 384-390 vs the interior >= +12 (measured
+#     +12.0).
+F5_PINS = {
+    'day-g1': {'col': (385, 392), 'topBand': (443, 450), 'interior': (453, 471),
+               'bottomBand': (475, 482), 'railFront': (428, 433), 'shade': (435, 440)},
+    'night-g1': {'col': (385, 392), 'topBand': (443, 450), 'interior': (453, 471),
+                 'bottomBand': (475, 482), 'railFront': (428, 433), 'shade': (435, 440)},
+    'day-g0b': {'col': (428, 442), 'topBand': (313, 319), 'interior': (325, 381),
+                'bottomBand': (384, 391)},
+}
+F5_BAND_STEP_MIN = 12.0     # F5-A/F5-D
+F5_BAND_STEP_MIN_NIGHT = 5.0   # F5-B
+F5_SHADE_MAX = -8.0
+F5_MEAN_DRIFT_MAX = 3.0
 # THE PINNED BASELINES: probes/rg-f4-rgaudit-pre-aligned (2026-11-20, tree 656623ba, the
 # PRE-S2A-bake state) — the committed plates + the pre-re-weight glb 5bf119e8 = the ALIGNED
 # pre-junction read; it reproduces the committed battery's own numbers exactly (day-g1
@@ -268,10 +297,57 @@ if before_dir is not None:
 else:
     jdiag.append('the before dir absent — the v3 diff rows skipped (the standing 13 still run)')
 
-fails += len([1 for _n, _d, ok in jver if not ok])
-for name, detail, ok in jver:
+# ---- the F5 rows (the RG-F5 dado + panel order's delivered steps) ---------------------------
+f5 = []
+f5_diag = []
+for name in ('day-g1', 'night-g1'):
+    img = frame_lum(after_dir, name)
+    pin = F5_PINS[name]
+    if img is None:
+        f5_diag.append(f'F5 {name} missing (row skipped)')
+        continue
+    c0, c1 = pin['col']
+    col = img[:, c0:c1].mean(axis=1)
+    def band(a, b):
+        return float(col[a:b].mean())
+    top = band(*pin['topBand']) - band(*pin['interior'])
+    bot = band(*pin['bottomBand']) - band(*pin['interior'])
+    shade = band(*pin['shade']) - band(*pin['railFront'])
+    floor = F5_BAND_STEP_MIN if name == 'day-g1' else F5_BAND_STEP_MIN_NIGHT
+    f5.append((f'F5-{name} top band step >= {floor:+.0f}', f'{top:+.1f}', top >= floor))
+    f5.append((f'F5-{name} bottom band step >= {floor:+.0f}', f'{bot:+.1f}', bot >= floor))
+    f5.append((f'F5-{name} shade line <= {F5_SHADE_MAX:+.0f}', f'{shade:+.1f}',
+               shade <= F5_SHADE_MAX))
+img = frame_lum(after_dir, 'day-g0b')
+if img is None:
+    f5_diag.append('F5 day-g0b missing (row skipped)')
+else:
+    pin = F5_PINS['day-g0b']
+    c0, c1 = pin['col']
+    col = img[:, c0:c1].mean(axis=1)
+    def band2(a, b):
+        return float(col[a:b].mean())
+    top = band2(*pin['topBand']) - band2(*pin['interior'])
+    bot = band2(*pin['bottomBand']) - band2(*pin['interior'])
+    f5.append(('F5-day-g0b top band step >= +12', f'{top:+.1f}', top >= F5_BAND_STEP_MIN))
+    f5.append(('F5-day-g0b bottom band step >= +12', f'{bot:+.1f}', bot >= F5_BAND_STEP_MIN))
+if before_dir is not None:
+    for name in FRAMES:
+        a = frame_lum(after_dir, name)
+        b = frame_lum(before_dir, name)
+        if a is None or b is None or a.shape != b.shape:
+            f5.append(('F5-C drift present', f'{name} missing frame pair', False))
+            continue
+        drift = float(a.mean() - b.mean())
+        f5.append((f'F5-C {name} frame-mean drift <= +3.0', f'{drift:+.3f}',
+                   abs(drift) <= F5_MEAN_DRIFT_MAX))
+else:
+    f5_diag.append('the before dir absent — the F5-C drift rows skipped (the standing 13 still run)')
+
+fails += len([1 for _n, _d, ok in f5 if not ok])
+for name, detail, ok in f5:
     print(f'{"PASS" if ok else "FAIL"}  {name}: {detail}')
-for line in jdiag:
+for line in f5_diag:
     print(line)
-print(f'{len(verd) + len(jver) - fails}/{len(verd) + len(jver)} bars pass')
+print(f'{len(verd) + len(jver) + len(f5) - fails}/{len(verd) + len(jver) + len(f5)} bars pass')
 sys.exit(0 if fails == 0 else 1)
