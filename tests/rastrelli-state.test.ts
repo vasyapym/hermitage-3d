@@ -10,7 +10,7 @@
 //    (the dado + panel order, 2026-11-21) is a GEOMETRY round: the glb re-pins DELIBERATELY
 //    (d760c431… — the exported-never-baked families: the dado datum + 56 framed panels ride
 //    the shell's roster with ADOPTED TEXCOORD_1 (the hosts' cells; no new atlas cells), so
-//    all three plates stayed byte-identical and only the glb grew, +40,084 B). The three
+//    all three plates stayed byte-identical and only the glb grew, +40,224 B). The three
 //    plate shas below are the junction-law values and HELD through the RG-F5 re-bake proof
 //    (the bake chain never builds the families — build_room guards on ZIMNY_BAKE).
 //    THE JUNCTION LAW (rg-audit batch B) re-pinned ALL THREE PLATES deliberately: the day and
@@ -32,8 +32,8 @@
 //    the round record, never silently pass. The junction-law round re-pinned the sums with
 //    the glb's measured +392 B (the UV2 re-weight; the verdict's ±200 forecast) plus the
 //    fresh plates' texture delta (the declared room-local allowance +15,000 B). RG-F5
-//    re-pinned the sums again: the glb +40,084 B (the borrowed families' faces; the plates
-//    and the texture line byte-held), tris 10,868 → 12,544 drawn.
+//    re-pinned the sums again: the glb +40,224 B (the borrowed families' faces; the plates
+//    and the texture line byte-held), tris 10,868 → 12,540 drawn.
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -90,7 +90,7 @@ describe('rastrelli-gallery state (RG-F4)', () => {
     const day = MANIFEST.files.find((f) => f.path === 'lm/day.ktx2');
     const dusk = MANIFEST.files.find((f) => f.path === 'lm/dusk.ktx2');
     const night = MANIFEST.files.find((f) => f.path === 'lm/night.ktx2');
-    expect(glb?.sha256).toBe('ee0e0dbd646870af94afc5e07f55b44906dcae2ec4e29e2063f90409afe301e0');
+    expect(glb?.sha256).toBe('30137c871724fd060ea103f18bbcbcb190c1e86f728a64748afbe2a69690d0b7');
     expect(day?.sha256).toBe('21070dfc50ded69a9ec45769e72972a25c9a60b23cd0d822eba44c13e15b86a3');
     expect(dusk?.sha256).toBe('d4eec68c205bd6cde4f47eef67c84ba7963169a4db75ad5da903722f0e6cfe25');
     expect(night?.sha256).toBe('27bb7c1eedd4e9cbb7e90e617da3e1ae00a817b7fa8f11ba5cf43a311b6f55e9');
@@ -109,8 +109,8 @@ describe('rastrelli-gallery state (RG-F4)', () => {
       .reduce((acc, f) => acc + f.bytes, 0);
     expect(sum).toBeLessThanOrEqual(MANIFEST.budget.payloadBytesMax);
     expect(tex).toBeLessThanOrEqual(MANIFEST.budget.textureBytesMax);
-    expect(sum).toBe(1184685); // the RG-F5 manifest (the geometry's +40,084 B; the plates byte-held)
+    expect(sum).toBe(1184825); // the RG-F5 manifest (the geometry's +40,224 B; the plates byte-held)
     expect(tex).toBe(891897);
-    expect(MANIFEST.geometry?.trianglesDrawn).toBe(12544); // the file-level law rides tests/assets.test.ts
+    expect(MANIFEST.geometry?.trianglesDrawn).toBe(12540); // the file-level law rides tests/assets.test.ts
   });
 });

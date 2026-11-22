@@ -27,8 +27,8 @@
     },
     {
       "path": "rastrelli-gallery.glb",
-      "bytes": 292788,
-      "sha256": "ee0e0dbd646870af94afc5e07f55b44906dcae2ec4e29e2063f90409afe301e0",
+      "bytes": 292928,
+      "sha256": "30137c871724fd060ea103f18bbcbcb190c1e86f728a64748afbe2a69690d0b7",
       "kind": "glb"
     },
     {
@@ -62,7 +62,7 @@
         "name": "shell",
         "instances": 1,
         "primitives": 7,
-        "triangles": 11620
+        "triangles": 11616
       },
       {
         "name": "sconce",
@@ -71,8 +71,8 @@
         "triangles": 66
       }
     ],
-    "trianglesUnique": 11686,
-    "trianglesDrawn": 12544,
+    "trianglesUnique": 11682,
+    "trianglesDrawn": 12540,
     "extensionsRequired": [
       "EXT_meshopt_compression",
       "KHR_mesh_quantization",

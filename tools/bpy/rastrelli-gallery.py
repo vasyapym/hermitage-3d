@@ -243,7 +243,8 @@ F5_PANEL_TALL = (F5_PASSAGE_BAYS_W + (F5_PASSAGE_BAYS_E - F5_PASSAGE_SCONCE_BAYS
                  + F5_PASSAGE_BAYS_N + F5_ENDWALL_FLANKS)   # 16
 F5_PANELS = F5_PANEL_DADO + F5_PANEL_TALL                   # 56
 F5_RAIL_RUNS = 2 * (1 + 2 * len(NICHE_CENTRES)) + 4 + 4      # 54 (46 gallery + 4 passage + 4 end wall)
-F5_RAIL_CAPS = 2 + 2                                        # the 2 mouth caps + the 2 jamb caps
+F5_RAIL_CAPS = 2                                            # the 2 jamb-band caps (the mouth
+                                                            # ends are the mating mitres now)
 BORROWED_ELEMENTS = ('dado.panel', 'dado.rail')
 F5_HOST_ELEMENTS = ('wall.field', 'passage.field', 'wall.e')
 F5_COLLIDER_ELEMENTS = ('pilaster', 'ressaut', 'cornice', 'skirting', 'impost', 'doorcase',
@@ -504,6 +505,7 @@ class Builder:
         self.tags = {}
         self.counts = {}
         self.borrowed_planes = {}   # RG-F5: the borrowed faces' host planes (adopt_lm_uv)
+        self.borrowed_wraps = set()  # RG-F5: the mitred-wrap faces (the fallback's lawful users)
 
     def vert(self, p):
         key = (round(p[0], WELD_DP), round(p[1], WELD_DP), round(p[2], WELD_DP))
@@ -1933,13 +1935,20 @@ def _rail_mat(ym):
 def rail_run(b, plane, t0, t1, mitre0=0, mitre1=0, cap0=False, cap1=False):
     """The dado datum: the sill-ledge section (y 0.84-0.90, proud 0.06) run t0..t1. The
     mitre/cap laws are the kit's own (profile_run/profile_cap); the exposed caps read
-    M_SHADE (end grain), the plinth/shaft ends emit no cap (solid-on-solid)."""
+    M_SHADE (end grain), the plinth/shaft ends emit no cap (solid-on-solid). A mitred end
+    is a WRAP (its mating run supplies the diagonal half) - the wrap faces register in
+    builder.borrowed_wraps for the adoption's fallback law."""
+    n0 = len(b.roster)
     profile_run(b, plane, DADO_RAIL_PROFILE, t0, t1, _rail_mat, lambda _y: 'dado.rail',
                 mitre0, mitre1)
     if cap0:
         profile_cap(b, plane, DADO_RAIL_PROFILE, t0, -1.0, M_SHADE, 'dado.rail')
     if cap1:
         profile_cap(b, plane, DADO_RAIL_PROFILE, t1, 1.0, M_SHADE, 'dado.rail')
+    if mitre0 or mitre1:
+        for entry in b.roster[n0:]:
+            if entry[3] in BORROWED_ELEMENTS:
+                b.borrowed_wraps.add(entry[0])
 
 
 def build_panel(b, plane, t0, t1, y0, y1):
@@ -2021,14 +2030,18 @@ def build_passage_families(b):
     n0 = len(b.roster)
     rail_run(b, PWALL_W, P_Z0, P_Z1, mitre0=1)
     _register_borrowed(b, PWALL_W, n0)
+    # the mouth corners (4, 70)/(4, 76) are EXTERNAL: BOTH runs wrap (mitre -1) and meet
+    # at the 45-deg seam - the gallery's reveal runs carry the matching mitre0=-1. A
+    # square cap here would leave the diagonal half of the corner cube open (the
+    # review-pass finding: a notch at the joint; the FACING/COVERED gates cannot see it).
     n0 = len(b.roster)
-    rail_run(b, PWALL_E, P_Z0, G_Z0, mitre0=1, cap1=True)
+    rail_run(b, PWALL_E, P_Z0, G_Z0, mitre0=1, mitre1=-1)
     _register_borrowed(b, PWALL_E, n0)
     # the facade ends (z 87.5, the open arch plane) carry NO cap: the room's air ends
     # there (air_contains stops at P_Z1) and a +z cap would fail the FACING gate - the
     # rail dies at the plane exactly like the fields' own open edges.
     n0 = len(b.roster)
-    rail_run(b, PWALL_E, G_Z1, P_Z1, cap0=True)
+    rail_run(b, PWALL_E, G_Z1, P_Z1, mitre0=-1)
     _register_borrowed(b, PWALL_E, n0)
     n0 = len(b.roster)
     rail_run(b, PWALL_N, P_X0, P_X1, mitre0=1, mitre1=1)
@@ -2126,20 +2139,26 @@ def _bary(p, a, b, c):
 
 
 def _point_in_poly(p, poly):
-    """The polygon-exact containment (the crossing test, concave-safe; the boundary is
-    inside within the eps)."""
-    inside = False
+    """The polygon-exact containment: the on-segment pre-test first (the boundary is
+    inside, ALL edge orientations - the review-pass NOTE: a foot on a horizontal shared
+    edge used to skip both hosts' tests and let the roster order decide), then the
+    crossing test (concave-safe)."""
     n = len(poly)
+    for i in range(n):
+        ax, ay = poly[i]
+        bx, by = poly[(i + 1) % n]
+        cross = (bx - ax) * (p[1] - ay) - (by - ay) * (p[0] - ax)
+        if abs(cross) <= 1e-9 and min(ax, bx) - 1e-9 <= p[0] <= max(ax, bx) + 1e-9 \
+                and min(ay, by) - 1e-9 <= p[1] <= max(ay, by) + 1e-9:
+            return True
+    inside = False
     for i in range(n):
         ax, ay = poly[i]
         bx, by = poly[(i + 1) % n]
         if (ay > p[1]) != (by > p[1]):
             t = (p[1] - ay) / (by - ay)
-            x_cross = ax + t * (bx - ax)
-            if x_cross > p[0] + 1e-9:
+            if ax + t * (bx - ax) > p[0] + 1e-9:
                 inside = not inside
-            elif abs(x_cross - p[0]) <= 1e-9:
-                return True   # the foot sits on this edge: inside
     return inside
 
 
@@ -2185,17 +2204,19 @@ def _nearest_on_poly(p, poly):
 
 def adopt_lm_uv(builder, lm_lay, packed, borrowed):
     """The borrowed-UV law: every borrowed FACE adopts ONE host wall face's TEXCOORD_1 map
-    (the host picked per FACE by its centroid's foot point - polygon-exact containment, the
-    crossing test, concave-safe; the first containing field face in roster order) and all
-    the face's loops map through THAT host's exact affine cell map (the pack's per-face
-    mapping is affine over its plane - solved from the host's first three non-collinear
-    loops). ONE host per face keeps every face's uv quad inside one atlas cell - the
-    per-loop picking let a concave piece's fan triangle (which extends outside its polygon)
-    falsely contain a neighbouring face's feet and scatter the face's loops across cells
-    (the rendered speckle class, found and fixed the same session). The uv clamps 1 texel
-    inside the host's mapped bbox (the gutter law). Fail loud when a centroid finds no
-    host: the nearest-boundary fallback covers only the mitre-wrap class within
-    F5_ADOPT_CLAMP_M (the mouth corners belong to neither wall's field by design)."""
+    (the host picked per FACE by its centroid's foot point - polygon-exact containment,
+    the crossing test, concave-safe; the first containing field face in roster order) and
+    all the face's loops map through THAT host's exact affine cell map (the pack's
+    per-face mapping is affine over its plane - solved from the host's first three
+    non-collinear loops). ONE host per face keeps every face's uv quad inside one atlas
+    cell - the per-loop picking let a concave piece's fan triangle (which extends outside
+    its polygon) falsely contain a neighbouring face's feet and scatter the face's loops
+    across cells (the rendered speckle class, found and fixed the same session). EVERY
+    loop's foot clamps onto the host polygon before the map (a foot outside - a band
+    crossing a concave cutout, a mitre-wrap end - would extrapolate into the cutout's
+    unpainted/dilated texels). The uv clamps 1 texel inside the host's mapped bbox (the
+    gutter law). The centroid fallback is WRAP-ONLY (the tagged mitre-wrap faces; an
+    ordinary family face failing containment fails loud)."""
     hosts = {}
     for entry in packed:
         f, _kind, _uid, el = entry
@@ -2210,7 +2231,7 @@ def adopt_lm_uv(builder, lm_lay, packed, borrowed):
                 break
         if axis is None:
             continue  # not an axis-aligned wall face (the fields always are)
-        offset = world[0][0 if axis == 'x' else 2]
+        offset = round(world[0][0 if axis == 'x' else 2], 4)
         ty = [_f5_ty_from_axis(axis, w) for w in world]
         uvs = [tuple(loop[lm_lay].uv) for loop in f.loops]
         xs = [q[0] for q in ty]
@@ -2225,7 +2246,7 @@ def adopt_lm_uv(builder, lm_lay, packed, borrowed):
         plane = builder.borrowed_planes.get(f)
         if plane is None:
             fail(f'adopt_lm_uv: the borrowed {el} face carries no host plane')
-        candidates = hosts.get((plane.axis, plane.offset))
+        candidates = hosts.get((plane.axis, round(plane.offset, 4)))
         if not candidates:
             fail(f'adopt_lm_uv: no {el} hosts on {plane.name}')
         loops = list(zip(f.loops, f.verts))
@@ -2240,9 +2261,15 @@ def adopt_lm_uv(builder, lm_lay, packed, borrowed):
                 hit = (ty, uvs, bbox, host_el)
                 break
         if hit is None:
-            # The nearest-boundary fallback: the mitre-wrap faces' centroids sit outside
-            # every host polygon by design (the mouth corners belong to neither wall's
-            # field) - clamp to the closest boundary within F5_ADOPT_CLAMP_M.
+            # The fallback is WRAP-ONLY (the review-pass finding): a face whose centroid
+            # sits outside every host polygon is lawful only for the tagged mitre-wrap
+            # class (the mouth corners belong to neither wall's field by design); an
+            # ordinary family face failing containment is a construction error - fail
+            # loud instead of silently borrowing a neighbour's edge texels.
+            if f not in builder.borrowed_wraps:
+                fail(f'adopt_lm_uv: the borrowed {el} face at '
+                     f'({centre[0]:.3f}, {centre[1]:.3f}) is not a tagged mitre wrap '
+                     f'but finds no host on {plane.name}')
             best = None
             for ty, uvs, bbox, host_el, _x0, _x1, _y0, _y1 in candidates:
                 q = _nearest_on_poly(centre, ty)
@@ -2269,7 +2296,12 @@ def adopt_lm_uv(builder, lm_lay, packed, borrowed):
         if affine is None:
             fail(f'adopt_lm_uv: the host {host_el} has no non-collinear loops')
         for loop, _vert, foot in zip(f.loops, f.verts, feet):
-            u, v = _apply_affine(affine, foot)
+            # the per-foot polygon clamp (the review-pass FIX: a loop's foot outside the
+            # host polygon - a band crossing a concave cutout, a mitre-wrap end - would
+            # EXTRAPOLATE the affine map into the cutout's unpainted/dilated texels;
+            # clamp the foot onto the host boundary first, then map).
+            q = foot if _point_in_poly(foot, ty) else _nearest_on_poly(foot, ty)
+            u, v = _apply_affine(affine, q)
             loop[lm_lay].uv = (min(max(u, bbox[0] + tx), bbox[1] - tx),
                                min(max(v, bbox[2] + tx), bbox[3] - tx))
 
@@ -2285,18 +2317,38 @@ def _face_aabb(face):
             min(w[2] for w in world), max(w[2] for w in world))
 
 
-def _aabb_overlap(a, b):
-    """Positive-volume intersection (touching boundaries pass - zero measure)."""
-    return (min(a[1], b[1]) - max(a[0], b[0]) > 1e-9 and
-            min(a[3], b[3]) - max(a[2], b[2]) > 1e-9 and
-            min(a[5], b[5]) - max(a[4], b[4]) > 1e-9)
+def _aabb_strict_overlap(a, b):
+    """The positive-volume intersection: overlap > 1e-9 on every axis. A face with a
+    zero-extent AABB axis can never satisfy it (the buried-face class below)."""
+    return all(min(a[2 * i + 1], b[2 * i + 1]) - max(a[2 * i], b[2 * i]) > 1e-9
+               for i in range(3))
+
+
+def _aabb_centre(box):
+    return tuple((box[2 * i] + box[2 * i + 1]) / 2.0 for i in range(3))
+
+
+def _face_penetrates(box, collider_box):
+    """(a) the strict overlap (the partial-penetration class) OR (b) the face's centroid
+    inside the collider shrunk by 1e-6 (the buried-face class: a planar face inside a
+    proud solid carries a zero AABB extent there and the strict test cannot see it -
+    the review-pass BREAK: 'moving a connector 1 cm into a shaft can still yield zero
+    offenders'). The shrink keeps the exact-boundary abutments (the ledge ends, the
+    plinth contacts) unflagged."""
+    if _aabb_strict_overlap(box, collider_box):
+        return True
+    c = _aabb_centre(box)
+    return all(collider_box[2 * i] + 1e-6 <= c[i] <= collider_box[2 * i + 1] - 1e-6
+               for i in range(3))
 
 
 def gate_f5_collision(b):
-    """RG-F5's own belt: no borrowed face's AABB positively intersects any committed proud
-    element's AABB (the connectors stop RAIL_STOP short of the shafts, the panels stay
-    PANEL_INSET clear of the surrounds and the doorcase bands, the datum clears the
-    skirting/impost bands). The fields are NOT colliders (the families sit ON them)."""
+    """RG-F5's own belt: no borrowed face penetrates any committed proud element's AABB -
+    the strict overlap (the partial class) or the centroid-in-shrunk-box (the buried
+    class). The exact-boundary abutments (the ledge ends, the plinth contacts) touch on
+    a zero-measure boundary and pass. The fields are NOT colliders (the families sit ON
+    them); the sconce instances get their own belt (gate_f5_sconces, after the instances
+    exist)."""
     colliders = [(_face_aabb(entry[0]), entry[3]) for entry in b.roster
                  if entry[3] in F5_COLLIDER_ELEMENTS]
     offenders = []
@@ -2305,8 +2357,28 @@ def gate_f5_collision(b):
             continue
         box = _face_aabb(entry[0])
         for cbox, el in colliders:
-            if _aabb_overlap(box, cbox):
+            if _face_penetrates(box, cbox):
                 offenders.append({'borrowed': entry[3], 'collider': el})
+    return offenders
+
+
+def gate_f5_sconces(scene, borrowed_boxes):
+    """The borrowed faces' clearance from the SCONCE INSTANCES (the bay-skip law's own
+    belt: the passage tall panels skip the 2 mouth-sconce bays by construction; this
+    proves it - the shell-roster scan cannot see the separate sconce meshes). The faces'
+    boxes are snapshotted BEFORE finish() frees the builder's bmesh."""
+    sconce_boxes = []
+    for obj in scene.objects:
+        if obj.type == 'MESH' and obj.name.split('.')[0] == 'sconce':
+            corners = [obj.matrix_world @ Vector(c) for c in obj.bound_box]
+            sconce_boxes.append((min(c.x for c in corners), max(c.x for c in corners),
+                                 min(c.y for c in corners), max(c.y for c in corners),
+                                 min(c.z for c in corners), max(c.z for c in corners)))
+    offenders = []
+    for box, el in borrowed_boxes:
+        for sbox in sconce_boxes:
+            if _face_penetrates(box, sbox):
+                offenders.append({'borrowed': el, 'sconce': True})
     return offenders
 
 
@@ -2684,6 +2756,10 @@ def main():
         collisions = gate_f5_collision(b)
         if collisions:
             fail('F5 COLLISION offenders: ' + json.dumps(collisions[:8]))
+        # the borrowed boxes ride the sconce belt AFTER the instances exist (the bmesh
+        # frees at finish - the faces are dead by then, the boxes are the snapshot)
+        borrowed_boxes = [(_face_aabb(entry[0]), entry[3]) for entry in b.roster
+                          if entry[3] in BORROWED_ELEMENTS]
 
     img_stone, png_stone = write_texture('stone_flags', stone_flags_px, tex_dir)
     img_pale, png_pale = write_texture('plaster_pale', plaster_pale_px, tex_dir)
@@ -2720,6 +2796,10 @@ def main():
         instance('sconce', me_sconce, (x, SCONCE_Y, G_Z1 - SCONCE_MOUNT_D), math.pi)
     for z in SCONCE_SEW_Z:  # 2 passage-mouth sconces on the passage's east wall, facing west
         instance('sconce', me_sconce, (P_X1, SCONCE_Y, z), -math.pi / 2)
+    if not BAKE:
+        sconce_offenders = gate_f5_sconces(bpy.context.scene, borrowed_boxes)
+        if sconce_offenders:
+            fail('F5 SCONCE offenders: ' + json.dumps(sconce_offenders[:8]))
     build_junction_proxies(JUNCTION)
     if BAKE:
         return
