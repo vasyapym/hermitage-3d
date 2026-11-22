@@ -99,8 +99,9 @@ ROOM_LM_CELLS = 3372                    # the atlas occupancy (the B0 census mea
                                         # main @ 3da446d; the plafond round's −102 shift re-measures)
 ROOM_LM_AREA_M2 = 4888.706423           # the measured lightmapped surface (the B4 estimate's
                                         # own formula, with the measured area; the plafond
-                                        # round re-measured: the coffers −212.12, the field
-                                        # 198.53 + the frame 35.53)
+                                        # round re-measured: 4910.658490 − 21.952067 — the
+                                        # coffers' removed area 256.01, the field 198.53 +
+                                        # the frame 35.53 landed back)
 ROOM_TEXELS_PER_M = (ROOM_LM_CELLS * 32.0 * 32.0 / ROOM_LM_AREA_M2) ** 0.5
 FIXTURE_TEXELS_PER_M = FIXTURE_LM_SCALE * ROOM_TEXELS_PER_M
 # The datablock's own retired cells (linear; keys '49,46'..'60,46' at row 46). The B0

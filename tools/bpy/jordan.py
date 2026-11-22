@@ -570,10 +570,15 @@ def tex_plafond(n):
         f2n = np.clip((f2 - p2b) / (p98b - p2b), 0.0, 1.0)
         m2 = quintic(np.clip((f2n - 0.35) / 0.30, 0.0, 1.0)) \
             * quintic(np.clip((rn - 0.45) / 0.25, 0.0, 1.0)) * 0.6
-        body_r = s_r * (1.0 - 0.22 * m) + 0.03 * m
-        body_g = s_g * (1.0 - 0.22 * m)
-        body_b = s_b * (1.0 - 0.22 * m) + 0.05 * m
+        body_r = s_r - (0.15 * m) * (s_r / lum) + 0.03 * m
+        body_g = s_g - (0.15 * m) * (s_g / lum)
+        body_b = s_b - (0.15 * m) * (s_b / lum) + 0.05 * m
         gv, gu = np.gradient(f01)
+        # The gradient is per-PIXEL; the centre direction is in METRES — scale the
+        # derivatives to metres before the dot (the review: a pixel's x-span runs
+        # ~1.34× a z-span, so the raw mix lit tangent diagonal edges).
+        gu = gu * (n / fw)
+        gv = gv * (n / fd)
         norm = np.maximum(np.hypot(gu, gv), 1e-12)
         dcx, dcy = fw / 2 - xm, fd / 2 - ym
         dcl = np.maximum(np.hypot(dcx, dcy), 1e-12)
