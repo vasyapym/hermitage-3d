@@ -467,57 +467,156 @@ def tex_gilt(n):
     return tuple(channel + leaf + detail for channel in GILT_BASE)
 
 
+def _srgb_encode(lin):
+    """The sRGB OETF: the stored plate bytes from the generator's LINEAR values. The
+    plafond's ruling authored its constants as linear (the dome 0.62→0.32 is the linear
+    albedo); the house writer takes stored bytes, so the conversion happens here — the
+    v1 stored-space reading halved the ceiling's albedo and collapsed the room's bounce
+    (the black-facet columns class, 2026-11-21)."""
+    lin = np.clip(lin, 0.0, 1.0)
+    return np.where(lin <= 0.0031308, 12.92 * lin, 1.055 * np.power(lin, 1.0 / 2.4) - 0.055)
+
+
+# The owner-supplied painting (an AI-generated original composition; the charter's
+# painted-likeness distinction — picture content, not figures). Absent = the procedural
+# sky. The loader normalizes its mean linear luminance to PLATE_TARGET_MEAN_L, so the
+# swap never re-bakes (the albedo-free lightmap keeps the bounce valid within ±5 %).
+PLAFOND_ART_PATH = Path(__file__).resolve().parent / 'plafond-art.png'
+PLATE_TARGET_MEAN_L = 0.41  # the v3 plate's measured linear mean (2026-11-21) — the bounce-
+
+
+def _plafond_art_pixels(n):
+    """The owner-supplied painting: stored bytes → linear, aspect-corrected to the field
+    (the generated art composes for the world; the plate stretches u), the mean linear
+    luminance normalized to PLATE_TARGET_MEAN_L (the bounce-preservation pin — the swap
+    never re-bakes). Returns (r, g, b) LINEAR, the tail's own processing still applies."""
+    img = bpy.data.images.load(str(PLAFOND_ART_PATH), check_existing=False)
+    width, height = img.size
+    if (width, height) != (n, n):
+        img.scale(n, n)
+    px = np.empty(n * n * img.channels, dtype=np.float32)
+    img.pixels.foreach_get(px)
+    bpy.data.images.remove(img)
+    rgb = px.reshape(n, n, img.channels)[:, :, :3].astype(np.float64)
+    lin = np.where(rgb <= 0.04045, rgb / 12.92, ((rgb + 0.055) / 1.055) ** 2.4)
+    lum = 0.2126 * lin[:, :, 0] + 0.7152 * lin[:, :, 1] + 0.0722 * lin[:, :, 2]
+    gain = PLATE_TARGET_MEAN_L / max(float(lum.mean()), 1e-6)
+    return lin[:, :, 0] * gain, lin[:, :, 1] * gain, lin[:, :, 2] * gain
+
+
 def tex_plafond(n):
-    """The figure-free open-sky plafond plate (S1): radial luminance dome + metre-isotropic
-    fBm cumulus + centre-facing lit rims + the aspect-true painted border. All values are
-    the stored (sRGB-encoded) plate values — the house plates' value space; the cap keeps
-    every stored channel ≤ PLATE_MAX so the percentile encode cannot clip the field."""
+    """The open-sky plafond plate (S1, linear-space v2). With the owner's painting
+    present (tools/bpy/plafond-art.png) it IS the picture — the border/grain/cap tail
+    still applies. Without it: the procedural painted sky — the radial dome + the
+    sunburst + the metre-isotropic fBm cumulus (two banks) + the centre-facing lit rims
+    + the painted-architecture ring + the aspect-true border. All math in LINEAR (the
+    ruling's space); the stored sRGB conversion at the very end. The cap keeps every
+    linear channel ≤ PLATE_MAX before the encode."""
     _, _, fx0, fx1, fz0, fz1 = plafond_bounds()
     fw, fd = fx1 - fx0, fz1 - fz0
     seed = TEX_SEED['plafond']
     u, v = _grid(n)
-    xm, ym = u * fw, v * fd
-    ix, iy = (np.arange(n, dtype=np.int64)[None, :], np.arange(n, dtype=np.int64)[:, None])
+    ix = np.arange(n, dtype=np.int64)[None, :]
+    iy = np.arange(n, dtype=np.int64)[:, None]
+    ixg = np.broadcast_to(ix, u.shape)
+    iyg = np.broadcast_to(iy, u.shape)
+    bu, bv = BORDER_M / fw, BORDER_M / fd
+    in_band = (u < bu) | (u > 1.0 - bu) | (v < bv) | (v > 1.0 - bv)
 
-    # The radial dome: rn ∈ 0..1 from the plate centre; t = quintic smoothstep of rn^1.2.
-    rn = np.minimum(1.0, np.hypot(2.0 * u - 1.0, 2.0 * v - 1.0))
-    t = quintic(np.clip(rn ** 1.2, 0.0, 1.0))
-    sky_r = 0.86 + (0.36 - 0.86) * t
-    sky_g = 0.80 + (0.42 - 0.80) * t
-    sky_b = 0.66 + (0.55 - 0.66) * t
-    dome = 0.62 - 0.30 * t
-    lum = 0.2126 * sky_r + 0.7152 * sky_g + 0.0722 * sky_b
-    s_r, s_g, s_b = sky_r * dome / lum, sky_g * dome / lum, sky_b * dome / lum
+    if PLAFOND_ART_PATH.exists():
+        r, g, b = _plafond_art_pixels(n)
+    else:
+        xm, ym = u * fw, v * fd
 
-    # The cumulus: 4 octaves, lacunarity 2, gain 0.5, metre coords at 3.476 m per base
-    # lattice step (3.5 cycles across the field depth); the one-shot lattice (wrap=False).
-    base = 3.476
-    f = fbm(u * fw / base, v * fd / base, (1, 2, 4, 8), seed, wrap=False)
-    p2, p98 = np.percentile(f, 2.0), np.percentile(f, 98.0)
-    f01 = np.clip((f - p2) / (p98 - p2), 0.0, 1.0) * 0.90 + 0.05
-    f01 = f01 - 0.12 * (1.0 - quintic(np.clip(rn / 0.6, 0.0, 1.0)))
-    m = quintic(np.clip((f01 - 0.45) / 0.25, 0.0, 1.0))
-    body_r = s_r * (1.0 - 0.15 * m) + 0.02 * m
-    body_g = s_g * (1.0 - 0.15 * m)
-    body_b = s_b * (1.0 - 0.15 * m) + 0.04 * m
+        # The radii: rn clipped to the half-extent (the dome), rne the true elliptical
+        # one (the corners reach √2 — the painted-architecture ring lives there).
+        dx, dy = 2.0 * u - 1.0, 2.0 * v - 1.0
+        rne = np.hypot(dx, dy)
+        rn = np.minimum(1.0, rne)
+        ang = np.arctan2(dy, dx)
 
-    # The lit rims: central-difference gradient; a cloud edge whose body lies away from
-    # the plate centre faces the centre and catches the warm rim.
-    gv, gu = np.gradient(f01)
-    norm = np.maximum(np.hypot(gu, gv), 1e-12)
-    dcx, dcy = fw / 2 - xm, fd / 2 - ym
-    dcl = np.maximum(np.hypot(dcx, dcy), 1e-12)
-    facing = np.clip(-(gu * dcx + gv * dcy) / (norm * dcl), 0.0, 1.0)
-    rb = m * (1.0 - quintic(np.clip((f01 - 0.52) / 0.14, 0.0, 1.0)))
-    rim_gain = rb * facing * (1.0 - 0.5 * t)
-    r = body_r + 0.12 * rim_gain
-    g = body_g + 0.09 * rim_gain
-    b = body_b + 0.04 * rim_gain
+        # The sky dome + the hue ramp (linear 0.62 centre → 0.32 edge, luminance-normalised).
+        t = quintic(np.clip(rn ** 1.2, 0.0, 1.0))
+        sky_r = 0.86 + (0.36 - 0.86) * t
+        sky_g = 0.80 + (0.42 - 0.80) * t
+        sky_b = 0.66 + (0.55 - 0.66) * t
+        dome = 0.62 - 0.30 * t
+        lum = 0.2126 * sky_r + 0.7152 * sky_g + 0.0722 * sky_b
+        s_r, s_g, s_b = sky_r * dome / lum, sky_g * dome / lum, sky_b * dome / lum
+
+        # The sunburst: a white-hot core + 22 soft rays whose gains vary by the plate
+        # hash (the burst reads hand-painted, not compass-drawn).
+        core = np.exp(-(rn / 0.16) ** 2) * 0.85
+        ray_period = 22
+        ray_phase = (ang / (2.0 * math.pi) * ray_period) % 1.0
+        ray_k = 0.65 + 0.35 * hash01(seed, np.arange(ray_period, dtype=np.int64), np.int64(0), 31)
+        ray_gain = ray_k[np.floor(ang / (2.0 * math.pi) * ray_period).astype(np.int64) % ray_period]
+        ray_wedge = quintic(np.clip(1.0 - np.abs(ray_phase - 0.5) * 2.0 / 0.55, 0.0, 1.0))
+        ray = ray_wedge * ray_gain * (1.0 - rn) ** 1.5 * 0.30
+        burst = core + ray
+
+        # The cumulus: 4 octaves, lacunarity 2, gain 0.5, metre coords at 3.476 m per
+        # base lattice step; the one-shot lattice (no tile wrap). Percentile stretch,
+        # the centre thinning, the mask, the shaded bodies, the centre-facing rims.
+        base = 3.476
+        f = fbm(u * fw / base, v * fd / base, (1, 2, 4, 8), seed, wrap=False)
+        p2, p98 = np.percentile(f, 2.0), np.percentile(f, 98.0)
+        f01 = np.clip((f - p2) / (p98 - p2), 0.0, 1.0) * 0.90 + 0.05
+        f01 = f01 - 0.12 * (1.0 - quintic(np.clip(rn / 0.6, 0.0, 1.0)))
+        m = quintic(np.clip((f01 - 0.45) / 0.25, 0.0, 1.0))
+        # The second, lower cloud bank rising toward the edges (the depth layer).
+        f2 = value_noise(u * fw / 9.0, v * fd / 9.0, 1, seed + 7, 0, wrap=False)
+        p2b, p98b = np.percentile(f2, 5.0), np.percentile(f2, 95.0)
+        f2n = np.clip((f2 - p2b) / (p98b - p2b), 0.0, 1.0)
+        m2 = quintic(np.clip((f2n - 0.35) / 0.30, 0.0, 1.0)) \
+            * quintic(np.clip((rn - 0.45) / 0.25, 0.0, 1.0)) * 0.6
+        body_r = s_r * (1.0 - 0.22 * m) + 0.03 * m
+        body_g = s_g * (1.0 - 0.22 * m)
+        body_b = s_b * (1.0 - 0.22 * m) + 0.05 * m
+        gv, gu = np.gradient(f01)
+        norm = np.maximum(np.hypot(gu, gv), 1e-12)
+        dcx, dcy = fw / 2 - xm, fd / 2 - ym
+        dcl = np.maximum(np.hypot(dcx, dcy), 1e-12)
+        facing = np.clip(-(gu * dcx + gv * dcy) / (norm * dcl), 0.0, 1.0)
+        rb = m * (1.0 - quintic(np.clip((f01 - 0.55) / 0.14, 0.0, 1.0)))
+        rim_gain = (rb + 0.6 * m2) * facing * (1.0 - 0.5 * t)
+        sky_r = body_r + 0.18 * rim_gain + burst
+        sky_g = body_g + 0.13 * rim_gain + burst * 0.95
+        sky_b = body_b + 0.06 * rim_gain + burst * 0.85
+
+        # The fresco glaze: a very low-frequency luminance drift (the hand's uneven hand).
+        gl = value_noise(u * fw / 5.0, v * fd / 5.0, 1, seed + 11, 0, wrap=False)
+        sky_r = sky_r * (1.0 + 0.05 * gl)
+        sky_g = sky_g * (1.0 + 0.05 * gl)
+        sky_b = sky_b * (1.0 + 0.05 * gl)
+
+        # The painted-architecture ring: the illusionistic opening's zone 0.15..1.40 m
+        # inside the picture edge — the warm balustrade band whose posts run ALONG the
+        # nearest edge (18 on the z-edges, 24 on the x-edges), with shadow lines at both
+        # its boundaries; the corners double-dose where the strips cross (cartouches).
+        d_left = (u - bu) * fw
+        d_right = ((1.0 - bu) - u) * fw
+        d_bottom = (v - bv) * fd
+        d_top = ((1.0 - bv) - v) * fd
+        dmin = np.minimum(np.minimum(d_left, d_right), np.minimum(d_bottom, d_top))
+        ring_m = quintic(np.clip((-dmin - 0.15) / 0.18, 0.0, 1.0)) \
+            * quintic(np.clip((1.40 + dmin) / 0.35, 0.0, 1.0))
+        on_h = (d_left <= d_bottom) & (d_left <= d_top) & (d_left <= d_right) \
+            | (d_right < d_bottom) & (d_right <= d_top) & (d_right <= d_left)
+        along_m = np.where(on_h, (v - bv) * fd, (u - bu) * fw)
+        pitch_m = np.where(on_h, fd / 18.0, fw / 24.0)
+        post_phase = (along_m / pitch_m) % 1.0
+        post = quintic(np.clip(1.0 - np.abs(post_phase - 0.5) * 2.0 / 0.35, 0.0, 1.0))
+        line_in = quintic(np.clip(1.0 - np.abs(-dmin - 0.15) / 0.025, 0.0, 1.0))
+        line_out = quintic(np.clip(1.0 - np.abs(-dmin - 1.40) / 0.025, 0.0, 1.0))
+        ring_lum = 0.42 + 0.14 * post - 0.28 * (line_in + line_out) * ring_m
+        arch_r, arch_g, arch_b = 1.25 * ring_lum, 1.0 * ring_lum, 0.70 * ring_lum
+        r = sky_r * (1.0 - ring_m) + arch_r * ring_m
+        g = sky_g * (1.0 - ring_m) + arch_g * ring_m
+        b = sky_b * (1.0 - ring_m) + arch_b * ring_m
 
     # The painted border: ochre body, a darker shadow line, a light bead — measured
     # outward from the picture edge in metres (aspect-true).
-    bu, bv = BORDER_M / fw, BORDER_M / fd
-    in_band = (u < bu) | (u > 1.0 - bu) | (v < bv) | (v > 1.0 - bv)
     dist = np.maximum(np.maximum(bu - u, u - (1.0 - bu)) * fw,
                       np.maximum(bv - v, v - (1.0 - bv)) * fd)
     bead = in_band & (dist <= 0.08)
@@ -527,14 +626,14 @@ def tex_plafond(n):
     g = np.where(bead, o_g * 1.25, np.where(shadow, o_g * 0.70, np.where(in_band, o_g, g)))
     b = np.where(bead, o_b * 1.25, np.where(shadow, o_b * 0.70, np.where(in_band, o_b, b)))
 
-    # The canvas grain, everywhere, then the stored-channel cap.
-    g01 = hash01(seed, np.broadcast_to(ix, u.shape), np.broadcast_to(iy, u.shape))
+    # The canvas grain (linear), then the cap, then the stored conversion.
+    g01 = hash01(seed, ixg, iyg)
     r = r + 0.02 * (g01 * 2.0 - 1.0)
     g = g + 0.02 * (g01 * 2.0 - 1.0)
     b = b + 0.02 * (g01 * 2.0 - 1.0)
     r, g, b = np.minimum(r, PLATE_MAX), np.minimum(g, PLATE_MAX), np.minimum(b, PLATE_MAX)
     assert max(np.max(r), np.max(g), np.max(b)) <= PLATE_MAX + 1e-12
-    return r, g, b
+    return _srgb_encode(r), _srgb_encode(g), _srgb_encode(b)
 
 
 TEX_FN = {'marble_floor': tex_marble_floor, 'plaster_warm': tex_plaster_warm, 'granite_grey': tex_granite_grey, 'gilt': tex_gilt,
