@@ -110,7 +110,7 @@ describe('1 · DEC-045 constants and bind names', () => {
   });
 
   it('pins the round-2 day-read laws: the surround, the PROUD pair, the lip, the tone, the rider', () => {
-    expect(kit.HQ_TONE_HEX).toBe(0xc4a86e);
+    expect(kit.HQ_TONE_HEX).toBe(0xc6ba64);
     expect(kit.HQ_WINDOW_WIDTH_M).toBe(2.2);
     expect(kit.HQ_SURROUND).toEqual({ sideM: 0.3, headM: 0.3, sillM: 0.3 });
     expect(kit.HQ_SURROUND_WIDTH_M).toBeCloseTo(2.8, 12);
