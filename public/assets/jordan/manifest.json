@@ -3,32 +3,32 @@
   "files": [
     {
       "path": "jordan.glb",
-      "bytes": 337064,
-      "sha256": "a804457349d61ee45d1c74ca3b08b3803de10794ba13cd2e44f32d8ea5c0307b",
+      "bytes": 334316,
+      "sha256": "af1027bd17c163fd4cb88b3781e11c92d88029e23c93a5e13fbb373e4501da2c",
       "kind": "glb"
     },
     {
       "path": "lm/day.ktx2",
-      "bytes": 465767,
-      "sha256": "e257f5cd9f260a28a7451d404c19b6208f8bb55bab78e95c2584aaef94812214",
+      "bytes": 455240,
+      "sha256": "779010b841a6095fb0a825601776a6e6740a3ccd006582d12765d5d2102e25bf",
       "kind": "ktx2"
     },
     {
       "path": "lm/dusk.ktx2",
-      "bytes": 376486,
-      "sha256": "727cb1dca27a6ebf5e1be7de5cc7cd15a4850e21befbf5844411a725a13d7a36",
+      "bytes": 362744,
+      "sha256": "dc2575fe82615ea403fd4dfe1c5bd82e1ca8f4953d6fff35b3c2a30c7db76d97",
       "kind": "ktx2"
     },
     {
       "path": "lm/night.ktx2",
-      "bytes": 329589,
-      "sha256": "1e35694936b998474d6b019aa6310a706f920973c8cd8f3b9b3672cb4d8025f4",
+      "bytes": 315928,
+      "sha256": "e871a53ff2bdad4b6556a3d9daf206d8a3d1b0f9ca3ede2c9416f3866ba0a4ea",
       "kind": "ktx2"
     },
     {
       "path": "probe/dusk.ktx2",
-      "bytes": 6302,
-      "sha256": "191da75961efa1e20783116ebe029e33ea912c8e4eb74641985cccb770035033",
+      "bytes": 5690,
+      "sha256": "e303b0aac36823883f5f95aa286f166833c7ed0f3558cf6234c146c23c475e16",
       "kind": "ktx2"
     },
     {
@@ -50,6 +50,12 @@
       "kind": "ktx2"
     },
     {
+      "path": "tex/plafond.ktx2",
+      "bytes": 135065,
+      "sha256": "32dd661b62e04bc70ce162f16ac87532ca1242676cdca462ad1c5ade5a1e5693",
+      "kind": "ktx2"
+    },
+    {
       "path": "tex/plaster_warm.ktx2",
       "bytes": 8790,
       "sha256": "bd2f2eb5e9e696947c6281199db7ce77181f160c340a909271345f4f0b6aa377",
@@ -62,13 +68,25 @@
         "name": "shell",
         "instances": 1,
         "primitives": 2,
-        "triangles": 3740
+        "triangles": 3380
       },
       {
         "name": "pane",
         "instances": 1,
         "primitives": 1,
         "triangles": 24
+      },
+      {
+        "name": "plafond",
+        "instances": 1,
+        "primitives": 1,
+        "triangles": 40
+      },
+      {
+        "name": "plafond_frame",
+        "instances": 1,
+        "primitives": 1,
+        "triangles": 116
       },
       {
         "name": "stairs",
@@ -215,8 +233,8 @@
         "triangles": 32
       }
     ],
-    "trianglesUnique": 7238,
-    "trianglesDrawn": 32086,
+    "trianglesUnique": 7034,
+    "trianglesDrawn": 31882,
     "extensionsRequired": [
       "EXT_meshopt_compression",
       "KHR_mesh_quantization",

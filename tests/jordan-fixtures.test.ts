@@ -110,13 +110,15 @@ describe('jordan-fixtures: the sconce archetype in the committed glb', () => {
     expect(unique).toBe(361);
     expect(instances).toBe(10);
     // The B2 room totals (the chandelier assembly landed: 25,242 − 356 + 7,200).
-    expect(manifest.geometry.trianglesDrawn).toBe(32086);
-    expect(manifest.geometry.trianglesUnique).toBe(7238);
+    // The plafond round (2026-11-21): the 20 field bays drop their coffers (−360) and
+    // the field +40 / the frame +116 join — 32,086 − 204 = 31,882 drawn, 7,034 unique.
+    expect(manifest.geometry.trianglesDrawn).toBe(31882);
+    expect(manifest.geometry.trianglesUnique).toBe(7034);
   });
 
-  it('carries the committed 7 materials + crystal and nothing else', () => {
+  it('carries the committed 7 materials + crystal + the plafond plate and nothing else', () => {
     const names = (json.materials ?? []).map((m) => (m.name ?? '').replace(/\.\d{3}$/, ''));
-    expect(names.sort()).toEqual([...COMMITTED_MATERIALS, CRYSTAL].sort());
+    expect(names.sort()).toEqual([...COMMITTED_MATERIALS, CRYSTAL, 'plafond'].sort());
   });
 
   it('keeps every material opaque (no alphaMode anywhere)', () => {
@@ -308,10 +310,12 @@ describe('jordan-fixtures: the chandelier assembly in the committed glb', () => 
     const beadPrim = beadMesh.primitives[0];
     if (!beadPrim) throw new Error('the bead carries no primitive');
     expect(materialName(beadPrim.material)).toBe(CRYSTAL);
-    // The draw gate: 42 unique primitives room-wide — 39 at B1 minus the placeholder's
-    // 2 plus the assembly's 5 (stem 1 / arm 3 / bead 1). The round's exact ceiling.
+    // The draw gate: 42 unique primitives room-wide at B2 — 39 at B1 minus the
+    // placeholder's 2 plus the assembly's 5 (stem 1 / arm 3 / bead 1). The plafond
+    // round (2026-11-21): the field's and the frame's single-primitive meshes join —
+    // 42 + 2 = 44 (the round's exact ceiling; drawsMax 60 untouched).
     const draws = (json.meshes ?? []).reduce((n, m) => n + m.primitives.length, 0);
-    expect(draws).toBe(42);
+    expect(draws).toBe(44);
   });
 
   it('stays under the pinned tri caps (stem ≤ 900, arm ≤ 150, drawn ≤ 9,800)', () => {

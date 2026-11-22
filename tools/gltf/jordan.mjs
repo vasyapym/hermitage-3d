@@ -71,12 +71,22 @@ export const ROOM = {
   },
 };
 
-export const TEXTURES = ['marble_floor', 'plaster_warm', 'granite_grey', 'gilt'];
-export const TEXTURE_SIZES = { marble_floor: 512, plaster_warm: 512, granite_grey: 256, gilt: 256 };
+export const TEXTURES = ['marble_floor', 'plaster_warm', 'granite_grey', 'gilt', 'plafond'];
+export const TEXTURE_SIZES = {
+  marble_floor: 512,
+  plaster_warm: 512,
+  granite_grey: 256,
+  gilt: 256,
+  plafond: 1024,
+};
 export const ATLAS_BYTES_MAX = 2_000_000;
 export const EXPECTED_INSTANCES = {
   shell: 1,
   pane: 1,
+  // The jordan-parallel plafond round: the painted field + the gilt frame ring, one
+  // instance each (single meshes, never templates).
+  plafond: 1,
+  plafond_frame: 1,
   stairs: 1,
   rail: 1,
   baluster: 151,
@@ -110,6 +120,9 @@ export const EXPECTED_INSTANCES = {
 export const MATERIAL_SLOTS = {
   shell: ['plaster_warm', 'marble_floor'],
   pane: ['pane'],
+  // The jordan-parallel plafond round: the field's one painting slot; the frame reuses gilt.
+  plafond: ['plafond'],
+  plafond_frame: ['gilt'],
   stairs: ['marble_floor'],
   rail: ['gilt'],
   baluster: ['gilt'],

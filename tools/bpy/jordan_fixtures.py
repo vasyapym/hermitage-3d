@@ -26,12 +26,14 @@ exactly the datablock's 12 cells — the "12 freed + ≤6 FIXTURE_LM_BLOCK rows"
 is impossible against the committed code (the block holds 6 cells, the invariant wants
 12 rows, and any other counter consumption shifts the downstream UV2 bytes and breaks
 the NO-REPACK law K1). Therefore the archetype packs its islands sub-cell into its OWN
-12 retired cells 3095..3106 (keys '23,48'..'34,48' — the same keys the placeholder
-always owned, a contiguous 384×32 px strip flanked by the chandelier's row-48 tail and
-the cornice), and FIXTURE_LM_BLOCK (0,55)..(5,55) stays free for B2's chandelier. The
-census figure stays 3,474 (the D5 self-check passes unedited), the AS-3 claim (≤20 cells
-inside the block + the retired placeholder cells) holds, and every cells.json row stays
-truthful: 12 cells, each carrying real single-material texels.
+12 retired cells — 3095..3106 (keys '23,48'..'34,48') under the fixtures-round layout,
+re-seated by the jordan-parallel plafond round's geometry shift to 2993..3004 (keys
+'49,46'..'60,46' — the same linear 384×32 px strip, flanked by the chandelier's range
+tail and the cornice), and FIXTURE_LM_BLOCK stays free for B2's chandelier. The census
+figure becomes 3,372 (3474 − 102: the shell's −180 coffer faces, the field +20 and the
+frame +58), the D5 self-check follows the pins, the AS-3 claim (≤20 cells inside the
+block + the retired placeholder cells) holds, and every cells.json row stays truthful:
+12 cells, each carrying real single-material texels.
 """
 
 import math
@@ -93,17 +95,23 @@ FIXTURE_LM_PAD_PX = 2                   # pad per island side
 FIXTURE_LM_MIN_PX = 4                   # minimum island INTERIOR per axis (real texels —
                                         # the bake must be able to light the gilt; a 4px box
                                         # with 2px pads would carry no content at all)
-ROOM_LM_CELLS = 3474                    # the B0-measured atlas occupancy (main @ 3da446d)
-ROOM_LM_AREA_M2 = 4910.658490           # the measured lightmapped surface (the B4 estimate's
-                                        # own formula, with the measured area, not its ≈3800
-                                        # guess: density = sqrt(cells·32²/area))
+ROOM_LM_CELLS = 3372                    # the atlas occupancy (the B0 census measured 3,474 at
+                                        # main @ 3da446d; the plafond round's −102 shift re-measures)
+ROOM_LM_AREA_M2 = 4888.706423           # the measured lightmapped surface (the B4 estimate's
+                                        # own formula, with the measured area; the plafond
+                                        # round re-measured: 4910.658490 − 21.952067 — the
+                                        # coffers' removed area 256.01, the field 198.53 +
+                                        # the frame 35.53 landed back)
 ROOM_TEXELS_PER_M = (ROOM_LM_CELLS * 32.0 * 32.0 / ROOM_LM_AREA_M2) ** 0.5
 FIXTURE_TEXELS_PER_M = FIXTURE_LM_SCALE * ROOM_TEXELS_PER_M
-# The datablock's own retired cells (linear; keys '23,48'..'34,48' at row 48). The B0
-# census measured them as the placeholder sconce's cells; this scheme keeps them owned.
+# The datablock's own retired cells (linear; keys '49,46'..'60,46' at row 46). The B0
+# census measured the placeholder sconce's cells at 3095 (row 48, cols 23..34); the
+# jordan-parallel plafond round's geometry shift (the shell −180 coffer faces, the
+# field +20 and the frame +58 inserted after the pane) moves every later first_cell
+# by −102, so the retired range re-seats at 2993 — the census copy, never hand-set.
 SCONCE_LM_CELLS = 12
-SCONCE_LM_FIRST_CELL = 3095
-SCONCE_LM_CELL_KEY_0 = (23, 48)
+SCONCE_LM_FIRST_CELL = 2993
+SCONCE_LM_CELL_KEY_0 = (49, 46)
 # The archetype's slots (the runner row's materials order; one glTF primitive per slot).
 SLOT_GILT, SLOT_GLOW, SLOT_CRYSTAL = 0, 1, 2
 SCONCE_MATERIALS = ['gilt', 'sconce_glow', CRYSTAL_NAME]
@@ -156,10 +164,12 @@ JORDAN_RIG_CORE_BASE_Y = 14.3           # bake.py :283
 JORDAN_RIG_CORE_STEP = 0.005            # bake.py :284
 JORDAN_RIG_CORE_RADIUS = 0.20           # bake.py :287 JORDAN_RIG_CORE.radius_m
 JORDAN_RIG_CORE_GAP = 0.05              # bake.py :282
-# The chandelier's own retired cells: the placeholder's region, linear 2881..3094 (the B0
-# census). The three datablocks split exactly these 214 (the allocator counter and every
-# downstream UV2 offset stay untouched; cells stay 3,474; FIXTURE_LM_BLOCK stays free).
-CHANDELIER_LM_FIRST_CELL = 2881
+# The chandelier's own retired cells: the placeholder's region, linear 2779..2992 (the B0
+# census measured 2881..3094; the plafond round's geometry shift moves every later
+# first_cell by −102). The three datablocks split exactly these 214 (the allocator
+# counter and every downstream UV2 offset stay untouched; cells stay 3,372 predicted;
+# FIXTURE_LM_BLOCK stays free).
+CHANDELIER_LM_FIRST_CELL = 2779
 CHANDELIER_LM_CELLS = 214
 
 _KIT = None  # the caller's namespace dict, stored by fixture_rows (never jordan.py's module)
@@ -868,8 +878,9 @@ def _chand_share_table():
     """The 214 retired cells split per (datablock, material) run by the B1 shares law's
     shape (round by face count; the last run takes the remainder; never more cells than
     faces): stem gilt 158 / arm gilt 27 / arm chandelier_glow 11 / arm crystal 12 /
-    bead crystal 6 — consecutive linear runs inside 2881..3094, so the glow cells are
-    identifiable and single-material."""
+    bead crystal 6 — consecutive linear runs inside the retired region (2881..3094 under
+    the fixtures-round layout; 2779..2992 after the plafond round's −102 shift), so the
+    glow cells are identifiable and single-material."""
     counts = _chand_face_counts()
     runs = (('stem-gilt', counts[0], SLOT_GILT), ('arm-gilt', counts[1], SLOT_GILT),
             ('arm-glow', counts[2], SLOT_GLOW), ('arm-crystal', counts[3], SLOT_CRYSTAL),
@@ -1477,10 +1488,11 @@ def declared_rows():
                  'surfaces': 'candle bodies + flame chips only (P2); no core glow chip'},
         'cells': {'rows': cell_rows, 'shares': [{'run': row['name'], 'cells': row['cells']}
                                                 for row in shares],
-                  'law': ('the retired placeholder region 2881..3094, split per (datablock, '
-                          'material) run; every cell carries real texels; the allocator '
-                          "counter and the downstream UV2 offsets untouched; cells stay "
-                          "3,474")},
+                  'law': ('the retired placeholder region 2779..2992 (the fixtures-round '
+                          '2881..3094 shifted −102 by the plafond round), split per '
+                          '(datablock, material) run; every cell carries real texels; the '
+                          "allocator counter and the downstream UV2 offsets untouched; "
+                          "cells 3,372")},
         'tris': {'stem': state['plans']['chandelier']['tris'],
                  'armArchetype': state['plans']['chandelier_arm']['tris'],
                  'bead': state['plans']['chandelier_bead']['tris'],

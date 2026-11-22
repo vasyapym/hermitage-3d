@@ -1,10 +1,5 @@
 {
   "room": "jordan",
-  "geometry": {
-    "geometrySha256": "a804457349d61ee45d1c74ca3b08b3803de10794ba13cd2e44f32d8ea5c0307b",
-    "atlasHash256": "de0425a9c5c377fda5bdb0ce8a74937bfb23332e399535de5dc8b479408abc30",
-    "law": "AS-4: a lightmap set is valid only for the GEOMETRY_SHA + ATLAS_HASH in its sidecar — this bake binds the B2-frozen slice_e glb (commit da19680). The census re-measures both on the committed glb (sha256 + the TEXCOORD_1 ATLAS_HASH) and reproduces them exactly (jordan-fixtures B3, 2026-11-20). NOTE: tools/bake.mjs rewrites {room, states} on the next bake and drops this key — the next bake's own validity is its own sidecar."
-  },
   "states": {
     "day": {
       "blender": "Blender 4.2.23 LTS",
@@ -12,13 +7,13 @@
         {
           "clippedFraction": null,
           "emitters": 0,
-          "exrSha256": "23614e88a1fbfd284ed5d3b05c7d8f160cd03ea86ab13c02a132829573068007",
+          "exrSha256": "49f089a80eaf7a789961be04343ea98d02cb68f78bbd2f3d31ea4174ab6b44bd",
           "name": "arch",
-          "objects": 550,
+          "objects": 552,
           "pad": 2,
           "peak": null,
           "res": 2048,
-          "targets": 26
+          "targets": 28
         }
       ],
       "clippedFraction": null,
@@ -30,11 +25,11 @@
       "probe": null,
       "res": 2048,
       "samples": 128,
-      "seconds": 2747.1,
+      "seconds": 1785.5,
       "state": "day",
       "whitePoint": "percentile",
       "artifacts": [],
-      "cellsSha256": "30a0594b84a961e321ad68aa552f22bced499ef3ba1791ef43212c5da7f74944",
+      "cellsSha256": "32489bbe289623c6ddcb9afb050010585afc5f6614ea31ffb6ceff142293aa0a",
       "reps": [
         {
           "datablock": "baluster",
@@ -126,17 +121,17 @@
         "percentile": 99.5,
         "scope": "allocated-interior",
         "transfer": "srgb",
-        "cellsSha256": "30a0594b84a961e321ad68aa552f22bced499ef3ba1791ef43212c5da7f74944",
-        "wRaw": 2.645531,
+        "cellsSha256": "32489bbe289623c6ddcb9afb050010585afc5f6614ea31ffb6ceff142293aa0a",
+        "wRaw": 2.703574,
         "w": 0.45,
         "gain": 2.22,
         "kappa": 1,
-        "clipFraction": 0.021517,
-        "haloFraction": 0.014146,
+        "clipFraction": 0.022793,
+        "haloFraction": 0.014758,
         "artifact": {
           "rel": "lm/day.ktx2",
-          "bytes": 465767,
-          "sha256": "e257f5cd9f260a28a7451d404c19b6208f8bb55bab78e95c2584aaef94812214"
+          "bytes": 455240,
+          "sha256": "779010b841a6095fb0a825601776a6e6740a3ccd006582d12765d5d2102e25bf"
         }
       }
     },
@@ -146,13 +141,13 @@
         {
           "clippedFraction": null,
           "emitters": 0,
-          "exrSha256": "5d7f56ea1a817cbf84e55f5a00b6f2a57afc5f5a674049bd41fb3132c42b3a92",
+          "exrSha256": "5d9bf4a0b0a362d3c03d1e0646d7c9f7b4c09f153c44dd5a32c73d9722792e6f",
           "name": "arch",
-          "objects": 550,
+          "objects": 552,
           "pad": 2,
           "peak": null,
           "res": 2048,
-          "targets": 26
+          "targets": 28
         }
       ],
       "clippedFraction": null,
@@ -163,7 +158,7 @@
       "peak": null,
       "probe": {
         "clippedFraction": 0,
-        "peak": 1.0725,
+        "peak": 1.0696,
         "point": [
           79,
           9,
@@ -178,14 +173,14 @@
       },
       "res": 2048,
       "samples": 128,
-      "seconds": 6109,
+      "seconds": 2402.2,
       "state": "dusk",
       "whitePoint": "percentile",
       "artifacts": [
         {
           "rel": "probe/dusk.ktx2",
-          "bytes": 6302,
-          "sha256": "191da75961efa1e20783116ebe029e33ea912c8e4eb74641985cccb770035033"
+          "bytes": 5690,
+          "sha256": "e303b0aac36823883f5f95aa286f166833c7ed0f3558cf6234c146c23c475e16"
         }
       ],
       "rig": {
@@ -352,7 +347,7 @@
           "sconces": 80
         }
       },
-      "cellsSha256": "30a0594b84a961e321ad68aa552f22bced499ef3ba1791ef43212c5da7f74944",
+      "cellsSha256": "32489bbe289623c6ddcb9afb050010585afc5f6614ea31ffb6ceff142293aa0a",
       "reps": [
         {
           "datablock": "baluster",
@@ -444,17 +439,17 @@
         "percentile": 99.5,
         "scope": "allocated-interior",
         "transfer": "srgb",
-        "cellsSha256": "30a0594b84a961e321ad68aa552f22bced499ef3ba1791ef43212c5da7f74944",
-        "wRaw": 0.194362,
+        "cellsSha256": "32489bbe289623c6ddcb9afb050010585afc5f6614ea31ffb6ceff142293aa0a",
+        "wRaw": 0.194884,
         "w": 0.35,
         "gain": 2.86,
         "kappa": 1,
-        "clipFraction": 0.000458,
-        "haloFraction": 0.000027,
+        "clipFraction": 0.000448,
+        "haloFraction": 0.00003,
         "artifact": {
           "rel": "lm/dusk.ktx2",
-          "bytes": 376486,
-          "sha256": "727cb1dca27a6ebf5e1be7de5cc7cd15a4850e21befbf5844411a725a13d7a36"
+          "bytes": 362744,
+          "sha256": "dc2575fe82615ea403fd4dfe1c5bd82e1ca8f4953d6fff35b3c2a30c7db76d97"
         }
       }
     },
@@ -464,13 +459,13 @@
         {
           "clippedFraction": null,
           "emitters": 0,
-          "exrSha256": "9309a2bcce9a00df16eab9cfc878a5a71ecdac5f10bf1898cb7a635f26becdea",
+          "exrSha256": "61250f147b342dbbdfafdaac5eeb987ca5d48c68b12f7e3dd8ee2d8bbe3c97a7",
           "name": "arch",
-          "objects": 550,
+          "objects": 552,
           "pad": 2,
           "peak": null,
           "res": 2048,
-          "targets": 26
+          "targets": 28
         }
       ],
       "clippedFraction": null,
@@ -482,7 +477,7 @@
       "probe": null,
       "res": 2048,
       "samples": 128,
-      "seconds": 6270.5,
+      "seconds": 2946.8,
       "state": "nightChandeliers",
       "whitePoint": "percentile",
       "artifacts": [],
@@ -650,7 +645,7 @@
           "sconces": 800
         }
       },
-      "cellsSha256": "30a0594b84a961e321ad68aa552f22bced499ef3ba1791ef43212c5da7f74944",
+      "cellsSha256": "32489bbe289623c6ddcb9afb050010585afc5f6614ea31ffb6ceff142293aa0a",
       "reps": [
         {
           "datablock": "baluster",
@@ -742,17 +737,17 @@
         "percentile": 99.5,
         "scope": "allocated-interior",
         "transfer": "srgb",
-        "cellsSha256": "30a0594b84a961e321ad68aa552f22bced499ef3ba1791ef43212c5da7f74944",
-        "wRaw": 1.115335,
+        "cellsSha256": "32489bbe289623c6ddcb9afb050010585afc5f6614ea31ffb6ceff142293aa0a",
+        "wRaw": 1.104837,
         "w": 4,
         "gain": 0.25,
         "kappa": 1,
-        "clipFraction": 0.000281,
-        "haloFraction": 0.000022,
+        "clipFraction": 0.000272,
+        "haloFraction": 0.000025,
         "artifact": {
           "rel": "lm/night.ktx2",
-          "bytes": 329589,
-          "sha256": "1e35694936b998474d6b019aa6310a706f920973c8cd8f3b9b3672cb4d8025f4"
+          "bytes": 315928,
+          "sha256": "e871a53ff2bdad4b6556a3d9daf206d8a3d1b0f9ca3ede2c9416f3866ba0a4ea"
         }
       }
     }
