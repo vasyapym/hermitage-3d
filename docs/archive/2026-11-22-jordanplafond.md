@@ -112,3 +112,23 @@ STATE/ROUNDS/ledger rows to their MERGED shapes; this archive carries the narrat
 the artistic-license row's ratification. AS-4: the geometry merges first, the bake
 last, once — this lane's bake IS the once; a co-tenant jordan geometry change would
 re-invalidate (no jordan co-tenant: the other agents work in different rooms).
+
+## The merge (2026-11-23)
+
+The merge commit 251061c (Merge branch 'jordan-parallel' into main); the gate commit 631adda on
+top of it (the union validate green — the plafond SVG's `<title>` restored: the biome a11y gate;
+the staged rewrite had dropped it). The displaced OPEN-shape facts: the worktree branch
+jordan-parallel off main c05a451; the merge + the FULL gate rode the owner's signal; no jordan
+co-tenant (the other agents worked in DIFFERENT rooms — AS-4's last-once = this lane's bake, and
+it held through the merge); byte-check off — the deliverable was a ruling.
+
+**The FULL gate VERDICT: PASS** — the chromium+golden battery 122 passed / 4 failed (1.7 h).
+The 4 = the recorded classes: the 3 walk-stall rows (the arrow-walk airlocks — smoke.spec.ts:172 ·
+the keyboard walk — smoke.spec.ts:297 · the touch-rail walk row — touch-rail.spec.ts:965; the
+machine-stall family, CI green = the authority) + the scrub-double-click row
+(scrub-double-click-season.spec.ts:11 — the recorded scrub-11 flaky race, the +12 h noon-anchor
+class, docs/archive/2026-11-13-doorwayreads.md). The goldens: 0 flips — the jordan J4 day/dusk/night
+×3 HELD (the plate's signature sub-gate — the DEC-048 precedent; the DEC-ready row retired without
+a number — the jordan-ghost-split precedent) and the rg-f5 ×3 HELD likewise; no re-baselines due
+(the gate commit touched no snapshots). CI rides the push (the local verdict the authority).
+pnpm validate GREEN (JS 287,527 · payload jordan 1,657,498/7M).
