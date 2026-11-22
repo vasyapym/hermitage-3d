@@ -100,7 +100,10 @@ GLOW_TINT_RGB = (0.38, 0.29, 0.22)
 TEXTURE_NAMES = ('stone_flags', 'plaster_pale', 'stucco_grey', 'stone_band')
 
 # shell material slots (6 primitives - RG-F3 adds the flat 'pane' slot) / sconce slots (2)
+# RG-F5 adds the 7th shell slot: 'stucco_shade' (the fillet-shade device, flat) - exported
+# only (the bake chain's scene keeps the committed 6-slot shell by construction).
 M_PALE, M_FLAGS, M_STUCCO, M_BAND, M_STAIR, M_PANE = 0, 1, 2, 3, 4, 5
+M_SHADE = 6
 S_IRON, S_GLOW = 0, 1
 
 # ---- gallery proper (east of the arch passage), metres -------------------------------------
@@ -194,6 +197,60 @@ NICHE_CENTRES = tuple(G_X1 - BAY_PITCH * (k - 0.5) for k in range(1, PILASTERS_P
 # door) ... k=11 x 8.4365, one bay pitch 3.387 apart. The pane tags pane01..pane11 keep
 # this k order (k=1 = the EAST-most bay).
 
+# ---- RG-F5: the dado datum + the framed panel order (the exported-never-baked families) ----
+# THE RECIPROCAL of DEC-050 (the accepted verdict reply-1 §2): the junction proxies are
+# baked-never-exported; these families are EXPORTED-NEVER-BAKED. They carry no atlas cells
+# of their own - the shelf packer skips them (BORROWED_ELEMENTS) and every loop adopts its
+# host wall face's TEXCOORD_1 (adopt_lm_uv) - so all three plates stay byte-identical BY
+# CONSTRUCTION (the bake chain never builds them: build_wall_families is export-only) and
+# the articulation reads through the albedo split (M_STUCCO fronts over the M_PALE fields,
+# the DEC-042 white-order step 0.88/0.86/0.82 vs 0.72/0.67/0.58 = a 22-41% albedo step) +
+# the silhouette/parallax + the deterministic fillet-shade device: M_SHADE = the stucco
+# value x FILLET_AO on the down-facing and lateral faces (a corner's AO is
+# light-direction-independent; the lamps and the panes both sit above the rail, so the
+# underside is the dark face at every stop). Form PROVISIONAL pending the axial-photo
+# evidence pass (S4) - the re-tune surface is this constant table.
+FILLET_AO = 0.62
+M_STUCCO_SHADE_RGB = tuple(round(c * FILLET_AO, 2) for c in STUCCO_GREY_RGB)  # 0.55/0.53/0.51
+DADO_RAIL_Y0, DADO_RAIL_Y1, DADO_RAIL_PROUD = SILL_Y0, SILL_Y1, SILL_LEDGE_D
+DADO_RAIL_PROFILE = ((0.00, DADO_RAIL_Y0), (DADO_RAIL_PROUD, DADO_RAIL_Y0),
+                     (DADO_RAIL_PROUD, DADO_RAIL_Y1), (0.00, DADO_RAIL_Y1))
+RAIL_STOP = 0.005          # the connector's gap to a shaft side face (no coplanar contact)
+DOOR_RAIL_STOP = 0.10      # the flank rails stop this far short of the door jamb bands
+PANEL_BAND_W, PANEL_BAND_PROUD = 0.08, 0.03   # the surround band's language
+PANEL_INSET = 0.12         # from skirting top, from the rail, from the surround's outer edge
+PASSAGE_PANEL_MARGIN = 0.30
+DADO_PANEL_Y0 = SKIRTING_PROFILE[-1][1] + PANEL_INSET          # 0.26
+DADO_PANEL_Y1 = SILL_Y0 - PANEL_INSET                          # 0.72 (0.46 high, under each niche)
+UPPER_PANEL_BOTTOM = SILL_Y1 + 0.18                            # 1.08
+UPPER_PANEL_TOP_PASSAGE = PASSAGE_IMPOST[0][1] - 0.24           # 2.62
+UPPER_PANEL_TOP_ENDWALL = CORNICE_PROFILE[0][1] - 0.24          # 2.46
+PANEL_HALF_W_GALLERY = (NICHE_HEAD_R + NICHE_SURROUND_W) - PANEL_INSET   # 0.88 (frame 1.76 x 0.46)
+F5_PASSAGE_BAY_N = 2.0       # the north wall's panel pitch over its 8 m
+# the RG-F5 schedule constants (formulas over the plan constants - the count laws)
+F5_PASSAGE_BAYS_W = len(P_Z_NODES) - 1                     # 7
+F5_PASSAGE_BAYS_E = sum(1 for a, b in zip(P_Z_NODES, P_Z_NODES[1:])
+                        if b <= G_Z0 or a >= G_Z1)         # 5 (the bays clear of the mouth)
+F5_PASSAGE_BAYS_N = int((P_X1 - P_X0) / F5_PASSAGE_BAY_N)  # 4
+F5_PASSAGE_SCONCE_BAYS = sum(1 for a, b in zip(P_Z_NODES, P_Z_NODES[1:])
+                             if (b <= G_Z0 or a >= G_Z1)
+                             and any(a < z < b for z in SCONCE_SEW_Z))   # 2 (dado-only bays)
+F5_ENDWALL_FLANKS = 2
+F5_PANEL_FACES = 12
+F5_PANEL_DADO = (2 * len(NICHE_CENTRES) + F5_PASSAGE_BAYS_W + F5_PASSAGE_BAYS_E
+                 + F5_PASSAGE_BAYS_N + F5_ENDWALL_FLANKS)   # 40
+F5_PANEL_TALL = (F5_PASSAGE_BAYS_W + (F5_PASSAGE_BAYS_E - F5_PASSAGE_SCONCE_BAYS)
+                 + F5_PASSAGE_BAYS_N + F5_ENDWALL_FLANKS)   # 16
+F5_PANELS = F5_PANEL_DADO + F5_PANEL_TALL                   # 56
+F5_RAIL_RUNS = 2 * (1 + 2 * len(NICHE_CENTRES)) + 4 + 4      # 54 (46 gallery + 4 passage + 4 end wall)
+F5_RAIL_CAPS = 2                                            # the 2 jamb-band caps (the mouth
+                                                            # ends are the mating mitres now)
+BORROWED_ELEMENTS = ('dado.panel', 'dado.rail')
+F5_HOST_ELEMENTS = ('wall.field', 'passage.field', 'wall.e')
+F5_COLLIDER_ELEMENTS = ('pilaster', 'ressaut', 'cornice', 'skirting', 'impost', 'doorcase',
+                        'niche')
+F5_ADOPT_CLAMP_M = 0.08    # the nearest-host clamp (the mitre wraps are 0.06 deep)
+
 # ---- east doorcase + stairlight lunette + door card, around the UNCHANGED opening ----------
 PORTAL_X0, PORTAL_X1 = 43.2, 44.0
 PORTAL_Z0, PORTAL_Z1 = 72.2, 73.8     # 1.6 m clear opening, centred on Z = 73
@@ -205,6 +262,9 @@ ARCHIVOLT_W, ARCHIVOLT_D = 0.07, 0.04
 STAIRLIGHT_PAINT = {  # declared record (the machine source is bake.py PANE_PAINT / lm_compose)
     'day': (0.55, 0.58, 0.62), 'dusk': (0.45, 0.32, 0.17), 'night': (0.60, 0.42, 0.22),
 }
+# RG-F5: the door jamb bands' outer edges (the flank rails' DOOR_RAIL_STOP reference;
+# the skirting runs already stop at these literals in build_end_wall).
+JAMB_BAND_Z = (PORTAL_Z0 - DOOR_JAMB_W, PORTAL_Z1 + DOOR_JAMB_W)   # 71.95 / 74.05
 # (RG-F3) the declared panes' RAW paint record beside STAIRLIGHT_PAINT (the machine
 # sources: tools/reencode.mjs PATCH_PAINTS - the encode paint; tools/bpy/bake.py
 # STAGE_SPILL_PARTS - the spill rows). RAW triples are pane-specific: the door's x1.14
@@ -444,6 +504,8 @@ class Builder:
         self.roster = []
         self.tags = {}
         self.counts = {}
+        self.borrowed_planes = {}   # RG-F5: the borrowed faces' host planes (adopt_lm_uv)
+        self.borrowed_wraps = set()  # RG-F5: the mitred-wrap faces (the fallback's lawful users)
 
     def vert(self, p):
         key = (round(p[0], WELD_DP), round(p[1], WELD_DP), round(p[2], WELD_DP))
@@ -934,7 +996,7 @@ def author_schedule():
     floor = plan_floor()
     plans['floor.flags'] = sum(1 for _p, mat in floor if mat == M_FLAGS)
     plans['floor.band'] = sum(1 for _p, mat in floor if mat == M_BAND)
-    return {
+    schedule = {
         **plans,
         'passage.field': 4,
         'tympanum': 2,
@@ -957,6 +1019,12 @@ def author_schedule():
         'stairlight': 1,
         'doorcard': 1,
     }
+    if not BAKE:
+        # RG-F5: the exported-never-baked families' rows. The bake chain's scene is the
+        # committed one - its schedule stays byte-equal to the committed builder's.
+        schedule['dado.panel'] = F5_PANELS * F5_PANEL_FACES
+        schedule['dado.rail'] = F5_RAIL_RUNS * 3 + F5_RAIL_CAPS
+    return schedule
 
 
 # ---- host planes ------------------------------------------------------------------------------
@@ -1626,7 +1694,12 @@ def finish(name, builder, materials, mode='shelf'):
     bm.normal_update()
     uv_lay = bm.loops.layers.uv.new('uv')
     lm_lay = bm.loops.layers.uv.new('lm')
-    roster = [entry for entry in builder.roster if entry[0] is not None]
+    roster_all = [entry for entry in builder.roster if entry[0] is not None]
+    # RG-F5: the borrowed families (dado.panel/dado.rail) carry no atlas cells of their
+    # own - they are skipped by the shelf pack and their lm UVs adopt the host wall
+    # faces' mapped cells (adopt_lm_uv). The strip mode never sees them.
+    roster = [entry for entry in roster_all if entry[3] not in BORROWED_ELEMENTS]
+    borrowed = [entry for entry in roster_all if entry[3] in BORROWED_ELEMENTS]
     pad_px = int(LM_PAD_PX)
     pad_uv = LM_PAD_PX / LM_RES
     first_row = int(round((1.0 - LM_STRIP_FRAC) * LM_RES))
@@ -1713,6 +1786,12 @@ def finish(name, builder, materials, mode='shelf'):
                     (x + pad_px + fu * w_in) / LM_RES,
                     1.0 - (y + pad_px + fv * h_in) / LM_RES,
                 )
+        if borrowed:
+            adopt_lm_uv(builder, lm_lay, roster, borrowed)
+            for entry in borrowed:
+                f, _kind, _uid, _el = entry
+                for loop, (pu, pv) in zip(f.loops, planar(entry)):
+                    loop[uv_lay].uv = (pu / UV_TILE_M, pv / UV_TILE_M)
         used = float(sum(wt * ht for _x, _y, wt, ht in placed.values()))
         min_cell = min(min(w, h) for w, h in cell_px)
         chart = [
@@ -1727,6 +1806,8 @@ def finish(name, builder, materials, mode='shelf'):
             'faces': len(roster),
             'stripRowPx': first_row,
         }
+        if borrowed:
+            block['borrowedFaces'] = len(borrowed)
         # the cells law (part-3 addition): the lm block serialises every shelf cell —
         # rect [x, y, w_total, h_total] in chart px, y from the top, one entry per face in
         # roster order, the element name riding each row. The same placements the UV law
@@ -1834,6 +1915,473 @@ def check_schedule(builder, schedule):
     return schedule
 
 
+# ---- RG-F5: the dado datum + the framed panel order (the accepted verdict reply-1 §2) --------
+# The exported-never-baked wall articulation. The families live in the SAME shell builder
+# (one mesh, the glTF exporter splits primitives per material slot - M_STUCCO faces join the
+# existing stucco primitive, M_SHADE opens the 7th) but ONLY in the export chain: the bake
+# chain (ZIMNY_BAKE=1) never builds them, so the committed bake's scene, roster and plates
+# are byte-identical BY CONSTRUCTION (the plates-identity bar).
+def _panel_t_dir(plane):
+    """The plane's along-wall axis in world (t runs +x on the z-planes, +z on the x-planes)."""
+    return (1.0, 0.0, 0.0) if plane.axis == 'z' else (0.0, 0.0, 1.0)
+
+
+def _rail_mat(ym):
+    """The datum's reads: the bottom strip M_SHADE (the fillet-shade device), the front and
+    the top M_STUCCO."""
+    return M_SHADE if ym <= DADO_RAIL_Y0 + 1e-9 else M_STUCCO
+
+
+def rail_run(b, plane, t0, t1, mitre0=0, mitre1=0, cap0=False, cap1=False):
+    """The dado datum: the sill-ledge section (y 0.84-0.90, proud 0.06) run t0..t1. The
+    mitre/cap laws are the kit's own (profile_run/profile_cap); the exposed caps read
+    M_SHADE (end grain), the plinth/shaft ends emit no cap (solid-on-solid). A mitred end
+    is a WRAP (its mating run supplies the diagonal half) - the wrap faces register in
+    builder.borrowed_wraps for the adoption's fallback law."""
+    n0 = len(b.roster)
+    profile_run(b, plane, DADO_RAIL_PROFILE, t0, t1, _rail_mat, lambda _y: 'dado.rail',
+                mitre0, mitre1)
+    if cap0:
+        profile_cap(b, plane, DADO_RAIL_PROFILE, t0, -1.0, M_SHADE, 'dado.rail')
+    if cap1:
+        profile_cap(b, plane, DADO_RAIL_PROFILE, t1, 1.0, M_SHADE, 'dado.rail')
+    if mitre0 or mitre1:
+        for entry in b.roster[n0:]:
+            if entry[3] in BORROWED_ELEMENTS:
+                b.borrowed_wraps.add(entry[0])
+
+
+def build_panel(b, plane, t0, t1, y0, y1):
+    """One mitred frame: 4 bands x (front + outer side + inner side) = 12 quads. The mitre
+    seam faces are interior (dropped - the bands press against each other, the fronts tile
+    the corner squares along the shared diagonals). Fronts and up-facing sides M_STUCCO;
+    down-facing and lateral sides M_SHADE. The host field face behind the frame is NOT cut
+    (the frame's interior IS the wall; the COVERED gate flags coplanar pairs only) and
+    serves as the borrowed loops' adoption host."""
+    P = plane.world
+    w, d = PANEL_BAND_W, PANEL_BAND_PROUD
+    n_front = plane.normal()
+    t_dir = _panel_t_dir(plane)
+    up, down = (0.0, 1.0, 0.0), (0.0, -1.0, 0.0)
+    # bottom band
+    b.face([P(t0, y0, d), P(t1, y0, d), P(t1 - w, y0 + w, d), P(t0 + w, y0 + w, d)],
+           M_STUCCO, 'dado.panel', n_front)
+    b.face([P(t0, y0, 0.0), P(t1, y0, 0.0), P(t1, y0, d), P(t0, y0, d)],
+           M_SHADE, 'dado.panel', down)
+    b.face([P(t0 + w, y0 + w, 0.0), P(t1 - w, y0 + w, 0.0), P(t1 - w, y0 + w, d),
+            P(t0 + w, y0 + w, d)], M_STUCCO, 'dado.panel', up)
+    # top band
+    b.face([P(t0 + w, y1 - w, d), P(t1 - w, y1 - w, d), P(t1, y1, d), P(t0, y1, d)],
+           M_STUCCO, 'dado.panel', n_front)
+    b.face([P(t0, y1, 0.0), P(t1, y1, 0.0), P(t1, y1, d), P(t0, y1, d)],
+           M_STUCCO, 'dado.panel', up)
+    b.face([P(t0 + w, y1 - w, 0.0), P(t1 - w, y1 - w, 0.0), P(t1 - w, y1 - w, d),
+            P(t0 + w, y1 - w, d)], M_SHADE, 'dado.panel', down)
+    # left band
+    b.face([P(t0, y0, d), P(t0, y1, d), P(t0 + w, y1 - w, d), P(t0 + w, y0 + w, d)],
+           M_STUCCO, 'dado.panel', n_front)
+    b.face([P(t0, y0, 0.0), P(t0, y1, 0.0), P(t0, y1, d), P(t0, y0, d)],
+           M_SHADE, 'dado.panel', tuple(-c for c in t_dir))
+    b.face([P(t0 + w, y0 + w, 0.0), P(t0 + w, y1 - w, 0.0), P(t0 + w, y1 - w, d),
+            P(t0 + w, y0 + w, d)], M_SHADE, 'dado.panel', t_dir)
+    # right band
+    b.face([P(t1, y0, d), P(t1, y1, d), P(t1 - w, y1 - w, d), P(t1 - w, y0 + w, d)],
+           M_STUCCO, 'dado.panel', n_front)
+    b.face([P(t1, y0, 0.0), P(t1, y1, 0.0), P(t1, y1, d), P(t1, y0, d)],
+           M_SHADE, 'dado.panel', t_dir)
+    b.face([P(t1 - w, y0 + w, 0.0), P(t1 - w, y1 - w, 0.0), P(t1 - w, y1 - w, d),
+            P(t1 - w, y0 + w, d)], M_SHADE, 'dado.panel', tuple(-c for c in t_dir))
+
+
+def build_gallery_rails(b, plane):
+    """The datum along one long wall: the reveal run (the mouth corner wraps EXTERNAL,
+    mitre -1, meeting the passage's east rail at the 45-deg seam - the skirting's own
+    west-corner law), then per niche the two pier connectors (RAIL_STOP short of each
+    shaft side face), the east-most connector wrapping the end-wall corner (internal
+    mitre +1 against the end-wall stub)."""
+    rail_run(b, plane, G_X0, PILASTER_X[-1] - SHAFT_HALF_W - RAIL_STOP, mitre0=-1)
+    for k, x_c in enumerate(NICHE_CENTRES):
+        rail_run(b, plane, PILASTER_X[k] + SHAFT_HALF_W + RAIL_STOP, x_c - SILL_HALF_L)
+        if k == 0:
+            rail_run(b, plane, x_c + SILL_HALF_L, G_X1, mitre1=1)
+        else:
+            rail_run(b, plane, x_c + SILL_HALF_L,
+                     PILASTER_X[k - 1] - SHAFT_HALF_W - RAIL_STOP)
+
+
+def build_gallery_dado(b, plane):
+    """One long wall's datum + the under-niche panels."""
+    n0 = len(b.roster)
+    build_gallery_rails(b, plane)
+    for x_c in NICHE_CENTRES:
+        build_panel(b, plane, x_c - PANEL_HALF_W_GALLERY, x_c + PANEL_HALF_W_GALLERY,
+                    DADO_PANEL_Y0, DADO_PANEL_Y1)
+    _register_borrowed(b, plane, n0)
+
+
+def build_passage_families(b):
+    """The passage: the continuous datum on all three walls (mitred at the north corners,
+    exposed caps at the facade end and at the mouth reveal) + the panels at the vault bay
+    rhythm: 1 dado + 1 tall panel per bay on the west wall (7 bays) and the north wall
+    (4 bays at the 2.0 m pitch); the east wall's 5 bays clear of the mouth carry the dado
+    panels, and the tall panels SKIP the two bays hosting the mouth sconces (SCONCE_SEW_Z:
+    the sconce back plates occupy y 1.68-2.18 proud 0.10 - a tall panel there would
+    positively intersect, the collision gate's own case)."""
+    n0 = len(b.roster)
+    rail_run(b, PWALL_W, P_Z0, P_Z1, mitre0=1)
+    _register_borrowed(b, PWALL_W, n0)
+    # the mouth corners (4, 70)/(4, 76) are EXTERNAL: BOTH runs wrap (mitre -1) and meet
+    # at the 45-deg seam - the gallery's reveal runs carry the matching mitre0=-1. A
+    # square cap here would leave the diagonal half of the corner cube open (the
+    # review-pass finding: a notch at the joint; the FACING/COVERED gates cannot see it).
+    n0 = len(b.roster)
+    rail_run(b, PWALL_E, P_Z0, G_Z0, mitre0=1, mitre1=-1)
+    _register_borrowed(b, PWALL_E, n0)
+    # the facade ends (z 87.5, the open arch plane) carry NO cap: the room's air ends
+    # there (air_contains stops at P_Z1) and a +z cap would fail the FACING gate - the
+    # rail dies at the plane exactly like the fields' own open edges.
+    n0 = len(b.roster)
+    rail_run(b, PWALL_E, G_Z1, P_Z1, mitre0=-1)
+    _register_borrowed(b, PWALL_E, n0)
+    n0 = len(b.roster)
+    rail_run(b, PWALL_N, P_X0, P_X1, mitre0=1, mitre1=1)
+    _register_borrowed(b, PWALL_N, n0)
+    for za, zb in zip(P_Z_NODES, P_Z_NODES[1:]):
+        if zb <= G_Z0 or za >= G_Z1:      # the east wall's bays clear of the mouth
+            n0 = len(b.roster)
+            build_panel(b, PWALL_E, za + PASSAGE_PANEL_MARGIN, zb - PASSAGE_PANEL_MARGIN,
+                        DADO_PANEL_Y0, DADO_PANEL_Y1)
+            if not any(za < z < zb for z in SCONCE_SEW_Z):
+                build_panel(b, PWALL_E, za + PASSAGE_PANEL_MARGIN, zb - PASSAGE_PANEL_MARGIN,
+                            UPPER_PANEL_BOTTOM, UPPER_PANEL_TOP_PASSAGE)
+            _register_borrowed(b, PWALL_E, n0)
+        n0 = len(b.roster)
+        build_panel(b, PWALL_W, za + PASSAGE_PANEL_MARGIN, zb - PASSAGE_PANEL_MARGIN,
+                    DADO_PANEL_Y0, DADO_PANEL_Y1)
+        build_panel(b, PWALL_W, za + PASSAGE_PANEL_MARGIN, zb - PASSAGE_PANEL_MARGIN,
+                    UPPER_PANEL_BOTTOM, UPPER_PANEL_TOP_PASSAGE)
+        _register_borrowed(b, PWALL_W, n0)
+    for k in range(int((P_X1 - P_X0) / F5_PASSAGE_BAY_N)):
+        c = P_X0 + (k + 0.5) * F5_PASSAGE_BAY_N
+        n0 = len(b.roster)
+        build_panel(b, PWALL_N, c - F5_PASSAGE_BAY_N / 2.0 + PASSAGE_PANEL_MARGIN,
+                    c + F5_PASSAGE_BAY_N / 2.0 - PASSAGE_PANEL_MARGIN,
+                    DADO_PANEL_Y0, DADO_PANEL_Y1)
+        build_panel(b, PWALL_N, c - F5_PASSAGE_BAY_N / 2.0 + PASSAGE_PANEL_MARGIN,
+                    c + F5_PASSAGE_BAY_N / 2.0 - PASSAGE_PANEL_MARGIN,
+                    UPPER_PANEL_BOTTOM, UPPER_PANEL_TOP_PASSAGE)
+        _register_borrowed(b, PWALL_N, n0)
+
+
+def build_endwall_families(b):
+    """The datum wraps the gallery's east corners (internal mitres against the long walls'
+    rails) and dies into the corner returns' plinths (no caps, solid-on-solid); the two
+    flank runs stop DOOR_RAIL_STOP short of the jamb bands (exposed caps); one dado + one
+    tall panel per flank."""
+    n0 = len(b.roster)
+    rail_run(b, WALL_E, G_Z0, CORNER_RETURN_Z[0] - PLINTH_HALF_W, mitre0=1)
+    rail_run(b, WALL_E, CORNER_RETURN_Z[0] + PLINTH_HALF_W, JAMB_BAND_Z[0] - DOOR_RAIL_STOP,
+             cap1=True)
+    rail_run(b, WALL_E, JAMB_BAND_Z[1] + DOOR_RAIL_STOP, CORNER_RETURN_Z[1] - PLINTH_HALF_W,
+             cap0=True)
+    rail_run(b, WALL_E, CORNER_RETURN_Z[1] + PLINTH_HALF_W, G_Z1, mitre1=1)
+    build_panel(b, WALL_E, CORNER_RETURN_Z[0] + PLINTH_HALF_W + PANEL_INSET,
+                JAMB_BAND_Z[0] - DOOR_RAIL_STOP - PANEL_INSET, DADO_PANEL_Y0, DADO_PANEL_Y1)
+    build_panel(b, WALL_E, CORNER_RETURN_Z[0] + PLINTH_HALF_W + PANEL_INSET,
+                JAMB_BAND_Z[0] - DOOR_RAIL_STOP - PANEL_INSET,
+                UPPER_PANEL_BOTTOM, UPPER_PANEL_TOP_ENDWALL)
+    build_panel(b, WALL_E, JAMB_BAND_Z[1] + DOOR_RAIL_STOP + PANEL_INSET,
+                CORNER_RETURN_Z[1] - PLINTH_HALF_W - PANEL_INSET, DADO_PANEL_Y0, DADO_PANEL_Y1)
+    build_panel(b, WALL_E, JAMB_BAND_Z[1] + DOOR_RAIL_STOP + PANEL_INSET,
+                CORNER_RETURN_Z[1] - PLINTH_HALF_W - PANEL_INSET,
+                UPPER_PANEL_BOTTOM, UPPER_PANEL_TOP_ENDWALL)
+    _register_borrowed(b, WALL_E, n0)
+
+
+def _register_borrowed(b, plane, n0):
+    """Records every borrowed face's host plane for adopt_lm_uv (the faces from n0 on)."""
+    for entry in b.roster[n0:]:
+        if entry[3] in BORROWED_ELEMENTS:
+            b.borrowed_planes[entry[0]] = plane
+
+
+def build_wall_families(b):
+    """The RG-F5 families, export chain ONLY (the call site guards on BAKE)."""
+    n0 = len(b.roster)
+    for plane in (WALL_S, WALL_N):
+        build_gallery_dado(b, plane)
+    build_passage_families(b)
+    build_endwall_families(b)
+    counts = {}
+    for entry in b.roster[n0:]:
+        if entry[3] not in BORROWED_ELEMENTS:
+            fail(f'build_wall_families emitted a non-borrowed element {entry[3]!r}')
+        counts[entry[3]] = counts.get(entry[3], 0) + 1
+    return counts
+
+
+def _f5_ty(axis, co):
+    """A world point's (t, y) on an axis plane's frame (t along the wall, y up)."""
+    return (co[0], co[1]) if axis == 'z' else (co[2], co[1])
+
+
+def _bary(p, a, b, c):
+    """Barycentric weights of p in the 2-D triangle, or None when outside (eps-tolerant)."""
+    det = (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0])
+    if abs(det) < 1e-12:
+        return None
+    wa = ((b[0] - p[0]) * (c[1] - p[1]) - (b[1] - p[1]) * (c[0] - p[0])) / det
+    wb = ((c[0] - p[0]) * (a[1] - p[1]) - (c[1] - p[1]) * (a[0] - p[0])) / det
+    wc = 1.0 - wa - wb
+    if wa < -1e-9 or wb < -1e-9 or wc < -1e-9:
+        return None
+    return (wa, wb, wc)
+
+
+def _point_in_poly(p, poly):
+    """The polygon-exact containment: the on-segment pre-test first (the boundary is
+    inside, ALL edge orientations - the review-pass NOTE: a foot on a horizontal shared
+    edge used to skip both hosts' tests and let the roster order decide), then the
+    crossing test (concave-safe)."""
+    n = len(poly)
+    for i in range(n):
+        ax, ay = poly[i]
+        bx, by = poly[(i + 1) % n]
+        cross = (bx - ax) * (p[1] - ay) - (by - ay) * (p[0] - ax)
+        if abs(cross) <= 1e-9 and min(ax, bx) - 1e-9 <= p[0] <= max(ax, bx) + 1e-9 \
+                and min(ay, by) - 1e-9 <= p[1] <= max(ay, by) + 1e-9:
+            return True
+    inside = False
+    for i in range(n):
+        ax, ay = poly[i]
+        bx, by = poly[(i + 1) % n]
+        if (ay > p[1]) != (by > p[1]):
+            t = (p[1] - ay) / (by - ay)
+            if ax + t * (bx - ax) > p[0] + 1e-9:
+                inside = not inside
+    return inside
+
+
+def _affine_map(p0, p1, p2, uv0, uv1, uv2):
+    """The exact affine map (t, y) -> (u, v) through three non-collinear pairs, or None."""
+    det = (p1[0] - p0[0]) * (p2[1] - p0[1]) - (p1[1] - p0[1]) * (p2[0] - p0[0])
+    if abs(det) < 1e-9:
+        return None
+    du1 = (uv1[0] - uv0[0], uv1[1] - uv0[1])
+    du2 = (uv2[0] - uv0[0], uv2[1] - uv0[1])
+    a11 = ((p2[1] - p0[1]) * du1[0] - (p1[1] - p0[1]) * du2[0]) / det
+    a12 = (-(p2[0] - p0[0]) * du1[0] + (p1[0] - p0[0]) * du2[0]) / det
+    a21 = ((p2[1] - p0[1]) * du1[1] - (p1[1] - p0[1]) * du2[1]) / det
+    a22 = (-(p2[0] - p0[0]) * du1[1] + (p1[0] - p0[0]) * du2[1]) / det
+    b0 = uv0[0] - a11 * p0[0] - a12 * p0[1]
+    b1 = uv0[1] - a21 * p0[0] - a22 * p0[1]
+    return (a11, a12, a21, a22, b0, b1)
+
+
+def _apply_affine(m, p):
+    return (m[0] * p[0] + m[1] * p[1] + m[4], m[2] * p[0] + m[3] * p[1] + m[5])
+
+
+def _nearest_on_poly(p, poly):
+    """The closest point of the polygon's boundary to p (the edge-walk)."""
+    best, best_d = None, None
+    n = len(poly)
+    for i in range(n):
+        a, b = poly[i], poly[(i + 1) % n]
+        ab = (b[0] - a[0], b[1] - a[1])
+        ap = (p[0] - a[0], p[1] - a[1])
+        denom = ab[0] * ab[0] + ab[1] * ab[1]
+        if denom < 1e-18:
+            q = a
+        else:
+            t = max(0.0, min(1.0, (ab[0] * ap[0] + ab[1] * ap[1]) / denom))
+            q = (a[0] + t * ab[0], a[1] + t * ab[1])
+        d = (q[0] - p[0]) ** 2 + (q[1] - p[1]) ** 2
+        if best_d is None or d < best_d:
+            best, best_d = q, d
+    return best
+
+
+def adopt_lm_uv(builder, lm_lay, packed, borrowed):
+    """The borrowed-UV law: every borrowed FACE adopts ONE host wall face's TEXCOORD_1 map
+    (the host picked per FACE by its centroid's foot point - polygon-exact containment,
+    the crossing test, concave-safe; the first containing field face in roster order) and
+    all the face's loops map through THAT host's exact affine cell map (the pack's
+    per-face mapping is affine over its plane - solved from the host's first three
+    non-collinear loops). ONE host per face keeps every face's uv quad inside one atlas
+    cell - the per-loop picking let a concave piece's fan triangle (which extends outside
+    its polygon) falsely contain a neighbouring face's feet and scatter the face's loops
+    across cells (the rendered speckle class, found and fixed the same session). EVERY
+    loop's foot clamps onto the host polygon before the map (a foot outside - a band
+    crossing a concave cutout, a mitre-wrap end - would extrapolate into the cutout's
+    unpainted/dilated texels). The uv clamps 1 texel inside the host's mapped bbox (the
+    gutter law). The centroid fallback is WRAP-ONLY (the tagged mitre-wrap faces; an
+    ordinary family face failing containment fails loud)."""
+    hosts = {}
+    for entry in packed:
+        f, _kind, _uid, el = entry
+        if el not in F5_HOST_ELEMENTS:
+            continue
+        world = [to_w(v.co) for v in f.verts]
+        axis = None
+        for name, idx in (('x', 0), ('z', 2)):
+            span = max(w[idx] for w in world) - min(w[idx] for w in world)
+            if span < 1e-6:
+                axis = name
+                break
+        if axis is None:
+            continue  # not an axis-aligned wall face (the fields always are)
+        offset = round(world[0][0 if axis == 'x' else 2], 4)
+        ty = [_f5_ty_from_axis(axis, w) for w in world]
+        uvs = [tuple(loop[lm_lay].uv) for loop in f.loops]
+        xs = [q[0] for q in ty]
+        ys = [q[1] for q in ty]
+        bbox = (min(u for u, _v in uvs), max(u for u, _v in uvs),
+                min(v for _u, v in uvs), max(v for _u, v in uvs))
+        hosts.setdefault((axis, offset), []).append(
+            (ty, uvs, bbox, el, min(xs), max(xs), min(ys), max(ys)))
+    tx = 1.0 / LM_RES
+    for entry in borrowed:
+        f, _kind, _uid, el = entry
+        plane = builder.borrowed_planes.get(f)
+        if plane is None:
+            fail(f'adopt_lm_uv: the borrowed {el} face carries no host plane')
+        candidates = hosts.get((plane.axis, round(plane.offset, 4)))
+        if not candidates:
+            fail(f'adopt_lm_uv: no {el} hosts on {plane.name}')
+        loops = list(zip(f.loops, f.verts))
+        feet = [_f5_ty(plane.axis, to_w(v.co)) for _l, v in loops]
+        centre = (sum(q[0] for q in feet) / len(feet), sum(q[1] for q in feet) / len(feet))
+        hit = None
+        for ty, uvs, bbox, host_el, x0, x1, y0, y1 in candidates:
+            if not (x0 - F5_ADOPT_CLAMP_M <= centre[0] <= x1 + F5_ADOPT_CLAMP_M
+                    and y0 - F5_ADOPT_CLAMP_M <= centre[1] <= y1 + F5_ADOPT_CLAMP_M):
+                continue
+            if _point_in_poly(centre, ty):
+                hit = (ty, uvs, bbox, host_el)
+                break
+        if hit is None:
+            # The fallback is WRAP-ONLY (the review-pass finding): a face whose centroid
+            # sits outside every host polygon is lawful only for the tagged mitre-wrap
+            # class (the mouth corners belong to neither wall's field by design); an
+            # ordinary family face failing containment is a construction error - fail
+            # loud instead of silently borrowing a neighbour's edge texels.
+            if f not in builder.borrowed_wraps:
+                fail(f'adopt_lm_uv: the borrowed {el} face at '
+                     f'({centre[0]:.3f}, {centre[1]:.3f}) is not a tagged mitre wrap '
+                     f'but finds no host on {plane.name}')
+            best = None
+            for ty, uvs, bbox, host_el, _x0, _x1, _y0, _y1 in candidates:
+                q = _nearest_on_poly(centre, ty)
+                d2 = (q[0] - centre[0]) ** 2 + (q[1] - centre[1]) ** 2
+                if best is None or d2 < best[0]:
+                    best = (d2, q, (ty, uvs, bbox, host_el))
+            if best is None or best[0] > F5_ADOPT_CLAMP_M ** 2:
+                fail(f'adopt_lm_uv: the borrowed {el} face at '
+                     f'({centre[0]:.3f}, {centre[1]:.3f}) has no host on {plane.name}')
+            hit = best[2]
+        ty, uvs, bbox, host_el = hit
+        affine = None
+        n = len(ty)
+        for i in range(n):
+            for j in range(i + 1, n):
+                for k in range(j + 1, n):
+                    affine = _affine_map(ty[i], ty[j], ty[k], uvs[i], uvs[j], uvs[k])
+                    if affine is not None:
+                        break
+                if affine is not None:
+                    break
+            if affine is not None:
+                break
+        if affine is None:
+            fail(f'adopt_lm_uv: the host {host_el} has no non-collinear loops')
+        for loop, _vert, foot in zip(f.loops, f.verts, feet):
+            # the per-foot polygon clamp (the review-pass FIX: a loop's foot outside the
+            # host polygon - a band crossing a concave cutout, a mitre-wrap end - would
+            # EXTRAPOLATE the affine map into the cutout's unpainted/dilated texels;
+            # clamp the foot onto the host boundary first, then map).
+            q = foot if _point_in_poly(foot, ty) else _nearest_on_poly(foot, ty)
+            u, v = _apply_affine(affine, q)
+            loop[lm_lay].uv = (min(max(u, bbox[0] + tx), bbox[1] - tx),
+                               min(max(v, bbox[2] + tx), bbox[3] - tx))
+
+
+def _f5_ty_from_axis(axis, w):
+    return (w[0], w[1]) if axis == 'z' else (w[2], w[1])
+
+
+def _face_aabb(face):
+    world = [to_w(v.co) for v in face.verts]
+    return (min(w[0] for w in world), max(w[0] for w in world),
+            min(w[1] for w in world), max(w[1] for w in world),
+            min(w[2] for w in world), max(w[2] for w in world))
+
+
+def _aabb_strict_overlap(a, b):
+    """The positive-volume intersection: overlap > 1e-9 on every axis. A face with a
+    zero-extent AABB axis can never satisfy it (the buried-face class below)."""
+    return all(min(a[2 * i + 1], b[2 * i + 1]) - max(a[2 * i], b[2 * i]) > 1e-9
+               for i in range(3))
+
+
+def _aabb_centre(box):
+    return tuple((box[2 * i] + box[2 * i + 1]) / 2.0 for i in range(3))
+
+
+def _face_penetrates(box, collider_box):
+    """(a) the strict overlap (the partial-penetration class) OR (b) the face's centroid
+    inside the collider shrunk by 1e-6 (the buried-face class: a planar face inside a
+    proud solid carries a zero AABB extent there and the strict test cannot see it -
+    the review-pass BREAK: 'moving a connector 1 cm into a shaft can still yield zero
+    offenders'). The shrink keeps the exact-boundary abutments (the ledge ends, the
+    plinth contacts) unflagged."""
+    if _aabb_strict_overlap(box, collider_box):
+        return True
+    c = _aabb_centre(box)
+    return all(collider_box[2 * i] + 1e-6 <= c[i] <= collider_box[2 * i + 1] - 1e-6
+               for i in range(3))
+
+
+def gate_f5_collision(b):
+    """RG-F5's own belt: no borrowed face penetrates any committed proud element's AABB -
+    the strict overlap (the partial class) or the centroid-in-shrunk-box (the buried
+    class). The exact-boundary abutments (the ledge ends, the plinth contacts) touch on
+    a zero-measure boundary and pass. The fields are NOT colliders (the families sit ON
+    them); the sconce instances get their own belt (gate_f5_sconces, after the instances
+    exist)."""
+    colliders = [(_face_aabb(entry[0]), entry[3]) for entry in b.roster
+                 if entry[3] in F5_COLLIDER_ELEMENTS]
+    offenders = []
+    for entry in b.roster:
+        if entry[3] not in BORROWED_ELEMENTS:
+            continue
+        box = _face_aabb(entry[0])
+        for cbox, el in colliders:
+            if _face_penetrates(box, cbox):
+                offenders.append({'borrowed': entry[3], 'collider': el})
+    return offenders
+
+
+def gate_f5_sconces(scene, borrowed_boxes):
+    """The borrowed faces' clearance from the SCONCE INSTANCES (the bay-skip law's own
+    belt: the passage tall panels skip the 2 mouth-sconce bays by construction; this
+    proves it - the shell-roster scan cannot see the separate sconce meshes). The faces'
+    boxes are snapshotted BEFORE finish() frees the builder's bmesh."""
+    sconce_boxes = []
+    for obj in scene.objects:
+        if obj.type == 'MESH' and obj.name.split('.')[0] == 'sconce':
+            corners = [obj.matrix_world @ Vector(c) for c in obj.bound_box]
+            sconce_boxes.append((min(c.x for c in corners), max(c.x for c in corners),
+                                 min(c.y for c in corners), max(c.y for c in corners),
+                                 min(c.z for c in corners), max(c.z for c in corners)))
+    offenders = []
+    for box, el in borrowed_boxes:
+        for sbox in sconce_boxes:
+            if _face_penetrates(box, sbox):
+                offenders.append({'borrowed': el, 'sconce': True})
+    return offenders
+
+
 def build_room(b):
     """The deterministic build order (the roster = the schedule's index)."""
     build_long_wall(b, WALL_S)
@@ -1842,6 +2390,11 @@ def build_room(b):
     build_vault_and_arches(b)
     build_floor(b)
     build_end_wall(b)
+    if not BAKE:
+        # RG-F5: the exported-never-baked wall families exist ONLY in the export chain -
+        # the bake chain's scene (and therefore all three plates) stays the committed one
+        # byte-for-byte by construction.
+        build_wall_families(b)
 
 
 COVERED_DUMP_PATH = '/private/var/folders/8x/yls1cw1d6s3fmbrxhqg0y17w0000gp/T/opencode/rg-verify/rgf2-covered-debug.json'
@@ -2199,6 +2752,14 @@ def main():
             covered_debug_dump(b, covered)
         fail('COVERED offenders: ' + json.dumps(covered))
     schedule = check_schedule(b, schedule)
+    if not BAKE:
+        collisions = gate_f5_collision(b)
+        if collisions:
+            fail('F5 COLLISION offenders: ' + json.dumps(collisions[:8]))
+        # the borrowed boxes ride the sconce belt AFTER the instances exist (the bmesh
+        # frees at finish - the faces are dead by then, the boxes are the snapshot)
+        borrowed_boxes = [(_face_aabb(entry[0]), entry[3]) for entry in b.roster
+                          if entry[3] in BORROWED_ELEMENTS]
 
     img_stone, png_stone = write_texture('stone_flags', stone_flags_px, tex_dir)
     img_pale, png_pale = write_texture('plaster_pale', plaster_pale_px, tex_dir)
@@ -2212,9 +2773,13 @@ def main():
     mat_pane = flat_material('pane', (1.0, 1.0, 1.0), 1.0)   # (RG-F3) flat white, roughness 1.0
     mat_iron = flat_material('iron_dark', IRON_RGB, IRON_ROUGHNESS)
     mat_glow = flat_material('sconce_glow', GLOW_TINT_RGB, 0.92, emission=SCONCE_GLOW_RGB)
+    # RG-F5: the fillet-shade device (flat, no texture row) - exported only.
+    mat_shade = flat_material('stucco_shade', M_STUCCO_SHADE_RGB, 0.92)
+    shell_slots = [mat_pale, mat_stone, mat_stucco, mat_band, mat_stair, mat_pane]
+    if not BAKE:
+        shell_slots.append(mat_shade)
     me_shell, t_shell, lm_shell = finish(
-        'shell', b, [mat_pale, mat_stone, mat_stucco, mat_band, mat_stair, mat_pane],
-        mode='shelf')
+        'shell', b, shell_slots, mode='shelf')
     if BAKE:
         # BATCH B's S2A wiring (the junction law): bake.py reads the shell's face→element
         # map straight from this exec namespace — the roster order IS the mesh polygon
@@ -2231,6 +2796,10 @@ def main():
         instance('sconce', me_sconce, (x, SCONCE_Y, G_Z1 - SCONCE_MOUNT_D), math.pi)
     for z in SCONCE_SEW_Z:  # 2 passage-mouth sconces on the passage's east wall, facing west
         instance('sconce', me_sconce, (P_X1, SCONCE_Y, z), -math.pi / 2)
+    if not BAKE:
+        sconce_offenders = gate_f5_sconces(bpy.context.scene, borrowed_boxes)
+        if sconce_offenders:
+            fail('F5 SCONCE offenders: ' + json.dumps(sconce_offenders[:8]))
     build_junction_proxies(JUNCTION)
     if BAKE:
         return
@@ -2254,7 +2823,9 @@ def main():
     )
     belt_export_nodes(glb_path)
     meshes = {
-        'shell': {'triangles': t_shell, 'instances': 1, 'primitives': 6},
+        # RG-F5: the shell's 7th primitive is the 'stucco_shade' slot (export chain only -
+        # the bake chain returns before this point).
+        'shell': {'triangles': t_shell, 'instances': 1, 'primitives': 7},
         'sconce': {'triangles': t_sconce, 'instances': SCONCE_COUNT, 'primitives': 2},
     }
     lm_block = dict(lm_shell)
@@ -2290,6 +2861,12 @@ def main():
             'galleryVault': GALLERY_VAULT,
             'uvTileM': UV_TILE_M,
             'lmRes': LM_RES,
+            'filletAo': FILLET_AO,
+            'panelBandW': PANEL_BAND_W,
+            'panelBandProud': PANEL_BAND_PROUD,
+            'panelInset': PANEL_INSET,
+            'railStop': RAIL_STOP,
+            'doorRailStop': DOOR_RAIL_STOP,
         },
         'lm': lm_block,
     }

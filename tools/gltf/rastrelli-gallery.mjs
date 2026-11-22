@@ -59,7 +59,8 @@ const GLOW_STRENGTH = 6;
 // RG-F3 Sol-17: the published-material census — exactly 8 published materials (6 shell
 // + 2 sconce), names asserted; the 'pane' material must be present with emissive
 // strength 0 (an absent KHR_materials_emissive_strength row counts as 0 — the flat
-// non-emissive export shape).
+// non-emissive export shape). RG-F5 adds the flat 'stucco_shade' row (the fillet-shade
+// device's 7th shell slot; exported-never-baked, no texture).
 const EXPECTED_MATERIALS = [
   'iron_dark',
   'pane',
@@ -68,10 +69,11 @@ const EXPECTED_MATERIALS = [
   'stone_band',
   'stone_flags',
   'stucco_grey',
+  'stucco_shade',
   'stairlight',
 ];
 const PANE_MATERIAL = 'pane';
-const MATERIALS_SHELL = 6;
+const MATERIALS_SHELL = 7;
 const MATERIALS_SCONCE = 2;
 const TOKTX_ARGS = [
   '--t2',
@@ -188,7 +190,7 @@ function gateMaterialsCensus(json) {
   if (materials.length !== MATERIALS_SHELL + MATERIALS_SCONCE) {
     fail(
       `the material census expects ${MATERIALS_SHELL} shell + ${MATERIALS_SCONCE} sconce ` +
-        `= 8 published rows, got ${materials.length}`,
+        `= ${MATERIALS_SHELL + MATERIALS_SCONCE} published rows, got ${materials.length}`,
     );
   }
   const pane = materials.find((material) => material.name === PANE_MATERIAL);
