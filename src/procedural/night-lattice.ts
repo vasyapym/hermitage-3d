@@ -53,6 +53,9 @@ export type NightLattice = Readonly<{
   counts: Readonly<Record<PaneLevel, number>>;
   levelById: ReadonlyMap<string, PaneLevel>;
   setNight: (wNight: number) => void;
+  /** The presentation fade for the stock materials (the round-2 review fix): the HQ's pane
+   * quads bound by reference fade with the wall; identity at settle (opacity 1, opaque). */
+  setFade: (opacity: number) => void;
 }>;
 type PartId = Placement['partId'];
 type LevelBuild = Readonly<{ mesh: InstancedMesh; material: MeshStandardMaterial }>;
@@ -182,6 +185,16 @@ export function buildNightLattice(solved: LatticeSource): NightLattice {
       materials[level].color.setRGB(...paneBaseTone(wNight));
     }
   };
+  const setFade = (opacity: number): void => {
+    // The round-2 review fix: the pane stocks ride the presentation fade — the HQ's
+    // dim/bright quads bound by reference must not outshine the wall mid-fade, and the
+    // dark cards had the same mismatch. At settle this is the identity (opacity 1, opaque):
+    // the det=1 golden captures never see a partial state.
+    for (const level of PANE_LEVELS) {
+      materials[level].opacity = opacity;
+      materials[level].transparent = opacity < 1;
+    }
+  };
   setNight(0);
-  return { group, meshes, materials, counts, levelById, setNight };
+  return { group, meshes, materials, counts, levelById, setNight, setFade };
 }

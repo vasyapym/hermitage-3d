@@ -125,6 +125,32 @@ find's · the west flank + the Admiralty/south massings (DEC-heavy: five S0 gold
 Alexander Garden's trees read) · the candelabra/lanterns (the gate closed STRICTER; an
 exception row needed) · the doorway residual parked (unchanged).
 ## Mentioned elsewhere
+ARCHIVE-APPEND 2026-11-22 — the review pass (brief 5, the lane's cumulative review; the reply in
+the vault's round-1/replies/; the ledger round-1/FINDINGS.md; score 8/10): five findings fixed,
+one declined. (1) the HQ lip's draw gate — the lip's 36 indices at the END of the cap's index
+array, `setHqLipVisible(false)` the default, the mount's `onReady` hook flips it on: a slow or
+failed GLB never floats a snow strip over bare field (the additive law extended to the
+palace-side lip; the palace tris render unchanged in the same draw). (2) the pane stocks ride
+the presentation fade — `night-lattice.setFade(opacity)` from applyPresentation (the HQ's
+emissive quads AND the pre-existing dark-card mismatch fade with the wall; the identity at
+settle — det=1 never sees a partial state). (3) the junction's winding — CONFIRMED with the
+mechanism corrected: box() winds from the argument order and the rider's jbm shipped without
+the recalc; four of six faces were inverted (the north/south/top/east), NOT the west face the
+reviewer named (the descending-y argument order happens to wind the west face outward) —
+`recalc_face_normals` added before to_mesh; the chain rebuilt. (4) the snow-cap corner test
+bounded on all three axes. (5) `color: HQ_TONE_HEX` (one value, one place). Declined: the
+per-level paneBaseTone allocation (nicer; no defect per the reviewer). The gates after the
+fixes: the FULL vitest 68 files 1232 passed/2 skipped · validate complete · e2e square-kit 8/8 ·
+the golden battery 8/8 (zero flips — the fixes are settled-identity; the first battery's
+golden-noon death classified the storm class by the error context — the 90 s settle timeout
+under the co-tenant's bake — GREEN on the single-row re-run per the one-re-run law) · JS +132 →
+288,121 (the round-2 cumulative +580 of the declared ≤ +600 — the reservation holds unamended).
+The day strip question closed by measurement: the post-fix day drag capture shows a darker band
+at the junction's top — identified as the junction's NORTH end-grain wedge (the occlusion-
+bounded sliver beside the wall's west edge; a real building reads the same at this angle) —
+not a defect; the winding fix verified by the night capture (the clean massing continuation).
+The evidence packet re-captured on the fixed build (the same filenames in the vault captures/).
+
 The evidence packet: `packet2.html` in the vault session folder (the day before/after with the
 lum numbers; the junction's night vantage; the measured tables) — served locally for the
 owner's eye; the captures are local-only scratch (never staged).

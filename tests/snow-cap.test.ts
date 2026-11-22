@@ -28,22 +28,47 @@ describe('snow-cap: the HQ cornice lip (the square-next-2 round)', () => {
     expect(cap.triangles).toBe(32 + 12);
   });
 
-  it('the morph target carries the lip corners in world space', () => {
+  it('the morph target carries the lip corners in world space (all three axes)', () => {
     const target = cap.mesh.geometry.morphAttributes.position?.[0];
     if (!target) throw new Error('the cap carries no morph target');
+    // The lip's vertices are the FINAL 24 of the target (the palace runs come first) —
+    // asserting their bounds on ALL three axes (the review fix: a mirrored lip would pass
+    // an X/Y-only check). float32 storage: the authored constants survive to ~1e-3.
     const xs: number[] = [];
     const ys: number[] = [];
-    for (let i = 0; i < target.count; i += 1) {
+    const zs: number[] = [];
+    for (let i = target.count - 24; i < target.count; i += 1) {
       xs.push(target.getX(i));
       ys.push(target.getY(i));
+      zs.push(target.getZ(i));
     }
-    // float32 storage: the authored constants survive to ~1e-3 (the manifest's own AABB
-    // carries the same rounding — 109.30000305175781 was the DEC-049 census read).
-    const near = (list: number[], v: number): boolean => list.some((x) => Math.abs(x - v) < 1e-3);
-    expect(near(ys, HQ_SNOW_LIP.min[1])).toBe(true); // the cornice top 20.5
-    expect(near(ys, HQ_SNOW_LIP.max[1])).toBe(true); // the lip top 20.7
-    expect(near(xs, HQ_SNOW_LIP.min[0])).toBe(true); // the proud west edge 109.55
-    expect(near(xs, HQ_SNOW_LIP.max[0])).toBe(true); // the east edge 110.3
+    expect(xs).toHaveLength(24);
+    const bounds = (list: number[]): Readonly<{ min: number; max: number }> => ({
+      min: Math.min(...list),
+      max: Math.max(...list),
+    });
+    const bx = bounds(xs);
+    const by = bounds(ys);
+    const bz = bounds(zs);
+    expect(bx.min).toBeGreaterThan(HQ_SNOW_LIP.min[0] - 1e-3);
+    expect(bx.max).toBeLessThan(HQ_SNOW_LIP.max[0] + 1e-3);
+    expect(by.min).toBeGreaterThan(HQ_SNOW_LIP.min[1] - 1e-3);
+    expect(by.max).toBeLessThan(HQ_SNOW_LIP.max[1] + 1e-3);
+    expect(bz.min).toBeGreaterThan(HQ_SNOW_LIP.min[2] - 1e-3);
+    expect(bz.max).toBeLessThan(HQ_SNOW_LIP.max[2] + 1e-3);
+  });
+
+  it('the lip waits for the kit: the draw range hides it until the host flips it on', () => {
+    // The default: hidden (the degraded mount path must not float a snow strip over bare
+    // field). The lip's 12 tris sit at the END of the index array — the palace tris draw
+    // as before in the same draw call.
+    const total = cap.mesh.geometry.index?.count ?? 0;
+    expect(cap.hqLipIndexStart).toBe(total - 36);
+    expect(cap.mesh.geometry.drawRange.count).toBe(cap.hqLipIndexStart);
+    cap.setHqLipVisible(true);
+    expect(cap.mesh.geometry.drawRange.count).toBe(Infinity);
+    cap.setHqLipVisible(false);
+    expect(cap.mesh.geometry.drawRange.count).toBe(cap.hqLipIndexStart);
   });
 
   it('the collapsed base seats strictly inside the cornice band (nothing coplanar)', () => {

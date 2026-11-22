@@ -195,6 +195,19 @@ describe('night-lattice: setNight', () => {
     lattice.setNight(1);
     expect(lattice.materials.dark.color.getHex()).toBe(baseToneHex);
   });
+  it('rides the presentation fade: transparent mid-fade, the identity at settle', () => {
+    const lattice = buildNightLattice(source(surroundFixture()));
+    lattice.setFade(0.5);
+    for (const level of PANE_LEVELS) {
+      expect(lattice.materials[level].opacity).toBe(0.5);
+      expect(lattice.materials[level].transparent).toBe(true);
+    }
+    lattice.setFade(1);
+    for (const level of PANE_LEVELS) {
+      expect(lattice.materials[level].opacity).toBe(1);
+      expect(lattice.materials[level].transparent).toBe(false);
+    }
+  });
   it('keeps the dark level at the dim-tone law inside night frames', () => {
     const lattice = buildNightLattice(source(surroundFixture()));
     lattice.setNight(1);

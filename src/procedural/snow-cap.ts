@@ -54,6 +54,11 @@ export type SnowCap = Readonly<{
   runCount: number;
   triangles: number;
   setSnow: (wSnow: number) => void;
+  /** The index offset where the HQ lip's 12 tris begin (the palace tris come first). */
+  hqLipIndexStart: number;
+  /** The draw gate: the lip waits for the kit's own mount — a slow or failed GLB must not
+   * leave a floating snow strip where the wall should be. Default: hidden. */
+  setHqLipVisible: (visible: boolean) => void;
 }>;
 
 /** Profile point in the run's local frame: y relative to the crown's top face, z along its depth (0 = back/wall). */
@@ -373,6 +378,8 @@ export function buildSnowCap(solved: SnowCapSource): SnowCap {
   for (const run of runs) {
     appendRun(arrays, run, crown, profile, capFaces);
   }
+  // The HQ lip's indices sit at the END of the index array: the draw gate hides exactly them.
+  const hqLipIndexStart = arrays.index.length;
   // The square-next-2 round: the HQ cornice joins the ONE snow law (the merged morph strip).
   appendHqLip(arrays);
   const triangles = arrays.index.length / 3;
@@ -408,5 +415,21 @@ export function buildSnowCap(solved: SnowCapSource): SnowCap {
     influences[0] = wSnow;
   };
   setSnow(0);
-  return { group, mesh, material, runCount: runs.length, triangles, setSnow };
+  // The draw gate (the round-2 review fix): the lip waits for the kit's own mount — the
+  // additive law extended to the palace-side lip. Default hidden; the host flips it on
+  // from the mount's onReady. The palace tris render as before in the same draw.
+  const setHqLipVisible = (visible: boolean): void => {
+    mesh.geometry.setDrawRange(0, visible ? Infinity : hqLipIndexStart);
+  };
+  setHqLipVisible(false);
+  return {
+    group,
+    mesh,
+    material,
+    runCount: runs.length,
+    triangles,
+    setSnow,
+    hqLipIndexStart,
+    setHqLipVisible,
+  };
 }

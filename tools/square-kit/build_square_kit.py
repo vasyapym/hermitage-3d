@@ -211,6 +211,11 @@ def main():
     box(jbm, 0, JX0, JX1, JZ0, JZ1, 0.0, TOP)                     # the body
     box(jbm, 0, JX0 - 0.15, JX0 + 0.3, JZ0, JZ1, 0.0, 0.6)        # the plinth course (PROUD)
     box(jbm, 0, JX0 - 0.3, JX0 + 0.15, JZ0, JZ1, TOP - 0.4, TOP)  # the cornice course
+    # The winding law (the review fix, round 2): box() winds from the argument order, and the
+    # rider passes DESCENDING Blender y (−240 → −300) exactly like the HQ wall — whose faces
+    # the recalc above normalizes. The rider's own bmesh needs the same pass before export,
+    # or its west face is backface-culled in the dragged free-look.
+    bmesh.ops.recalc_face_normals(bm, faces=jbm.faces)
     jme = bpy.data.meshes.new('el:gs-junction')
     jbm.to_mesh(jme)
     jbm.free()
