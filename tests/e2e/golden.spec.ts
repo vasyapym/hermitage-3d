@@ -152,15 +152,19 @@ test('golden: dec noon (winter gate)', async ({ page }) => {
 // daylight instrument — the S0b monument pause at the winter noon, where the Guards Corps HQ
 // east wall (the kit node el:hq-east) must read behind the Column (the T2 void
 // VOID_BACKDROP_S0B 42–47 % closed to ≤ 20 % bare field). Captured like every square scene.
+// The square-next-2 round re-baselined it: the HQ joined the day laws (the hour-driven pane
+// albedo, the white surrounds, the snow lip) — the acceptance frame IS the thing being fixed.
 test('golden: S0b dec noon (the missing wall)', async ({ page }) => {
   await settledPage(page, 'at=2026-12-21T10:00:00Z&det=1&stop=S0b');
   await expect(page).toHaveScreenshot('golden-s0b-dec-noon.png', SHOT);
 });
 
 // The square-next round: the HQ's night lattice joins the palace's ONE night law — the
-// S0b monument pause at the winter NIGHT, the night twin of the DEC-049 acceptance
+// S0b monument pause at the winter NIGHT, the night twin of DEC-049's acceptance
 // frame: the Column's silhouette against the lit HQ wall (the kit node's three pane
 // slots bound to the lattice stock). The owner's «I prefer night» instrument.
+// The square-next-2 round: HELD (declared to flip — the white surrounds under the night
+// hemisphere stayed sub-gate; the battery measured the design's ~5 % estimate down).
 test('golden: S0b dec night (the lit wall)', async ({ page }) => {
   await settledPage(page, 'at=2026-12-21T18:00:00Z&det=1&stop=S0b');
   await expect(page).toHaveScreenshot('golden-s0b-dec-night.png', SHOT);
