@@ -48,7 +48,7 @@ IMG_4707 vantage re-captured (the BEFORE re-built fresh at 3300123 — verified 
 the earlier read).
 B5 (orchestrator-direct): the records (this file + the registers + the rows).
 ## Verdicts
-### DEC-READY (the number from the integrating authority at the merge) — the Guards Corps HQ joins the palace's DAY laws: the hour-driven unlit albedo paneBaseTone(wNight) (DAY_PANE_TONE at day, DARK_PANE_TONE bit-exact at w 1, carried by the lattice's own setNight); the 124 flat white surround quads on the existing dressing slot (the flat-surround illusion; the true recess stays rejected); the wSnow-gated snow lip on the HQ cornice (merged into the cap's morph); the owner's tone ruling (HQ_TONE_HEX 0xc4a86e + the 6th bind key 'hq-massing'); the el:gs-junction rider on the reserved 6th draw
+### DEC-053 (assigned at the square-next merge, the wave's first slot) — the Guards Corps HQ joins the palace's DAY laws: the hour-driven unlit albedo paneBaseTone(wNight) (DAY_PANE_TONE at day, DARK_PANE_TONE bit-exact at w 1, carried by the lattice's own setNight); the 124 flat white surround quads on the existing dressing slot (the flat-surround illusion; the true recess stays rejected); the wSnow-gated snow lip on the HQ cornice (merged into the cap's morph); the owner's tone ruling (HQ_TONE_HEX 0xc4a86e + the 6th bind key 'hq-massing'); the el:gs-junction rider on the reserved 6th draw
 THE HOUR LAW (night-facade.ts): paneBaseTone(wNight) = lerp3(DAY_PANE_TONE
 [0.03, 0.034, 0.042], DARK_PANE_TONE, w) — endpoint-exact, clamped; the justification row J1:
 the pane base albedo is per-frame hour behaviour and the lattice's setNight is its existing

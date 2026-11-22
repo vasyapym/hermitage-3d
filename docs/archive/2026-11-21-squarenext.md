@@ -36,7 +36,7 @@ IMG_4707 vantage before/after captures (the BEFORE tree built in a throwaway det
 at c05a451) + the boot frame.
 B5 (orchestrator-direct): the records (this file + the registers + the rows).
 ## Verdicts
-### DEC-READY (the number from the integrating authority at the merge) — the Guards Corps HQ joins the palace's ONE night-window law: the kit's 124 pane quads re-slotted into three material slots (dark-pane / dim-pane / bright-pane) by a TS-generated lit map, bound at mount to the night lattice's three stock materials; the three stock levels share the ONE unlit albedo
+### DEC-052 (assigned at the square-next merge, the wave's first slot) — the Guards Corps HQ joins the palace's ONE night-window law: the kit's 124 pane quads re-slotted into three material slots (dark-pane / dim-pane / bright-pane) by a TS-generated lit map, bound at mount to the night lattice's three stock materials; the three stock levels share the ONE unlit albedo
 THE FIND (zero steering): the pinpoint's rank 1 = the IMG_4707 sighting's promoted top pick;
 the classification: CONTENT = the kit quads re-slotted (the DEC-049 chain, no new node/mesh/
 texture/transform — one re-slot on the existing el:hq-east); SHADING adds NONE (the per-frame
