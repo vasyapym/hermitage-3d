@@ -9,6 +9,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { SQUARE_RAIL } from '../src/camera/square-rail';
+import { levelOf } from '../src/world/night-facade';
 import type { Bounds, Vec3 } from '../src/world/registry';
 import type { SquareKitNode, SquareManifest } from '../src/world/square-kit';
 import * as kit from '../src/world/square-kit';
@@ -25,7 +26,7 @@ function hqNode(): SquareKitNode {
     name: 'el:hq-east',
     tris: 800,
     aabb: bounds([108.95, 0, 100], [134, 20.5, 240]),
-    materials: ['massing', 'dressing', 'dark-pane'],
+    materials: ['hq-massing', 'dressing', 'dark-pane', 'dim-pane', 'bright-pane'],
   } satisfies SquareKitNode;
 }
 
@@ -71,13 +72,76 @@ describe('1 · DEC-045 constants and bind names', () => {
     expect(kit.KIT_MOUNT_STATES).toEqual(['loading', 'ready', 'failed']);
   });
 
-  it('has exactly three unique, case-sensitive shared-material bind keys', () => {
-    expect(kit.KIT_BIND_KEYS).toEqual(['massing', 'dressing', 'dark-pane']);
+  it('has exactly six unique, case-sensitive shared-material bind keys', () => {
+    expect(kit.KIT_BIND_KEYS).toEqual([
+      'massing',
+      'hq-massing',
+      'dressing',
+      'dark-pane',
+      'dim-pane',
+      'bright-pane',
+    ]);
     expect(new Set(kit.KIT_BIND_KEYS).size).toBe(kit.KIT_BIND_KEYS.length);
     for (const key of kit.KIT_BIND_KEYS) expect(kit.isKitBindKey(key)).toBe(true);
-    for (const key of ['Material', 'Massing', '', null, 1]) {
+    for (const key of ['Material', 'Massing', 'pane', '', null, 1]) {
       expect(kit.isKitBindKey(key)).toBe(false);
     }
+  });
+
+  it('pins the HQ pane re-slot law: the generated lit map over the palace hash space', () => {
+    expect(kit.HQ_PANE_ROWS).toBe(4);
+    expect(kit.HQ_PANE_COUNT).toBe(124);
+    expect(kit.HQ_PANE_SLOT).toEqual({ dark: 2, dim: 3, bright: 4 });
+    const table = kit.hqPaneLevelTable();
+    expect(table).toHaveLength(kit.HQ_PANE_COUNT);
+    expect(table).toMatch(/^[dib]+$/);
+    const counts: Record<string, number> = { d: 0, i: 0, b: 0 };
+    for (const ch of table) counts[ch] = (counts[ch] ?? 0) + 1;
+    const split = `dark ${counts.d ?? 0} · dim ${counts.i ?? 0} · bright ${counts.b ?? 0} of 124`;
+    for (const code of ['d', 'i', 'b'] as const) {
+      // every level present — the re-slot never degenerates to one stock material
+      expect(counts[code] ?? 0, split).toBeGreaterThanOrEqual(1);
+    }
+    // one law, one place: the SAME levelOf decides, so the table matches the hash space
+    expect(kit.hqPaneKey(0, 0)).toBe('el:hq-east/pane/b0/r0');
+    expect(kit.hqPaneKey(30, 3)).toBe('el:hq-east/pane/b30/r3');
+    expect(table[0]).toBe(kit.HQ_PANE_LEVEL_CODES[levelOf(kit.hqPaneKey(0, 0))]);
+    expect(table[table.length - 1]).toBe(kit.HQ_PANE_LEVEL_CODES[levelOf(kit.hqPaneKey(30, 3))]);
+  });
+
+  it('pins the round-2 day-read laws: the surround, the PROUD pair, the lip, the tone, the rider', () => {
+    expect(kit.HQ_TONE_HEX).toBe(0xc4a86e);
+    expect(kit.HQ_WINDOW_WIDTH_M).toBe(2.2);
+    expect(kit.HQ_SURROUND).toEqual({ sideM: 0.3, headM: 0.3, sillM: 0.3 });
+    expect(kit.HQ_SURROUND_WIDTH_M).toBeCloseTo(2.8, 12);
+    expect(kit.HQ_PANE_PROUD_M).toBe(0.04);
+    expect(kit.HQ_SURROUND_PROUD_M).toBe(0.02);
+    // the derived rows: HQ_WINDOW_ROWS_Y widened by the margins…
+    expect(kit.hqSurroundRows()).toEqual([
+      [1.2, 4.3],
+      [4.7, 8.3],
+      [10.2, 14.3],
+      [14.7, 17.8],
+    ]);
+    // …clear of the plinth top 0.6 and of the тяга 8.85–9.15 (the py's own course).
+    const plinthTop = 0.6;
+    const stringCourse = { min: 8.85, max: 9.15 };
+    for (const [z0, z1] of kit.hqSurroundRows()) {
+      expect(z0).toBeGreaterThan(plinthTop);
+      expect(z1 <= stringCourse.min || z0 >= stringCourse.max).toBe(true);
+    }
+    expect(kit.HQ_SURROUND_TRIS).toBe(248);
+    expect(kit.HQ_NODE_TRIS).toBe(1_192);
+    expect(kit.HQ_NODE_TRIS).toBeLessThanOrEqual(kit.HQ_NODE_TRI_CAP);
+    expect(kit.HQ_SNOW_LIP).toEqual({ min: [109.55, 20.5, 100], max: [110.3, 20.7, 240] });
+    expect(kit.GS_JUNCTION).toEqual({
+      xWest: 110,
+      xEast: 134,
+      zNorth: 240,
+      zSouth: 300,
+      corniceM: 20.5,
+      plinthTopM: 0.6,
+    });
   });
 
   it('accepts only the adopted node-name grammar', () => {
@@ -135,7 +199,13 @@ describe('2 · manifest fixtures and allowances', () => {
     const candidate: unknown = manifest([hqNode()]);
     if (!kit.validateSquareManifest(candidate)) throw new Error('fixture rejected');
     expect(candidate.files[0]?.sha256).toBe(candidate.glbSha256);
-    expect(candidate.nodes[0]?.materials).toEqual(kit.KIT_BIND_KEYS);
+    expect(candidate.nodes[0]?.materials).toEqual([
+      'hq-massing',
+      'dressing',
+      'dark-pane',
+      'dim-pane',
+      'bright-pane',
+    ]);
   });
 
   it('rejects malformed top-level and RoomManifest fields', () => {
@@ -429,21 +499,34 @@ describe('6 · the committed kit (G2/G3/G7 — batch M2)', () => {
     expect(manifest.files[0]?.sha256).toBe(manifest.glbSha256);
   });
 
-  it('carries the one committed node el:hq-east per the design pins (C1)', () => {
+  it('carries the two committed nodes per the round-2 pins (the wall + the junction rider)', () => {
     if (!kit.validateSquareManifest(manifest)) throw new Error('invalid committed manifest');
-    expect(manifest.nodes).toHaveLength(1);
-    const node = manifest.nodes[0];
-    if (!node) throw new Error('the committed node is missing');
-    expect(node.name).toBe('el:hq-east');
-    expect(node.tris).toBe(944); // the planned ≈ 944: 12+12+12+336+144+144+36+248 ≤ 1,500
-    expect(node.tris).toBeLessThanOrEqual(kit.HQ_NODE_TRI_CAP);
-    expect(node.aabb.min[0]).toBeCloseTo(109.3, 4); // the portico's r-0.7 columns protrude
-    expect(node.aabb.max[0]).toBe(kit.HQ_FACE_X + kit.HQ_DEPTH_M);
-    expect(node.aabb.min[1]).toBe(0);
-    expect(node.aabb.max[1]).toBe(kit.HQ_CORNICE_M);
-    expect(node.aabb.min[2]).toBe(kit.HQ_Z.north);
-    expect(node.aabb.max[2]).toBe(kit.HQ_Z.south);
-    expect(node.materials).toEqual([...kit.KIT_BIND_KEYS]); // one slot per bind key = 3 draws
+    expect(manifest.nodes).toHaveLength(2);
+    const wall = manifest.nodes[0];
+    const junction = manifest.nodes[1];
+    if (!wall || !junction) throw new Error('a committed node is missing');
+    expect(wall.name).toBe('el:hq-east');
+    expect(wall.tris).toBe(kit.HQ_NODE_TRIS); // 944 + 248 surrounds = 1,192 ≤ 1,500
+    expect(wall.aabb.min[0]).toBeCloseTo(109.3, 4); // the portico's r-0.7 columns protrude
+    expect(wall.aabb.max[0]).toBe(kit.HQ_FACE_X + kit.HQ_DEPTH_M);
+    expect(wall.aabb.min[1]).toBe(0);
+    expect(wall.aabb.max[1]).toBe(kit.HQ_CORNICE_M);
+    expect(wall.aabb.min[2]).toBe(kit.HQ_Z.north);
+    expect(wall.aabb.max[2]).toBe(kit.HQ_Z.south);
+    expect(wall.materials).toEqual([
+      'hq-massing',
+      'dressing',
+      'dark-pane',
+      'dim-pane',
+      'bright-pane',
+    ]);
+    expect(junction.name).toBe('el:gs-junction');
+    expect(junction.tris).toBe(36); // body 12 + plinth course 12 + cornice course 12
+    expect(junction.aabb.min[2]).toBe(kit.GS_JUNCTION.zNorth);
+    expect(junction.aabb.max[2]).toBe(kit.GS_JUNCTION.zSouth);
+    expect(junction.materials).toEqual(['hq-massing']); // the reserved 6th draw slot
+    const draws = manifest.nodes.reduce((sum, node) => sum + node.materials.length, 0);
+    expect(draws).toBe(6); // 5 + 1 — EXACTLY the drawsMax; no drawsMax DEC was needed
   });
 
   it('the committed payload sits inside the KIT allowance', () => {
@@ -453,5 +536,41 @@ describe('6 · the committed kit (G2/G3/G7 — batch M2)', () => {
 
   it('the manifest budget row equals the kit law', () => {
     expect(manifest).toHaveProperty('budget', { ...kit.SQUARE_KIT_BUDGET });
+  });
+});
+
+describe('7 · the generated lit map (the law-twin pin — Python holds data, never a law)', () => {
+  const py = readFileSync(join('tools', 'square-kit', 'build_square_kit.py'), 'utf8');
+
+  it('the bpy HQ_LEVELS table is the law table, bit-exact', () => {
+    const expected = kit.hqPaneLevelTable();
+    const match = /HQ_LEVELS = '([dib]+)'/.exec(py);
+    if (!match) {
+      throw new Error(
+        `build_square_kit.py carries no HQ_LEVELS table; paste the generated one:\n${expected}`,
+      );
+    }
+    expect(match[1]).toBe(expected);
+  });
+
+  it('the bpy LEVEL_SLOT equals the law slot map (dark 2 · dim 3 · bright 4)', () => {
+    expect(/LEVEL_SLOT = \{'d': 2, 'i': 3, 'b': 4\}/.test(py)).toBe(true);
+    expect(kit.HQ_PANE_SLOT).toEqual({ dark: 2, dim: 3, bright: 4 });
+  });
+
+  it('the bpy day-read constants are the law twins (WINDOW_W · PROUD pair · SIDE)', () => {
+    expect(/WINDOW_W = 2\.2\s*# HQ_WINDOW_WIDTH_M/.test(py)).toBe(true);
+    expect(/PANE_PROUD = 0\.04\s*# HQ_PANE_PROUD_M/.test(py)).toBe(true);
+    expect(/SURROUND_PROUD = 0\.02\s*# HQ_SURROUND_PROUD_M/.test(py)).toBe(true);
+    expect(/SIDE = 0\.3\s*# HQ_SURROUND\.sideM/.test(py)).toBe(true);
+  });
+
+  it('the bpy flip law is keyed on the authored open-quad list (dressing carries open quads)', () => {
+    expect(py).toContain('for f in open_quads:');
+    expect(py).not.toContain('material_index >= 2');
+  });
+
+  it('the bpy window loop indexes bay-major: LEVEL_SLOT[HQ_LEVELS[bay * 4 + row]]', () => {
+    expect(py).toContain('HQ_LEVELS[bay * 4 + row]');
   });
 });

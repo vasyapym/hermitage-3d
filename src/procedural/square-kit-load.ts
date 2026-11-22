@@ -32,6 +32,10 @@ export type SquareKitMount = Readonly<{
   palace: Group;
   /** The shared-material bind record: glb material name → the square's scene material. */
   materials: SquareKitMaterials;
+  /** The optional host hook on a successful attach (the round-2 review fix): the
+   * palace-side content that waits for the kit — the HQ snow lip's draw gate — flips here,
+   * after the mount state is ready; the hook's own failure never un-readies the mount. */
+  onReady?: () => void;
 }>;
 
 const setState = (state: KitMountState): void => {
@@ -78,6 +82,11 @@ export function mountSquareKit(host: SquareKitMount): void {
       );
       bindAndAdd(gltf, host);
       setState('ready');
+      try {
+        host.onReady?.();
+      } catch (error) {
+        console.error('zimny: the square kit onReady hook failed', error); // the hook's own
+      }
     } catch (error) {
       console.error('zimny: the square kit failed to mount', error); // exactly once
       setState('failed');

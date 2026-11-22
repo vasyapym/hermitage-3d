@@ -48,6 +48,37 @@ export const PANE_STANDOFF = 0.01;
  * Linear channels, like WINDOW_WARM_LINEAR. Measured ratio card/wall ≈ 0.5.
  */
 export const DARK_PANE_TONE: LinearRgb = [0.37, 0.36, 0.35];
+/**
+ * The ONE unlit albedo shared by all three stock levels (the square-next round): the
+ * HQ's window quads bind the dim/bright stock at DAY too (the kit group is never
+ * hidden), and the dim/bright levels' old RECESS_HEX base would print a near-black
+ * checkerboard on the sunlit west face. The dark stock's DARK_PANE_TONE is the shared
+ * base; the warm hue stays the emissive's (the light's at w = 0). By reference — the
+ * law is the same array, not a copy. The palace lattice is hidden at wNight 0, so the
+ * palace's day frames cannot move; at night the emissive dominates and the albedo ×
+ * hemisphere term is sub-gate (the hemisphere is the night's only secondary light).
+ */
+export const PANE_BASE_TONE: LinearRgb = DARK_PANE_TONE;
+/**
+ * The DAY end of the hour-driven unlit albedo (the square-next-2 round): a glazed opening at
+ * day — near-black with a cool sky-reflection lift, darker than every lit wall channel so a
+ * pane reads as an opening, never a hole. TUNING TARGET: the eye may move it (band ≈ 0.03–0.06).
+ */
+export const DAY_PANE_TONE: LinearRgb = [0.03, 0.034, 0.042];
+/**
+ * The hour law: the stock panes' unlit albedo rides wNight — DAY_PANE_TONE at day (w = 0; the
+ * kit group is never hidden, so the HQ's quads render it on the sunlit face), DARK_PANE_TONE at
+ * night (w = 1: DEC-048's tone bit-exact, round 1's base untouched), the endpoint-exact lerp
+ * between. Carried by the lattice's own setNight (the ONE per-frame writer; justification row
+ * J1 — the albedo is per-frame hour behaviour, and Python holds no law).
+ */
+export function paneBaseTone(wNight: number): LinearRgb {
+  return lerp3(DAY_PANE_TONE, DARK_PANE_TONE, clamp01(wNight));
+}
+/** Endpoint-exact clamp: w < 0 → 0, w > 1 → 1, NaN not legal input (the callers' law). */
+function clamp01(w: number): number {
+  return Math.min(1, Math.max(0, w));
+}
 export const SURROUND_PART_PREFIX = 'surround-';
 export function isSurroundPartId(partId: string): boolean {
   return partId.startsWith(SURROUND_PART_PREFIX);
@@ -86,6 +117,10 @@ export function latticeVisible(wNight: number): boolean {
 /** Endpoint-exact lerp: t === 0 returns a and t === 1 returns b, bit for bit. */
 function lerp(a: number, b: number, t: number): number {
   return a * (1 - t) + b * t;
+}
+/** Per-channel endpoint-exact lerp over the LinearRgb triple. */
+function lerp3(a: LinearRgb, b: LinearRgb, t: number): LinearRgb {
+  return [lerp(a[0], b[0], t), lerp(a[1], b[1], t), lerp(a[2], b[2], t)];
 }
 export function warmGround(current: LinearRgb, tint: LinearRgb, wNight: number): LinearRgb {
   return [

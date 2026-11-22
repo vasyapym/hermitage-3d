@@ -77,16 +77,26 @@ def main():
     bpy.ops.wm.read_factory_settings(use_empty=True)
 
     # === C1 content lands here (the node el:hq-east; design §3; the identity law above) ===
-    # The Guards Corps HQ east wall — massing-with-portico, ONE mesh ≤ 1,500 tris, three
+    # The Guards Corps HQ east wall — massing-with-portico, ONE mesh ≤ 1,500 tris, five
     # material slots. glTF frame: west face x 110, body depth 24 (east face 134), z 100–240,
     # cornice 20.5. Blender frame via the mapping law: x unchanged; y = −glTF_z (−100…−240);
     # z = glTF_y (0…20.5). Every vertex authored at WORLD coordinates, the object at the
-    # origin — the identity law holds by construction. The planned tris ≈ 944: body 12,
+    # origin — the identity law holds by construction. The planned tris ≈ 1,192: body 12,
     # plinth 12, тяга 12, 12 shafts 336, 12 bases 144, 12 capitals 144, entablature+cornice
-    # 36, 124 window quads 248.
-    m_massing = placeholder('massing', (0.5, 0.5, 0.5), 0.9)
+    # 36, 124 window quads 248, 124 white surround quads 248. The square-next round re-slots
+    # the 124 quads into the three pane slots (dark-pane / dim-pane / bright-pane) by the
+    # GENERATED lit map — the law lives in src/world/square-kit.ts (hqPaneLevelTable over
+    # night-facade's levelOf); this file carries a pasted copy pinned bit-exact by the law's
+    # vitest gate (tests/square-kit.test.ts describe 7). Python holds data, never a law.
+    # The square-next-2 round: slot 0 renames 'massing' → 'hq-massing' (the owner's tone
+    # ruling); each window gains ONE white surround quad on the existing 'dressing' slot
+    # (the flat-surround illusion); the el:gs-junction rider lands below on the reserved
+    # 6th draw slot.
+    m_hqmassing = placeholder('hq-massing', (0.5, 0.5, 0.5), 0.9)
     m_dressing = placeholder('dressing', (1.0, 1.0, 1.0), 0.85)
     m_darkpane = placeholder('dark-pane', (0.08, 0.08, 0.08), 0.6)
+    m_dimpane = placeholder('dim-pane', (0.08, 0.08, 0.08), 0.6)
+    m_brightpane = placeholder('bright-pane', (0.08, 0.08, 0.08), 0.6)
 
     FACE_X = 110.0  # the west face (glTF) — Blender x is the same axis
     Z_NORTH, Z_SOUTH = -100.0, -240.0  # Blender y = −glTF_z: north 100 → south 240
@@ -122,31 +132,55 @@ def main():
 
     bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
 
-    # The 124 window quads (dark-pane): 31 bays × 4 declared rows, flat on the west face,
-    # 0.02 proud. Rows (glTF y ranges): [1.5,4], [5,8], [10.5,14], [15,17.5]; width 2.2.
+    # The 124 window quads (the three pane slots) + the 124 white surround quads (dressing):
+    # 31 bays × 4 declared rows, flat on the west face. The pane sits PANE_PROUD 0.04 west of
+    # the face; the surround sits SURROUND_PROUD 0.02 — the proven 2 cm separation class, now
+    # between the pane and its own surround (the flat-surround illusion; no recess depth).
+    # The surround covers the opening + a 0.3 m band each side (HQ_SURROUND; the derived rows
+    # clear the plinth top 0.6 and the тяга 8.85–9.15). The slot per pane comes from the
+    # GENERATED lit map HQ_LEVELS (the law twin of src/world/square-kit.ts hqPaneLevelTable —
+    # the palace's own FNV hash and LEVEL_SPLIT decide; the real HQ's night occupancy is
+    # unsourced, the declared split stands in). Index is bay-major over the loop's own order.
     ROWS = ((1.5, 4.0), (5.0, 8.0), (10.5, 14.0), (15.0, 17.5))
     BAYS = 31
     PITCH = (100.0 - 240.0) / BAYS  # Blender y step: −4.516…
-    WINDOW_W = 2.2
+    WINDOW_W = 2.2        # HQ_WINDOW_WIDTH_M (the law twin)
+    PANE_PROUD = 0.04     # HQ_PANE_PROUD_M
+    SURROUND_PROUD = 0.02 # HQ_SURROUND_PROUD_M
+    SIDE = 0.3            # HQ_SURROUND.sideM == headM == sillM
+    SURROUND_W = WINDOW_W + 2 * SIDE  # 2.8 (HQ_SURROUND_WIDTH_M)
+    HQ_LEVELS = 'ddddiiiibdddddddddddddddbbbbbbbbbbbbddddiiiiiiiiiiiiddddddddbbbbiiiiiiiiiiiiddddddddiiiiiiiibbbbiiiiiiiiiiiiddddiiiiiiiibbbb'
+    LEVEL_SLOT = {'d': 2, 'i': 3, 'b': 4}
+    open_quads = []  # every authored open quad (surrounds + panes) flips WEST below
     for bay in range(BAYS):
         centre = Z_NORTH + PITCH * (bay + 0.5)
-        for z0, z1 in ROWS:
-            quads = [
-                bm.faces.new(
-                    (
-                        bm.verts.new((FACE_X - 0.02, centre - WINDOW_W / 2, z0)),
-                        bm.verts.new((FACE_X - 0.02, centre + WINDOW_W / 2, z0)),
-                        bm.verts.new((FACE_X - 0.02, centre + WINDOW_W / 2, z1)),
-                        bm.verts.new((FACE_X - 0.02, centre - WINDOW_W / 2, z1)),
-                    )
+        for row, (z0, z1) in enumerate(ROWS):
+            surround = bm.faces.new(
+                (
+                    bm.verts.new((FACE_X - SURROUND_PROUD, centre - SURROUND_W / 2, z0 - SIDE)),
+                    bm.verts.new((FACE_X - SURROUND_PROUD, centre + SURROUND_W / 2, z0 - SIDE)),
+                    bm.verts.new((FACE_X - SURROUND_PROUD, centre + SURROUND_W / 2, z1 + SIDE)),
+                    bm.verts.new((FACE_X - SURROUND_PROUD, centre - SURROUND_W / 2, z1 + SIDE)),
                 )
-            ]
-            for f in quads:
-                f.material_index = 2
-    # The open quads' normals are wind-ambiguous — face them WEST (toward the square).
+            )
+            surround.material_index = 1  # 'dressing' — the whole-mesh white COLOR_0 covers it
+            open_quads.append(surround)
+            pane = bm.faces.new(
+                (
+                    bm.verts.new((FACE_X - PANE_PROUD, centre - WINDOW_W / 2, z0)),
+                    bm.verts.new((FACE_X - PANE_PROUD, centre + WINDOW_W / 2, z0)),
+                    bm.verts.new((FACE_X - PANE_PROUD, centre + WINDOW_W / 2, z1)),
+                    bm.verts.new((FACE_X - PANE_PROUD, centre - WINDOW_W / 2, z1)),
+                )
+            )
+            pane.material_index = LEVEL_SLOT[HQ_LEVELS[bay * 4 + row]]
+            open_quads.append(pane)
+    # The open quads' normals are wind-ambiguous — face them WEST (toward the square), keyed
+    # on the authored list: the dressing slot now carries open quads too, so a
+    # material_index ≥ 2 test would leave the surrounds facing east (invisible).
     bm.normal_update()
-    for f in bm.faces:
-        if f.material_index == 2 and f.normal.x > 0:
+    for f in open_quads:
+        if f.normal.x > 0:
             f.normal_flip()
 
     # Whole-mesh white COLOR_0 (G5): the dressing primitives bind to the vertexColors kit
@@ -159,11 +193,36 @@ def main():
     me = bpy.data.meshes.new('el:hq-east')
     bm.to_mesh(me)
     bm.free()
-    for m in (m_massing, m_dressing, m_darkpane):
+    for m in (m_hqmassing, m_dressing, m_darkpane, m_dimpane, m_brightpane):
         me.materials.append(m)
     ob = bpy.data.objects.new('el:hq-east', me)  # the object name = the glTF node name
     bpy.context.scene.collection.objects.link(ob)
-    # === The empty kit (M2) ships no further objects. =====================================
+
+    # === The el:gs-junction rider (the square-next-2 round; the owner's ruling) ==========
+    # The General Staff junction's massing at the wall's south end — the sourced relation
+    # «HQ = the GS height» reads the HQ's own cornice law (GS_JUNCTION in the law module).
+    # Body + plinth + cornice courses, ALL on slot 0 ('hq-massing', the reserved 6th draw
+    # slot); ≈ 36 tris. glTF: x 110–134, y 0–20.5, z 240–300 → Blender y −240…−300. The
+    # courses mirror the HQ wall's vocabulary: plinth FACE_X−0.15…+0.3 (y 0–0.6), cornice
+    # FACE_X−0.3…+0.15 (y 20.1–20.5). World-space verts at the origin — the identity law.
+    JX0, JX1 = FACE_X, FACE_X + 24.0
+    JZ0, JZ1 = -240.0, -300.0  # Blender y: glTF north 240 → south 300
+    jbm = bmesh.new()
+    box(jbm, 0, JX0, JX1, JZ0, JZ1, 0.0, TOP)                     # the body
+    box(jbm, 0, JX0 - 0.15, JX0 + 0.3, JZ0, JZ1, 0.0, 0.6)        # the plinth course (PROUD)
+    box(jbm, 0, JX0 - 0.3, JX0 + 0.15, JZ0, JZ1, TOP - 0.4, TOP)  # the cornice course
+    # The winding law (the review fix, round 2): box() winds from the argument order, and the
+    # rider passes DESCENDING Blender y (−240 → −300) exactly like the HQ wall — whose faces
+    # the recalc above normalizes. The rider's own bmesh needs the same pass before export,
+    # or its west face is backface-culled in the dragged free-look.
+    bmesh.ops.recalc_face_normals(bm, faces=jbm.faces)
+    jme = bpy.data.meshes.new('el:gs-junction')
+    jbm.to_mesh(jme)
+    jbm.free()
+    jme.materials.append(m_hqmassing)
+    job = bpy.data.objects.new('el:gs-junction', jme)
+    bpy.context.scene.collection.objects.link(job)
+    # === The rider ends; no further objects. ==============================================
 
     if bpy.context.scene.objects:
         bpy.ops.object.select_all(action='SELECT')

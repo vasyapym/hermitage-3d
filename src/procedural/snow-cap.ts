@@ -41,6 +41,7 @@ import {
   SNOW_ROUGHNESS,
   snowVisible,
 } from '../world/snow-season';
+import { HQ_SNOW_LIP, HQ_SNOW_LIP_BAND } from '../world/square-kit';
 import type { Placement, SolvedFacade } from './facade-solver';
 import { KIT } from './facade-solver';
 
@@ -53,6 +54,11 @@ export type SnowCap = Readonly<{
   runCount: number;
   triangles: number;
   setSnow: (wSnow: number) => void;
+  /** The index offset where the HQ lip's 12 tris begin (the palace tris come first). */
+  hqLipIndexStart: number;
+  /** The draw gate: the lip waits for the kit's own mount — a slow or failed GLB must not
+   * leave a floating snow strip where the wall should be. Default: hidden. */
+  setHqLipVisible: (visible: boolean) => void;
 }>;
 
 /** Profile point in the run's local frame: y relative to the crown's top face, z along its depth (0 = back/wall). */
@@ -268,6 +274,94 @@ function appendRun(
   }
 }
 
+/**
+ * The HQ cornice lip (the square-next-2 round): ONE box strip merged into the cap's morph
+ * geometry — the base collapsed strictly inside the cornice band (HQ_SNOW_LIP_BAND, the seat
+ * SNOW_SINK below the band's top), the target the full HQ_SNOW_LIP box — so the wSnow gate and
+ * the morph ride the cap's own group/mesh: +0 draw calls, +12 tris. The palace lip's own base
+ * law (a flat sheet inside the solid, nothing coplanar) is mirrored per axis.
+ */
+function appendHqLip(arrays: Arrays): void {
+  const [minX, minY, minZ] = HQ_SNOW_LIP.min;
+  const [maxX, maxY, maxZ] = HQ_SNOW_LIP.max;
+  const seatY = minY - SNOW_SINK;
+  const clamp = (v: number, lo: number, hi: number): number => Math.min(hi, Math.max(lo, v));
+  // Six axis-aligned faces, four flat vertices each, wound outward by construction.
+  const faces: ReadonlyArray<{
+    corners: ReadonlyArray<readonly [number, number, number]>;
+    n: readonly [number, number, number];
+  }> = [
+    {
+      corners: [
+        [minX, minY, minZ],
+        [minX, minY, maxZ],
+        [minX, maxY, maxZ],
+        [minX, maxY, minZ],
+      ],
+      n: [-1, 0, 0],
+    },
+    {
+      corners: [
+        [maxX, minY, maxZ],
+        [maxX, minY, minZ],
+        [maxX, maxY, minZ],
+        [maxX, maxY, maxZ],
+      ],
+      n: [1, 0, 0],
+    },
+    {
+      corners: [
+        [minX, maxY, minZ],
+        [minX, maxY, maxZ],
+        [maxX, maxY, maxZ],
+        [maxX, maxY, minZ],
+      ],
+      n: [0, 1, 0],
+    },
+    {
+      corners: [
+        [minX, minY, maxZ],
+        [minX, minY, minZ],
+        [maxX, minY, minZ],
+        [maxX, minY, maxZ],
+      ],
+      n: [0, -1, 0],
+    },
+    {
+      corners: [
+        [minX, minY, maxZ],
+        [maxX, minY, maxZ],
+        [maxX, maxY, maxZ],
+        [minX, maxY, maxZ],
+      ],
+      n: [0, 0, 1],
+    },
+    {
+      corners: [
+        [maxX, minY, minZ],
+        [minX, minY, minZ],
+        [minX, maxY, minZ],
+        [maxX, maxY, minZ],
+      ],
+      n: [0, 0, -1],
+    },
+  ];
+  for (const face of faces) {
+    const start = arrays.vertexCount;
+    for (const [x, y, z] of face.corners) {
+      arrays.target.push(x, y, z);
+      arrays.base.push(
+        clamp(x, HQ_SNOW_LIP_BAND.xMin + SNOW_SINK, HQ_SNOW_LIP_BAND.xMax - SNOW_SINK),
+        seatY,
+        clamp(z, minZ + SNOW_SINK, maxZ - SNOW_SINK),
+      );
+      arrays.normal.push(face.n[0], face.n[1], face.n[2]);
+      arrays.vertexCount += 1;
+    }
+    arrays.index.push(start, start + 1, start + 2, start, start + 2, start + 3);
+  }
+}
+
 export function buildSnowCap(solved: SnowCapSource): SnowCap {
   const runs = upperCorniceRuns(solved.placements);
   if (runs.length === 0) {
@@ -284,6 +378,10 @@ export function buildSnowCap(solved: SnowCapSource): SnowCap {
   for (const run of runs) {
     appendRun(arrays, run, crown, profile, capFaces);
   }
+  // The HQ lip's indices sit at the END of the index array: the draw gate hides exactly them.
+  const hqLipIndexStart = arrays.index.length;
+  // The square-next-2 round: the HQ cornice joins the ONE snow law (the merged morph strip).
+  appendHqLip(arrays);
   const triangles = arrays.index.length / 3;
   if (triangles > SNOW_CAP_TRIANGLE_CEILING) {
     throw new Error(
@@ -317,5 +415,21 @@ export function buildSnowCap(solved: SnowCapSource): SnowCap {
     influences[0] = wSnow;
   };
   setSnow(0);
-  return { group, mesh, material, runCount: runs.length, triangles, setSnow };
+  // The draw gate (the round-2 review fix): the lip waits for the kit's own mount — the
+  // additive law extended to the palace-side lip. Default hidden; the host flips it on
+  // from the mount's onReady. The palace tris render as before in the same draw.
+  const setHqLipVisible = (visible: boolean): void => {
+    mesh.geometry.setDrawRange(0, visible ? Infinity : hqLipIndexStart);
+  };
+  setHqLipVisible(false);
+  return {
+    group,
+    mesh,
+    material,
+    runCount: runs.length,
+    triangles,
+    setSnow,
+    hqLipIndexStart,
+    setHqLipVisible,
+  };
 }

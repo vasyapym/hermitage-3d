@@ -319,9 +319,10 @@ describe('8 · the shadow fit (DEC-037)', () => {
   const names = [...SPEC.matchAll(/toHaveScreenshot\('golden-([a-z0-9-]+)\.png'/g)].map(
     (m) => m[1] ?? '',
   );
-  // The seven square rows the shadow re-fit covers (rooms come after, via roomReady):
-  // the DEC-049 round added golden-s0b-dec-noon (the missing wall's acceptance frame).
-  expect(queries).toHaveLength(7);
+  // The eight square rows the shadow re-fit covers (rooms come after, via roomReady):
+  // the DEC-049 round added golden-s0b-dec-noon (the missing wall's acceptance frame);
+  // the square-next round added golden-s0b-dec-night (the lit wall's night twin).
+  expect(queries).toHaveLength(8);
   expect(names).toEqual([
     'noon',
     'white-night',
@@ -329,6 +330,7 @@ describe('8 · the shadow fit (DEC-037)', () => {
     'dec-night',
     'dec-noon',
     's0b-dec-noon',
+    's0b-dec-night',
     'oct-night',
   ]);
 

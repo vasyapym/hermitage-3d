@@ -8,6 +8,11 @@
  * Budget: three InstancedMesh (one per level, one shared stock MeshStandardMaterial each) in one
  * Group — +3 draw calls, no lights, no custom materials, no fourth lightmap state. The host adds
  * the group to the palace group, so the indoors flip is inherited for free.
+ * The square-next round: all three stock levels share the ONE unlit albedo — the HQ kit's
+ * window quads bind these materials at DAY too (the kit group is never hidden), so a per-level
+ * base would print a checkerboard on the sunlit HQ face. The square-next-2 round makes that
+ * base hour-driven: paneBaseTone(wNight) via setNight (DAY_PANE_TONE at day, DARK_PANE_TONE
+ * bit-exact at w 1); setNight(0) at build seeds the day base.
  *
  * Geometry: a unit plane facing +z, scaled to surroundOpening(partId), centred on the recess
  * panel (x = 0, y = height / 2) a hair in front of its face (z = depth + PANE_STANDOFF), then
@@ -26,17 +31,18 @@ import {
   Vector3,
 } from 'three';
 import {
-  DARK_PANE_TONE,
   isSurroundPartId,
   latticeVisible,
   levelOf,
+  PANE_BASE_TONE,
   PANE_LEVELS,
   PANE_STANDOFF,
   type PaneLevel,
+  paneBaseTone,
   paneIntensity,
   WINDOW_WARM_LINEAR,
 } from '../world/night-facade';
-import { RECESS_HEX, type SurroundOpening, surroundOpening } from './facade-builder';
+import { type SurroundOpening, surroundOpening } from './facade-builder';
 import type { Placement, SolvedFacade } from './facade-solver';
 
 export type LatticeSource = Pick<SolvedFacade, 'placements'>;
@@ -47,6 +53,9 @@ export type NightLattice = Readonly<{
   counts: Readonly<Record<PaneLevel, number>>;
   levelById: ReadonlyMap<string, PaneLevel>;
   setNight: (wNight: number) => void;
+  /** The presentation fade for the stock materials (the round-2 review fix): the HQ's pane
+   * quads bound by reference fade with the wall; identity at settle (opacity 1, opaque). */
+  setFade: (opacity: number) => void;
 }>;
 type PartId = Placement['partId'];
 type LevelBuild = Readonly<{ mesh: InstancedMesh; material: MeshStandardMaterial }>;
@@ -85,12 +94,13 @@ function openingFor(partId: PartId): SurroundOpening {
 function paneMaterial(level: PaneLevel): MeshStandardMaterial {
   const [r, g, b] = WINDOW_WARM_LINEAR;
   const emissive = level === 'dark' ? new Color(0, 0, 0) : new Color().setRGB(r, g, b);
-  // The dark pane's albedo is the facade-shadow round's DARK_PANE_TONE (the dim warm
-  // reflection), not the recess's near-black — the black cards printed as impossible
-  // shadows on the warm-lit wall band (the 2026-11-17 sighting).
-  const color = level === 'dark' ? new Color().setRGB(...DARK_PANE_TONE) : RECESS_HEX;
+  // Every stock level shares the ONE unlit albedo PANE_BASE_TONE (= DARK_PANE_TONE):
+  // the HQ's window quads bind these same materials at DAY too (the kit group is never
+  // hidden), and the dim/bright levels' old near-black RECESS_HEX base would print a
+  // checkerboard on the sunlit west face (the square-next round's R1 disproof). The
+  // warm hue stays the emissive's; the dark level keeps its zero-emissive law.
   const material = new MeshStandardMaterial({
-    color,
+    color: new Color().setRGB(...PANE_BASE_TONE),
     emissive,
     emissiveIntensity: 0,
     roughness: 1,
@@ -169,8 +179,22 @@ export function buildNightLattice(solved: LatticeSource): NightLattice {
     group.visible = latticeVisible(wNight);
     for (const level of PANE_LEVELS) {
       materials[level].emissiveIntensity = paneIntensity(level, wNight);
+      // The hour law (the square-next-2 round): the ONE unlit albedo rides wNight — the day
+      // glass tone at w 0 (the kit group is never hidden), DARK_PANE_TONE bit-exact at w 1.
+      // All three levels take the SAME value: the no-checkerboard invariant holds at every w.
+      materials[level].color.setRGB(...paneBaseTone(wNight));
+    }
+  };
+  const setFade = (opacity: number): void => {
+    // The round-2 review fix: the pane stocks ride the presentation fade — the HQ's
+    // dim/bright quads bound by reference must not outshine the wall mid-fade, and the
+    // dark cards had the same mismatch. At settle this is the identity (opacity 1, opaque):
+    // the det=1 golden captures never see a partial state.
+    for (const level of PANE_LEVELS) {
+      materials[level].opacity = opacity;
+      materials[level].transparent = opacity < 1;
     }
   };
   setNight(0);
-  return { group, meshes, materials, counts, levelById, setNight };
+  return { group, meshes, materials, counts, levelById, setNight, setFade };
 }

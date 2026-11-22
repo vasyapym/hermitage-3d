@@ -224,6 +224,7 @@ import {
   type Vec3,
 } from './world/registry';
 import { snowSkyGain, snowWeight } from './world/snow-season';
+import { HQ_TONE_HEX } from './world/square-kit';
 import { parseStopParam } from './world/stop-param';
 import {
   arrivePose,
@@ -617,6 +618,16 @@ const palace = new THREE.Group();
 palace.name = 'PalaceMassing';
 const massingMaterial = new THREE.MeshLambertMaterial({
   color: 0x7dab93, // Phase 1 palette: pale green walls (owner decision); dressings white via the kit
+  transparent: true,
+  opacity: 0,
+});
+// The square-next-2 round (the owner's tone ruling): the HQ's own light ochre — slot 0 of
+// el:hq-east and of the el:gs-junction rider binds here through 'hq-massing'; a Lambert
+// sibling of the massing material with the same fade write in applyPresentation. The law
+// twin lives in src/world/square-kit.ts (HQ_TONE_HEX); the real colour is unsourced — the
+// artistic-license row.
+const hqMassingMaterial = new THREE.MeshLambertMaterial({
+  color: HQ_TONE_HEX, // the law's own constant — one value, one place (the round-2 review fix)
   transparent: true,
   opacity: 0,
 });
@@ -2756,6 +2767,8 @@ const applyPresentation = (): void => {
   roomsRoot.visible = indoor; // the exact complement: one world renderable at any instant
   if (visible) {
     massingMaterial.opacity = presentation.massingOpacity;
+    hqMassingMaterial.opacity = presentation.massingOpacity; // the HQ tone rides the same fade
+    nightLattice.setFade(presentation.massingOpacity); // the pane stocks ride the same fade
     groundMaterial.opacity = presentation.massingOpacity;
     const kitMaterial = facadeBuild.material;
     kitMaterial.opacity = presentation.massingOpacity;
@@ -3900,9 +3913,15 @@ const tick = (timeMs: number): void => {
           palace,
           materials: {
             massing: massingMaterial,
+            'hq-massing': hqMassingMaterial,
             dressing: facadeBuild.material,
             'dark-pane': nightLattice.materials.dark,
+            'dim-pane': nightLattice.materials.dim,
+            'bright-pane': nightLattice.materials.bright,
           },
+          // The review fix (round 2): the palace-side HQ snow lip waits for the kit's own
+          // attach — a slow or failed GLB never floats a snow strip over bare field.
+          onReady: () => snowCap.setHqLipVisible(true),
         });
         // §8.3 layer 2 baseline: the post-boot object counts, only when no room is mounted.
         if (ledger.snapshot().total === 0) {
