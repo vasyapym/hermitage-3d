@@ -12,10 +12,11 @@
 // feGaussianBlur) deterministically for a pinned browser build; the ×2 sha gate
 // catches any drift. The mean-linear normalization to PLATE_TARGET_MEAN_L happens in
 // Blender (tools/bpy/jordan.py::_plafond_art_pixels), never here.
-import { readFileSync, writeFileSync } from 'node:fs';
+
 import { createHash } from 'node:crypto';
-import { fileURLToPath } from 'node:url';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { chromium } from '@playwright/test';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -33,8 +34,10 @@ const page = await browser.newPage({
 });
 // preserveAspectRatio="none": the landscape viewBox fills the square viewport — the
 // squeeze restores the plate's field mapping (the world's 1.335:1 proportions).
-const staged = svg.replace('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1367 1024">',
-  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1367 1024" preserveAspectRatio="none">');
+const staged = svg.replace(
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1367 1024">',
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1367 1024" preserveAspectRatio="none">',
+);
 if (staged === svg) {
   console.error('plafond-raster: the root svg tag drifted — the replace missed');
   process.exit(2);

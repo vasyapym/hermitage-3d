@@ -7,7 +7,7 @@
         {
           "clippedFraction": null,
           "emitters": 0,
-          "exrSha256": "89532d65fd40f6b8a02fabc7d687fdf56140b5d9fa472e44fd357d54da6fe249",
+          "exrSha256": "49f089a80eaf7a789961be04343ea98d02cb68f78bbd2f3d31ea4174ab6b44bd",
           "name": "arch",
           "objects": 552,
           "pad": 2,
@@ -25,7 +25,7 @@
       "probe": null,
       "res": 2048,
       "samples": 128,
-      "seconds": 3101.8,
+      "seconds": 1785.5,
       "state": "day",
       "whitePoint": "percentile",
       "artifacts": [],
@@ -122,16 +122,16 @@
         "scope": "allocated-interior",
         "transfer": "srgb",
         "cellsSha256": "32489bbe289623c6ddcb9afb050010585afc5f6614ea31ffb6ceff142293aa0a",
-        "wRaw": 2.690877,
+        "wRaw": 2.703574,
         "w": 0.45,
         "gain": 2.22,
         "kappa": 1,
-        "clipFraction": 0.022575,
-        "haloFraction": 0.014736,
+        "clipFraction": 0.022793,
+        "haloFraction": 0.014758,
         "artifact": {
           "rel": "lm/day.ktx2",
-          "bytes": 453715,
-          "sha256": "ad6e17716efc5473759f59d525a5f0d485560364a8ec7f7ae02bcf7df13d765d"
+          "bytes": 455240,
+          "sha256": "779010b841a6095fb0a825601776a6e6740a3ccd006582d12765d5d2102e25bf"
         }
       }
     },
@@ -141,7 +141,7 @@
         {
           "clippedFraction": null,
           "emitters": 0,
-          "exrSha256": "eec4fd9f44dacd31427077b1be7a1c73c07f1c805e2bb160d822912487e3474c",
+          "exrSha256": "5d9bf4a0b0a362d3c03d1e0646d7c9f7b4c09f153c44dd5a32c73d9722792e6f",
           "name": "arch",
           "objects": 552,
           "pad": 2,
@@ -158,7 +158,7 @@
       "peak": null,
       "probe": {
         "clippedFraction": 0,
-        "peak": 1.0656,
+        "peak": 1.0696,
         "point": [
           79,
           9,
@@ -173,14 +173,14 @@
       },
       "res": 2048,
       "samples": 128,
-      "seconds": 2977.6,
+      "seconds": 2402.2,
       "state": "dusk",
       "whitePoint": "percentile",
       "artifacts": [
         {
           "rel": "probe/dusk.ktx2",
-          "bytes": 5735,
-          "sha256": "4669844f47208b31853f7811bd1bf7fc1197ae4eb59739631bf287a449197881"
+          "bytes": 5690,
+          "sha256": "e303b0aac36823883f5f95aa286f166833c7ed0f3558cf6234c146c23c475e16"
         }
       ],
       "rig": {
@@ -440,16 +440,16 @@
         "scope": "allocated-interior",
         "transfer": "srgb",
         "cellsSha256": "32489bbe289623c6ddcb9afb050010585afc5f6614ea31ffb6ceff142293aa0a",
-        "wRaw": 0.194056,
+        "wRaw": 0.194884,
         "w": 0.35,
         "gain": 2.86,
         "kappa": 1,
-        "clipFraction": 0.000439,
+        "clipFraction": 0.000448,
         "haloFraction": 0.00003,
         "artifact": {
           "rel": "lm/dusk.ktx2",
-          "bytes": 362581,
-          "sha256": "b641e2dd8fabab268a177c6ecaee9b8acc8a15086d50565365e1aef7a85184d4"
+          "bytes": 362744,
+          "sha256": "dc2575fe82615ea403fd4dfe1c5bd82e1ca8f4953d6fff35b3c2a30c7db76d97"
         }
       }
     },
@@ -459,7 +459,7 @@
         {
           "clippedFraction": null,
           "emitters": 0,
-          "exrSha256": "bf7eb1bc975361464f800311c07396f419a08c4c545e47121d8d1c4b002f7075",
+          "exrSha256": "61250f147b342dbbdfafdaac5eeb987ca5d48c68b12f7e3dd8ee2d8bbe3c97a7",
           "name": "arch",
           "objects": 552,
           "pad": 2,
@@ -477,7 +477,7 @@
       "probe": null,
       "res": 2048,
       "samples": 128,
-      "seconds": 25846.4,
+      "seconds": 2946.8,
       "state": "nightChandeliers",
       "whitePoint": "percentile",
       "artifacts": [],
@@ -738,16 +738,16 @@
         "scope": "allocated-interior",
         "transfer": "srgb",
         "cellsSha256": "32489bbe289623c6ddcb9afb050010585afc5f6614ea31ffb6ceff142293aa0a",
-        "wRaw": 1.095636,
+        "wRaw": 1.104837,
         "w": 4,
         "gain": 0.25,
         "kappa": 1,
-        "clipFraction": 0.000269,
+        "clipFraction": 0.000272,
         "haloFraction": 0.000025,
         "artifact": {
           "rel": "lm/night.ktx2",
-          "bytes": 319767,
-          "sha256": "aa810373bac41bca9b3671ef059eee5416d868a61e523da5f38d4c6aa0eff88d"
+          "bytes": 315928,
+          "sha256": "e871a53ff2bdad4b6556a3d9daf206d8a3d1b0f9ca3ede2c9416f3866ba0a4ea"
         }
       }
     }
