@@ -496,8 +496,9 @@ def _plafond_art_pixels(n):
         img.scale(n, n)
     px = np.empty(n * n * img.channels, dtype=np.float32)
     img.pixels.foreach_get(px)
+    channels = img.channels
     bpy.data.images.remove(img)
-    rgb = px.reshape(n, n, img.channels)[:, :, :3].astype(np.float64)
+    rgb = px.reshape(n, n, channels)[:, :, :3].astype(np.float64)
     lin = np.where(rgb <= 0.04045, rgb / 12.92, ((rgb + 0.055) / 1.055) ** 2.4)
     lum = 0.2126 * lin[:, :, 0] + 0.7152 * lin[:, :, 1] + 0.0722 * lin[:, :, 2]
     gain = PLATE_TARGET_MEAN_L / max(float(lum.mean()), 1e-6)

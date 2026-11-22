@@ -25,3 +25,4 @@ tools/fonts/.venv/
 __pycache__/
 .cache/
 out/
+tools/bpy/plafond-art.png
