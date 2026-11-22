@@ -162,10 +162,11 @@ export const HQ_PANE_SLOT = {
  * 2026-11-22: 0xc4a86e read orange at night → 0xc6ba64 too prominent day+night, «a toy
  * building» → 0xa3985d read BROWN at darker times — the luminance drop crushed the chroma —
  * → 0xc0b36d: the original's luminance restored, the saturation held −15% (the toy pop was
- * the saturation, not the brightness)): a muted yellow ochre of the GS/HQ family — unsourced
- * in-repo, an artistic-license row; slot 0 of el:hq-east (and of the el:gs-junction rider)
- * binds to it through the 'hq-massing' bind key. */
-export const HQ_TONE_HEX = 0xc0b36d;
+ * the saturation, not the brightness) → 0xc0bc6d: +5% yellow (the G raised) — the night hue
+ * off the gold/brown axis per the owner's steer): a muted yellow ochre of the GS/HQ family —
+ * unsourced in-repo, an artistic-license row; slot 0 of el:hq-east (and of the
+ * el:gs-junction rider) binds to it through the 'hq-massing' bind key. */
+export const HQ_TONE_HEX = 0xc0bc6d;
 
 /** The HQ's flat-surround law (наличник, the square-next-2 round): ONE white dressing quad per
  * window, the pane 2 cm further proud of it — the relief-windows posture becomes the

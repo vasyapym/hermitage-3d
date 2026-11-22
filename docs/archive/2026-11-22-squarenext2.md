@@ -76,7 +76,11 @@ el:hq-east (and the junction) to a Lambert sibling of the massing material ridin
 fade; 'massing' stays admitted for future shared-massing nodes. THE HUE AMENDED per the
 owner's eye 2026-11-22: the original red-leaning ochre 0xc4a86e (the T-sitting's value, above)
 read ORANGE under the night's warm hemisphere — the owner ruled yellowish; the s0b golden pair
-re-baselined scoped (both rows GREEN, the other six held), JS ±0.
+re-baselined scoped (both rows GREEN, the other six held), JS ±0. THE TONE AMENDED 2026-11-23
+per the owner's steer: +5 % yellow — 0xc0b36d → 0xc0bc6d (the G raised; the night hue off the
+gold/brown axis); the s0b golden pair re-baselined scoped — the re-baseline found NO drift (0
+rewrites: the rendered delta under the t=0.1 detector — the DEC-048 precedent), the confirm 2/2
+green, JS ±0.
 THE RIDER (el:gs-junction, the owner's ruling): the General Staff junction's massing at the
 wall's south end — body + plinth + cornice courses on 'hq-massing', z 240→300 (where the S0b
 max-right edge ray meets x 110, ≈ 296 — the void closes to the frame edge), 36 tris, ONE
