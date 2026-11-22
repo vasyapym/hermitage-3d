@@ -48,7 +48,7 @@ IMG_4707 vantage re-captured (the BEFORE re-built fresh at 3300123 — verified 
 the earlier read).
 B5 (orchestrator-direct): the records (this file + the registers + the rows).
 ## Verdicts
-### DEC-053 (assigned at the square-next merge, the wave's first slot) — the Guards Corps HQ joins the palace's DAY laws: the hour-driven unlit albedo paneBaseTone(wNight) (DAY_PANE_TONE at day, DARK_PANE_TONE bit-exact at w 1, carried by the lattice's own setNight); the 124 flat white surround quads on the existing dressing slot (the flat-surround illusion; the true recess stays rejected); the wSnow-gated snow lip on the HQ cornice (merged into the cap's morph); the owner's tone ruling (HQ_TONE_HEX 0xa3985d — the eye's chain 2026-11-22: 0xc4a86e orange at night → 0xc6ba64 too prominent («a toy building») → the ~15% step-down on both axes; + the 6th bind key 'hq-massing'); the el:gs-junction rider on the reserved 6th draw
+### DEC-053 (assigned at the square-next merge, the wave's first slot) — the Guards Corps HQ joins the palace's DAY laws: the hour-driven unlit albedo paneBaseTone(wNight) (DAY_PANE_TONE at day, DARK_PANE_TONE bit-exact at w 1, carried by the lattice's own setNight); the 124 flat white surround quads on the existing dressing slot (the flat-surround illusion; the true recess stays rejected); the wSnow-gated snow lip on the HQ cornice (merged into the cap's morph); the owner's tone ruling (HQ_TONE_HEX 0xc0b36d — the eye's chain 2026-11-22: 0xc4a86e orange at night → 0xc6ba64 too prominent («a toy building») → 0xa3985d BROWN at darker times (the luminance drop crushed the chroma) → 0xc0b36d: the original's luminance restored, the saturation held −15%; + the 6th bind key 'hq-massing'); the el:gs-junction rider on the reserved 6th draw
 THE HOUR LAW (night-facade.ts): paneBaseTone(wNight) = lerp3(DAY_PANE_TONE
 [0.03, 0.034, 0.042], DARK_PANE_TONE, w) — endpoint-exact, clamped; the justification row J1:
 the pane base albedo is per-frame hour behaviour and the lattice's setNight is its existing
@@ -67,10 +67,11 @@ strictly inside HQ_SNOW_LIP_BAND (the py's cornice-course pair 109.7…110.15, t
 SNOW_SINK below the band's top), the target the full HQ_SNOW_LIP box (x 109.55…110.3, y
 20.5→20.7, z the wall's span) — the wSnow gate and the morph ride the cap's own group/mesh:
 +0 draws (the sibling-mesh fallback never needed), the DEC-033 ceiling 288 → 300 ≤ 1,000.
-THE TONE (the owner's ruling, the artistic-license row): HQ_TONE_HEX 0xa3985d — a muted yellow
+THE TONE (the owner's ruling, the artistic-license row): HQ_TONE_HEX 0xc0b36d — a muted yellow
 ochre of the GS/HQ family, unsourced in-repo, declared (the eye's chain 2026-11-22: the original
-0xc4a86e read orange at night; 0xc6ba64 read too prominent day+night, «a toy building» — the
-prominence stepped down ~15% on both axes: luminance ×0.85, saturation −15%); the 6th bind key 'hq-massing' binds slot 0 of
+0xc4a86e read orange at night; 0xc6ba64 read too prominent day+night, «a toy building»; 0xa3985d
+read BROWN at darker times — the luminance drop crushed the chroma — the balance: the original's
+luminance restored, the saturation held −15%); the 6th bind key 'hq-massing' binds slot 0 of
 el:hq-east (and the junction) to a Lambert sibling of the massing material riding the same
 fade; 'massing' stays admitted for future shared-massing nodes. THE HUE AMENDED per the
 owner's eye 2026-11-22: the original red-leaning ochre 0xc4a86e (the T-sitting's value, above)

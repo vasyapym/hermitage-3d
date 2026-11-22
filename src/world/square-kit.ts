@@ -158,13 +158,14 @@ export const HQ_PANE_SLOT = {
   bright: 4,
 } as const satisfies Readonly<Record<PaneLevel, number>>;
 
-/** The HQ's declared tone (the owner's ruling, the square-next-2 round; amended twice per the
- * owner's eye: 0xc4a86e read orange at night, 0xc6ba64 read too prominent day+night — «a toy
- * building» — the prominence stepped down ~15% on both axes: luminance ×0.85, saturation
- * −15%): a muted yellow ochre of the GS/HQ family — unsourced in-repo, an artistic-license
- * row; slot 0 of el:hq-east (and of the el:gs-junction rider) binds to it through the
- * 'hq-massing' bind key. */
-export const HQ_TONE_HEX = 0xa3985d;
+/** The HQ's declared tone (the owner's ruling, the square-next-2 round; the eye's chain
+ * 2026-11-22: 0xc4a86e read orange at night → 0xc6ba64 too prominent day+night, «a toy
+ * building» → 0xa3985d read BROWN at darker times — the luminance drop crushed the chroma —
+ * → 0xc0b36d: the original's luminance restored, the saturation held −15% (the toy pop was
+ * the saturation, not the brightness)): a muted yellow ochre of the GS/HQ family — unsourced
+ * in-repo, an artistic-license row; slot 0 of el:hq-east (and of the el:gs-junction rider)
+ * binds to it through the 'hq-massing' bind key. */
+export const HQ_TONE_HEX = 0xc0b36d;
 
 /** The HQ's flat-surround law (наличник, the square-next-2 round): ONE white dressing quad per
  * window, the pane 2 cm further proud of it — the relief-windows posture becomes the
