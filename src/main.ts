@@ -620,6 +620,16 @@ const massingMaterial = new THREE.MeshLambertMaterial({
   transparent: true,
   opacity: 0,
 });
+// The square-next-2 round (the owner's tone ruling): the HQ's own light ochre — slot 0 of
+// el:hq-east and of the el:gs-junction rider binds here through 'hq-massing'; a Lambert
+// sibling of the massing material with the same fade write in applyPresentation. The law
+// twin lives in src/world/square-kit.ts (HQ_TONE_HEX); the real colour is unsourced — the
+// artistic-license row.
+const hqMassingMaterial = new THREE.MeshLambertMaterial({
+  color: 0xc4a86e, // HQ_TONE_HEX
+  transparent: true,
+  opacity: 0,
+});
 
 const block = (
   width: number,
@@ -2756,6 +2766,7 @@ const applyPresentation = (): void => {
   roomsRoot.visible = indoor; // the exact complement: one world renderable at any instant
   if (visible) {
     massingMaterial.opacity = presentation.massingOpacity;
+    hqMassingMaterial.opacity = presentation.massingOpacity; // the HQ tone rides the same fade
     groundMaterial.opacity = presentation.massingOpacity;
     const kitMaterial = facadeBuild.material;
     kitMaterial.opacity = presentation.massingOpacity;
@@ -3900,6 +3911,7 @@ const tick = (timeMs: number): void => {
           palace,
           materials: {
             massing: massingMaterial,
+            'hq-massing': hqMassingMaterial,
             dressing: facadeBuild.material,
             'dark-pane': nightLattice.materials.dark,
             'dim-pane': nightLattice.materials.dim,

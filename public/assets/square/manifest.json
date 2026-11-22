@@ -3,8 +3,8 @@
   "files": [
     {
       "path": "kit.glb",
-      "bytes": 82760,
-      "sha256": "28ae152b3da23a82e747900e8344604ef6c6640b6bbeb54848ae08e77c00bfc1",
+      "bytes": 106652,
+      "sha256": "32a595e3a14d7041f31e5317cd3ccbe9490c3694197968559f835e8ee6c5e71d",
       "kind": "glb"
     }
   ],
@@ -26,7 +26,7 @@
   "nodes": [
     {
       "name": "el:hq-east",
-      "tris": 944,
+      "tris": 1192,
       "aabb": {
         "min": [
           109.30000305175781,
@@ -40,13 +40,32 @@
         ]
       },
       "materials": [
-        "massing",
+        "hq-massing",
         "dressing",
         "dark-pane",
         "dim-pane",
         "bright-pane"
       ]
+    },
+    {
+      "name": "el:gs-junction",
+      "tris": 36,
+      "aabb": {
+        "min": [
+          109.69999694824219,
+          0,
+          240
+        ],
+        "max": [
+          134,
+          20.5,
+          300
+        ]
+      },
+      "materials": [
+        "hq-massing"
+      ]
     }
   ],
-  "glbSha256": "28ae152b3da23a82e747900e8344604ef6c6640b6bbeb54848ae08e77c00bfc1"
+  "glbSha256": "32a595e3a14d7041f31e5317cd3ccbe9490c3694197968559f835e8ee6c5e71d"
 }

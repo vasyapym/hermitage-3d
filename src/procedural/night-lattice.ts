@@ -8,9 +8,11 @@
  * Budget: three InstancedMesh (one per level, one shared stock MeshStandardMaterial each) in one
  * Group — +3 draw calls, no lights, no custom materials, no fourth lightmap state. The host adds
  * the group to the palace group, so the indoors flip is inherited for free.
- * The square-next round: all three stock levels share the ONE unlit albedo PANE_BASE_TONE —
- * the HQ kit's window quads bind these materials at DAY too (the kit group is never hidden),
- * so a per-level base would print a checkerboard on the sunlit HQ face.
+ * The square-next round: all three stock levels share the ONE unlit albedo — the HQ kit's
+ * window quads bind these materials at DAY too (the kit group is never hidden), so a per-level
+ * base would print a checkerboard on the sunlit HQ face. The square-next-2 round makes that
+ * base hour-driven: paneBaseTone(wNight) via setNight (DAY_PANE_TONE at day, DARK_PANE_TONE
+ * bit-exact at w 1); setNight(0) at build seeds the day base.
  *
  * Geometry: a unit plane facing +z, scaled to surroundOpening(partId), centred on the recess
  * panel (x = 0, y = height / 2) a hair in front of its face (z = depth + PANE_STANDOFF), then
@@ -36,6 +38,7 @@ import {
   PANE_LEVELS,
   PANE_STANDOFF,
   type PaneLevel,
+  paneBaseTone,
   paneIntensity,
   WINDOW_WARM_LINEAR,
 } from '../world/night-facade';
@@ -173,6 +176,10 @@ export function buildNightLattice(solved: LatticeSource): NightLattice {
     group.visible = latticeVisible(wNight);
     for (const level of PANE_LEVELS) {
       materials[level].emissiveIntensity = paneIntensity(level, wNight);
+      // The hour law (the square-next-2 round): the ONE unlit albedo rides wNight — the day
+      // glass tone at w 0 (the kit group is never hidden), DARK_PANE_TONE bit-exact at w 1.
+      // All three levels take the SAME value: the no-checkerboard invariant holds at every w.
+      materials[level].color.setRGB(...paneBaseTone(wNight));
     }
   };
   setNight(0);

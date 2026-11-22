@@ -46,10 +46,13 @@ export const SQUARE_KIT_BUDGET = {
  * The material-name bind table: every slot must resolve to the matching shared material.
  * No fallback to an imported material is legal; one unknown slot rejects the whole kit.
  * The three pane keys mirror PANE_LEVELS in order (night-facade): the HQ's window quads
- * join the palace's ONE night law through the same three stock materials.
+ * join the palace's ONE night law through the same three stock materials. 'hq-massing' is
+ * the HQ's own tone slot (the owner's ruling, the square-next-2 round); 'massing' stays
+ * admitted for future shared-massing nodes (the west-flank class).
  */
 export const KIT_BIND_KEYS = [
   'massing',
+  'hq-massing',
   'dressing',
   'dark-pane',
   'dim-pane',
@@ -154,6 +157,75 @@ export const HQ_PANE_SLOT = {
   dim: 3,
   bright: 4,
 } as const satisfies Readonly<Record<PaneLevel, number>>;
+
+/** The HQ's declared tone (the owner's ruling, the square-next-2 round): a light ochre of the
+ * GS/HQ family — unsourced in-repo, an artistic-license row; slot 0 of el:hq-east (and of the
+ * el:gs-junction rider) binds to it through the 'hq-massing' bind key. */
+export const HQ_TONE_HEX = 0xc4a86e;
+
+/** The HQ's flat-surround law (наличник, the square-next-2 round): ONE white dressing quad per
+ * window, the pane 2 cm further proud of it — the relief-windows posture becomes the
+ * flat-surround illusion (the true recess stays rejected: it does not fit HQ_NODE_TRI_CAP). */
+export const HQ_SURROUND = { sideM: 0.3, headM: 0.3, sillM: 0.3 } as const satisfies Readonly<{
+  sideM: number;
+  headM: number;
+  sillM: number;
+}>;
+/** The window opening's width (the py's WINDOW_W twin — pinned equal by the law gate). */
+export const HQ_WINDOW_WIDTH_M = 2.2;
+/** The surround's footprint width: the opening + a band each side (1.716 m of wall remains
+ * between neighbouring surrounds on the ≈ 4.516 m pitch). */
+export const HQ_SURROUND_WIDTH_M = HQ_WINDOW_WIDTH_M + 2 * HQ_SURROUND.sideM;
+/** The pane/surround stand-offs from the face: the pane sits 4 cm proud, the surround 2 cm —
+ * the proven 2 cm separation class, now between the pane and its own surround. */
+export const HQ_PANE_PROUD_M = 0.04;
+export const HQ_SURROUND_PROUD_M = 0.02;
+/** The derived surround opening rows: HQ_WINDOW_ROWS_Y widened by headM/sillM. A test derives
+ * these and asserts the clearances: above the plinth top 0.6, clear of the тяга 8.85–9.15. */
+export function hqSurroundRows(): ReadonlyArray<readonly [number, number]> {
+  return HQ_WINDOW_ROWS_Y.map(([z0, z1]) => [z0 - HQ_SURROUND.sillM, z1 + HQ_SURROUND.headM]);
+}
+/** The surround census: one quad (2 tris) per window; the node's record pin 944 + 248 = 1,192. */
+export const HQ_SURROUND_TRIS = 2 * HQ_PANE_COUNT;
+export const HQ_NODE_TRIS = 1_192;
+
+/** The HQ cornice's snow lip (the square-next-2 round): the uppermost-cornice-only precedent of
+ * the palace lip — ONE box strip on the cornice top, wSnow-gated by the cap's own group and
+ * morph (merged into the cap's geometry: the base collapsed inside the cornice solid, the
+ * target the full strip). x = the cornice band (109.7…110.15, the py's PROUD pair) widened
+ * 0.15 both sides; y = the cornice top + 0.2; z = the wall's full span. */
+export const HQ_SNOW_LIP = {
+  min: [109.55, 20.5, 100],
+  max: [110.3, 20.7, 240],
+} as const satisfies Bounds;
+
+/** The cornice band the lip's collapsed base seats into (the py's own cornice-course pair:
+ * x 109.7…110.15, y ≤ the cornice top). The cap's morph base clamps strictly inside it. */
+export const HQ_SNOW_LIP_BAND = {
+  xMin: HQ_FACE_X - 0.3,
+  xMax: HQ_FACE_X + 0.15,
+} as const satisfies Readonly<{ xMin: number; xMax: number }>;
+
+/** The el:gs-junction rider (the square-next-2 round): the General Staff junction's massing at
+ * the HQ wall's south end — the sourced relation «HQ = the GS height» reads the HQ's own
+ * cornice law; 'hq-massing' slot only. z 300 = where the S0b max-right edge ray meets x 110
+ * (≈ 296) — the void closes to the frame edge (golden-neutral by the record's arithmetic). Its
+ * plinth/cornice courses mirror the HQ wall's vocabulary (the PROUD pair). */
+export const GS_JUNCTION = {
+  xWest: HQ_FACE_X,
+  xEast: HQ_FACE_X + HQ_DEPTH_M,
+  zNorth: HQ_Z.south,
+  zSouth: 300,
+  corniceM: HQ_CORNICE_M,
+  plinthTopM: 0.6,
+} as const satisfies Readonly<{
+  xWest: number;
+  xEast: number;
+  zNorth: number;
+  zSouth: number;
+  corniceM: number;
+  plinthTopM: number;
+}>;
 
 export type SquareKitNode = Readonly<{
   name: string;

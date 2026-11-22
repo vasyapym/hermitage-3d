@@ -7,6 +7,7 @@ import { lightmapWeights } from '../src/sky/lightmap-weights';
 import { solarPosition } from '../src/sky/solar';
 import {
   DARK_PANE_TONE,
+  DAY_PANE_TONE,
   hashKey,
   K_LEVEL,
   LEVEL_SPLIT,
@@ -18,6 +19,7 @@ import {
   PANE_LEVELS,
   type PaneLevel,
   PEAK_EMISSIVE_INTENSITY,
+  paneBaseTone,
   paneIntensity,
   unitHash,
   WINDOW_WARM_LINEAR,
@@ -146,5 +148,34 @@ describe('night-facade: visibility and ground warm-up', () => {
 describe('night-facade: the one unlit albedo (the square-next round)', () => {
   it('PANE_BASE_TONE is the dark stock tone by reference — one law, not a copy', () => {
     expect(PANE_BASE_TONE).toBe(DARK_PANE_TONE);
+  });
+});
+
+describe('night-facade: the hour-driven unlit albedo (the square-next-2 round)', () => {
+  it('paneBaseTone is endpoint-exact: the day glass tone at 0, DEC-048 bit-exact at 1', () => {
+    for (const c of [0, 1, 2] as const) {
+      expect(paneBaseTone(0)[c]).toBe(DAY_PANE_TONE[c]);
+      expect(paneBaseTone(1)[c]).toBe(DARK_PANE_TONE[c]);
+    }
+  });
+  it('is monotone per channel over the hour range', () => {
+    for (const c of [0, 1, 2] as const) {
+      let previous = paneBaseTone(0)[c];
+      for (const w of [0.25, 0.5, 0.75, 1]) {
+        const current = paneBaseTone(w)[c];
+        expect(current).toBeGreaterThanOrEqual(previous); // the day tone is darker throughout
+        previous = current;
+      }
+    }
+  });
+  it('the day tone stays an opening: every channel at the dark-glass scale', () => {
+    for (const c of [0, 1, 2] as const) {
+      expect(DAY_PANE_TONE[c]).toBeLessThanOrEqual(0.05);
+    }
+    expect(DAY_PANE_TONE[2]).toBeGreaterThan(DAY_PANE_TONE[0]); // the cool sky-reflection lift
+  });
+  it('clamps out-of-range weights to the endpoints (the callers may pass raw hour weights)', () => {
+    expect(paneBaseTone(-1)).toEqual([...DAY_PANE_TONE]);
+    expect(paneBaseTone(2)).toEqual([...DARK_PANE_TONE]);
   });
 });

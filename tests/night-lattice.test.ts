@@ -15,11 +15,13 @@ import { surroundOpening } from '../src/procedural/facade-builder';
 import type { Placement } from '../src/procedural/facade-solver';
 import { buildNightLattice, type LatticeSource } from '../src/procedural/night-lattice';
 import {
+  DAY_PANE_TONE,
   K_LEVEL,
   PANE_BASE_TONE,
   PANE_LEVELS,
   PANE_STANDOFF,
   PEAK_EMISSIVE_INTENSITY,
+  paneBaseTone,
 } from '../src/world/night-facade';
 
 const SURROUND_PARTS = [
@@ -52,6 +54,7 @@ function surroundFixture(): Placement[] {
 const source = (placements: readonly Placement[]) => ({ placements }) satisfies LatticeSource;
 
 const baseToneHex = new Color().setRGB(...PANE_BASE_TONE).getHex();
+const dayToneHex = new Color().setRGB(...DAY_PANE_TONE).getHex();
 
 describe('night-lattice: structure', () => {
   it('builds one InstancedMesh per level, in level order, inside one group', () => {
@@ -93,7 +96,7 @@ describe('night-lattice: structure', () => {
       );
     }
   });
-  it('is shadow-free, static, bounded, stock material, the one shared base tone', () => {
+  it('is shadow-free, static, bounded, stock material, the hour law seeds the day tone', () => {
     const lattice = buildNightLattice(source(surroundFixture()));
     for (const level of PANE_LEVELS) {
       const mesh = lattice.meshes[level];
@@ -102,11 +105,9 @@ describe('night-lattice: structure', () => {
       expect(mesh.instanceMatrix.usage).toBe(StaticDrawUsage);
       expect(mesh.boundingSphere).not.toBeNull();
       expect(lattice.materials[level].type).toBe('MeshStandardMaterial');
-      // The facade-shadow round (2026-11-17) lifted the dark pane's albedo off the
-      // recess's near-black; the square-next round extends it to ALL three levels —
-      // the HQ kit binds the dim/bright stock at day too, and a per-level base would
-      // print a checkerboard on the sunlit west face (the R1 disproof).
-      expect(lattice.materials[level].color.getHex()).toBe(baseToneHex);
+      // The build's setNight(0) seeds the day glass tone — all three levels the SAME value
+      // (the no-checkerboard invariant), now hour-driven (the square-next-2 round).
+      expect(lattice.materials[level].color.getHex()).toBe(dayToneHex);
     }
   });
 });
@@ -176,6 +177,23 @@ describe('night-lattice: setNight', () => {
       expect(lattice.materials.bright.emissiveIntensity).toBe(K_LEVEL.bright * w);
     }
     expect(lattice.materials.bright.emissiveIntensity).toBe(PEAK_EMISSIVE_INTENSITY);
+  });
+  it('drives the unlit albedo as paneBaseTone(wNight) — one value across the three levels', () => {
+    const lattice = buildNightLattice(source(surroundFixture()));
+    for (const w of [0, 0.25, 0.5, 0.75, 1]) {
+      lattice.setNight(w);
+      const expected = new Color().setRGB(...paneBaseTone(w));
+      for (const level of PANE_LEVELS) {
+        expect(lattice.materials[level].color.getHex()).toBe(expected.getHex());
+      }
+    }
+    // the endpoints: the day glass tone at w 0; DEC-048's tone bit-exact at w 1
+    lattice.setNight(0);
+    expect(lattice.materials.dark.color.getHex()).toBe(
+      new Color().setRGB(0.03, 0.034, 0.042).getHex(),
+    );
+    lattice.setNight(1);
+    expect(lattice.materials.dark.color.getHex()).toBe(baseToneHex);
   });
   it('keeps the dark level at the dim-tone law inside night frames', () => {
     const lattice = buildNightLattice(source(surroundFixture()));
