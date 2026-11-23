@@ -104,6 +104,7 @@ TEXTURE_NAMES = ('stone_flags', 'plaster_pale', 'stucco_grey', 'stone_band')
 # only (the bake chain's scene keeps the committed 6-slot shell by construction).
 M_PALE, M_FLAGS, M_STUCCO, M_BAND, M_STAIR, M_PANE = 0, 1, 2, 3, 4, 5
 M_SHADE = 6
+M_SHADE_AIRLOCK = 7    # RG-F6: the airlock shade's flat slot (export chain only, like M_SHADE)
 S_IRON, S_GLOW = 0, 1
 
 # ---- gallery proper (east of the arch passage), metres -------------------------------------
@@ -245,7 +246,11 @@ F5_PANELS = F5_PANEL_DADO + F5_PANEL_TALL                   # 56
 F5_RAIL_RUNS = 2 * (1 + 2 * len(NICHE_CENTRES)) + 4 + 4      # 54 (46 gallery + 4 passage + 4 end wall)
 F5_RAIL_CAPS = 2                                            # the 2 jamb-band caps (the mouth
                                                             # ends are the mating mitres now)
-BORROWED_ELEMENTS = ('dado.panel', 'dado.rail')
+# RG-F6: the airlock set's five borrowed elements (export chain only; the same
+# exported-never-baked class as the F5 families - no atlas cells, adopted light).
+AIRLOCK_ELEMENTS = ('airlock.reveal.w', 'airlock.reveal.e', 'airlock.soffit',
+                    'airlock.floor', 'airlock.threshold')
+BORROWED_ELEMENTS = ('dado.panel', 'dado.rail') + AIRLOCK_ELEMENTS
 F5_HOST_ELEMENTS = ('wall.field', 'passage.field', 'wall.e')
 F5_COLLIDER_ELEMENTS = ('pilaster', 'ressaut', 'cornice', 'skirting', 'impost', 'doorcase',
                         'niche')
@@ -265,6 +270,22 @@ STAIRLIGHT_PAINT = {  # declared record (the machine source is bake.py PANE_PAIN
 # RG-F5: the door jamb bands' outer edges (the flank rails' DOOR_RAIL_STOP reference;
 # the skirting runs already stop at these literals in build_end_wall).
 JAMB_BAND_Z = (PORTAL_Z0 - DOOR_JAMB_W, PORTAL_Z1 + DOOR_JAMB_W)   # 71.95 / 74.05
+# ---- RG-F6 «the threshold» (DECISION-41, DEC-A as amended): the east airlock set -----------
+# THE DISPLACED-TWIN LAW (stated once, declaratively): the bake scene stays authoritative.
+# The export chain (`not BAKE`) alone displaces the 'doorcard' face to the box's far plane
+# (x = G_X1 + AIRLOCK_DEPTH) and dresses the 2.6 m-deep threshold box on BORROWED light:
+# the shelf packer packs the NON-borrowed roster subsequence, so the borrowed box faces add
+# no atlas cell and the displaced card keeps its own cell exactly (same (t, y) rectangle,
+# same projected extents, same packed index); the borrowed faces adopt declared host cells
+# (adopt_airlock_uv) and the three committed plates regenerate byte-identically by
+# construction. The box's interior joins the export chain's analytic air set (air_contains).
+AIRLOCK_DEPTH = 2.6                    # the box's depth: x G_X1 .. G_X1 + AIRLOCK_DEPTH
+AIRLOCK_HOST_FALLOFF = 0.6             # the borrowed strip's extent on each declared host
+AIRLOCK_THRESHOLD_W = 0.30             # the box-side threshold strip's width (x G_X1 ..+W)
+AIRLOCK_AO = 0.85                      # the airlock shade's albedo step (the creative's
+#   constant, explicitly not FILLET_AO 0.62)
+M_STUCCO_SHADE_AIRLOCK_RGB = tuple(round(c * AIRLOCK_AO, 2) for c in STUCCO_GREY_RGB)
+#   = (0.75, 0.73, 0.70): STUCCO_GREY x 0.85, the flat airlock shade slot's value
 # (RG-F3) the declared panes' RAW paint record beside STAIRLIGHT_PAINT (the machine
 # sources: tools/reencode.mjs PATCH_PAINTS - the encode paint; tools/bpy/bake.py
 # STAGE_SPILL_PARTS - the spill rows). RAW triples are pane-specific: the door's x1.14
@@ -275,7 +296,9 @@ JAMB_BAND_Z = (PORTAL_Z0 - DOOR_JAMB_W, PORTAL_Z1 + DOOR_JAMB_W)   # 71.95 / 74.
 PANE_PAINT_RAW = {
     'day': (0.550, 0.650, 0.740), 'dusk': (0.360, 0.400, 0.460), 'night': (0.0, 0.0, 0.0),
 }
-CONTRACT_BOUNDS = ((-4.0, 0.0, 63.5), (44.0, 5.0, 87.5))
+CONTRACT_BOUNDS = ((-4.0, 0.0, 63.5), (47.0, 5.0, 87.5))   # DEC-41 DEC-B: max.x follows the
+#   airlock box's far plane (46.6) with clearance; the never-read declared mirror of
+#   rooms/rastrelli-gallery/contract.ts's bounds
 
 
 # ---- INT: stage-dir handoff. asset.mjs invokes `... -P <py> -- --room <id> --out <stage>`;
@@ -459,6 +482,12 @@ def air_contains(p):
     if G_X0 < x < G_X1 and G_Z0 < z < G_Z1 and 0.0 < y < gallery_air_y(z):
         return True
     if P_X0 < x < P_X1 and P_Z0 < z < P_Z1 and 0.0 < y < passage_air_y(x):
+        return True
+    # RG-F6: the export chain's air set gains the airlock box's interior - the box is open
+    # room air through the doorway (the displaced card, the reveals, the soffit, the floor
+    # and the threshold face it). The bake chain's set stays the committed one.
+    if not BAKE and G_X1 < x < G_X1 + AIRLOCK_DEPTH and PORTAL_Z0 < z < PORTAL_Z1 \
+            and 0.0 < y < DOOR_BAND_Y[0]:
         return True
     for x0, x1, y0, y1, z0, z1 in NICHE_POCKETS:
         if x0 < x < x1 and y0 < y < y1 and z0 < z < z1:
@@ -1024,6 +1053,10 @@ def author_schedule():
         # committed one - its schedule stays byte-equal to the committed builder's.
         schedule['dado.panel'] = F5_PANELS * F5_PANEL_FACES
         schedule['dado.rail'] = F5_RAIL_RUNS * 3 + F5_RAIL_CAPS
+        # RG-F6: the airlock set's rows - the same exported-never-baked law as the F5
+        # rows (the counts match build_airlock_set's faces exactly).
+        for name in AIRLOCK_ELEMENTS:
+            schedule[name] = 1
     return schedule
 
 
@@ -1035,6 +1068,9 @@ FLOOR = Plane('floor', 'y', 0.0, 1.0)
 PWALL_W = Plane('passage.w', 'x', P_X0, 1.0)
 PWALL_E = Plane('passage.e', 'x', P_X1, -1.0)
 PWALL_N = Plane('passage.n', 'z', P_Z0, 1.0)
+# RG-F6 THE DISPLACED TWIN: the export chain's 'doorcard' plane - the threshold box's far
+# wall (proud 0 on it = x 46.6); the bake chain never uses it (the card stays on WALL_E).
+AIRLOCK_BACK = Plane('airlock.back', 'x', G_X1 + AIRLOCK_DEPTH, -1.0)
 UP = (0.0, 1.0, 0.0)
 
 
@@ -1509,8 +1545,17 @@ def build_doorcase(b):
     # the lunette back: the exact half-disc at proud 0 — tag 'stairlight'
     b.face([P(t, y, 0.0) for t, y in end_halfdisc(G_ZC, DOOR_BAND_Y[1], LUNETTE_R, 8)],
            M_STAIR, 'stairlight', (-1.0, 0.0, 0.0), tag='stairlight')
-    # the doorcard: the doorway's exact rectangle at proud 0 — tag 'doorcard'
-    b.face([P(t, y, 0.0) for t, y in rectangle(PORTAL_Z0, PORTAL_Z1, 0.0, DOOR_BAND_Y[0])],
+    # the doorcard: the doorway's exact rectangle at proud 0 — tag 'doorcard'.
+    # RG-F6 THE DISPLACED TWIN: in the export chain the card builds on AIRLOCK_BACK (the
+    # box's far plane, x 46.6) at proud 0 - same normal, same tag, same M_STAIR slot, same
+    # (z, y) rectangle. The shelf pack reproduces the card's cell exactly: finish() packs
+    # the NON-borrowed roster subsequence (the card is not borrowed), keyed by the card's
+    # unchanged projected extents - for an x-normal face the projection reads (world y,
+    # -world z) only, so the packed (t, y) box, the cell size and the packed index are
+    # identical, and the lm.patches rect for the encode paint survives byte-for-byte. The
+    # bake chain keeps today's path: the card at the x = 44 wall plane, byte-identical.
+    card_plane = AIRLOCK_BACK if not BAKE else WALL_E
+    b.face([card_plane.world(t, y, 0.0) for t, y in rectangle(PORTAL_Z0, PORTAL_Z1, 0.0, DOOR_BAND_Y[0])],
            M_STAIR, 'doorcard', (-1.0, 0.0, 0.0), tag='doorcard')
 
 
@@ -1533,6 +1578,40 @@ def build_end_wall(b):
     skirting_run(b, WALL_E, 74.05, CORNER_RETURN_Z[1] - PLINTH_HALF_W)
     skirting_run(b, WALL_E, CORNER_RETURN_Z[1] + PLINTH_HALF_W, G_Z1, mitre1=1)
     build_doorcase(b)
+
+
+def build_airlock_set(b):
+    """THE RG-F6 AIRLOCK SET (export chain only - the call site guards on BAKE, the F5
+    guard pattern): five borrowed faces closing the 2.6 m threshold box against the
+    displaced doorcard. The opening is RECTANGULAR (DEC-41 amendment 1): the soffit is a
+    FLAT face at y = DOOR_BAND_Y[0] spanning the box - no arch sweep; the lunette
+    half-disc stays on the end-wall plane above it. Every face abuts exactly, never
+    overlaps coplanar (the COVERED gate): the threshold and the floor continuation abut at
+    x = G_X1 + AIRLOCK_THRESHOLD_W, every face abuts the displaced card's edges (the card
+    is the opening's exact rectangle), and the box's mouth (x = G_X1) stays open into the
+    doorway."""
+    # the two jamb reveals: the box's south/north walls on the opening's z planes
+    b.face([(G_X1, 0.0, PORTAL_Z0), (G_X1 + AIRLOCK_DEPTH, 0.0, PORTAL_Z0),
+            (G_X1 + AIRLOCK_DEPTH, DOOR_BAND_Y[0], PORTAL_Z0),
+            (G_X1, DOOR_BAND_Y[0], PORTAL_Z0)],
+           M_SHADE_AIRLOCK, 'airlock.reveal.w', (0.0, 0.0, 1.0))
+    b.face([(G_X1, 0.0, PORTAL_Z1), (G_X1 + AIRLOCK_DEPTH, 0.0, PORTAL_Z1),
+            (G_X1 + AIRLOCK_DEPTH, DOOR_BAND_Y[0], PORTAL_Z1),
+            (G_X1, DOOR_BAND_Y[0], PORTAL_Z1)],
+           M_SHADE_AIRLOCK, 'airlock.reveal.e', (0.0, 0.0, -1.0))
+    # the flat soffit at the opening's clear height, normal down into the box
+    b.face([(G_X1, DOOR_BAND_Y[0], PORTAL_Z0), (G_X1 + AIRLOCK_DEPTH, DOOR_BAND_Y[0], PORTAL_Z0),
+            (G_X1 + AIRLOCK_DEPTH, DOOR_BAND_Y[0], PORTAL_Z1),
+            (G_X1, DOOR_BAND_Y[0], PORTAL_Z1)],
+           M_SHADE_AIRLOCK, 'airlock.soffit', (0.0, -1.0, 0.0))
+    # the floor continuation (flags) and the box-side threshold strip (band) at y = 0;
+    # the strip abuts the room's threshold-band faces across the doorway line
+    b.face([(G_X1 + AIRLOCK_THRESHOLD_W, 0.0, PORTAL_Z0), (G_X1 + AIRLOCK_DEPTH, 0.0, PORTAL_Z0),
+            (G_X1 + AIRLOCK_DEPTH, 0.0, PORTAL_Z1), (G_X1 + AIRLOCK_THRESHOLD_W, 0.0, PORTAL_Z1)],
+           M_FLAGS, 'airlock.floor', (0.0, 1.0, 0.0))
+    b.face([(G_X1, 0.0, PORTAL_Z0), (G_X1 + AIRLOCK_THRESHOLD_W, 0.0, PORTAL_Z0),
+            (G_X1 + AIRLOCK_THRESHOLD_W, 0.0, PORTAL_Z1), (G_X1, 0.0, PORTAL_Z1)],
+           M_BAND, 'airlock.threshold', (0.0, 1.0, 0.0))
 
 
 def build_sconce():
@@ -1787,7 +1866,12 @@ def finish(name, builder, materials, mode='shelf'):
                     1.0 - (y + pad_px + fv * h_in) / LM_RES,
                 )
         if borrowed:
-            adopt_lm_uv(builder, lm_lay, roster, borrowed)
+            # RG-F6: the airlock borrowers adopt DECLARED host rows (adopt_airlock_uv) -
+            # they are not in their hosts' planes, so the automatic containment scan
+            # cannot serve them; the dado families keep the scan.
+            adopt_lm_uv(builder, lm_lay, roster,
+                        [entry for entry in borrowed if entry[3] not in AIRLOCK_ELEMENTS])
+            adopt_airlock_uv(builder, lm_lay, roster)
             for entry in borrowed:
                 f, _kind, _uid, _el = entry
                 for loop, (pu, pv) in zip(f.loops, planar(entry)):
@@ -2310,6 +2394,179 @@ def _f5_ty_from_axis(axis, w):
     return (w[0], w[1]) if axis == 'z' else (w[2], w[1])
 
 
+# ---- RG-F6: the declared-host adoption (the airlock borrowers' rows) -------------------------
+# THE DECLARED-HOST LAW: the airlock borrowers are NOT in their hosts' planes (the box's
+# faces stand off the end wall and the floor), so adopt_lm_uv's automatic containment scan
+# cannot serve them; each element instead carries a DECLARED host row below - the host
+# element and an ANCHOR rect in the host face's own (t, y) frame. The anchors are fixed
+# from the real plan faces (verified against plan_end_wall's and plan_floor's emitted
+# polygons: each anchor's centre lands in exactly ONE host face - the end-wall field is a
+# halfplane-cut mosaic (the sequential cutter extends every mask edge across the whole
+# field), so a full-height clean flank strip does not exist; the anchors name the mosaic's
+# biggest flanking fragments, whose y ranges are the corner-return profile's own bands).
+# THE MAP (the F5 machinery, _affine_map/_apply_affine): the host face is the anchor
+# centre's containing face; the anchor shrunk by F5_ADOPT_CLAMP_M per side (the brief's
+# 'gutter + 0.08' clamp, in its metre form - a degenerate anchor fails loud) carries the
+# law's endpoints: the borrower's depth axis (x) runs REVERSED - the far (deep) edge maps
+# to the shrunk anchor's door-adjacent t edge, the near (mouth) edge to its outer t edge
+# (AIRLOCK_HOST_FALLOFF outward on the host's own axis) - and the borrower's parallel axis
+# ('y' for the reveals, 'z' for the soffit/floor/threshold) maps linearly onto the shrunk
+# anchor's parallel span (for the floor rows that span equals the borrower's z span, so
+# the law reads identity up to the shrink). Every mapped point then clamps onto the host
+# polygon (the F5 foot clamp - the mosaic's diagonal cuts) and the uv clamps 1 atlas texel
+# inside the host face's mapped cell bbox (the F5 clamp verbatim). One host face per
+# borrower keeps every face's uv quad inside one atlas cell.
+AIRLOCK_REVEAL_W_HOST_ANCHOR = (JAMB_BAND_Z[0] - AIRLOCK_HOST_FALLOFF, SHAFT_Y0,
+                                JAMB_BAND_Z[0], DOOR_BAND_Y[0])
+AIRLOCK_REVEAL_E_HOST_ANCHOR = (JAMB_BAND_Z[1], SHAFT_Y0,
+                                JAMB_BAND_Z[1] + AIRLOCK_HOST_FALLOFF, DOOR_BAND_Y[0])
+# the soffit's host: the tympanum field's fragment directly above the west reveal's strip
+# (one continuous borrowed column); its top sits under both the fragment's own 3.361 edge
+# and the end wall's FACETED vault boundary at the strip's west edge (vault_y_at, the
+# plan's own interpolation, asserted below - the analytic gallery_air_y overestimates it).
+AIRLOCK_SOFFIT_HOST_Y1 = 3.36
+AIRLOCK_SOFFIT_HOST_ANCHOR = (JAMB_BAND_Z[0] - AIRLOCK_HOST_FALLOFF, G_SPRING, JAMB_BAND_Z[0],
+                              AIRLOCK_SOFFIT_HOST_Y1)
+AIRLOCK_FLOOR_HOST_ANCHOR = (PORTAL_X0 - AIRLOCK_HOST_FALLOFF, PORTAL_Z0, PORTAL_X0, PORTAL_Z1)
+# the threshold's host: the doorway's wider M_BAND face (x PORTAL_X0 .. G_X1 - FLOOR_BORDER,
+# the border band's west edge). The narrower 43.7..43.91 remnant beyond it is capped by the
+# end-wall skirting hole (x 43.91..44 across all z) and its 6-px atlas cell cannot carry
+# the clamp law's gutter - the adjacent full-depth face hosts the strip instead.
+AIRLOCK_THRESHOLD_HOST_ANCHOR = (PORTAL_X0, PORTAL_Z0, G_X1 - FLOOR_BORDER, PORTAL_Z1)
+if vault_y_at(JAMB_BAND_Z[0] - AIRLOCK_HOST_FALLOFF) <= AIRLOCK_SOFFIT_HOST_Y1:
+    fail("the soffit host anchor's top must sit under the end wall's faceted vault boundary")
+AIRLOCK_HOST_ELEMENTS = ('wall.e', 'floor.flags', 'floor.band')
+AIRLOCK_HOST_ROWS = {
+    # (host element, the anchor rect (t0, y0, t1, y1) in the host face's frame, the
+    # borrower x at its far/deep and near/mouth edges, the borrower's parallel axis and
+    # that axis's source span - the span maps linearly onto the shrunk anchor's span)
+    'airlock.reveal.w': {
+        'host': 'wall.e', 'anchor': AIRLOCK_REVEAL_W_HOST_ANCHOR,
+        'x_far': G_X1 + AIRLOCK_DEPTH, 'x_near': G_X1,
+        'parallel': 'y', 'src': (0.0, DOOR_BAND_Y[0]),
+    },
+    'airlock.reveal.e': {
+        'host': 'wall.e', 'anchor': AIRLOCK_REVEAL_E_HOST_ANCHOR,
+        'x_far': G_X1 + AIRLOCK_DEPTH, 'x_near': G_X1,
+        'parallel': 'y', 'src': (0.0, DOOR_BAND_Y[0]),
+    },
+    'airlock.soffit': {
+        'host': 'wall.e', 'anchor': AIRLOCK_SOFFIT_HOST_ANCHOR,
+        'x_far': G_X1 + AIRLOCK_DEPTH, 'x_near': G_X1,
+        'parallel': 'z', 'src': (PORTAL_Z0, PORTAL_Z1),
+    },
+    'airlock.floor': {
+        'host': 'floor.flags', 'anchor': AIRLOCK_FLOOR_HOST_ANCHOR,
+        'x_far': G_X1 + AIRLOCK_DEPTH, 'x_near': G_X1 + AIRLOCK_THRESHOLD_W,
+        'parallel': 'z', 'src': (PORTAL_Z0, PORTAL_Z1),
+    },
+    'airlock.threshold': {
+        'host': 'floor.band', 'anchor': AIRLOCK_THRESHOLD_HOST_ANCHOR,
+        'x_far': G_X1 + AIRLOCK_THRESHOLD_W, 'x_near': G_X1,
+        'parallel': 'z', 'src': (PORTAL_Z0, PORTAL_Z1),
+    },
+}
+
+
+def _airlock_face_frame(world):
+    """A host face's (t, y) frame class from its world verts: the F5 wall classes ('x':
+    frame (z, y); 'z': frame (x, y)) plus the FLOOR's 'y' class (frame (x, z), normal +y)
+    - the RG-F6 extension the horizontal hosts need. Returns (axis, ty points) or None."""
+    for axis, idx in (('x', 0), ('y', 1), ('z', 2)):
+        span = max(w[idx] for w in world) - min(w[idx] for w in world)
+        if span < 1e-6:
+            if axis == 'x':
+                return 'x', [(w[2], w[1]) for w in world]
+            if axis == 'y':
+                return 'y', [(w[0], w[2]) for w in world]
+            return 'z', [(w[0], w[1]) for w in world]
+    return None
+
+
+def adopt_airlock_uv(builder, lm_lay, roster):
+    """The RG-F6 declared-host law: every airlock borrower adopts its row's DECLARED host
+    face - the face whose polygon contains the anchor rect's centre (the F5 containment
+    law, the same F5_ADOPT_CLAMP_M bbox band; the mosaic makes each centre unique) - and
+    maps every loop through that face's exact (t, y) -> (u, v) affine (solved from the
+    host's lm loops through _affine_map/_apply_affine; one host face per borrower keeps
+    the face's uv quad inside one atlas cell). The loop's mapped point: the borrower's
+    depth axis (x) through the row's reversed linear law onto the shrunk anchor's t span
+    (the far edge -> the door-adjacent edge, the near edge -> the outer edge), the
+    parallel axis linearly onto the shrunk anchor's parallel span, then the F5 foot clamp
+    onto the host polygon and the uv clamp 1 texel inside the host's mapped cell bbox."""
+    hosts = {}
+    for entry in roster:
+        f, _kind, _uid, el = entry
+        if el not in AIRLOCK_HOST_ELEMENTS:
+            continue
+        world = [to_w(v.co) for v in f.verts]
+        frame = _airlock_face_frame(world)
+        if frame is None:
+            continue  # not an axis-aligned host face (the fields always are)
+        uvs = [tuple(loop[lm_lay].uv) for loop in f.loops]
+        hosts.setdefault(el, []).append((frame[1], uvs))
+    tx = 1.0 / LM_RES
+    for entry in builder.roster:
+        f, _kind, _uid, el = entry
+        if el not in AIRLOCK_ELEMENTS:
+            continue
+        row = AIRLOCK_HOST_ROWS[el]
+        anchor = row['anchor']
+        centre = ((anchor[0] + anchor[2]) / 2.0, (anchor[1] + anchor[3]) / 2.0)
+        hit = None
+        for ty, uvs in hosts.get(row['host'], []):
+            xs = [q[0] for q in ty]
+            ys = [q[1] for q in ty]
+            if not (min(xs) - F5_ADOPT_CLAMP_M <= centre[0] <= max(xs) + F5_ADOPT_CLAMP_M
+                    and min(ys) - F5_ADOPT_CLAMP_M <= centre[1] <= max(ys) + F5_ADOPT_CLAMP_M):
+                continue
+            if _point_in_poly(centre, ty):
+                hit = (ty, uvs)
+                break
+        if hit is None:
+            fail(f"adopt_airlock_uv: the declared {el} anchor {anchor} matches no "
+                 f"{row['host']} face")
+        ty, uvs = hit
+        affine = None
+        n = len(ty)
+        for i in range(n):
+            for j in range(i + 1, n):
+                for k in range(j + 1, n):
+                    affine = _affine_map(ty[i], ty[j], ty[k], uvs[i], uvs[j], uvs[k])
+                    if affine is not None:
+                        break
+                if affine is not None:
+                    break
+            if affine is not None:
+                break
+        if affine is None:
+            fail(f'adopt_airlock_uv: the {el} host has no non-collinear loops')
+        # the shrunk anchor: the clamp law's metre form - the map's endpoints sit
+        # F5_ADOPT_CLAMP_M inside the declared anchor on both axes.
+        shrunk = (anchor[0] + F5_ADOPT_CLAMP_M, anchor[1] + F5_ADOPT_CLAMP_M,
+                  anchor[2] - F5_ADOPT_CLAMP_M, anchor[3] - F5_ADOPT_CLAMP_M)
+        if shrunk[2] - shrunk[0] <= 0.0 or shrunk[3] - shrunk[1] <= 0.0:
+            fail(f'adopt_airlock_uv: the {el} host anchor {anchor} is too small for the clamp law')
+        # the host face's mapped cell bbox (the F5 clamp's own reference)
+        bbox = (min(q[0] for q in uvs), max(q[0] for q in uvs),
+                min(q[1] for q in uvs), max(q[1] for q in uvs))
+        for loop, vert in zip(f.loops, f.verts):
+            w = to_w(vert.co)
+            t = shrunk[2] + (shrunk[0] - shrunk[2]) * (w[0] - row['x_far']) \
+                / (row['x_near'] - row['x_far'])
+            source = w[1] if row['parallel'] == 'y' else w[2]
+            src0, src1 = row['src']
+            parallel = shrunk[1] + (shrunk[3] - shrunk[1]) * (source - src0) / (src1 - src0)
+            # the F5 foot clamp: a mapped point outside the host polygon rides the
+            # boundary (the mosaic's diagonal cuts), never the cutout's texels
+            q = (t, parallel)
+            if not _point_in_poly(q, ty):
+                q = _nearest_on_poly(q, ty)
+            u, v = _apply_affine(affine, q)
+            loop[lm_lay].uv = (min(max(u, bbox[0] + tx), bbox[1] - tx),
+                               min(max(v, bbox[2] + tx), bbox[3] - tx))
+
+
 def _face_aabb(face):
     world = [to_w(v.co) for v in face.verts]
     return (min(w[0] for w in world), max(w[0] for w in world),
@@ -2394,6 +2651,9 @@ def build_room(b):
         # RG-F5: the exported-never-baked wall families exist ONLY in the export chain -
         # the bake chain's scene (and therefore all three plates) stays the committed one
         # byte-for-byte by construction.
+        # RG-F6: the airlock set joins the same law - five borrowed faces under the same
+        # guard, built straight after the end wall they dress.
+        build_airlock_set(b)
         build_wall_families(b)
 
 
@@ -2778,6 +3038,9 @@ def main():
     shell_slots = [mat_pale, mat_stone, mat_stucco, mat_band, mat_stair, mat_pane]
     if not BAKE:
         shell_slots.append(mat_shade)
+        # RG-F6: the airlock shade (the 8th shell slot; the box's reveal/soffit faces ride
+        # it) - the same exported-only law as M_SHADE.
+        shell_slots.append(flat_material('stucco_shade_airlock', M_STUCCO_SHADE_AIRLOCK_RGB, 0.92))
     me_shell, t_shell, lm_shell = finish(
         'shell', b, shell_slots, mode='shelf')
     if BAKE:
@@ -2824,8 +3087,9 @@ def main():
     belt_export_nodes(glb_path)
     meshes = {
         # RG-F5: the shell's 7th primitive is the 'stucco_shade' slot (export chain only -
-        # the bake chain returns before this point).
-        'shell': {'triangles': t_shell, 'instances': 1, 'primitives': 7},
+        # the bake chain returns before this point). RG-F6 adds the 8th: the airlock's
+        # 'stucco_shade_airlock' slot (the same exported-only law).
+        'shell': {'triangles': t_shell, 'instances': 1, 'primitives': 8},
         'sconce': {'triangles': t_sconce, 'instances': SCONCE_COUNT, 'primitives': 2},
     }
     lm_block = dict(lm_shell)

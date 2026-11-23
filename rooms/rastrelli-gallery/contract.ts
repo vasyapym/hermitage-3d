@@ -41,8 +41,10 @@ export const contract: RoomContract = {
   id: 'rastrelli-gallery',
   title: 'data.titleGallery',
   // The whole committed model (tools/bpy/rastrelli-gallery.py): the arch passage
-  // (x -4..4, z 63.5..87.5, vault peak 5.0) plus the gallery proper (x 4..44, z 70..76).
-  bounds: { min: [-4, 0, 63.5], max: [44, 5, 87.5] },
+  // (x -4..4, z 63.5..87.5, vault peak 5.0) plus the gallery proper (x 4..44, z 70..76)
+  // and, since DEC-41 (rg-f6), the east door's 2.6 m threshold box (x 44..46.6) — max.x
+  // 47 carries it with clearance. The sole runtime consumer is camera.far (interiorFar).
+  bounds: { min: [-4, 0, 63.5], max: [47, 5, 87.5] },
   rail: {
     stops: [
       {

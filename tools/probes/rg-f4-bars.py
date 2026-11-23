@@ -64,6 +64,16 @@
 #     column 428-441): the top band rows 313-318 vs the interior rows 325-380 >= +12
 #     (measured +12.3); the bottom band rows 384-390 vs the interior >= +12 (measured
 #     +12.0).
+# THE F6 ROWS (the threshold-set round rg-f6; the same pins-from-positions class):
+#   P5 'threshold-depth' on the g2 frames: L(centre cells) - L(edge cells) >= +25 (day-g2),
+#     >= +8 (dusk-g2), <= 0 (night-g2 — periphery >= centre: a warm-lined dark). The
+#     centre = the 6x4 grid's rows 1-2 x cols 2-3 (the G2 stop stands 3 m off the portal
+#     plane looking +x; the 1.6 x 2.4 m opening fills the frame's centre band); the edge =
+#     the frame's perimeter cells (rows 0 and 3 whole, cols 0 and 5 in the middle rows).
+#     The cell picks are RUNTIME-TUNED (the first real capture run may adjust the cells,
+#     never the thresholds).
+#   P6 'centre-hold' on day-g2: the centre-cell mean within ±4 of the before capture's
+#     same cells (the script's before-dir mechanism; the row rides the before_dir gate).
 F5_PINS = {
     'day-g1': {'col': (385, 392), 'topBand': (443, 450), 'interior': (453, 471),
                'bottomBand': (475, 482), 'railFront': (428, 433), 'shade': (435, 440)},
@@ -76,6 +86,13 @@ F5_BAND_STEP_MIN = 12.0     # F5-A/F5-D
 F5_BAND_STEP_MIN_NIGHT = 5.0   # F5-B
 F5_SHADE_MAX = -8.0
 F5_MEAN_DRIFT_MAX = 3.0
+# THE F6 ROWS' CONSTANTS (the threshold-set round; the cell picks are RUNTIME-TUNED — the
+# first real capture run may adjust the CELLS, never the thresholds):
+P5_CENTRE = (slice(1, 3), slice(2, 4))   # rows 1-2 x cols 2-3: the opening's centre at G2
+P5_DAY_MIN = 25.0       # L(centre) - L(edge) >= +25 at day-g2
+P5_DUSK_MIN = 8.0       # ... >= +8 at dusk-g2
+P5_NIGHT_MAX = 0.0      # ... <= 0 at night-g2 (periphery >= centre: a warm-lined dark)
+P6_CENTRE_TOL = 4.0     # day-g2's centre-cell mean within ±4 of the before capture
 # THE PINNED BASELINES: probes/rg-f4-rgaudit-pre-aligned (2026-11-20, tree 656623ba, the
 # PRE-S2A-bake state) — the committed plates + the pre-re-weight glb 5bf119e8 = the ALIGNED
 # pre-junction read; it reproduces the committed battery's own numbers exactly (day-g1
@@ -378,5 +395,41 @@ for name, detail, ok in f5:
     print(f'{"PASS" if ok else "FAIL"}  {name}: {detail}')
 for line in f5_diag:
     print(line)
-print(f'{len(verd) + len(jver) + len(f5) - fails}/{len(verd) + len(jver) + len(f5)} bars pass')
+
+# ---- the F6 rows (the threshold set's delivered light at the door) --------------------------
+# The cell picks (P5_CENTRE rows 1-2 x cols 2-3) are named in the constants block and are
+# RUNTIME-TUNED: the first real capture run may adjust the cells, never the thresholds.
+pver = []
+def p5_cells(g):
+    """L over the centre cells vs the frame's perimeter band (rows 0/3 whole, cols 0/5
+    in the middle rows)."""
+    centre = float(g[P5_CENTRE].mean())
+    edge = float(np.concatenate([g[0, :], g[3, :], g[1:3, 0], g[1:3, -1]]).mean())
+    return centre, edge
+d_c, d_e = p5_cells(G['day-g2'])
+k_c, k_e = p5_cells(G['dusk-g2'])
+n_c, n_e = p5_cells(G['night-g2'])
+d5, k5, n5 = d_c - d_e, k_c - k_e, n_c - n_e
+pver.append(('P5 threshold-depth (g2 centre-edge: day >= +25, dusk >= +8, night <= 0)',
+             f'day {d5:+.1f} · dusk {k5:+.1f} · night {n5:+.1f}',
+             d5 >= P5_DAY_MIN and k5 >= P5_DUSK_MIN and n5 <= P5_NIGHT_MAX))
+if before_dir is not None:
+    b6 = grid(before_dir, 'day-g2')
+    if b6 is None:
+        pver.append(('P6 centre-hold day-g2 centre within ±4 of before',
+                     'before frame missing', False))
+    else:
+        d6 = d_c - float(b6[P5_CENTRE].mean())
+        pver.append(('P6 centre-hold day-g2 centre within ±4 of before', f'{d6:+.1f}',
+                     abs(d6) <= P6_CENTRE_TOL))
+else:
+    # the before-dir mechanism is optional in a diagnostic run; the acceptance run
+    # passes it, and the printed count then reads 45.
+    print('P6 centre-hold skipped (no before dir; the acceptance run passes it)')
+
+fails += len([1 for _n, _d, ok in pver if not ok])
+for name, detail, ok in pver:
+    print(f'{"PASS" if ok else "FAIL"}  {name}: {detail}')
+total = len(verd) + len(jver) + len(f5) + len(pver)
+print(f'{total - fails}/{total} bars pass')
 sys.exit(0 if fails == 0 else 1)
