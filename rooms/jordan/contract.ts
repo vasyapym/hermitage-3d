@@ -14,8 +14,10 @@
  * it needs a knot wherever the slope breaks — J1b (top of flight 1) and J3 (top of flight 2)
  * exist for that reason; J0 and J2 stand 0.5 m before their first risers.
  *
- * Subjects: J0 and J1 share the window light over the mezzanine (the locked climb); J1b keeps
- * the flight-2 sconce on the window wall (the turn is anticipated); J2 is RE-AUTHORED (owner
+ * Subjects: J0 and J1 share the window light over the mezzanine (the locked climb); J1b
+ * gazes 23% of the way from the flight-2 sconce toward the chandelier's crown (the owner's
+ * turn-preview: the sconce stays in frame, the press-3 arrival reads as a continuation);
+ * J2 is RE-AUTHORED (owner
  * 2026-11-23, the plafond-arrival ask) to CHANDELIER_CROWN so press 3's gaze lands on the
  * chandelier with the painted Olimpo ceiling partly above it — the base gaze is ≈24° up, the
  * owner's own reference framing (a plafond-centred ≈41° read as too much rotation); J2b
@@ -29,8 +31,12 @@ import type { RoomContract, Vec3 } from '../../src/world/registry';
 
 /** Over the mezzanine, in front of the window wall: the upper-tier light reads above it. */
 const MEZZ_LIGHT: Vec3 = [69.2, 7.5, -84];
-/** Flight 2's middle sconce (x 75.1, datum 7.67 + 1.8), just off the north wall. */
-const FLIGHT2_SCONCE: Vec3 = [75.1, 9.5, -85.5];
+/** Flight 2's middle sconce (x 75.1, datum 7.67 + 1.8), just off the north wall — the
+ * fixtures bake rig's light anchor (jordan_fixtures.py SCONCE_GAZE_POINT).
+ * The J1b gaze: 23% of the way from the sconce toward the chandelier's crown (the owner's
+ * 2026-11-23 turn-preview ask — press 3's arrival reads as a continuation, not a jump);
+ * the sconce stays in frame left. */
+const FLIGHT2_TURN: Vec3 = [76.0, 10.1, -83.8];
 /** Flight 2's top (x 82.0, datum 9.983 + 1.7), on flight 2's band centre line. R18-ux D4 committed
  * it at J2; J2b still holds it (D-J2b, owner 2026-11-02) — the J2 pairing retired 2026-11-23 by
  * the plafond-arrival ask; the upper-window glance (UPPER_WINDOW [84.85, 14.75, −86], the north
@@ -69,9 +75,13 @@ export const contract: RoomContract = {
       },
       {
         // The top nose of flight 1 (run 10.88 → datum 5): the slope-break knot.
+        // The gaze pre-turns 23% of the way from the flight-2 sconce toward the
+        // chandelier's crown (the owner's 2026-11-23 turn-preview ask): press 3's
+        // arrival (J1b→J2) reads as a continuation, not a jump; the sconce stays
+        // in frame left (caption j1b unchanged).
         id: 'J1b',
         position: [67.2, 6.7, -79],
-        subject: FLIGHT2_SCONCE,
+        subject: FLIGHT2_TURN,
         look: { yaw: 35, pitchUp: 35, pitchDown: 25 },
         caption: 'caption.j1b',
       },

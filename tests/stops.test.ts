@@ -364,7 +364,7 @@ describe('square stop-gaze swings (R18-ux D1: the halfway rhythm)', () => {
   }
 });
 
-describe('jordan stop-gaze swings (the 2026-11-23 plafond arrival: PLAFOND_CENTER)', () => {
+describe('jordan stop-gaze swings (the 2026-11-23 plafond arrival: CHANDELIER_CROWN)', () => {
   it('authors J2 to the painted plafond (press 3 ends gazing up at the Olimpo ceiling)', () => {
     const j2 = JORDAN.stops.find((s) => s.id === 'J2');
     if (!j2 || j2.subject === null) throw new Error('J2 missing');
@@ -380,7 +380,7 @@ describe('jordan stop-gaze swings (the 2026-11-23 plafond arrival: PLAFOND_CENTE
     expect((Math.atan2(ty - py, Math.hypot(tx - px, tz - pz)) * 180) / Math.PI).toBeCloseTo(24, 1);
   });
   for (const [n, measured, expected] of [
-    ...swingRows(JORDAN, 'J1b', 'J2', 63.7), // the plafond pan — the ~58 design frame relaxed on this leg; the §9 MAX_SWING 90 head law holds
+    ...swingRows(JORDAN, 'J1b', 'J2', 52.8), // the turn-preview softened the pan (the owner's 23% pre-turn); the ~58 design frame holds again
     ...swingRows(JORDAN, 'J2', 'J2b', 28.7), // the ceiling-to-flight turn (the D-J2b locked dolly retired 2026-11-23)
   ]) {
     it(`${n}: swing ≈ ${expected}° stays under the head law`, () => {
