@@ -65,6 +65,11 @@ export const PART_IDS: readonly PartId[] = [
   ...WINDOW_ROW_IDS.flatMap((rowId) =>
     WINDOW_MODULES.map((windowModule) => surroundPartId(rowId, windowModule)),
   ),
+  // The dressings law's variant ids: dormant until HEAD_LAW routes a window to
+  // them; grouped and counted like every other part.
+  'surround-row2-risalit',
+  'surround-row3-segmental',
+  'surround-row3-risalit',
   ...FIXED_PART_IDS,
 ];
 
@@ -292,7 +297,7 @@ export const HEAD_LAW: Readonly<
 > = {
   row1: { risalit: ['base'], stretch: ['base'], portal: ['base'] },
   row2: { risalit: ['base'], stretch: ['base'], portal: ['base'] },
-  row3: { risalit: ['base'], stretch: ['base'], portal: ['base'] },
+  row3: { risalit: ['base'], stretch: ['base', 'segmental'], portal: ['base'] },
   row4: { risalit: ['base'], stretch: ['base'], portal: ['base'] },
 };
 

@@ -54,11 +54,12 @@ describe('facade solver', () => {
     expect(counts.portalVoidCells).toBe(12);
     expect(counts.columnShafts).toBe(68);
     expect(counts.instances).toBe(659);
-    expect(counts.activeParts).toBe(17);
+    expect(counts.activeParts).toBe(18);
     expect(counts.triangles).toBe(132_264);
     expect(counts.byPart['surround-row1-small']).toBe(56);
     expect(counts.byPart['surround-row2-large']).toBe(56);
-    expect(counts.byPart['surround-row3-large']).toBe(62);
+    expect(counts.byPart['surround-row3-large']).toBe(42);
+    expect(counts.byPart['surround-row3-segmental']).toBe(20);
     expect(counts.byPart['surround-row4-small']).toBe(62);
     expect(counts.byPart.sill).toBe(236);
     expect(counts.byPart['paired-column']).toBe(20);
@@ -82,6 +83,33 @@ describe('facade solver', () => {
     expect(grid.has('row2/portal')).toBe(false);
     expect(grid.size).toBeLessThanOrEqual(DECOR_SYSTEM.windowTypes);
     expect(SECTION_CLASS_BY_LAYOUT).toHaveLength(SOUTH_FACADE.sections.length);
+  });
+
+  it('alternates the row3 stretch heads by parity and mirrors them about the portal', () => {
+    const byPart = solveOk().byPart;
+    const base = byPart['surround-row3-large'];
+    const segmental = byPart['surround-row3-segmental'];
+    expect(base).toHaveLength(42);
+    expect(segmental).toHaveLength(20);
+    for (const placement of segmental) {
+      const mirrored = segmental.some(
+        (candidate) => Math.abs(candidate.position.x + placement.position.x) < 1e-9,
+      );
+      expect(mirrored).toBe(true);
+    }
+    // Within one stretch the ids alternate along x: no two neighbours share a part.
+    const westStart = -105 + 7 * PITCH;
+    const westEnd = -105 + 27 * PITCH;
+    const west = [...base, ...segmental]
+      .filter((placement) => placement.position.x > westStart && placement.position.x < westEnd)
+      .sort((a, b) => a.position.x - b.position.x);
+    expect(west).toHaveLength(20);
+    for (let index = 1; index < west.length; index += 1) {
+      const previous = west[index - 1];
+      const current = west[index];
+      if (previous === undefined || current === undefined) throw new Error('placement missing');
+      expect(previous.partId === current.partId).toBe(false);
+    }
   });
 
   it('closes the facade line at -105 and +105', () => {
@@ -196,7 +224,7 @@ describe('facade solver', () => {
     expect(new Set(grouped.map((placement) => placement.id)).size).toBe(ids.length);
   });
 
-  it('leaves exactly the eight unused surround groups empty', () => {
+  it('leaves the unused surround groups empty', () => {
     const byPart = solveOk().byPart;
     const empty = Object.entries(byPart)
       .filter(([, placements]) => placements.length === 0)
@@ -210,6 +238,8 @@ describe('facade solver', () => {
       'surround-row3-medium',
       'surround-row4-medium',
       'surround-row4-large',
+      'surround-row2-risalit',
+      'surround-row3-risalit',
     ]);
   });
 
@@ -252,8 +282,8 @@ describe('facade solver', () => {
       skyTriangles: 4096,
       measuredJsGzipBytes: null,
     });
-    expect(projection.facadeDrawCalls).toBe(34);
-    expect(projection.frameDrawCalls).toBe(50);
+    expect(projection.facadeDrawCalls).toBe(36);
+    expect(projection.frameDrawCalls).toBe(52);
     expect(projection.frustumTriangles).toBe(136_495);
     expect(projection.submittedTriangleCeiling).toBe(272_990);
     expect(projection.jsGzipBytes).toBeNull();

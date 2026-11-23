@@ -159,7 +159,7 @@ export function countTriangles(geometry: THREE.BufferGeometry): number {
 
 /* ------------------------------------------------------------------ parts */
 
-type HeadKind = 'cornice' | 'broken-arch' | 'pediment';
+type HeadKind = 'cornice' | 'broken-arch' | 'pediment' | 'none';
 
 /* The populated surround parts with their opening/head/rise params — consumed by the
  * BUILDERS table below and re-exposed by surroundOpening() for the DEC-019 night
@@ -170,6 +170,11 @@ const SURROUND_PARAMS: Partial<Record<PartId, SurroundParams>> = {
   'surround-row2-large': { opening: 1.7, head: 'broken-arch', rise: 0.65 },
   'surround-row3-large': { opening: 1.7, head: 'pediment', rise: 0.6 },
   'surround-row4-small': { opening: 1.0, head: 'cornice', rise: 0.45 },
+  // The dressings law's variants carry their row's opening/panel params so the
+  // DEC-019 pane sizing (surroundOpening) is row-exact for them too.
+  'surround-row2-risalit': { opening: 1.7, head: 'broken-arch', rise: 0.65 },
+  'surround-row3-segmental': { opening: 1.7, head: 'none', rise: 0.6 },
+  'surround-row3-risalit': { opening: 1.7, head: 'none', rise: 0.6 },
 };
 
 function surroundParams(partId: PartId): SurroundParams {
@@ -194,6 +199,12 @@ export function surroundOpening(partId: PartId): SurroundOpening {
 }
 
 function surround(id: PartId, opening: number, head: HeadKind, rise: number): THREE.BufferGeometry {
+  return merge(surroundPieces(id, opening, head, rise));
+}
+
+/** The surround's pieces in the part's local frame; 'none' leaves the head
+ * relief to the variant builders (the dressings law's row2/row3 variants). */
+function surroundPieces(id: PartId, opening: number, head: HeadKind, rise: number): Piece[] {
   const { sx, sy, sz } = envelope(id);
   const openH = sy - rise; // the opening fills the envelope; the head ornament owns the top `rise`
   const jamb = Math.max(0.12, (sx - opening) / 2);
@@ -226,7 +237,7 @@ function surround(id: PartId, opening: number, head: HeadKind, rise: number): TH
         WHITE,
       ),
     );
-  } else {
+  } else if (head === 'broken-arch') {
     const t = 0.28;
     pieces.push(
       arcBand(half, rise, t, yHead, 100, 180, 3, sz * 0.85, WHITE),
@@ -234,7 +245,7 @@ function surround(id: PartId, opening: number, head: HeadKind, rise: number): TH
       box(0.4, rise, sz, 0, yHead, 0, WHITE),
     );
   }
-  return merge(pieces);
+  return pieces;
 }
 
 function sill(id: PartId): THREE.BufferGeometry {
@@ -513,11 +524,26 @@ const surroundOf = (id: PartId): THREE.BufferGeometry => {
   return surround(id, p.opening, p.head, p.rise);
 };
 
+/** The dressings law's row3 stretch head (design §B2): the base surround's
+ * pieces plus the row3 architrave course and a closed segmental band seated
+ * on its top — chord 1.0 sx, rise 0.16 sy, band 0.07 sy, 12 segments, depth
+ * 0.9 sz. No gold: the whole head stays WHITE like every surround. */
+function surroundRow3Segmental(id: PartId): THREE.BufferGeometry {
+  const p = surroundParams(id);
+  const { sx, sy, sz } = envelope(id);
+  const pieces = surroundPieces(id, p.opening, 'none', p.rise);
+  const yHead = sy - p.rise;
+  pieces.push(box(sx, 0.15, sz, 0, yHead, 0, WHITE));
+  pieces.push(arcBand(sx / 2, 0.16 * sy, 0.07 * sy, yHead + 0.15, 0, 180, 12, sz * 0.9, WHITE));
+  return merge(pieces);
+}
+
 const BUILDERS: Partial<Record<PartId, (id: PartId) => THREE.BufferGeometry>> = {
   'surround-row1-small': surroundOf,
   'surround-row2-large': surroundOf,
   'surround-row3-large': surroundOf,
   'surround-row4-small': surroundOf,
+  'surround-row3-segmental': surroundRow3Segmental,
   sill,
   'paired-column': pairedColumn,
   'corner-bunch': cornerBunch,
