@@ -1,9 +1,25 @@
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
 import { expect, type Page, test } from '@playwright/test';
 
 // Local-only project "golden" (CI selects --project=chromium and never runs this file).
 // Baselines are rendered on the reference Mac's GPU and are platform-specific by design; Playwright
 // suffixes them with project + platform under tests/e2e/golden.spec.ts-snapshots/.
 // Refresh after an intentional visual change: pnpm e2e --project=golden --update-snapshots
+
+// The baselines exist only for darwin: elsewhere a run fails every comparison with no
+// cause and writes bogus <platform> actuals - skip with the reason (the 2026-11-23 fix).
+if (
+  !existsSync(
+    join(
+      import.meta.dirname,
+      'golden.spec.ts-snapshots',
+      `golden-noon-golden-${process.platform}.png`,
+    ),
+  )
+) {
+  test.skip(true, 'the golden baselines exist only for darwin - capture on the reference device');
+}
 const SETTLE_TIMEOUT_MS = 45_000;
 
 // One small margin after "settled": ~18 presented frames at 60 Hz, still ~3 at a 10 Hz worst case,

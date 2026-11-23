@@ -1,3 +1,5 @@
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
 import { expect, test } from '@playwright/test';
 
 // r26 layout fixtures — design-i18n-notes.md §6 r26 + §9(h): en/ru × 360/768/1280 for both
@@ -5,6 +7,20 @@ import { expect, test } from '@playwright/test';
 // platform-suffixed baselines; CI runs --project=chromium and never sees this file).
 // Refresh after an intentional visual change: pnpm e2e --project=golden --update-snapshots
 // (this file is matched into the same project).
+
+// The baselines exist only for darwin: elsewhere a run fails with no cause and
+// writes bogus <platform> actuals - skip with the reason (the 2026-11-23 fix).
+if (
+  !existsSync(
+    join(
+      import.meta.dirname,
+      'golden.spec.ts-snapshots',
+      `coarse-chrome-en-360x744-golden-${process.platform}.png`,
+    ),
+  )
+) {
+  test.skip(true, 'the golden baselines exist only for darwin - capture on the reference device');
+}
 //
 // The /notes fixtures pin the ledger face — no clipping at the three widths (risk R3: the
 // RU column expands 20–35%). The main-page fixtures pin the settled-with-hint moment: the

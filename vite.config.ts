@@ -6,6 +6,11 @@ import { configDefaults, defineConfig } from 'vitest/config';
 // facade spec viewer at /notes. budget.mjs already counts every emitted js chunk.
 const here = dirname(fileURLToPath(import.meta.url));
 
+// Room chunks carry their rooms/<folder> name so tools/budget.mjs attributes JS per
+// room by prefix; entry/shared chunks keep Vite's default naming. The cost — longer
+// specifiers in the entry chunk — is declared in docs/budget-ledger.md (DECISION-34).
+const ROOM_MODULE = /[\\/]rooms[\\/]([^\\/]+)[\\/]room\.ts$/;
+
 export default defineConfig({
   build: {
     target: 'es2023',
@@ -14,6 +19,12 @@ export default defineConfig({
       input: {
         main: resolve(here, 'index.html'),
         notes: resolve(here, 'notes.html'),
+      },
+      output: {
+        chunkFileNames: (chunk) => {
+          const folder = chunk.facadeModuleId?.match(ROOM_MODULE)?.[1];
+          return folder ? `assets/room_${folder}-[hash].js` : 'assets/[name]-[hash].js';
+        },
       },
     },
   },

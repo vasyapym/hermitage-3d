@@ -64,7 +64,8 @@ const COMMITTED_MATERIALS = [
   'sconce_glow',
 ];
 const CRYSTAL = 'crystal';
-// rooms/jordan/contract.ts FLIGHT2_SCONCE — the J1b gaze subject's authored point.
+// jordan_fixtures.py SCONCE_GAZE_POINT — the flight-2 middle sconce's authored point (the
+// bake rig's light anchor; the J1b stop gazed here until the 2026-11-23 turn-preview).
 const GAZE_POINT: [number, number, number] = [75.1, 9.5, -85.5];
 // The B0-measured placeholder's bbox-centre miss (docs/probes/jordan-fixtures-census.md):
 // the binding law here is "the new form must do better". SCONCE_GAZE_TOL 0.15 itself is

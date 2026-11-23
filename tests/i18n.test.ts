@@ -204,8 +204,12 @@ describe('en dictionary', () => {
     );
     expect(en['caption.g1']).toBe('compression');
     expect(en['caption.g2']).toBe('the door (airlock)');
-    expect(en['caption.j0']).toBe('looking up into light');
-    expect(en['caption.j1']).toBe('the flight');
+    expect(en['caption.j0']).toBe(
+      'The stair foot. The gaze climbs on its own — to the windows and the light above the flights.',
+    );
+    expect(en['caption.j1']).toBe(
+      'The first flight along the windows: behind the glass — the lead-grey Neva and the fortress spire on the far bank.',
+    );
     expect(en['caption.j1b']).toBe(
       'The upper flight\u2019s sconce shows across the well: Rastrelli lights the turn in advance.',
     );
@@ -213,12 +217,14 @@ describe('en dictionary', () => {
       'The landing: the stair divides; the flights meet again beneath the painted ceiling.',
     );
     expect(en['caption.j2b']).toBe(
-      'The upper tier of windows: the Neva light enters high and carries the last flight.',
+      'The upper tier of windows: the Neva light enters high and carries the last flight; above the river — the white Petersburg sky.',
     );
     expect(en['caption.j3']).toBe(
       'Near the top the eastern portal comes square to the eye: the doorway to the state rooms, framed in gilt between columns of grey granite.',
     );
-    expect(en['caption.j4']).toBe('arrival; the portal (landing airlock)');
+    expect(en['caption.j4']).toBe(
+      'The upper landing. The portal to the state rooms — the airlock: onward to the Military Gallery of 1812.',
+    );
   });
   it('keeps the quoted id of the provenance failure string (notes-view renders it quoted)', () => {
     expect(en['notes.failNoProvenance']).toBe(

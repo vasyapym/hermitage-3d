@@ -66,7 +66,15 @@ export type InteriorEmissiveRoomScale = Readonly<
 export const INTERIOR_EMISSIVE_SCALE: Readonly<Partial<Record<RoomId, InteriorEmissiveRoomScale>>> =
   {
     jordan: {
-      pane: { day: 1, dusk: 0.25, nightChandeliers: 0.01 },
+      // The round-29 Neva backcloth: the pane's emission now CARRIES the painted view
+      // (emissiveTexture = the neva plate). The scale is the per-state EXPOSURE dial,
+      // tuned by the F-captures - NOT a screen-brightness percentage: blend-gl scales
+      // only the material's emissiveIntensity, the textured base still answers the
+      // lighting, and the display chain follows (the round-30 review's F-9). Day 0.35
+      // keeps the daylight read, dusk 0.15 holds the view legible, night 0.01 leaves
+      // the dark-glass read to the base (the owner's reference night crop is the F4
+      // target).
+      pane: { day: 0.35, dusk: 0.15, nightChandeliers: 0.01 },
       sconce_glow: { day: 0, dusk: 0.5, nightChandeliers: 1 },
       chandelier_glow: { day: 0, dusk: 0.5, nightChandeliers: 1 },
     },

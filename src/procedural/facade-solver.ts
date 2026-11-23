@@ -20,7 +20,11 @@ export const WINDOW_ROW_IDS: readonly WindowRowId[] = ['row1', 'row2', 'row3', '
 export const WINDOW_MODULES: readonly WindowModule[] = ['small', 'medium', 'large'];
 export const ORDER_TIERS: readonly OrderTier[] = ['lower', 'upper'];
 
-export type SurroundPartId = `surround-${WindowRowId}-${WindowModule}`;
+export type SurroundPartId =
+  | `surround-${WindowRowId}-${WindowModule}`
+  | 'surround-row2-risalit'
+  | 'surround-row3-segmental'
+  | 'surround-row3-risalit';
 export type FixedPartId =
   | 'sill'
   | 'paired-column'
@@ -34,7 +38,8 @@ export type FixedPartId =
   | 'order-junction'
   | 'balustrade'
   | 'vase'
-  | 'statue';
+  | 'statue'
+  | 'socle';
 export type PartId = SurroundPartId | FixedPartId;
 
 export const FIXED_PART_IDS: readonly FixedPartId[] = [
@@ -51,6 +56,7 @@ export const FIXED_PART_IDS: readonly FixedPartId[] = [
   'balustrade',
   'vase',
   'statue',
+  'socle',
 ];
 
 function surroundPartId(rowId: WindowRowId, windowModule: WindowModule): SurroundPartId {
@@ -61,6 +67,11 @@ export const PART_IDS: readonly PartId[] = [
   ...WINDOW_ROW_IDS.flatMap((rowId) =>
     WINDOW_MODULES.map((windowModule) => surroundPartId(rowId, windowModule)),
   ),
+  // The dressings law's variant ids: dormant until HEAD_LAW routes a window to
+  // them; grouped and counted like every other part.
+  'surround-row2-risalit',
+  'surround-row3-segmental',
+  'surround-row3-risalit',
   ...FIXED_PART_IDS,
 ];
 
@@ -68,6 +79,10 @@ export type PartMeta = {
   readonly localBounds: Aabb;
   readonly triangleCeiling: number;
   readonly shaftCount: 0 | 1 | 2 | 3;
+  /** Whether the part's instances join the shadow pass — the ONE castShadow
+   * law: the builder marks the mesh from it and the budget projection
+   * charges shadow families from it. */
+  readonly castShadow: boolean;
 };
 
 function box(sx: number, sy: number, sz: number): Aabb {
@@ -80,14 +95,21 @@ function part(
   sz: number,
   triangleCeiling: number,
   shaftCount: 0 | 1 | 2 | 3,
+  castShadow = true,
 ): PartMeta {
-  return { localBounds: box(sx, sy, sz), triangleCeiling, shaftCount };
+  return { localBounds: box(sx, sy, sz), triangleCeiling, shaftCount, castShadow };
 }
 
 const SURROUND_ROW1 = part(1.7, 2.25, 0.32, 192, 0);
 const SURROUND_ROW2 = part(2.1, 4.25, 0.32, 288, 0);
 const SURROUND_ROW3 = part(2.1, 3.8, 0.32, 256, 0);
 const SURROUND_ROW4 = part(1.7, 2.65, 0.32, 224, 0);
+// The variant surround envelopes equal their row's base envelope (the dressings
+// law, sq-facade): the ceilings carry the variant's own relief budget, so the
+// census sum and the builder's ceiling check price them per the design.
+const SURROUND_ROW2_RISALIT = part(2.1, 4.25, 0.416, 320, 0);
+const SURROUND_ROW3_SEGMENTAL = part(2.1, 3.8, 0.32, 256, 0);
+const SURROUND_ROW3_RISALIT = part(2.1, 3.8, 0.32, 320, 0);
 
 export const KIT: Readonly<Record<PartId, PartMeta>> = {
   'surround-row1-small': SURROUND_ROW1,
@@ -102,12 +124,15 @@ export const KIT: Readonly<Record<PartId, PartMeta>> = {
   'surround-row4-small': SURROUND_ROW4,
   'surround-row4-medium': SURROUND_ROW4,
   'surround-row4-large': SURROUND_ROW4,
+  'surround-row2-risalit': SURROUND_ROW2_RISALIT,
+  'surround-row3-segmental': SURROUND_ROW3_SEGMENTAL,
+  'surround-row3-risalit': SURROUND_ROW3_RISALIT,
   sill: part(1.4, 0.15, 0.4, 40, 0),
   'paired-column': part(1.1, 9.6, 0.65, 480, 2),
   'corner-bunch': part(1.1, 9.6, 0.75, 720, 3),
   'portal-arch': part(5.5, 9.8, 0.6, 256, 0),
   'ground-arch': part(4.9, 9.4, 0.1, 96, 0),
-  'giant-column': part(1.1, 20.4, 0.85, 320, 1),
+  'giant-column': part(1.1, 20.55, 0.85, 320, 1),
   pediment: part(27.2, 5, 0.7, 256, 0),
   cartouche: part(2.4, 3.2, 0.45, 768, 0),
   'cornice-run': part(1, 1, 0.8, 104, 0),
@@ -115,6 +140,14 @@ export const KIT: Readonly<Record<PartId, PartMeta>> = {
   balustrade: part(3.4, 2, 0.35, 384, 0),
   vase: part(1, 2.6, 1, 192, 0),
   statue: part(1.2, 6, 1.2, 640, 0),
+  // The socle course (the dressings law §C1): a unit box scaled in x per
+  // segment. Its height is the order's foot (RULES.tierBaseY.lower — the
+  // single-source law is enforced by the solver test's top-y pin); its depth
+  // IS the proud offset — the one depth value the return joints shift by
+  // (the rule row carries only the arch clearance). The course casts no
+  // shadow (§C4): it hugs the wall base, and the projection and the builder
+  // read that law here.
+  socle: part(1, 0.45, 0.35, 12, 0, false),
 };
 
 export type Cell =
@@ -214,12 +247,12 @@ const RULES = {
   rowTier: { row1: 'lower', row2: 'lower', row3: 'upper', row4: 'upper' },
   surroundOffsetZ: 0.02,
   sillDropM: 0.15,
-  tierBaseY: { lower: 0.6, upper: 11.4 },
+  tierBaseY: { lower: 0.45, upper: 11.4 },
   stretchPierGaps: [2, 6, 10, 14, 18],
   risalitBunchGaps: [1, 6],
   portal: {
     giantGaps: [1, 3, 5, 7],
-    giantBaseY: 0.6,
+    giantBaseY: 0.45,
     arches: [
       { arch: 0, axes: [1, 2] },
       { arch: 1, axes: [3, 4] },
@@ -244,7 +277,87 @@ const RULES = {
     panelsPerReturn: 2,
   },
   ornaments: { baseY: 24, slotsPerSection: [6, 18, 0, 18, 6] },
+  socle: { archClearM: 0.2 },
 } as const;
+
+// ---------------------------------------------------------------------------
+// The dressings law (sq-facade, DEC-ready): the window type is the
+// (row × section-class) cell — 10 of the spec's declared 12 window types are
+// populated on the south front (the portal's rows 1–2 are the arch voids) —
+// and the head variant per cell is the HEAD_LAW row. The variant ids reuse
+// their row's base envelope; the stretch alternation is mirrored about the
+// portal axis by the same east-half convention emitOrnaments uses.
+// ---------------------------------------------------------------------------
+
+export type SectionClass = 'risalit' | 'stretch' | 'portal';
+export type HeadVariant = 'base' | 'segmental' | 'risalit';
+
+/** One class per solved layout index: risalit, stretch, portal, stretch, risalit. */
+export const SECTION_CLASS_BY_LAYOUT = [
+  'risalit',
+  'stretch',
+  'portal',
+  'stretch',
+  'risalit',
+] as const satisfies readonly SectionClass[];
+
+export function sectionClassOfLayoutIndex(index: number): SectionClass {
+  const sectionClass: SectionClass | undefined = SECTION_CLASS_BY_LAYOUT[index];
+  if (sectionClass === undefined) throw new Error('layout index outside the section grid');
+  return sectionClass;
+}
+
+export const HEAD_LAW: Readonly<
+  Record<WindowRowId, Readonly<Record<SectionClass, readonly HeadVariant[]>>>
+> = {
+  row1: { risalit: ['base'], stretch: ['base'], portal: ['base'] },
+  row2: { risalit: ['risalit'], stretch: ['base'], portal: ['base'] },
+  row3: { risalit: ['risalit'], stretch: ['base', 'segmental'], portal: ['risalit'] },
+  row4: { risalit: ['base'], stretch: ['base'], portal: ['base'] },
+};
+
+function surroundVariantPartId(
+  row: WindowRowId,
+  variant: Exclude<HeadVariant, 'base'>,
+): SurroundPartId {
+  if (row === 'row2' && variant === 'risalit') return 'surround-row2-risalit';
+  if (row === 'row3') {
+    return variant === 'segmental' ? 'surround-row3-segmental' : 'surround-row3-risalit';
+  }
+  throw new Error(`no variant surround part for row '${row}'`);
+}
+
+export function surroundPartFor(
+  row: WindowRowId,
+  module: WindowModule,
+  sectionClass: SectionClass,
+  ordinal: number,
+): SurroundPartId {
+  const variants: readonly HeadVariant[] | undefined = HEAD_LAW[row][sectionClass];
+  const length = variants?.length ?? 1;
+  const variant: HeadVariant = variants?.[ordinal % length] ?? 'base';
+  return variant === 'base' ? surroundPartId(row, module) : surroundVariantPartId(row, variant);
+}
+
+/** The populated `${row}/${sectionClass}` window-type keys of a facade spec,
+ * derived from the actual cells: a portal arch voids its row only on the
+ * arch's own axes — the portal's flanking axes still carry those rows as
+ * windows (the south front populates all twelve row × class cells). */
+export function windowTypeGrid(spec: FacadeSpec): ReadonlySet<string> {
+  const grid = new Set<string>();
+  const archRows = RULES.portal.archRows as readonly WindowRowId[];
+  for (const [index, section] of spec.sections.entries()) {
+    const sectionClass = sectionClassOfLayoutIndex(index);
+    for (let axis = 0; axis < section.declaredAxes; axis += 1) {
+      const arch = section.kind === 'centralPortal' ? portalArchForAxis(axis) : undefined;
+      for (const rowId of WINDOW_ROW_IDS) {
+        if (arch !== undefined && archRows.includes(rowId)) continue;
+        grid.add(`${rowId}/${sectionClass}`);
+      }
+    }
+  }
+  return grid;
+}
 
 // Opening widths of the three sourced window modules (design §1); the sill
 // scales to opening width + 0.40 (round-5 kit rule, restored by the
@@ -267,6 +380,9 @@ export const WINDOW_ROW_SILL_Y: Readonly<Record<WindowRowId, number>> = {
   row3: RULES.rowSillY.row3,
   row4: RULES.rowSillY.row4,
 };
+
+/** The tier bases the order stands on; the socle course's top is the lower one. */
+export const ORDER_TIER_BASE_Y = RULES.tierBaseY;
 
 const EXPECTED_SECTION_KINDS: readonly SectionKind[] = [
   'cornerRisalit',
@@ -665,15 +781,25 @@ class PlacementEmitter {
   }
 }
 
-function emitWindows(emitter: PlacementEmitter, axes: readonly Axis[]): void {
+function emitWindows(emitter: PlacementEmitter, frame: Frame, axes: readonly Axis[]): void {
+  const layoutBySection = new Map(frame.layouts.map((layout) => [layout.section.id, layout]));
+  const lastIndex = frame.layouts.length - 1;
   for (const axis of axes) {
+    const layout = layoutBySection.get(axis.sectionId);
+    if (layout === undefined) throw new Error(`axis '${axis.id}' has no section layout`);
+    const sectionClass = sectionClassOfLayoutIndex(layout.index);
+    // The east-half mirror (emitOrnaments' convention): the alternation
+    // ordinal runs west→east on the west half and is mirrored on the east
+    // half, so the pattern is symmetric about the portal axis.
+    const eastHalf = layout.index > lastIndex - layout.index;
     for (const cell of axis.cells) {
       if (cell.kind !== 'window') continue;
       const sillY = RULES.rowSillY[cell.rowId];
+      const ordinal = eastHalf ? layout.section.declaredAxes - 1 - axis.index : axis.index;
       emitter.emit(
         axis.sectionId,
         'surround',
-        surroundPartId(cell.rowId, cell.module),
+        surroundPartFor(cell.rowId, cell.module, sectionClass, ordinal),
         vec3(axis.x, sillY, axis.frontZ + RULES.surroundOffsetZ),
         0,
       );
@@ -698,13 +824,22 @@ function emitPiers(emitter: PlacementEmitter, frame: Frame): void {
     const rule = PIER_RULES[layout.section.kind];
     if (rule === null) continue;
     for (const tier of ORDER_TIERS) {
+      const baseY = RULES.tierBaseY[tier];
+      // The lower tier stands on the (shorter) socle and stretches to the
+      // lower cornice line, so the capitals stay seated on the band; the
+      // upper tier keeps the part's own height. Derived, never a literal.
+      const scale =
+        tier === 'lower'
+          ? vec3(1, (RULES.bands[0].baseY - baseY) / KIT[rule.partId].localBounds.max.y, 1)
+          : UNIT_SCALE;
       for (const gap of rule.gaps) {
         emitter.emit(
           layout.section.id,
           'pier',
           rule.partId,
-          vec3(gapX(frame, layout, gap), RULES.tierBaseY[tier], layout.frontZ),
+          vec3(gapX(frame, layout, gap), baseY, layout.frontZ),
           0,
+          scale,
         );
       }
     }
@@ -795,6 +930,88 @@ function tracePath(frame: Frame): readonly Segment[] {
 
 function segmentPrefix(spec: FacadeSpec, segment: Segment): string {
   return segment.kind === 'front' ? segment.layout.section.id : spec.id;
+}
+
+/** The socle course (the dressings law §C2): one dark base placement per face
+ * and reveal of the facade path — the four non-portal fronts, the four portal
+ * pier segments between the arch voids (each void widened by archClearM, the
+ * middle throat opening untouched), and the four crease returns. Each return
+ * runs between the two proud front planes: both endpoints shift south by the
+ * course's own depth, so the return closes against the deep front's course
+ * and abuts the shallow front's course — no notch, no overlap (the review
+ * pass's joint law). */
+function emitSocle(
+  emitter: PlacementEmitter,
+  spec: FacadeSpec,
+  frame: Frame,
+  segments: readonly Segment[],
+): void {
+  const depth = KIT.socle.localBounds.max.z;
+  for (const segment of segments) {
+    if (segment.kind === 'return') {
+      emitter.emitAlong(
+        spec.id,
+        'socle',
+        'socle',
+        vec3(segment.a.x, 0, segment.a.z + depth),
+        vec3(segment.b.x, 0, segment.b.z + depth),
+        segment.normal,
+        0,
+        0,
+        0,
+      );
+      continue;
+    }
+    if (segment.layout.section.kind !== 'centralPortal') {
+      emitter.emitAlong(
+        segmentPrefix(spec, segment),
+        'socle',
+        'socle',
+        segment.a,
+        segment.b,
+        segment.normal,
+        0,
+        0,
+        0,
+      );
+      continue;
+    }
+    const layout = segment.layout;
+    const groundArchHalf =
+      (KIT['ground-arch'].localBounds.max.x - KIT['ground-arch'].localBounds.min.x) / 2;
+    const spans = RULES.portal.arches.map((entry) => {
+      const centre =
+        (axisX(frame, layout, entry.axes[0]) + axisX(frame, layout, entry.axes[1])) / 2;
+      const half = groundArchHalf + RULES.socle.archClearM;
+      return { from: centre - half, to: centre + half };
+    });
+    let cursor = segment.a.x;
+    for (const span of spans) {
+      if (span.from > cursor + EPSILON) {
+        emitSoclePier(emitter, layout, cursor, span.from);
+      }
+      cursor = Math.max(cursor, span.to);
+    }
+    if (segment.b.x > cursor + EPSILON) {
+      emitSoclePier(emitter, layout, cursor, segment.b.x);
+    }
+  }
+}
+
+function emitSoclePier(
+  emitter: PlacementEmitter,
+  layout: SectionLayout,
+  from: number,
+  to: number,
+): void {
+  emitter.emit(
+    layout.section.id,
+    'socle',
+    'socle',
+    vec3((from + to) / 2, 0, layout.frontZ),
+    0,
+    vec3(to - from, 1, 1),
+  );
 }
 
 function emitBands(
@@ -1030,10 +1247,11 @@ export function solveSouthFacade(spec: FacadeSpec, rows: readonly WindowRow[]): 
   const frame = buildFrame(spec);
   const axes = expandAxes(frame, rows);
   const emitter = new PlacementEmitter();
-  emitWindows(emitter, axes);
+  emitWindows(emitter, frame, axes);
   emitPiers(emitter, frame);
   emitPortal(emitter, frame);
   const segments = tracePath(frame);
+  emitSocle(emitter, spec, frame, segments);
   emitBands(emitter, spec, segments);
   emitParapet(emitter, spec, frame, segments);
   emitOrnaments(emitter, frame);
@@ -1078,15 +1296,29 @@ export function solveSouthFacade(spec: FacadeSpec, rows: readonly WindowRow[]): 
 }
 
 export function projectBudget(solved: SolvedFacade, allowance: SceneAllowance): BudgetProjection {
-  const passes = 1 + allowance.shadowPasses;
-  const facadeDrawCalls = solved.counts.activeParts * passes;
+  // The colour families are every populated part; the shadow families are the
+  // casting ones only (the ONE castShadow law lives on PartMeta — the socle
+  // course hugs the wall base and casts nothing).
+  let colourFamilies = 0;
+  let shadowFamilies = 0;
+  let shadowTriangles = 0;
+  for (const partId of PART_IDS) {
+    const count = solved.byPart[partId].length;
+    if (count === 0) continue;
+    colourFamilies += 1;
+    if (KIT[partId].castShadow) {
+      shadowFamilies += 1;
+      shadowTriangles += count * KIT[partId].triangleCeiling;
+    }
+  }
+  const facadeDrawCalls = colourFamilies + shadowFamilies * allowance.shadowPasses;
   const frustumTriangles =
     solved.counts.triangles + allowance.massingTriangles + allowance.skyTriangles;
   return {
     facadeDrawCalls,
     frameDrawCalls: facadeDrawCalls + allowance.otherFrameDrawCalls,
     frustumTriangles,
-    submittedTriangleCeiling: frustumTriangles * passes,
+    submittedTriangleCeiling: frustumTriangles + shadowTriangles,
     jsGzipBytes: allowance.measuredJsGzipBytes,
   };
 }

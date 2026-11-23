@@ -809,9 +809,9 @@
           "id": "kit.surround-row2-large",
           "cells": [
             "surround-row2-large",
-            "56",
+            "42",
             "288",
-            "16 128"
+            "12 096"
           ],
           "provenance": [
             {
@@ -824,9 +824,9 @@
           "id": "kit.surround-row3-large",
           "cells": [
             "surround-row3-large",
-            "62",
+            "20",
             "256",
-            "15 872"
+            "5 120"
           ],
           "provenance": [
             {
@@ -842,6 +842,51 @@
             "62",
             "224",
             "13 888"
+          ],
+          "provenance": [
+            {
+              "kind": "derived",
+              "formula": "counts.byPart × KIT.triangleCeiling"
+            }
+          ]
+        },
+        {
+          "id": "kit.surround-row2-risalit",
+          "cells": [
+            "surround-row2-risalit",
+            "14",
+            "320",
+            "4 480"
+          ],
+          "provenance": [
+            {
+              "kind": "derived",
+              "formula": "counts.byPart × KIT.triangleCeiling"
+            }
+          ]
+        },
+        {
+          "id": "kit.surround-row3-segmental",
+          "cells": [
+            "surround-row3-segmental",
+            "20",
+            "256",
+            "5 120"
+          ],
+          "provenance": [
+            {
+              "kind": "derived",
+              "formula": "counts.byPart × KIT.triangleCeiling"
+            }
+          ]
+        },
+        {
+          "id": "kit.surround-row3-risalit",
+          "cells": [
+            "surround-row3-risalit",
+            "22",
+            "320",
+            "7 040"
           ],
           "provenance": [
             {
@@ -1046,12 +1091,27 @@
           ]
         },
         {
+          "id": "kit.socle",
+          "cells": [
+            "socle",
+            "12",
+            "12",
+            "144"
+          ],
+          "provenance": [
+            {
+              "kind": "derived",
+              "formula": "counts.byPart × KIT.triangleCeiling"
+            }
+          ]
+        },
+        {
           "id": "kit.total",
           "cells": [
-            "Total — 17 active parts",
-            "659",
+            "Total — 21 active parts",
+            "671",
             "—",
-            "132 264"
+            "134 264"
           ],
           "provenance": [
             {
@@ -1083,47 +1143,47 @@
         {
           "id": "budget.facadeDrawCalls",
           "label": "Facade draw calls",
-          "value": 34,
+          "value": 41,
           "unit": "",
-          "display": "34",
+          "display": "41",
           "provenance": {
             "kind": "derived",
-            "formula": "projectBudget: instanced draws of the active parts over all passes"
+            "formula": "colour families + the casting families × shadowPasses (the socle casts none)"
           }
         },
         {
           "id": "budget.frameDrawCalls",
           "label": "Frame draw calls",
-          "value": 50,
+          "value": 57,
           "unit": "",
-          "display": "50",
+          "display": "57",
           "provenance": {
             "kind": "derived",
             "formula": "facadeDrawCalls + 16 other draw calls"
           },
-          "note": "margin 200"
+          "note": "margin 193"
         },
         {
           "id": "budget.frustumTriangles",
           "label": "Frustum triangles",
-          "value": 136506,
+          "value": 138506,
           "unit": "",
-          "display": "136 506",
+          "display": "138 506",
           "provenance": {
             "kind": "derived",
-            "formula": "kit 132 264 + massing 146 + sky 4 096"
+            "formula": "kit 134 264 + massing 146 + sky 4 096"
           },
-          "note": "margin 863 494"
+          "note": "margin 861 494"
         },
         {
           "id": "budget.submittedTriangleCeiling",
           "label": "Submitted triangle ceiling",
-          "value": 273012,
+          "value": 272626,
           "unit": "",
-          "display": "273 012",
+          "display": "272 626",
           "provenance": {
             "kind": "derived",
-            "formula": "frustumTriangles × (1 + 1 shadow pass)"
+            "formula": "frustumTriangles + the casting-family ceiling sum (the shadow pass)"
           }
         },
         {

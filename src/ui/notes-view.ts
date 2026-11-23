@@ -762,7 +762,7 @@ function budgetBlocks(ctx: Ctx): readonly NotesBlock[] {
           t('notes.budgetSubmittedCeiling'),
           projection.submittedTriangleCeiling,
           '',
-          format(t('notes.formulaSubmitted'), { shadowPasses: String(allowance.shadowPasses) }),
+          t('notes.formulaSubmitted'),
         ),
         gzipRow,
       ],

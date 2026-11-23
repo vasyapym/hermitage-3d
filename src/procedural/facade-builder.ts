@@ -159,7 +159,7 @@ export function countTriangles(geometry: THREE.BufferGeometry): number {
 
 /* ------------------------------------------------------------------ parts */
 
-type HeadKind = 'cornice' | 'broken-arch' | 'pediment';
+type HeadKind = 'cornice' | 'broken-arch' | 'pediment' | 'none';
 
 /* The populated surround parts with their opening/head/rise params — consumed by the
  * BUILDERS table below and re-exposed by surroundOpening() for the DEC-019 night
@@ -170,6 +170,11 @@ const SURROUND_PARAMS: Partial<Record<PartId, SurroundParams>> = {
   'surround-row2-large': { opening: 1.7, head: 'broken-arch', rise: 0.65 },
   'surround-row3-large': { opening: 1.7, head: 'pediment', rise: 0.6 },
   'surround-row4-small': { opening: 1.0, head: 'cornice', rise: 0.45 },
+  // The dressings law's variants carry their row's opening/panel params so the
+  // DEC-019 pane sizing (surroundOpening) is row-exact for them too.
+  'surround-row2-risalit': { opening: 1.7, head: 'broken-arch', rise: 0.65 },
+  'surround-row3-segmental': { opening: 1.7, head: 'none', rise: 0.6 },
+  'surround-row3-risalit': { opening: 1.7, head: 'none', rise: 0.6 },
 };
 
 function surroundParams(partId: PartId): SurroundParams {
@@ -194,16 +199,29 @@ export function surroundOpening(partId: PartId): SurroundOpening {
 }
 
 function surround(id: PartId, opening: number, head: HeadKind, rise: number): THREE.BufferGeometry {
+  return merge(surroundPieces(id, opening, head, rise));
+}
+
+/** The surround's pieces in the part's local frame; 'none' leaves the head
+ * relief to the variant builders (the dressings law's row2/row3 variants). */
+function surroundPieces(
+  id: PartId,
+  opening: number,
+  head: HeadKind,
+  rise: number,
+  jambInset = 0,
+): Piece[] {
   const { sx, sy, sz } = envelope(id);
   const openH = sy - rise; // the opening fills the envelope; the head ornament owns the top `rise`
-  const jamb = Math.max(0.12, (sx - opening) / 2);
+  const jamb = Math.max(0.12, (sx - opening) / 2 - jambInset);
+  const jambCentre = opening / 2 + jamb / 2;
   const rd = panelDepth(sz);
   const dz = sz * 0.7;
   const yHead = openH;
   const half = sx / 2;
   const pieces: Piece[] = [
-    box(jamb, openH, dz, -(opening + jamb) / 2, 0, 0, WHITE),
-    box(jamb, openH, dz, (opening + jamb) / 2, 0, 0, WHITE),
+    box(jamb, openH, dz, -jambCentre, 0, 0, WHITE),
+    box(jamb, openH, dz, jambCentre, 0, 0, WHITE),
     box(opening, openH, rd, 0, 0, 0, DARK),
     box(0.06, openH, rd, 0, 0, rd, DARK),
     box(opening, 0.06, rd, 0, openH * 0.62, rd, DARK),
@@ -226,7 +244,7 @@ function surround(id: PartId, opening: number, head: HeadKind, rise: number): TH
         WHITE,
       ),
     );
-  } else {
+  } else if (head === 'broken-arch') {
     const t = 0.28;
     pieces.push(
       arcBand(half, rise, t, yHead, 100, 180, 3, sz * 0.85, WHITE),
@@ -234,7 +252,7 @@ function surround(id: PartId, opening: number, head: HeadKind, rise: number): TH
       box(0.4, rise, sz, 0, yHead, 0, WHITE),
     );
   }
-  return merge(pieces);
+  return pieces;
 }
 
 function sill(id: PartId): THREE.BufferGeometry {
@@ -358,6 +376,15 @@ function pediment(id: PartId): THREE.BufferGeometry {
   // Slightly smaller white body in front of the full gold slab leaves a gold rim along every edge.
   body.g.scale(0.96, 0.96, 1).translate(0, 0, sz * 0.3);
   return merge([trim, body]);
+}
+
+/** The socle course (the dressings law §C1/C4): one dark unit box; the
+ * instance's scale.x carries the segment length, the part's depth is the
+ * proud offset. Vertex colour DARK (the recess tone — the palette stays at
+ * five); the mesh receives shadows but casts none (the design's draw saving). */
+function socle(id: PartId): THREE.BufferGeometry {
+  const { sx, sy, sz } = envelope(id);
+  return merge([box(sx, sy, sz, 0, 0, 0, DARK)]);
 }
 
 function cartouche(id: PartId): THREE.BufferGeometry {
@@ -513,11 +540,118 @@ const surroundOf = (id: PartId): THREE.BufferGeometry => {
   return surround(id, p.opening, p.head, p.rise);
 };
 
+/** The dressings law's row3 stretch head (design §B2): the base surround's
+ * pieces plus the row3 architrave course and a closed segmental band seated
+ * on its top — chord 1.0 sx, the rise and thickness fitted to the head zone
+ * above the architrave (the relief stays inside the declared envelope, the
+ * review pass's bounds law), 12 segments, depth 0.9 sz. No gold: the whole
+ * head stays WHITE like every surround. */
+function surroundRow3Segmental(id: PartId): THREE.BufferGeometry {
+  const p = surroundParams(id);
+  // The variant relief is proportioned on its row's BASE envelope — the
+  // variant's own declared bound may extend past it (the row2 mask's proud
+  // tip) without scaling the fractions (the review pass's bounds law).
+  const { sx, sy, sz } = envelope('surround-row3-large');
+  const pieces = surroundPieces(id, p.opening, 'none', p.rise);
+  const yHead = sy - p.rise;
+  const zone = p.rise - 0.15;
+  pieces.push(box(sx, 0.15, sz, 0, yHead, 0, WHITE));
+  pieces.push(arcBand(sx / 2, 0.35 * zone, 0.15 * zone, yHead + 0.15, 0, 180, 12, sz * 0.9, WHITE));
+  return merge(pieces);
+}
+
+/** The feasible lug step (the review pass's §F5 ruling): the 1.7 m opening
+ * leaves a 0.2 m jamb that floors at 0.12 m, so the widest step the envelope
+ * admits is 0.08 m — both risalit variants share it. */
+const LUG_STEP_M = 0.08;
+
+/** The dressings law's row3 risalit head (design §B3): the row3 base with a
+ * broken pediment — two raking slabs leaving a 0.3 sx apex gap, a centre
+ * block rising to the apex line through the break, and lugged ears at the
+ * architrave's outer top corners; the jambs step in by the lug step so the
+ * ears overhang them. All relief is fitted to the head zone above the
+ * architrave (the review pass's bounds law). */
+function surroundRow3Risalit(id: PartId): THREE.BufferGeometry {
+  const p = surroundParams(id);
+  const { sx, sy, sz } = envelope('surround-row3-large');
+  const pieces = surroundPieces(id, p.opening, 'none', p.rise, LUG_STEP_M);
+  const yHead = sy - p.rise;
+  const yBase = yHead + 0.15;
+  const zone = p.rise - 0.15;
+  const apex = yHead + p.rise;
+  const gapHalf = 0.15 * sx;
+  const earCentre = sx / 2 - 0.06 * sx;
+  pieces.push(
+    box(sx, 0.15, sz, 0, yHead, 0, WHITE),
+    slab(
+      [
+        [-sx / 2, yBase],
+        [-gapHalf, apex],
+        [-gapHalf, yBase],
+      ],
+      sz * 0.85,
+      WHITE,
+    ),
+    slab(
+      [
+        [gapHalf, yBase],
+        [gapHalf, apex],
+        [sx / 2, yBase],
+      ],
+      sz * 0.85,
+      WHITE,
+    ),
+    box(0.26 * sx, zone, 0.6 * sz, 0, yBase, 0, WHITE),
+    box(0.12 * sx, zone, 0.7 * sz, -earCentre, yBase, 0, WHITE),
+    box(0.12 * sx, zone, 0.7 * sz, earCentre, yBase, 0, WHITE),
+  );
+  return merge(pieces);
+}
+
+/** The dressings law's row2 risalit head (design §B4): the base broken-arch
+ * head with a keystone mask — a 6-segment lathe dome of 5 profile points,
+ * radius 0.12 sx, proud 0.3 sz, scaled to the rise-height mask and seated on
+ * the keystone block's face (the profile runs rim-to-tip so the outward
+ * faces wind outward — the review pass's winding law) — plus the lugged
+ * ears of §B3 at the surround's top corners, sharing the lug step. */
+function surroundRow2Risalit(id: PartId): THREE.BufferGeometry {
+  const p = surroundParams(id);
+  const { sx, sy, sz } = envelope('surround-row2-large');
+  const pieces = surroundPieces(id, p.opening, 'broken-arch', p.rise, LUG_STEP_M);
+  const maskRadius = 0.12 * sx;
+  const profile: readonly Pt[] = [
+    [maskRadius, 0],
+    [0.115 * sx, 0.06 * sz],
+    [0.09 * sx, 0.18 * sz],
+    [0.05 * sx, 0.27 * sz],
+    [0, 0.3 * sz],
+  ];
+  const dome = new THREE.LatheGeometry(
+    profile.map(([radius, axial]) => new THREE.Vector2(radius, axial)),
+    6,
+  )
+    .rotateX(Math.PI / 2)
+    .scale(1, p.rise / (2 * maskRadius), 1)
+    .translate(0, sy - p.rise / 2, sz);
+  dome.computeVertexNormals();
+  const earCentre = sx / 2 - 0.06 * sx;
+  const earY = sy - 0.12 * sy;
+  pieces.push(
+    { g: dome, c: WHITE },
+    box(0.12 * sx, 0.12 * sy, 0.7 * sz, -earCentre, earY, 0, WHITE),
+    box(0.12 * sx, 0.12 * sy, 0.7 * sz, earCentre, earY, 0, WHITE),
+  );
+  return merge(pieces);
+}
+
 const BUILDERS: Partial<Record<PartId, (id: PartId) => THREE.BufferGeometry>> = {
   'surround-row1-small': surroundOf,
   'surround-row2-large': surroundOf,
   'surround-row3-large': surroundOf,
   'surround-row4-small': surroundOf,
+  'surround-row3-segmental': surroundRow3Segmental,
+  'surround-row2-risalit': surroundRow2Risalit,
+  'surround-row3-risalit': surroundRow3Risalit,
   sill,
   'paired-column': pairedColumn,
   'corner-bunch': cornerBunch,
@@ -526,6 +660,7 @@ const BUILDERS: Partial<Record<PartId, (id: PartId) => THREE.BufferGeometry>> = 
   'giant-column': giantColumn,
   pediment,
   cartouche,
+  socle,
   'cornice-run': corniceRun,
   'order-junction': orderJunction,
   balustrade,
@@ -713,7 +848,9 @@ export function buildFacade(solved: SolvedFacade): FacadeBuild {
     mesh.instanceMatrix.setUsage(THREE.StaticDrawUsage);
     mesh.instanceMatrix.needsUpdate = true;
     mesh.computeBoundingSphere();
-    mesh.castShadow = true;
+    // The ONE castShadow law lives on the PartMeta row (the projection reads
+    // it too): the socle course hugs the wall base and casts nothing (§C4).
+    mesh.castShadow = KIT[partId].castShadow;
     mesh.receiveShadow = true;
     meshes.push(mesh);
     group.add(mesh);

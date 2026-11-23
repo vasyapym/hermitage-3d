@@ -1,14 +1,18 @@
 // Facade solver gates — relay round 6 (tests written by the orchestrator per
 // docs/design-facade-grammar.md §6; the relay's test block never arrived).
 import { describe, expect, it } from 'vitest';
-import { SOUTH_FACADE, WINDOW_ROWS } from '../src/content/facade-spec';
+import { DECOR_SYSTEM, SOUTH_FACADE, WINDOW_ROWS } from '../src/content/facade-spec';
 import {
   checkBounds,
+  KIT,
+  ORDER_TIER_BASE_Y,
   projectBudget,
+  SECTION_CLASS_BY_LAYOUT,
   SOUTH_ENVELOPE,
   type SolvedFacade,
   solveSouthFacade,
   validateSouthSpec,
+  windowTypeGrid,
 } from '../src/procedural/facade-solver';
 
 function solveOk(): SolvedFacade {
@@ -51,12 +55,15 @@ describe('facade solver', () => {
     expect(counts.windows).toBe(236);
     expect(counts.portalVoidCells).toBe(12);
     expect(counts.columnShafts).toBe(68);
-    expect(counts.instances).toBe(659);
-    expect(counts.activeParts).toBe(17);
-    expect(counts.triangles).toBe(132_264);
+    expect(counts.instances).toBe(671);
+    expect(counts.activeParts).toBe(21);
+    expect(counts.triangles).toBe(134_264);
     expect(counts.byPart['surround-row1-small']).toBe(56);
-    expect(counts.byPart['surround-row2-large']).toBe(56);
-    expect(counts.byPart['surround-row3-large']).toBe(62);
+    expect(counts.byPart['surround-row2-large']).toBe(42);
+    expect(counts.byPart['surround-row2-risalit']).toBe(14);
+    expect(counts.byPart['surround-row3-large']).toBe(20);
+    expect(counts.byPart['surround-row3-segmental']).toBe(20);
+    expect(counts.byPart['surround-row3-risalit']).toBe(22);
     expect(counts.byPart['surround-row4-small']).toBe(62);
     expect(counts.byPart.sill).toBe(236);
     expect(counts.byPart['paired-column']).toBe(20);
@@ -71,6 +78,104 @@ describe('facade solver', () => {
     expect(counts.byPart.balustrade).toBe(62);
     expect(counts.byPart.vase).toBe(24);
     expect(counts.byPart.statue).toBe(24);
+    expect(counts.byPart.socle).toBe(12);
+  });
+
+  it('runs the socle along every face and reveal and clears the arch voids', () => {
+    const byPart = solveOk().byPart;
+    const socle = byPart.socle;
+    expect(socle).toHaveLength(12);
+    // the course's top is the order's foot; the depth is the proud offset
+    expect(KIT.socle.localBounds.max.y).toBe(ORDER_TIER_BASE_Y.lower);
+    expect(KIT.socle.localBounds.max.z).toBeCloseTo(0.35, 9);
+    for (const placement of socle) {
+      expect(placement.position.y).toBe(0);
+      expect(placement.scale.y).toBe(1);
+      expect(placement.scale.z).toBe(1);
+      expect(placement.scale.x).toBeGreaterThan(0);
+    }
+    // the portal's four pier segments clear every arch void span by archClearM
+    const portalPiers = socle.filter(
+      (placement) => placement.rotationY === 0 && Math.abs(placement.position.x) < 14,
+    );
+    expect(portalPiers).toHaveLength(4);
+    const voidHalf = 4.9 / 2 + 0.2;
+    for (const archCentre of [-2 * PITCH, 0, 2 * PITCH]) {
+      for (const pier of portalPiers) {
+        const from = pier.position.x - pier.scale.x / 2;
+        const to = pier.position.x + pier.scale.x / 2;
+        // The piers end exactly at the widened span edges; sub-nanometre float
+        // noise on the shared boundary is a touch, not an overlap.
+        const overlaps = from < archCentre + voidHalf - 1e-9 && to > archCentre - voidHalf + 1e-9;
+        expect(overlaps).toBe(false);
+      }
+    }
+    // the four crease returns ride the path as rotated placements; each runs
+    // between the two proud front planes (the review pass's joint law: both
+    // endpoints shift south by the course's own depth)
+    const returns = socle.filter((placement) => placement.rotationY !== 0);
+    expect(returns).toHaveLength(4);
+    const depth = KIT.socle.localBounds.max.z;
+    for (const placement of returns) {
+      expect(placement.position.z).toBeCloseTo((87.5 + 93.5) / 2 + depth, 9);
+      expect(placement.scale.x).toBeCloseTo(93.5 - 87.5, 9);
+    }
+  });
+
+  it('populates all twelve window types of the declared twelve', () => {
+    const grid = windowTypeGrid(SOUTH_FACADE);
+    expect(grid.size).toBe(12);
+    // The portal's flanking axes carry rows 1-2 as windows; only the six arch
+    // axes void them (the review pass's grid law — derived from the cells).
+    expect(grid.has('row1/portal')).toBe(true);
+    expect(grid.has('row2/portal')).toBe(true);
+    expect(grid.size).toBeLessThanOrEqual(DECOR_SYSTEM.windowTypes);
+    expect(SECTION_CLASS_BY_LAYOUT).toHaveLength(SOUTH_FACADE.sections.length);
+  });
+
+  it('alternates the row3 stretch heads by parity and mirrors them about the portal', () => {
+    const byPart = solveOk().byPart;
+    const base = byPart['surround-row3-large'];
+    const segmental = byPart['surround-row3-segmental'];
+    expect(base).toHaveLength(20);
+    expect(segmental).toHaveLength(20);
+    for (const placement of segmental) {
+      const mirrored = segmental.some(
+        (candidate) => Math.abs(candidate.position.x + placement.position.x) < 1e-9,
+      );
+      expect(mirrored).toBe(true);
+    }
+    // Within one stretch the ids alternate along x: no two neighbours share a part.
+    const westStart = -105 + 7 * PITCH;
+    const westEnd = -105 + 27 * PITCH;
+    const west = [...base, ...segmental]
+      .filter((placement) => placement.position.x > westStart && placement.position.x < westEnd)
+      .sort((a, b) => a.position.x - b.position.x);
+    expect(west).toHaveLength(20);
+    for (let index = 1; index < west.length; index += 1) {
+      const previous = west[index - 1];
+      const current = west[index];
+      if (previous === undefined || current === undefined) throw new Error('placement missing');
+      expect(previous.partId === current.partId).toBe(false);
+    }
+    // The risalit and portal windows of the upper rows carry the risalit head.
+    const risalitRow2 = byPart['surround-row2-risalit'];
+    expect(risalitRow2).toHaveLength(14);
+    const risalitRow3 = byPart['surround-row3-risalit'];
+    expect(risalitRow3).toHaveLength(22);
+    expect(risalitRow3.filter((placement) => Math.abs(placement.position.x) < 13)).toHaveLength(8);
+    for (const placement of risalitRow2) {
+      const mirrored = risalitRow2.some(
+        (candidate) => Math.abs(candidate.position.x + placement.position.x) < 1e-9,
+      );
+      expect(mirrored).toBe(true);
+    }
+    for (const placement of risalitRow3) {
+      const mirrored = risalitRow3.some(
+        (candidate) => Math.abs(candidate.position.x + placement.position.x) < 1e-9,
+      );
+      expect(mirrored).toBe(true);
+    }
   });
 
   it('closes the facade line at -105 and +105', () => {
@@ -185,7 +290,7 @@ describe('facade solver', () => {
     expect(new Set(grouped.map((placement) => placement.id)).size).toBe(ids.length);
   });
 
-  it('leaves exactly the eight unused surround groups empty', () => {
+  it('leaves the unused surround groups empty', () => {
     const byPart = solveOk().byPart;
     const empty = Object.entries(byPart)
       .filter(([, placements]) => placements.length === 0)
@@ -241,10 +346,14 @@ describe('facade solver', () => {
       skyTriangles: 4096,
       measuredJsGzipBytes: null,
     });
-    expect(projection.facadeDrawCalls).toBe(34);
-    expect(projection.frameDrawCalls).toBe(50);
-    expect(projection.frustumTriangles).toBe(136_495);
-    expect(projection.submittedTriangleCeiling).toBe(272_990);
+    // The projection's shadow families are the casting parts only (the ONE
+    // castShadow law lives on PartMeta): 21 colour families + 20 casting
+    // families' shadow pass; the socle's 144 ceiling tris stay out of the
+    // shadow subtotal.
+    expect(projection.facadeDrawCalls).toBe(41);
+    expect(projection.frameDrawCalls).toBe(57);
+    expect(projection.frustumTriangles).toBe(138_495);
+    expect(projection.submittedTriangleCeiling).toBe(272_615);
     expect(projection.jsGzipBytes).toBeNull();
   });
 

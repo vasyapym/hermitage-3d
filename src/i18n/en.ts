@@ -86,17 +86,20 @@ export const en = {
   'caption.m2': 'The lantern — the vault and the glazing bars above the gallery.',
   'caption.m3': 'The monarchs — the end wall, the large portraits above the small.',
   'caption.m4': 'The doors are closed; beyond them — St George\u2019s Hall.',
-  'caption.j0': 'looking up into light',
-  'caption.j1': 'the flight',
+  'caption.j0':
+    'The stair foot. The gaze climbs on its own — to the windows and the light above the flights.',
+  'caption.j1':
+    'The first flight along the windows: behind the glass — the lead-grey Neva and the fortress spire on the far bank.',
   'caption.j1b':
     'The upper flight\u2019s sconce shows across the well: Rastrelli lights the turn in advance.',
   'caption.j2':
     'The landing: the stair divides; the flights meet again beneath the painted ceiling.',
   'caption.j2b':
-    'The upper tier of windows: the Neva light enters high and carries the last flight.',
+    'The upper tier of windows: the Neva light enters high and carries the last flight; above the river — the white Petersburg sky.',
   'caption.j3':
     'Near the top the eastern portal comes square to the eye: the doorway to the state rooms, framed in gilt between columns of grey granite.',
-  'caption.j4': 'arrival; the portal (landing airlock)',
+  'caption.j4':
+    'The upper landing. The portal to the state rooms — the airlock: onward to the Military Gallery of 1812.',
 
   'notes.title': 'How the south facade is built',
   'notes.intro':
@@ -256,13 +259,14 @@ export const en = {
   'notes.formulaVoidCells': 'slots displaced by the entrance and portal arches (solver)',
   'notes.formulaShafts': 'Σ KIT.shaftCount × instances over column parts (solver)',
   'notes.formulaFrustum': 'kit {kit} + massing {massing} + sky {sky}',
-  'notes.formulaSubmitted': 'frustumTriangles × (1 + {shadowPasses} shadow pass)',
+  'notes.formulaSubmitted': 'frustumTriangles + the casting-family ceiling sum (the shadow pass)',
   'notes.formulaPartTotal': 'counts.byPart × KIT.triangleCeiling',
   'notes.formulaKitCeiling': 'Σ over placed parts',
   'notes.formulaInstances': 'Σ counts.byPart',
   'notes.formulaActiveParts': 'parts with ≥ 1 instance',
   'notes.formulaGzip': 'CI gzip measurement passed through allowance.measuredJsGzipBytes',
-  'notes.formulaFacadeDraws': 'projectBudget: instanced draws of the active parts over all passes',
+  'notes.formulaFacadeDraws':
+    'colour families + the casting families × shadowPasses (the socle casts none)',
   'notes.formulaFrameDraws': 'facadeDrawCalls + {otherDraws} other draw calls',
 
   'notes.failUnregistered': 'unregistered: {id}',

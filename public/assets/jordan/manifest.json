@@ -3,8 +3,8 @@
   "files": [
     {
       "path": "jordan.glb",
-      "bytes": 334316,
-      "sha256": "af1027bd17c163fd4cb88b3781e11c92d88029e23c93a5e13fbb373e4501da2c",
+      "bytes": 334416,
+      "sha256": "9b30ac7bd6c8c2c1b486e563c9de8c69bfcd18258acd7e9f74c82bad51ad26bf",
       "kind": "glb"
     },
     {
@@ -47,6 +47,12 @@
       "path": "tex/marble_floor.ktx2",
       "bytes": 15660,
       "sha256": "474f3965b5e2dbbe4a3623c4c5c296f4a05cffa59ec2afe262af9373e3e8189e",
+      "kind": "ktx2"
+    },
+    {
+      "path": "tex/neva.ktx2",
+      "bytes": 22861,
+      "sha256": "39484d7e39b68e2c858caa0762ae4acfdf04e70fa716cc4595f066b652eb1320",
       "kind": "ktx2"
     },
     {
