@@ -1143,25 +1143,25 @@
         {
           "id": "budget.facadeDrawCalls",
           "label": "Facade draw calls",
-          "value": 42,
+          "value": 41,
           "unit": "",
-          "display": "42",
+          "display": "41",
           "provenance": {
             "kind": "derived",
-            "formula": "projectBudget: instanced draws of the active parts over all passes"
+            "formula": "colour families + the casting families × shadowPasses (the socle casts none)"
           }
         },
         {
           "id": "budget.frameDrawCalls",
           "label": "Frame draw calls",
-          "value": 58,
+          "value": 57,
           "unit": "",
-          "display": "58",
+          "display": "57",
           "provenance": {
             "kind": "derived",
             "formula": "facadeDrawCalls + 16 other draw calls"
           },
-          "note": "margin 192"
+          "note": "margin 193"
         },
         {
           "id": "budget.frustumTriangles",
@@ -1178,12 +1178,12 @@
         {
           "id": "budget.submittedTriangleCeiling",
           "label": "Submitted triangle ceiling",
-          "value": 277012,
+          "value": 272626,
           "unit": "",
-          "display": "277 012",
+          "display": "272 626",
           "provenance": {
             "kind": "derived",
-            "formula": "frustumTriangles × (1 + 1 shadow pass)"
+            "formula": "frustumTriangles + the casting-family ceiling sum (the shadow pass)"
           }
         },
         {

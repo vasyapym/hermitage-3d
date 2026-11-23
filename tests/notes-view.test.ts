@@ -101,10 +101,10 @@ const EXPECTED = {
   triangles: 134_264,
   creaseDeclared: 215,
   creaseDerived: 234,
-  facadeDrawCalls: 42,
-  frameDrawCalls: 58,
+  facadeDrawCalls: 41,
+  frameDrawCalls: 57,
   frustumTriangles: 138_506,
-  submittedTriangleCeiling: 277_012,
+  submittedTriangleCeiling: 272_626,
 } as const;
 // ---------------------------------------------------------------------------
 // 1. Purity
@@ -269,7 +269,7 @@ describe('pinned derived numbers', () => {
       EXPECTED.submittedTriangleCeiling,
     );
     // §3.4: the projected numbers live on the rows as muted margin suffixes.
-    expect(numberRow(model, 'budget.frameDrawCalls').note).toBe('margin 192');
+    expect(numberRow(model, 'budget.frameDrawCalls').note).toBe('margin 193');
     expect(numberRow(model, 'budget.frustumTriangles').note).toBe('margin 861\u2009494');
     const gzip = numberRow(model, 'budget.jsGzipBytes');
     expect(gzip.value).toBeNull();

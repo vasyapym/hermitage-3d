@@ -542,29 +542,42 @@ const surroundOf = (id: PartId): THREE.BufferGeometry => {
 
 /** The dressings law's row3 stretch head (design §B2): the base surround's
  * pieces plus the row3 architrave course and a closed segmental band seated
- * on its top — chord 1.0 sx, rise 0.16 sy, band 0.07 sy, 12 segments, depth
- * 0.9 sz. No gold: the whole head stays WHITE like every surround. */
+ * on its top — chord 1.0 sx, the rise and thickness fitted to the head zone
+ * above the architrave (the relief stays inside the declared envelope, the
+ * review pass's bounds law), 12 segments, depth 0.9 sz. No gold: the whole
+ * head stays WHITE like every surround. */
 function surroundRow3Segmental(id: PartId): THREE.BufferGeometry {
   const p = surroundParams(id);
-  const { sx, sy, sz } = envelope(id);
+  // The variant relief is proportioned on its row's BASE envelope — the
+  // variant's own declared bound may extend past it (the row2 mask's proud
+  // tip) without scaling the fractions (the review pass's bounds law).
+  const { sx, sy, sz } = envelope('surround-row3-large');
   const pieces = surroundPieces(id, p.opening, 'none', p.rise);
   const yHead = sy - p.rise;
+  const zone = p.rise - 0.15;
   pieces.push(box(sx, 0.15, sz, 0, yHead, 0, WHITE));
-  pieces.push(arcBand(sx / 2, 0.16 * sy, 0.07 * sy, yHead + 0.15, 0, 180, 12, sz * 0.9, WHITE));
+  pieces.push(arcBand(sx / 2, 0.35 * zone, 0.15 * zone, yHead + 0.15, 0, 180, 12, sz * 0.9, WHITE));
   return merge(pieces);
 }
 
+/** The feasible lug step (the review pass's §F5 ruling): the 1.7 m opening
+ * leaves a 0.2 m jamb that floors at 0.12 m, so the widest step the envelope
+ * admits is 0.08 m — both risalit variants share it. */
+const LUG_STEP_M = 0.08;
+
 /** The dressings law's row3 risalit head (design §B3): the row3 base with a
  * broken pediment — two raking slabs leaving a 0.3 sx apex gap, a centre
- * block rising through the break, and lugged ears at the architrave's outer
- * top corners; the jambs step in 0.08 sx so the ears stay inside the
- * envelope. */
+ * block rising to the apex line through the break, and lugged ears at the
+ * architrave's outer top corners; the jambs step in by the lug step so the
+ * ears overhang them. All relief is fitted to the head zone above the
+ * architrave (the review pass's bounds law). */
 function surroundRow3Risalit(id: PartId): THREE.BufferGeometry {
   const p = surroundParams(id);
-  const { sx, sy, sz } = envelope(id);
-  const pieces = surroundPieces(id, p.opening, 'none', p.rise, 0.08 * sx);
+  const { sx, sy, sz } = envelope('surround-row3-large');
+  const pieces = surroundPieces(id, p.opening, 'none', p.rise, LUG_STEP_M);
   const yHead = sy - p.rise;
   const yBase = yHead + 0.15;
+  const zone = p.rise - 0.15;
   const apex = yHead + p.rise;
   const gapHalf = 0.15 * sx;
   const earCentre = sx / 2 - 0.06 * sx;
@@ -588,35 +601,37 @@ function surroundRow3Risalit(id: PartId): THREE.BufferGeometry {
       sz * 0.85,
       WHITE,
     ),
-    box(0.26 * sx, 0.2 * sy, 0.6 * sz, 0, yBase, 0, WHITE),
-    box(0.12 * sx, 0.12 * sy, 0.7 * sz, -earCentre, yBase, 0, WHITE),
-    box(0.12 * sx, 0.12 * sy, 0.7 * sz, earCentre, yBase, 0, WHITE),
+    box(0.26 * sx, zone, 0.6 * sz, 0, yBase, 0, WHITE),
+    box(0.12 * sx, zone, 0.7 * sz, -earCentre, yBase, 0, WHITE),
+    box(0.12 * sx, zone, 0.7 * sz, earCentre, yBase, 0, WHITE),
   );
   return merge(pieces);
 }
 
 /** The dressings law's row2 risalit head (design §B4): the base broken-arch
  * head with a keystone mask — a 6-segment lathe dome of 5 profile points,
- * radius 0.12 sx, proud 0.3 sz, scaled to the 0.2 sy mask height and seated
- * on the keystone block's face — plus the lugged ears of §B3 at the
- * surround's top corners. */
+ * radius 0.12 sx, proud 0.3 sz, scaled to the rise-height mask and seated on
+ * the keystone block's face (the profile runs rim-to-tip so the outward
+ * faces wind outward — the review pass's winding law) — plus the lugged
+ * ears of §B3 at the surround's top corners, sharing the lug step. */
 function surroundRow2Risalit(id: PartId): THREE.BufferGeometry {
   const p = surroundParams(id);
-  const { sx, sy, sz } = envelope(id);
-  const pieces = surroundPieces(id, p.opening, 'broken-arch', p.rise);
+  const { sx, sy, sz } = envelope('surround-row2-large');
+  const pieces = surroundPieces(id, p.opening, 'broken-arch', p.rise, LUG_STEP_M);
+  const maskRadius = 0.12 * sx;
   const profile: readonly Pt[] = [
-    [0, 0.3 * sz],
-    [0.05 * sx, 0.27 * sz],
-    [0.09 * sx, 0.18 * sz],
+    [maskRadius, 0],
     [0.115 * sx, 0.06 * sz],
-    [0.12 * sx, 0],
+    [0.09 * sx, 0.18 * sz],
+    [0.05 * sx, 0.27 * sz],
+    [0, 0.3 * sz],
   ];
   const dome = new THREE.LatheGeometry(
     profile.map(([radius, axial]) => new THREE.Vector2(radius, axial)),
     6,
   )
     .rotateX(Math.PI / 2)
-    .scale(1, (0.2 * sy) / (2 * 0.12 * sx), 1)
+    .scale(1, p.rise / (2 * maskRadius), 1)
     .translate(0, sy - p.rise / 2, sz);
   dome.computeVertexNormals();
   const earCentre = sx / 2 - 0.06 * sx;
@@ -833,11 +848,10 @@ export function buildFacade(solved: SolvedFacade): FacadeBuild {
     mesh.instanceMatrix.setUsage(THREE.StaticDrawUsage);
     mesh.instanceMatrix.needsUpdate = true;
     mesh.computeBoundingSphere();
-    mesh.castShadow = true;
+    // The ONE castShadow law lives on the PartMeta row (the projection reads
+    // it too): the socle course hugs the wall base and casts nothing (§C4).
+    mesh.castShadow = KIT[partId].castShadow;
     mesh.receiveShadow = true;
-    // The socle hugs the wall base at 0.35 m proud; its shadow is nil and the
-    // design's draw saving keeps it out of the shadow pass (§C4).
-    if (partId === 'socle') mesh.castShadow = false;
     meshes.push(mesh);
     group.add(mesh);
     trianglesByPart[partId] = triangles;

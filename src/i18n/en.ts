@@ -256,13 +256,14 @@ export const en = {
   'notes.formulaVoidCells': 'slots displaced by the entrance and portal arches (solver)',
   'notes.formulaShafts': 'Σ KIT.shaftCount × instances over column parts (solver)',
   'notes.formulaFrustum': 'kit {kit} + massing {massing} + sky {sky}',
-  'notes.formulaSubmitted': 'frustumTriangles × (1 + {shadowPasses} shadow pass)',
+  'notes.formulaSubmitted': 'frustumTriangles + the casting-family ceiling sum (the shadow pass)',
   'notes.formulaPartTotal': 'counts.byPart × KIT.triangleCeiling',
   'notes.formulaKitCeiling': 'Σ over placed parts',
   'notes.formulaInstances': 'Σ counts.byPart',
   'notes.formulaActiveParts': 'parts with ≥ 1 instance',
   'notes.formulaGzip': 'CI gzip measurement passed through allowance.measuredJsGzipBytes',
-  'notes.formulaFacadeDraws': 'projectBudget: instanced draws of the active parts over all passes',
+  'notes.formulaFacadeDraws':
+    'colour families + the casting families × shadowPasses (the socle casts none)',
   'notes.formulaFrameDraws': 'facadeDrawCalls + {otherDraws} other draw calls',
 
   'notes.failUnregistered': 'unregistered: {id}',

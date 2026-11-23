@@ -266,14 +266,15 @@ export const ru = {
   'notes.formulaVoidCells': 'слоты, вытесненные арками входа и портала (решатель)',
   'notes.formulaShafts': 'Σ KIT.shaftCount × instances по деталям-колоннам (решатель)',
   'notes.formulaFrustum': 'набор {kit} + массинг {massing} + небо {sky}',
-  'notes.formulaSubmitted': 'frustumTriangles × (1 + {shadowPasses}) за счёт теневых проходов',
+  'notes.formulaSubmitted':
+    'frustumTriangles + сумма потолков деталей, отбрасывающих тень (теневой проход)',
   'notes.formulaPartTotal': 'counts.byPart × KIT.triangleCeiling',
   'notes.formulaKitCeiling': 'Σ по размещённым деталям',
   'notes.formulaInstances': 'Σ counts.byPart',
   'notes.formulaActiveParts': 'детали с ≥\u00A01 экземпляром',
   'notes.formulaGzip': 'замер gzip в CI, переданный через allowance.measuredJsGzipBytes',
   'notes.formulaFacadeDraws':
-    'projectBudget: инстансированные вызовы отрисовки активных деталей по всем проходам',
+    'цветовые семейства + семейства с тенью × теневой проход (цоколь тень не отбрасывает)',
   'notes.formulaFrameDraws': 'facadeDrawCalls + прочие вызовы отрисовки ({otherDraws})',
 
   'notes.failUnregistered': 'не зарегистрировано: {id}',

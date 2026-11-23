@@ -110,16 +110,25 @@ describe('facade solver', () => {
         expect(overlaps).toBe(false);
       }
     }
-    // the four crease returns ride the path as rotated placements
+    // the four crease returns ride the path as rotated placements; each runs
+    // between the two proud front planes (the review pass's joint law: both
+    // endpoints shift south by the course's own depth)
     const returns = socle.filter((placement) => placement.rotationY !== 0);
     expect(returns).toHaveLength(4);
+    const depth = KIT.socle.localBounds.max.z;
+    for (const placement of returns) {
+      expect(placement.position.z).toBeCloseTo((87.5 + 93.5) / 2 + depth, 9);
+      expect(placement.scale.x).toBeCloseTo(93.5 - 87.5, 9);
+    }
   });
 
-  it('populates ten window types of the declared twelve', () => {
+  it('populates all twelve window types of the declared twelve', () => {
     const grid = windowTypeGrid(SOUTH_FACADE);
-    expect(grid.size).toBe(10);
-    expect(grid.has('row1/portal')).toBe(false);
-    expect(grid.has('row2/portal')).toBe(false);
+    expect(grid.size).toBe(12);
+    // The portal's flanking axes carry rows 1-2 as windows; only the six arch
+    // axes void them (the review pass's grid law — derived from the cells).
+    expect(grid.has('row1/portal')).toBe(true);
+    expect(grid.has('row2/portal')).toBe(true);
     expect(grid.size).toBeLessThanOrEqual(DECOR_SYSTEM.windowTypes);
     expect(SECTION_CLASS_BY_LAYOUT).toHaveLength(SOUTH_FACADE.sections.length);
   });
@@ -155,8 +164,14 @@ describe('facade solver', () => {
     const risalitRow3 = byPart['surround-row3-risalit'];
     expect(risalitRow3).toHaveLength(22);
     expect(risalitRow3.filter((placement) => Math.abs(placement.position.x) < 13)).toHaveLength(8);
-    for (const placement of [...risalitRow2, ...risalitRow3]) {
-      const mirrored = [...risalitRow2, ...risalitRow3].some(
+    for (const placement of risalitRow2) {
+      const mirrored = risalitRow2.some(
+        (candidate) => Math.abs(candidate.position.x + placement.position.x) < 1e-9,
+      );
+      expect(mirrored).toBe(true);
+    }
+    for (const placement of risalitRow3) {
+      const mirrored = risalitRow3.some(
         (candidate) => Math.abs(candidate.position.x + placement.position.x) < 1e-9,
       );
       expect(mirrored).toBe(true);
@@ -331,12 +346,14 @@ describe('facade solver', () => {
       skyTriangles: 4096,
       measuredJsGzipBytes: null,
     });
-    // The projection's model charges the socle's draw in both passes; the real
-    // frame reads lower (the socle casts no shadow — §C4). The battery decides.
-    expect(projection.facadeDrawCalls).toBe(42);
-    expect(projection.frameDrawCalls).toBe(58);
+    // The projection's shadow families are the casting parts only (the ONE
+    // castShadow law lives on PartMeta): 21 colour families + 20 casting
+    // families' shadow pass; the socle's 144 ceiling tris stay out of the
+    // shadow subtotal.
+    expect(projection.facadeDrawCalls).toBe(41);
+    expect(projection.frameDrawCalls).toBe(57);
     expect(projection.frustumTriangles).toBe(138_495);
-    expect(projection.submittedTriangleCeiling).toBe(276_990);
+    expect(projection.submittedTriangleCeiling).toBe(272_615);
     expect(projection.jsGzipBytes).toBeNull();
   });
 

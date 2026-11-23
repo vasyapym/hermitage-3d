@@ -79,6 +79,10 @@ export type PartMeta = {
   readonly localBounds: Aabb;
   readonly triangleCeiling: number;
   readonly shaftCount: 0 | 1 | 2 | 3;
+  /** Whether the part's instances join the shadow pass — the ONE castShadow
+   * law: the builder marks the mesh from it and the budget projection
+   * charges shadow families from it. */
+  readonly castShadow: boolean;
 };
 
 function box(sx: number, sy: number, sz: number): Aabb {
@@ -91,8 +95,9 @@ function part(
   sz: number,
   triangleCeiling: number,
   shaftCount: 0 | 1 | 2 | 3,
+  castShadow = true,
 ): PartMeta {
-  return { localBounds: box(sx, sy, sz), triangleCeiling, shaftCount };
+  return { localBounds: box(sx, sy, sz), triangleCeiling, shaftCount, castShadow };
 }
 
 const SURROUND_ROW1 = part(1.7, 2.25, 0.32, 192, 0);
@@ -102,7 +107,7 @@ const SURROUND_ROW4 = part(1.7, 2.65, 0.32, 224, 0);
 // The variant surround envelopes equal their row's base envelope (the dressings
 // law, sq-facade): the ceilings carry the variant's own relief budget, so the
 // census sum and the builder's ceiling check price them per the design.
-const SURROUND_ROW2_RISALIT = part(2.1, 4.25, 0.32, 320, 0);
+const SURROUND_ROW2_RISALIT = part(2.1, 4.25, 0.416, 320, 0);
 const SURROUND_ROW3_SEGMENTAL = part(2.1, 3.8, 0.32, 256, 0);
 const SURROUND_ROW3_RISALIT = part(2.1, 3.8, 0.32, 320, 0);
 
@@ -136,10 +141,13 @@ export const KIT: Readonly<Record<PartId, PartMeta>> = {
   vase: part(1, 2.6, 1, 192, 0),
   statue: part(1.2, 6, 1.2, 640, 0),
   // The socle course (the dressings law §C1): a unit box scaled in x per
-  // segment; its height is the order's foot — RULES.tierBaseY.lower (the
-  // single-source law is enforced by the solver test's top-y pin), its depth
-  // is the proud offset RULES.socle.proudM.
-  socle: part(1, 0.6, 0.35, 12, 0),
+  // segment. Its height is the order's foot (RULES.tierBaseY.lower — the
+  // single-source law is enforced by the solver test's top-y pin); its depth
+  // IS the proud offset — the one depth value the return joints shift by
+  // (the rule row carries only the arch clearance). The course casts no
+  // shadow (§C4): it hugs the wall base, and the projection and the builder
+  // read that law here.
+  socle: part(1, 0.6, 0.35, 12, 0, false),
 };
 
 export type Cell =
@@ -269,7 +277,7 @@ const RULES = {
     panelsPerReturn: 2,
   },
   ornaments: { baseY: 24, slotsPerSection: [6, 18, 0, 18, 6] },
-  socle: { proudM: 0.35, archClearM: 0.2 },
+  socle: { archClearM: 0.2 },
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -331,15 +339,21 @@ export function surroundPartFor(
   return variant === 'base' ? surroundPartId(row, module) : surroundVariantPartId(row, variant);
 }
 
-/** The populated `${row}/${sectionClass}` window-type keys of a facade spec. */
+/** The populated `${row}/${sectionClass}` window-type keys of a facade spec,
+ * derived from the actual cells: a portal arch voids its row only on the
+ * arch's own axes — the portal's flanking axes still carry those rows as
+ * windows (the south front populates all twelve row × class cells). */
 export function windowTypeGrid(spec: FacadeSpec): ReadonlySet<string> {
   const grid = new Set<string>();
   const archRows = RULES.portal.archRows as readonly WindowRowId[];
-  for (const [index] of spec.sections.entries()) {
+  for (const [index, section] of spec.sections.entries()) {
     const sectionClass = sectionClassOfLayoutIndex(index);
-    for (const rowId of WINDOW_ROW_IDS) {
-      if (sectionClass === 'portal' && archRows.includes(rowId)) continue;
-      grid.add(`${rowId}/${sectionClass}`);
+    for (let axis = 0; axis < section.declaredAxes; axis += 1) {
+      const arch = section.kind === 'centralPortal' ? portalArchForAxis(axis) : undefined;
+      for (const rowId of WINDOW_ROW_IDS) {
+        if (arch !== undefined && archRows.includes(rowId)) continue;
+        grid.add(`${rowId}/${sectionClass}`);
+      }
     }
   }
   return grid;
@@ -912,16 +926,31 @@ function segmentPrefix(spec: FacadeSpec, segment: Segment): string {
 /** The socle course (the dressings law §C2): one dark base placement per face
  * and reveal of the facade path — the four non-portal fronts, the four portal
  * pier segments between the arch voids (each void widened by archClearM, the
- * middle throat opening untouched), and the four crease returns. */
+ * middle throat opening untouched), and the four crease returns. Each return
+ * runs between the two proud front planes: both endpoints shift south by the
+ * course's own depth, so the return closes against the deep front's course
+ * and abuts the shallow front's course — no notch, no overlap (the review
+ * pass's joint law). */
 function emitSocle(
   emitter: PlacementEmitter,
   spec: FacadeSpec,
   frame: Frame,
   segments: readonly Segment[],
 ): void {
+  const depth = KIT.socle.localBounds.max.z;
   for (const segment of segments) {
     if (segment.kind === 'return') {
-      emitter.emitAlong(spec.id, 'socle', 'socle', segment.a, segment.b, segment.normal, 0, 0, 0);
+      emitter.emitAlong(
+        spec.id,
+        'socle',
+        'socle',
+        vec3(segment.a.x, 0, segment.a.z + depth),
+        vec3(segment.b.x, 0, segment.b.z + depth),
+        segment.normal,
+        0,
+        0,
+        0,
+      );
       continue;
     }
     if (segment.layout.section.kind !== 'centralPortal') {
@@ -1258,15 +1287,29 @@ export function solveSouthFacade(spec: FacadeSpec, rows: readonly WindowRow[]): 
 }
 
 export function projectBudget(solved: SolvedFacade, allowance: SceneAllowance): BudgetProjection {
-  const passes = 1 + allowance.shadowPasses;
-  const facadeDrawCalls = solved.counts.activeParts * passes;
+  // The colour families are every populated part; the shadow families are the
+  // casting ones only (the ONE castShadow law lives on PartMeta — the socle
+  // course hugs the wall base and casts nothing).
+  let colourFamilies = 0;
+  let shadowFamilies = 0;
+  let shadowTriangles = 0;
+  for (const partId of PART_IDS) {
+    const count = solved.byPart[partId].length;
+    if (count === 0) continue;
+    colourFamilies += 1;
+    if (KIT[partId].castShadow) {
+      shadowFamilies += 1;
+      shadowTriangles += count * KIT[partId].triangleCeiling;
+    }
+  }
+  const facadeDrawCalls = colourFamilies + shadowFamilies * allowance.shadowPasses;
   const frustumTriangles =
     solved.counts.triangles + allowance.massingTriangles + allowance.skyTriangles;
   return {
     facadeDrawCalls,
     frameDrawCalls: facadeDrawCalls + allowance.otherFrameDrawCalls,
     frustumTriangles,
-    submittedTriangleCeiling: frustumTriangles * passes,
+    submittedTriangleCeiling: frustumTriangles + shadowTriangles,
     jsGzipBytes: allowance.measuredJsGzipBytes,
   };
 }
