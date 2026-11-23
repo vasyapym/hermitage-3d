@@ -368,20 +368,23 @@ describe('jordan stop-gaze swings (the 2026-11-23 plafond arrival: PLAFOND_CENTE
   it('authors J2 to the painted plafond (press 3 ends gazing up at the Olimpo ceiling)', () => {
     const j2 = JORDAN.stops.find((s) => s.id === 'J2');
     if (!j2 || j2.subject === null) throw new Error('J2 missing');
-    expect(j2.subject).toEqual([80.6, 20.0, -74]);
-    // The owner's plafond-arrival ask: the base gaze is ≈41.2° up; J2's pitchUp 35 is a user
-    // offset around that gaze, not a cap on it (the R18-ux ≈20.5° flight-top read is retired).
+    expect(j2.subject).toEqual([86, 15.5, -74]);
+    // The owner's plafond-arrival ask, framed by their own reference: the base gaze is
+    // ≈24° up at the chandelier's crown, the painted plafond partly above it; J2's
+    // pitchUp 35 is a user offset around that gaze, not a cap on it (a plafond-centred
+    // ≈41° base read as too much rotation and was re-pinned; the ceiling centres one
+    // manual drag away).
     const pose = samplePose(JORDAN, restingAt(stopParameter(JORDAN, JORDAN.stops.indexOf(j2))));
     const [px, py, pz] = xyz(pose.position);
     const [tx, ty, tz] = xyz(pose.target);
     expect((Math.atan2(ty - py, Math.hypot(tx - px, tz - pz)) * 180) / Math.PI).toBeCloseTo(
-      41.2,
+      24,
       1,
     );
   });
   for (const [n, measured, expected] of [
-    ...swingRows(JORDAN, 'J1b', 'J2', 70.5), // the plafond pan — the ~58 design frame relaxed on this leg; the §9 MAX_SWING 90 head law holds
-    ...swingRows(JORDAN, 'J2', 'J2b', 40.6), // the ceiling-to-flight turn (the D-J2b locked dolly retired 2026-11-23)
+    ...swingRows(JORDAN, 'J1b', 'J2', 63.7), // the plafond pan — the ~58 design frame relaxed on this leg; the §9 MAX_SWING 90 head law holds
+    ...swingRows(JORDAN, 'J2', 'J2b', 28.7), // the ceiling-to-flight turn (the D-J2b locked dolly retired 2026-11-23)
   ]) {
     it(`${n}: swing ≈ ${expected}° stays under the head law`, () => {
       expect(measured, n).toBeCloseTo(expected, 1);

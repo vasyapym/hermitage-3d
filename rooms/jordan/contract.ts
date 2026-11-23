@@ -16,13 +16,14 @@
  *
  * Subjects: J0 and J1 share the window light over the mezzanine (the locked climb); J1b keeps
  * the flight-2 sconce on the window wall (the turn is anticipated); J2 is RE-AUTHORED (owner
- * 2026-11-23, the plafond-arrival ask) to PLAFOND_CENTER so press 3's gaze ends on the painted
- * Olimpo ceiling — the base gaze is ≈41° up (the R18-ux D4 flight-top read is retired); J2b
- * keeps FLIGHT2_TOP alone (the D-J2b locked pairing with J2 is retired by the same ask — press 4
- * turns the gaze from the ceiling down to the flight ahead); J3 and J4 share the modelled
- * east-wall portal (the landing is a locked dolly toward it). The ~58° consecutive-swing design
- * frame is relaxed on the J1b→J2 leg (≈70°, still under the §9 MAX_SWING 90 head law). Every
- * value is declared and framed by capture at integration.
+ * 2026-11-23, the plafond-arrival ask) to CHANDELIER_CROWN so press 3's gaze lands on the
+ * chandelier with the painted Olimpo ceiling partly above it — the base gaze is ≈24° up, the
+ * owner's own reference framing (a plafond-centred ≈41° read as too much rotation); J2b
+ * keeps FLIGHT2_TOP alone (the D-J2b locked pairing with J2 is retired by the same ask —
+ * press 4 turns the gaze from the ceiling down to the flight ahead); J3 and J4 share the
+ * modelled east-wall portal (the landing is a locked dolly toward it). The ~58° consecutive-
+ * swing design frame is relaxed on the J1b→J2 leg (≈64°, still under the §9 MAX_SWING 90
+ * head law). Every value is declared and framed by capture at integration.
  */
 import type { RoomContract, Vec3 } from '../../src/world/registry';
 
@@ -35,9 +36,12 @@ const FLIGHT2_SCONCE: Vec3 = [75.1, 9.5, -85.5];
  * the plafond-arrival ask; the upper-window glance (UPPER_WINDOW [84.85, 14.75, −86], the north
  * wall read) stays retired. */
 const FLIGHT2_TOP: Vec3 = [82.0, 11.7, -83.6];
-/** The painted plafond field's centre, computed from the generator's bay arrays (tools/bpy/
- * jordan.py plafond_bounds): x (72.5 + 88.75)/2, z the crown line −74, y the vault crown 20. */
-const PLAFOND_CENTER: Vec3 = [80.6, 20.0, -74];
+/** The chandelier's crown (x 86.0, ring y 15.0 + 0.5, z −74.0 — tools/bpy/jordan.py
+ * CHAND_C/CHAND_RING_Y): J2's arrival gaze — the owner's reference framing (the chandelier
+ * centre-frame, the painted plafond partly above, the flights in context). A plafond-centred
+ * gaze (the field's centre x 80.6, y 20, z −74) was tried the same day and re-pinned: its
+ * ≈41° base read as too much rotation against the owner's IMG_0019 framing. */
+const CHANDELIER_CROWN: Vec3 = [86, 15.5, -74];
 /** The gilt portal on the east wall: centred z −74, head y 16; aimed below the head. */
 const EAST_PORTAL: Vec3 = [92, 13, -74];
 
@@ -74,12 +78,15 @@ export const contract: RoomContract = {
       {
         // The real mezzanine turn, on the lane 0.5 m before flight 2's first riser (x 69.12).
         // Re-authored (owner 2026-11-23, the plafond-arrival ask + the IMG_0019 reference):
-        // local press 3 (J1b→J2) lands gazing up at the painted Olimpo plafond. The base gaze
-        // is ≈41.2° up; user pitch/yaw limits are offsets around that gaze, not absolute bounds
-        // on it. Retained manual offsets can change the final framing.
+        // local press 3 (J1b→J2) lands gazing at the chandelier's crown with the painted
+        // Olimpo plafond partly above it — the owner's own framing (the reference keeps the
+        // ceiling PARTLY in frame; a plafond-centred ≈41° base gaze read as too much rotation
+        // and was re-pinned to ≈24°; the ceiling centres one manual drag away, pitchUp 35).
+        // User pitch/yaw limits are offsets around that gaze, not absolute bounds on it.
+        // Retained manual offsets can change the final framing.
         id: 'J2',
         position: [68.6, 6.7, -83.3],
-        subject: PLAFOND_CENTER,
+        subject: CHANDELIER_CROWN,
         look: { yaw: 35, pitchUp: 35, pitchDown: 25 },
         caption: 'caption.j2',
       },
