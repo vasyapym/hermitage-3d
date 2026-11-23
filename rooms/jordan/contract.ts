@@ -15,13 +15,14 @@
  * exist for that reason; J0 and J2 stand 0.5 m before their first risers.
  *
  * Subjects: J0 and J1 share the window light over the mezzanine (the locked climb); J1b keeps
- * the flight-2 sconce on the window wall (the turn is anticipated); J2 is RE-AUTHORED (R18-ux
- * D4) to FLIGHT2_TOP so press 3's gaze holds the end of the stairs, 2nd floor — the old
- * shared sconce made the held gaze pitch at the wall instead of up the flight; J2b locks the
- * SAME FLIGHT2_TOP (D-J2b, owner 2026-11-02: press 4 reads a locked climb dolly — the old
- * upper-window glance read INTO the north wall); J3 and J4 share the modelled east-wall
- * portal (the landing is a locked dolly toward it). No consecutive gaze swings more than
- * ~58°. Every value is declared and framed by capture at integration.
+ * the flight-2 sconce on the window wall (the turn is anticipated); J2 is RE-AUTHORED (owner
+ * 2026-11-23, the plafond-arrival ask) to PLAFOND_CENTER so press 3's gaze ends on the painted
+ * Olimpo ceiling — the base gaze is ≈41° up (the R18-ux D4 flight-top read is retired); J2b
+ * keeps FLIGHT2_TOP alone (the D-J2b locked pairing with J2 is retired by the same ask — press 4
+ * turns the gaze from the ceiling down to the flight ahead); J3 and J4 share the modelled
+ * east-wall portal (the landing is a locked dolly toward it). The ~58° consecutive-swing design
+ * frame is relaxed on the J1b→J2 leg (≈70°, still under the §9 MAX_SWING 90 head law). Every
+ * value is declared and framed by capture at integration.
  */
 import type { RoomContract, Vec3 } from '../../src/world/registry';
 
@@ -30,9 +31,13 @@ const MEZZ_LIGHT: Vec3 = [69.2, 7.5, -84];
 /** Flight 2's middle sconce (x 75.1, datum 7.67 + 1.8), just off the north wall. */
 const FLIGHT2_SCONCE: Vec3 = [75.1, 9.5, -85.5];
 /** Flight 2's top (x 82.0, datum 9.983 + 1.7), on flight 2's band centre line. R18-ux D4 committed
- * it at J2; D-J2b (owner, 2026-11-02) locks J2b onto it as well — press 4 is a locked climb dolly
- * and the upper-window glance (UPPER_WINDOW [84.85, 14.75, −86], the north wall read) is retired. */
+ * it at J2; J2b still holds it (D-J2b, owner 2026-11-02) — the J2 pairing retired 2026-11-23 by
+ * the plafond-arrival ask; the upper-window glance (UPPER_WINDOW [84.85, 14.75, −86], the north
+ * wall read) stays retired. */
 const FLIGHT2_TOP: Vec3 = [82.0, 11.7, -83.6];
+/** The painted plafond field's centre, computed from the generator's bay arrays (tools/bpy/
+ * jordan.py plafond_bounds): x (72.5 + 88.75)/2, z the crown line −74, y the vault crown 20. */
+const PLAFOND_CENTER: Vec3 = [80.6, 20.0, -74];
 /** The gilt portal on the east wall: centred z −74, head y 16; aimed below the head. */
 const EAST_PORTAL: Vec3 = [92, 13, -74];
 
@@ -68,12 +73,13 @@ export const contract: RoomContract = {
       },
       {
         // The real mezzanine turn, on the lane 0.5 m before flight 2's first riser (x 69.12).
-        // R18-ux D4, retained by R19-ux C: local press 3 (J1b→J2) lands on FLIGHT2_TOP.
-        // The base gaze is ≈20.5° up; user pitch/yaw limits are offsets around that gaze,
-        // not absolute bounds on it. Retained manual offsets can change the final framing.
+        // Re-authored (owner 2026-11-23, the plafond-arrival ask + the IMG_0019 reference):
+        // local press 3 (J1b→J2) lands gazing up at the painted Olimpo plafond. The base gaze
+        // is ≈41.2° up; user pitch/yaw limits are offsets around that gaze, not absolute bounds
+        // on it. Retained manual offsets can change the final framing.
         id: 'J2',
         position: [68.6, 6.7, -83.3],
-        subject: FLIGHT2_TOP,
+        subject: PLAFOND_CENTER,
         look: { yaw: 35, pitchUp: 35, pitchDown: 25 },
         caption: 'caption.j2',
       },
@@ -82,7 +88,7 @@ export const contract: RoomContract = {
         // R19-ux C retains the authored window composition here (local press 4 from J0).
         id: 'J2b',
         position: [74.5, 9.1, -83.3],
-        subject: FLIGHT2_TOP, // D-J2b (owner, 2026-11-02): locked with J2; the north-wall glance retired
+        subject: FLIGHT2_TOP, // D-J2b (owner, 2026-11-02) locked it with J2; retired 2026-11-23 — J2 now gazes at the plafond
         look: { yaw: 35, pitchUp: 35, pitchDown: 25 },
         caption: 'caption.j2b',
       },
