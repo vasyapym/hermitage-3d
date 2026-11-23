@@ -4,6 +4,8 @@ import { describe, expect, it } from 'vitest';
 import { DECOR_SYSTEM, SOUTH_FACADE, WINDOW_ROWS } from '../src/content/facade-spec';
 import {
   checkBounds,
+  KIT,
+  ORDER_TIER_BASE_Y,
   projectBudget,
   SECTION_CLASS_BY_LAYOUT,
   SOUTH_ENVELOPE,
@@ -53,9 +55,9 @@ describe('facade solver', () => {
     expect(counts.windows).toBe(236);
     expect(counts.portalVoidCells).toBe(12);
     expect(counts.columnShafts).toBe(68);
-    expect(counts.instances).toBe(659);
-    expect(counts.activeParts).toBe(20);
-    expect(counts.triangles).toBe(134_120);
+    expect(counts.instances).toBe(671);
+    expect(counts.activeParts).toBe(21);
+    expect(counts.triangles).toBe(134_264);
     expect(counts.byPart['surround-row1-small']).toBe(56);
     expect(counts.byPart['surround-row2-large']).toBe(42);
     expect(counts.byPart['surround-row2-risalit']).toBe(14);
@@ -76,6 +78,41 @@ describe('facade solver', () => {
     expect(counts.byPart.balustrade).toBe(62);
     expect(counts.byPart.vase).toBe(24);
     expect(counts.byPart.statue).toBe(24);
+    expect(counts.byPart.socle).toBe(12);
+  });
+
+  it('runs the socle along every face and reveal and clears the arch voids', () => {
+    const byPart = solveOk().byPart;
+    const socle = byPart.socle;
+    expect(socle).toHaveLength(12);
+    // the course's top is the order's foot; the depth is the proud offset
+    expect(KIT.socle.localBounds.max.y).toBe(ORDER_TIER_BASE_Y.lower);
+    expect(KIT.socle.localBounds.max.z).toBeCloseTo(0.35, 9);
+    for (const placement of socle) {
+      expect(placement.position.y).toBe(0);
+      expect(placement.scale.y).toBe(1);
+      expect(placement.scale.z).toBe(1);
+      expect(placement.scale.x).toBeGreaterThan(0);
+    }
+    // the portal's four pier segments clear every arch void span by archClearM
+    const portalPiers = socle.filter(
+      (placement) => placement.rotationY === 0 && Math.abs(placement.position.x) < 14,
+    );
+    expect(portalPiers).toHaveLength(4);
+    const voidHalf = 4.9 / 2 + 0.2;
+    for (const archCentre of [-2 * PITCH, 0, 2 * PITCH]) {
+      for (const pier of portalPiers) {
+        const from = pier.position.x - pier.scale.x / 2;
+        const to = pier.position.x + pier.scale.x / 2;
+        // The piers end exactly at the widened span edges; sub-nanometre float
+        // noise on the shared boundary is a touch, not an overlap.
+        const overlaps = from < archCentre + voidHalf - 1e-9 && to > archCentre - voidHalf + 1e-9;
+        expect(overlaps).toBe(false);
+      }
+    }
+    // the four crease returns ride the path as rotated placements
+    const returns = socle.filter((placement) => placement.rotationY !== 0);
+    expect(returns).toHaveLength(4);
   });
 
   it('populates ten window types of the declared twelve', () => {
@@ -294,10 +331,12 @@ describe('facade solver', () => {
       skyTriangles: 4096,
       measuredJsGzipBytes: null,
     });
-    expect(projection.facadeDrawCalls).toBe(40);
-    expect(projection.frameDrawCalls).toBe(56);
-    expect(projection.frustumTriangles).toBe(138_351);
-    expect(projection.submittedTriangleCeiling).toBe(276_702);
+    // The projection's model charges the socle's draw in both passes; the real
+    // frame reads lower (the socle casts no shadow — §C4). The battery decides.
+    expect(projection.facadeDrawCalls).toBe(42);
+    expect(projection.frameDrawCalls).toBe(58);
+    expect(projection.frustumTriangles).toBe(138_495);
+    expect(projection.submittedTriangleCeiling).toBe(276_990);
     expect(projection.jsGzipBytes).toBeNull();
   });
 

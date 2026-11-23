@@ -378,6 +378,15 @@ function pediment(id: PartId): THREE.BufferGeometry {
   return merge([trim, body]);
 }
 
+/** The socle course (the dressings law §C1/C4): one dark unit box; the
+ * instance's scale.x carries the segment length, the part's depth is the
+ * proud offset. Vertex colour DARK (the recess tone — the palette stays at
+ * five); the mesh receives shadows but casts none (the design's draw saving). */
+function socle(id: PartId): THREE.BufferGeometry {
+  const { sx, sy, sz } = envelope(id);
+  return merge([box(sx, sy, sz, 0, 0, 0, DARK)]);
+}
+
 function cartouche(id: PartId): THREE.BufferGeometry {
   const { sx, sy, sz } = envelope(id);
   const scaled = (pts: readonly Pt[]): Pt[] => pts.map(([u, v]) => [u * sx, v * sy]);
@@ -636,6 +645,7 @@ const BUILDERS: Partial<Record<PartId, (id: PartId) => THREE.BufferGeometry>> = 
   'giant-column': giantColumn,
   pediment,
   cartouche,
+  socle,
   'cornice-run': corniceRun,
   'order-junction': orderJunction,
   balustrade,
@@ -825,6 +835,9 @@ export function buildFacade(solved: SolvedFacade): FacadeBuild {
     mesh.computeBoundingSphere();
     mesh.castShadow = true;
     mesh.receiveShadow = true;
+    // The socle hugs the wall base at 0.35 m proud; its shadow is nil and the
+    // design's draw saving keeps it out of the shadow pass (§C4).
+    if (partId === 'socle') mesh.castShadow = false;
     meshes.push(mesh);
     group.add(mesh);
     trianglesByPart[partId] = triangles;

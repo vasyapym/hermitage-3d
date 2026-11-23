@@ -96,15 +96,15 @@ const EXPECTED = {
   windows: 236,
   portalVoidCells: 12,
   columnShafts: 68,
-  instances: 659,
-  activeParts: 17,
-  triangles: 132_264,
+  instances: 671,
+  activeParts: 21,
+  triangles: 134_264,
   creaseDeclared: 215,
   creaseDerived: 234,
-  facadeDrawCalls: 34,
-  frameDrawCalls: 50,
-  frustumTriangles: 136_506,
-  submittedTriangleCeiling: 273_012,
+  facadeDrawCalls: 42,
+  frameDrawCalls: 58,
+  frustumTriangles: 138_506,
+  submittedTriangleCeiling: 277_012,
 } as const;
 // ---------------------------------------------------------------------------
 // 1. Purity
@@ -237,7 +237,7 @@ describe('pinned derived numbers', () => {
     expect(numberRows(model).has('kit.instances')).toBe(false);
     expect(numberRows(model).has('kit.triangles')).toBe(false);
   });
-  it('kit table lists only placed parts and closes on 659 / 132 264', () => {
+  it('kit table lists only placed parts and closes on 671 / 134 264', () => {
     const table = tableBlock(model, 'kit.parts');
     const partRows = table.rows.filter((row) => row.id !== 'kit.total');
     expect(partRows).toHaveLength(EXPECTED.activeParts);
@@ -269,8 +269,8 @@ describe('pinned derived numbers', () => {
       EXPECTED.submittedTriangleCeiling,
     );
     // §3.4: the projected numbers live on the rows as muted margin suffixes.
-    expect(numberRow(model, 'budget.frameDrawCalls').note).toBe('margin 200');
-    expect(numberRow(model, 'budget.frustumTriangles').note).toBe('margin 863\u2009494');
+    expect(numberRow(model, 'budget.frameDrawCalls').note).toBe('margin 192');
+    expect(numberRow(model, 'budget.frustumTriangles').note).toBe('margin 861\u2009494');
     const gzip = numberRow(model, 'budget.jsGzipBytes');
     expect(gzip.value).toBeNull();
     expect(gzip.display).toBe('—'); // an em dash, never a fake number

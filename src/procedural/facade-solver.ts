@@ -38,7 +38,8 @@ export type FixedPartId =
   | 'order-junction'
   | 'balustrade'
   | 'vase'
-  | 'statue';
+  | 'statue'
+  | 'socle';
 export type PartId = SurroundPartId | FixedPartId;
 
 export const FIXED_PART_IDS: readonly FixedPartId[] = [
@@ -55,6 +56,7 @@ export const FIXED_PART_IDS: readonly FixedPartId[] = [
   'balustrade',
   'vase',
   'statue',
+  'socle',
 ];
 
 function surroundPartId(rowId: WindowRowId, windowModule: WindowModule): SurroundPartId {
@@ -133,6 +135,11 @@ export const KIT: Readonly<Record<PartId, PartMeta>> = {
   balustrade: part(3.4, 2, 0.35, 384, 0),
   vase: part(1, 2.6, 1, 192, 0),
   statue: part(1.2, 6, 1.2, 640, 0),
+  // The socle course (the dressings law §C1): a unit box scaled in x per
+  // segment; its height is the order's foot — RULES.tierBaseY.lower (the
+  // single-source law is enforced by the solver test's top-y pin), its depth
+  // is the proud offset RULES.socle.proudM.
+  socle: part(1, 0.6, 0.35, 12, 0),
 };
 
 export type Cell =
@@ -262,6 +269,7 @@ const RULES = {
     panelsPerReturn: 2,
   },
   ornaments: { baseY: 24, slotsPerSection: [6, 18, 0, 18, 6] },
+  socle: { proudM: 0.35, archClearM: 0.2 },
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -358,6 +366,9 @@ export const WINDOW_ROW_SILL_Y: Readonly<Record<WindowRowId, number>> = {
   row3: RULES.rowSillY.row3,
   row4: RULES.rowSillY.row4,
 };
+
+/** The tier bases the order stands on; the socle course's top is the lower one. */
+export const ORDER_TIER_BASE_Y = RULES.tierBaseY;
 
 const EXPECTED_SECTION_KINDS: readonly SectionKind[] = [
   'cornerRisalit',
@@ -898,6 +909,73 @@ function segmentPrefix(spec: FacadeSpec, segment: Segment): string {
   return segment.kind === 'front' ? segment.layout.section.id : spec.id;
 }
 
+/** The socle course (the dressings law §C2): one dark base placement per face
+ * and reveal of the facade path — the four non-portal fronts, the four portal
+ * pier segments between the arch voids (each void widened by archClearM, the
+ * middle throat opening untouched), and the four crease returns. */
+function emitSocle(
+  emitter: PlacementEmitter,
+  spec: FacadeSpec,
+  frame: Frame,
+  segments: readonly Segment[],
+): void {
+  for (const segment of segments) {
+    if (segment.kind === 'return') {
+      emitter.emitAlong(spec.id, 'socle', 'socle', segment.a, segment.b, segment.normal, 0, 0, 0);
+      continue;
+    }
+    if (segment.layout.section.kind !== 'centralPortal') {
+      emitter.emitAlong(
+        segmentPrefix(spec, segment),
+        'socle',
+        'socle',
+        segment.a,
+        segment.b,
+        segment.normal,
+        0,
+        0,
+        0,
+      );
+      continue;
+    }
+    const layout = segment.layout;
+    const groundArchHalf =
+      (KIT['ground-arch'].localBounds.max.x - KIT['ground-arch'].localBounds.min.x) / 2;
+    const spans = RULES.portal.arches.map((entry) => {
+      const centre =
+        (axisX(frame, layout, entry.axes[0]) + axisX(frame, layout, entry.axes[1])) / 2;
+      const half = groundArchHalf + RULES.socle.archClearM;
+      return { from: centre - half, to: centre + half };
+    });
+    let cursor = segment.a.x;
+    for (const span of spans) {
+      if (span.from > cursor + EPSILON) {
+        emitSoclePier(emitter, layout, cursor, span.from);
+      }
+      cursor = Math.max(cursor, span.to);
+    }
+    if (segment.b.x > cursor + EPSILON) {
+      emitSoclePier(emitter, layout, cursor, segment.b.x);
+    }
+  }
+}
+
+function emitSoclePier(
+  emitter: PlacementEmitter,
+  layout: SectionLayout,
+  from: number,
+  to: number,
+): void {
+  emitter.emit(
+    layout.section.id,
+    'socle',
+    'socle',
+    vec3((from + to) / 2, 0, layout.frontZ),
+    0,
+    vec3(to - from, 1, 1),
+  );
+}
+
 function emitBands(
   emitter: PlacementEmitter,
   spec: FacadeSpec,
@@ -1135,6 +1213,7 @@ export function solveSouthFacade(spec: FacadeSpec, rows: readonly WindowRow[]): 
   emitPiers(emitter, frame);
   emitPortal(emitter, frame);
   const segments = tracePath(frame);
+  emitSocle(emitter, spec, frame, segments);
   emitBands(emitter, spec, segments);
   emitParapet(emitter, spec, frame, segments);
   emitOrnaments(emitter, frame);

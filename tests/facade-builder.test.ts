@@ -28,11 +28,11 @@ const build = buildOk();
 
 describe('facade builder', () => {
   it('creates one InstancedMesh per populated part, in catalogue order', () => {
-    expect(build.meshes).toHaveLength(20);
+    expect(build.meshes).toHaveLength(21);
     const populated = PART_IDS.filter((partId) => build.meshes.some((m) => m.name === partId));
     expect(build.meshes.map((m) => m.name)).toEqual(populated);
     expect(build.group.name).toBe('FacadeKit');
-    expect(build.group.children).toHaveLength(20);
+    expect(build.group.children).toHaveLength(21);
   });
 
   it('matches the solver instance counts per part', () => {
@@ -41,7 +41,7 @@ describe('facade builder', () => {
       const partId = mesh.name as PartId;
       expect(mesh.count).toBe(solved.byPart[partId].length);
     }
-    expect(build.instanceTotal).toBe(659);
+    expect(build.instanceTotal).toBe(671);
   });
 
   it('stays under every KIT triangle ceiling', () => {
@@ -104,9 +104,13 @@ describe('facade builder', () => {
     }
   });
 
-  it('marks kit meshes for shadow casting and receiving', () => {
+  it('marks kit meshes for shadow casting and receiving; the socle only receives', () => {
     for (const mesh of build.meshes) {
-      expect(mesh.castShadow).toBe(true);
+      if (mesh.name === 'socle') {
+        expect(mesh.castShadow).toBe(false);
+      } else {
+        expect(mesh.castShadow).toBe(true);
+      }
       expect(mesh.receiveShadow).toBe(true);
     }
   });
