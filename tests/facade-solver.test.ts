@@ -1,14 +1,16 @@
 // Facade solver gates — relay round 6 (tests written by the orchestrator per
 // docs/design-facade-grammar.md §6; the relay's test block never arrived).
 import { describe, expect, it } from 'vitest';
-import { SOUTH_FACADE, WINDOW_ROWS } from '../src/content/facade-spec';
+import { DECOR_SYSTEM, SOUTH_FACADE, WINDOW_ROWS } from '../src/content/facade-spec';
 import {
   checkBounds,
   projectBudget,
+  SECTION_CLASS_BY_LAYOUT,
   SOUTH_ENVELOPE,
   type SolvedFacade,
   solveSouthFacade,
   validateSouthSpec,
+  windowTypeGrid,
 } from '../src/procedural/facade-solver';
 
 function solveOk(): SolvedFacade {
@@ -71,6 +73,15 @@ describe('facade solver', () => {
     expect(counts.byPart.balustrade).toBe(62);
     expect(counts.byPart.vase).toBe(24);
     expect(counts.byPart.statue).toBe(24);
+  });
+
+  it('populates ten window types of the declared twelve', () => {
+    const grid = windowTypeGrid(SOUTH_FACADE);
+    expect(grid.size).toBe(10);
+    expect(grid.has('row1/portal')).toBe(false);
+    expect(grid.has('row2/portal')).toBe(false);
+    expect(grid.size).toBeLessThanOrEqual(DECOR_SYSTEM.windowTypes);
+    expect(SECTION_CLASS_BY_LAYOUT).toHaveLength(SOUTH_FACADE.sections.length);
   });
 
   it('closes the facade line at -105 and +105', () => {

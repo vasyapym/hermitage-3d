@@ -20,7 +20,11 @@ export const WINDOW_ROW_IDS: readonly WindowRowId[] = ['row1', 'row2', 'row3', '
 export const WINDOW_MODULES: readonly WindowModule[] = ['small', 'medium', 'large'];
 export const ORDER_TIERS: readonly OrderTier[] = ['lower', 'upper'];
 
-export type SurroundPartId = `surround-${WindowRowId}-${WindowModule}`;
+export type SurroundPartId =
+  | `surround-${WindowRowId}-${WindowModule}`
+  | 'surround-row2-risalit'
+  | 'surround-row3-segmental'
+  | 'surround-row3-risalit';
 export type FixedPartId =
   | 'sill'
   | 'paired-column'
@@ -88,6 +92,13 @@ const SURROUND_ROW1 = part(1.7, 2.25, 0.32, 192, 0);
 const SURROUND_ROW2 = part(2.1, 4.25, 0.32, 288, 0);
 const SURROUND_ROW3 = part(2.1, 3.8, 0.32, 256, 0);
 const SURROUND_ROW4 = part(1.7, 2.65, 0.32, 224, 0);
+// The variant surround envelopes equal their row's base envelope (the dressings
+// law, sq-facade): only the ceilings differ — placement bounds and
+// surroundOffsetZ are untouched, and the night lattice sizes the pane from
+// the same row parameters.
+const SURROUND_ROW2_RISALIT = SURROUND_ROW2;
+const SURROUND_ROW3_SEGMENTAL = SURROUND_ROW3;
+const SURROUND_ROW3_RISALIT = SURROUND_ROW3;
 
 export const KIT: Readonly<Record<PartId, PartMeta>> = {
   'surround-row1-small': SURROUND_ROW1,
@@ -102,6 +113,9 @@ export const KIT: Readonly<Record<PartId, PartMeta>> = {
   'surround-row4-small': SURROUND_ROW4,
   'surround-row4-medium': SURROUND_ROW4,
   'surround-row4-large': SURROUND_ROW4,
+  'surround-row2-risalit': SURROUND_ROW2_RISALIT,
+  'surround-row3-segmental': SURROUND_ROW3_SEGMENTAL,
+  'surround-row3-risalit': SURROUND_ROW3_RISALIT,
   sill: part(1.4, 0.15, 0.4, 40, 0),
   'paired-column': part(1.1, 9.6, 0.65, 480, 2),
   'corner-bunch': part(1.1, 9.6, 0.75, 720, 3),
@@ -245,6 +259,79 @@ const RULES = {
   },
   ornaments: { baseY: 24, slotsPerSection: [6, 18, 0, 18, 6] },
 } as const;
+
+// ---------------------------------------------------------------------------
+// The dressings law (sq-facade, DEC-ready): the window type is the
+// (row × section-class) cell — 10 of the spec's declared 12 window types are
+// populated on the south front (the portal's rows 1–2 are the arch voids) —
+// and the head variant per cell is the HEAD_LAW row. The variant ids reuse
+// their row's base envelope; the stretch alternation is mirrored about the
+// portal axis by the same east-half convention emitOrnaments uses.
+// ---------------------------------------------------------------------------
+
+export type SectionClass = 'risalit' | 'stretch' | 'portal';
+export type HeadVariant = 'base' | 'segmental' | 'risalit';
+
+/** One class per solved layout index: risalit, stretch, portal, stretch, risalit. */
+export const SECTION_CLASS_BY_LAYOUT = [
+  'risalit',
+  'stretch',
+  'portal',
+  'stretch',
+  'risalit',
+] as const satisfies readonly SectionClass[];
+
+export function sectionClassOfLayoutIndex(index: number): SectionClass {
+  const sectionClass: SectionClass | undefined = SECTION_CLASS_BY_LAYOUT[index];
+  if (sectionClass === undefined) throw new Error('layout index outside the section grid');
+  return sectionClass;
+}
+
+export const HEAD_LAW: Readonly<
+  Record<WindowRowId, Readonly<Record<SectionClass, readonly HeadVariant[]>>>
+> = {
+  row1: { risalit: ['base'], stretch: ['base'], portal: ['base'] },
+  row2: { risalit: ['base'], stretch: ['base'], portal: ['base'] },
+  row3: { risalit: ['base'], stretch: ['base'], portal: ['base'] },
+  row4: { risalit: ['base'], stretch: ['base'], portal: ['base'] },
+};
+
+function surroundVariantPartId(
+  row: WindowRowId,
+  variant: Exclude<HeadVariant, 'base'>,
+): SurroundPartId {
+  if (row === 'row2' && variant === 'risalit') return 'surround-row2-risalit';
+  if (row === 'row3') {
+    return variant === 'segmental' ? 'surround-row3-segmental' : 'surround-row3-risalit';
+  }
+  throw new Error(`no variant surround part for row '${row}'`);
+}
+
+export function surroundPartFor(
+  row: WindowRowId,
+  module: WindowModule,
+  sectionClass: SectionClass,
+  ordinal: number,
+): SurroundPartId {
+  const variants: readonly HeadVariant[] | undefined = HEAD_LAW[row][sectionClass];
+  const length = variants?.length ?? 1;
+  const variant: HeadVariant = variants?.[ordinal % length] ?? 'base';
+  return variant === 'base' ? surroundPartId(row, module) : surroundVariantPartId(row, variant);
+}
+
+/** The populated `${row}/${sectionClass}` window-type keys of a facade spec. */
+export function windowTypeGrid(spec: FacadeSpec): ReadonlySet<string> {
+  const grid = new Set<string>();
+  const archRows = RULES.portal.archRows as readonly WindowRowId[];
+  for (const [index] of spec.sections.entries()) {
+    const sectionClass = sectionClassOfLayoutIndex(index);
+    for (const rowId of WINDOW_ROW_IDS) {
+      if (sectionClass === 'portal' && archRows.includes(rowId)) continue;
+      grid.add(`${rowId}/${sectionClass}`);
+    }
+  }
+  return grid;
+}
 
 // Opening widths of the three sourced window modules (design §1); the sill
 // scales to opening width + 0.40 (round-5 kit rule, restored by the
@@ -665,15 +752,25 @@ class PlacementEmitter {
   }
 }
 
-function emitWindows(emitter: PlacementEmitter, axes: readonly Axis[]): void {
+function emitWindows(emitter: PlacementEmitter, frame: Frame, axes: readonly Axis[]): void {
+  const layoutBySection = new Map(frame.layouts.map((layout) => [layout.section.id, layout]));
+  const lastIndex = frame.layouts.length - 1;
   for (const axis of axes) {
+    const layout = layoutBySection.get(axis.sectionId);
+    if (layout === undefined) throw new Error(`axis '${axis.id}' has no section layout`);
+    const sectionClass = sectionClassOfLayoutIndex(layout.index);
+    // The east-half mirror (emitOrnaments' convention): the alternation
+    // ordinal runs west→east on the west half and is mirrored on the east
+    // half, so the pattern is symmetric about the portal axis.
+    const eastHalf = layout.index > lastIndex - layout.index;
     for (const cell of axis.cells) {
       if (cell.kind !== 'window') continue;
       const sillY = RULES.rowSillY[cell.rowId];
+      const ordinal = eastHalf ? layout.section.declaredAxes - 1 - axis.index : axis.index;
       emitter.emit(
         axis.sectionId,
         'surround',
-        surroundPartId(cell.rowId, cell.module),
+        surroundPartFor(cell.rowId, cell.module, sectionClass, ordinal),
         vec3(axis.x, sillY, axis.frontZ + RULES.surroundOffsetZ),
         0,
       );
@@ -1030,7 +1127,7 @@ export function solveSouthFacade(spec: FacadeSpec, rows: readonly WindowRow[]): 
   const frame = buildFrame(spec);
   const axes = expandAxes(frame, rows);
   const emitter = new PlacementEmitter();
-  emitWindows(emitter, axes);
+  emitWindows(emitter, frame, axes);
   emitPiers(emitter, frame);
   emitPortal(emitter, frame);
   const segments = tracePath(frame);

@@ -53,6 +53,12 @@ describe('facade builder', () => {
     }
   });
 
+  it('carries a kit row and a builder for every emitted part', () => {
+    for (const partId of PART_IDS) expect(KIT[partId]).toBeDefined();
+    const emitted = new Set(solveOk().placements.map((placement) => placement.partId));
+    for (const partId of emitted) expect(() => getPartGeometry(partId)).not.toThrow();
+  });
+
   it('decodes instance matrices back to the solver placements', () => {
     const solved = solveOk();
     const matrix = new THREE.Matrix4();
