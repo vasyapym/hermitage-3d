@@ -1604,13 +1604,16 @@ def build_airlock_set(b):
             (G_X1 + AIRLOCK_DEPTH, DOOR_BAND_Y[0], PORTAL_Z1),
             (G_X1, DOOR_BAND_Y[0], PORTAL_Z1)],
            M_SHADE_AIRLOCK, 'airlock.soffit', (0.0, -1.0, 0.0))
-    # the floor continuation (flags) and the box-side threshold strip (band) at y = 0;
-    # the strip abuts the room's threshold-band faces across the doorway line
+    # the floor continuation (flags) and the threshold strip (band) at y = 0. The strip
+    # reaches WEST to the floor's actual edge (the end-wall skirting hole spans x
+    # G_X1 - SKIRTING_PROUD .. G_X1 across ALL z - the doorway clear included, and no
+    # skirting runs across the opening): the review-pass floor-join fix - without it the
+    # mouth shows a SKIRTING_PROUD-wide floor void once the card is displaced.
     b.face([(G_X1 + AIRLOCK_THRESHOLD_W, 0.0, PORTAL_Z0), (G_X1 + AIRLOCK_DEPTH, 0.0, PORTAL_Z0),
             (G_X1 + AIRLOCK_DEPTH, 0.0, PORTAL_Z1), (G_X1 + AIRLOCK_THRESHOLD_W, 0.0, PORTAL_Z1)],
            M_FLAGS, 'airlock.floor', (0.0, 1.0, 0.0))
-    b.face([(G_X1, 0.0, PORTAL_Z0), (G_X1 + AIRLOCK_THRESHOLD_W, 0.0, PORTAL_Z0),
-            (G_X1 + AIRLOCK_THRESHOLD_W, 0.0, PORTAL_Z1), (G_X1, 0.0, PORTAL_Z1)],
+    b.face([(G_X1 - SKIRTING_PROUD, 0.0, PORTAL_Z0), (G_X1 + AIRLOCK_THRESHOLD_W, 0.0, PORTAL_Z0),
+            (G_X1 + AIRLOCK_THRESHOLD_W, 0.0, PORTAL_Z1), (G_X1 - SKIRTING_PROUD, 0.0, PORTAL_Z1)],
            M_BAND, 'airlock.threshold', (0.0, 1.0, 0.0))
 
 
@@ -2433,37 +2436,42 @@ AIRLOCK_FLOOR_HOST_ANCHOR = (PORTAL_X0 - AIRLOCK_HOST_FALLOFF, PORTAL_Z0, PORTAL
 # end-wall skirting hole (x 43.91..44 across all z) and its 6-px atlas cell cannot carry
 # the clamp law's gutter - the adjacent full-depth face hosts the strip instead.
 AIRLOCK_THRESHOLD_HOST_ANCHOR = (PORTAL_X0, PORTAL_Z0, G_X1 - FLOOR_BORDER, PORTAL_Z1)
-if vault_y_at(JAMB_BAND_Z[0] - AIRLOCK_HOST_FALLOFF) <= AIRLOCK_SOFFIT_HOST_Y1:
+if not BAKE and vault_y_at(JAMB_BAND_Z[0] - AIRLOCK_HOST_FALLOFF) <= AIRLOCK_SOFFIT_HOST_Y1:
+    # the review-pass fix: the assertion is export-only law - the bake chain never
+    # constructs the borrower, so a retune must not fail ZIMNY_BAKE=1 at module load.
     fail("the soffit host anchor's top must sit under the end wall's faceted vault boundary")
 AIRLOCK_HOST_ELEMENTS = ('wall.e', 'floor.flags', 'floor.band')
 AIRLOCK_HOST_ROWS = {
     # (host element, the anchor rect (t0, y0, t1, y1) in the host face's frame, the
     # borrower x at its far/deep and near/mouth edges, the borrower's parallel axis and
-    # that axis's source span - the span maps linearly onto the shrunk anchor's span)
+    # that axis's source span - the span maps linearly onto the shrunk anchor's span;
+    # far_high names which shrunk endpoint the DEEP edge maps to: the DOOR-ADJACENT one -
+    # the anchor's t1 on the west flank (71.95 lies at the jamb), its t0 on the east
+    # (74.05 does) - the review-pass direction fix on the east row)
     'airlock.reveal.w': {
         'host': 'wall.e', 'anchor': AIRLOCK_REVEAL_W_HOST_ANCHOR,
         'x_far': G_X1 + AIRLOCK_DEPTH, 'x_near': G_X1,
-        'parallel': 'y', 'src': (0.0, DOOR_BAND_Y[0]),
+        'parallel': 'y', 'src': (0.0, DOOR_BAND_Y[0]), 'far_high': True,
     },
     'airlock.reveal.e': {
         'host': 'wall.e', 'anchor': AIRLOCK_REVEAL_E_HOST_ANCHOR,
         'x_far': G_X1 + AIRLOCK_DEPTH, 'x_near': G_X1,
-        'parallel': 'y', 'src': (0.0, DOOR_BAND_Y[0]),
+        'parallel': 'y', 'src': (0.0, DOOR_BAND_Y[0]), 'far_high': False,
     },
     'airlock.soffit': {
         'host': 'wall.e', 'anchor': AIRLOCK_SOFFIT_HOST_ANCHOR,
         'x_far': G_X1 + AIRLOCK_DEPTH, 'x_near': G_X1,
-        'parallel': 'z', 'src': (PORTAL_Z0, PORTAL_Z1),
+        'parallel': 'z', 'src': (PORTAL_Z0, PORTAL_Z1), 'far_high': True,
     },
     'airlock.floor': {
         'host': 'floor.flags', 'anchor': AIRLOCK_FLOOR_HOST_ANCHOR,
         'x_far': G_X1 + AIRLOCK_DEPTH, 'x_near': G_X1 + AIRLOCK_THRESHOLD_W,
-        'parallel': 'z', 'src': (PORTAL_Z0, PORTAL_Z1),
+        'parallel': 'z', 'src': (PORTAL_Z0, PORTAL_Z1), 'far_high': True,
     },
     'airlock.threshold': {
         'host': 'floor.band', 'anchor': AIRLOCK_THRESHOLD_HOST_ANCHOR,
-        'x_far': G_X1 + AIRLOCK_THRESHOLD_W, 'x_near': G_X1,
-        'parallel': 'z', 'src': (PORTAL_Z0, PORTAL_Z1),
+        'x_far': G_X1 + AIRLOCK_THRESHOLD_W, 'x_near': G_X1 - SKIRTING_PROUD,
+        'parallel': 'z', 'src': (PORTAL_Z0, PORTAL_Z1), 'far_high': True,
     },
 }
 
@@ -2552,7 +2560,13 @@ def adopt_airlock_uv(builder, lm_lay, roster):
                 min(q[1] for q in uvs), max(q[1] for q in uvs))
         for loop, vert in zip(f.loops, f.verts):
             w = to_w(vert.co)
-            t = shrunk[2] + (shrunk[0] - shrunk[2]) * (w[0] - row['x_far']) \
+            # the reversed depth law: the borrower's DEEP edge (x_far) maps to the
+            # shrunk anchor's DOOR-ADJACENT endpoint (far_high: its t1, else its t0) -
+            # the review-pass direction fix (the east flank's jamb-adjacent edge is the
+            # anchor's LOW endpoint); the mouth edge maps to the opposite endpoint.
+            far_t = shrunk[2] if row['far_high'] else shrunk[0]
+            near_t = shrunk[0] if row['far_high'] else shrunk[2]
+            t = far_t + (near_t - far_t) * (w[0] - row['x_far']) \
                 / (row['x_near'] - row['x_far'])
             source = w[1] if row['parallel'] == 'y' else w[2]
             src0, src1 = row['src']
