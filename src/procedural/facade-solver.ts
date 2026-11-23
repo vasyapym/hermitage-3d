@@ -132,7 +132,7 @@ export const KIT: Readonly<Record<PartId, PartMeta>> = {
   'corner-bunch': part(1.1, 9.6, 0.75, 720, 3),
   'portal-arch': part(5.5, 9.8, 0.6, 256, 0),
   'ground-arch': part(4.9, 9.4, 0.1, 96, 0),
-  'giant-column': part(1.1, 20.4, 0.85, 320, 1),
+  'giant-column': part(1.1, 20.55, 0.85, 320, 1),
   pediment: part(27.2, 5, 0.7, 256, 0),
   cartouche: part(2.4, 3.2, 0.45, 768, 0),
   'cornice-run': part(1, 1, 0.8, 104, 0),
@@ -147,7 +147,7 @@ export const KIT: Readonly<Record<PartId, PartMeta>> = {
   // (the rule row carries only the arch clearance). The course casts no
   // shadow (§C4): it hugs the wall base, and the projection and the builder
   // read that law here.
-  socle: part(1, 0.6, 0.35, 12, 0, false),
+  socle: part(1, 0.45, 0.35, 12, 0, false),
 };
 
 export type Cell =
@@ -247,12 +247,12 @@ const RULES = {
   rowTier: { row1: 'lower', row2: 'lower', row3: 'upper', row4: 'upper' },
   surroundOffsetZ: 0.02,
   sillDropM: 0.15,
-  tierBaseY: { lower: 0.6, upper: 11.4 },
+  tierBaseY: { lower: 0.45, upper: 11.4 },
   stretchPierGaps: [2, 6, 10, 14, 18],
   risalitBunchGaps: [1, 6],
   portal: {
     giantGaps: [1, 3, 5, 7],
-    giantBaseY: 0.6,
+    giantBaseY: 0.45,
     arches: [
       { arch: 0, axes: [1, 2] },
       { arch: 1, axes: [3, 4] },
@@ -824,13 +824,22 @@ function emitPiers(emitter: PlacementEmitter, frame: Frame): void {
     const rule = PIER_RULES[layout.section.kind];
     if (rule === null) continue;
     for (const tier of ORDER_TIERS) {
+      const baseY = RULES.tierBaseY[tier];
+      // The lower tier stands on the (shorter) socle and stretches to the
+      // lower cornice line, so the capitals stay seated on the band; the
+      // upper tier keeps the part's own height. Derived, never a literal.
+      const scale =
+        tier === 'lower'
+          ? vec3(1, (RULES.bands[0].baseY - baseY) / KIT[rule.partId].localBounds.max.y, 1)
+          : UNIT_SCALE;
       for (const gap of rule.gaps) {
         emitter.emit(
           layout.section.id,
           'pier',
           rule.partId,
-          vec3(gapX(frame, layout, gap), RULES.tierBaseY[tier], layout.frontZ),
+          vec3(gapX(frame, layout, gap), baseY, layout.frontZ),
           0,
+          scale,
         );
       }
     }

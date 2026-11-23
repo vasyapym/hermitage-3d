@@ -65,7 +65,7 @@ describe('/notes elevation frieze', () => {
       '<rect class="slot" x="-104.156" y="14.800" width="1.700" height="3.600"/>',
     );
     expect(elevation.body).toContain(
-      '<rect class="shaft" x="-102.163" y="13.800" width="1.100" height="9.600"/>',
+      '<rect class="shaft" x="-102.163" y="13.800" width="1.100" height="9.750"/>',
     );
     expect(elevation.body).toContain(
       '<rect class="portal" x="-10.161" y="21.000" width="3.387" height="1.800"/>',
