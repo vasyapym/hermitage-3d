@@ -60,7 +60,8 @@ const GLOW_STRENGTH = 6;
 // + 2 sconce), names asserted; the 'pane' material must be present with emissive
 // strength 0 (an absent KHR_materials_emissive_strength row counts as 0 — the flat
 // non-emissive export shape). RG-F5 adds the flat 'stucco_shade' row (the fillet-shade
-// device's 7th shell slot; exported-never-baked, no texture).
+// device's 7th shell slot; exported-never-baked, no texture). RG-F6 adds the flat
+// 'stucco_shade_airlock' row (the airlock shade's 8th shell slot; the same law).
 const EXPECTED_MATERIALS = [
   'iron_dark',
   'pane',
@@ -70,10 +71,11 @@ const EXPECTED_MATERIALS = [
   'stone_flags',
   'stucco_grey',
   'stucco_shade',
+  'stucco_shade_airlock',
   'stairlight',
 ];
 const PANE_MATERIAL = 'pane';
-const MATERIALS_SHELL = 7;
+const MATERIALS_SHELL = 8;
 const MATERIALS_SCONCE = 2;
 const TOKTX_ARGS = [
   '--t2',

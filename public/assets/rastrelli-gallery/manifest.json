@@ -27,32 +27,32 @@
     },
     {
       "path": "rastrelli-gallery.glb",
-      "bytes": 292928,
-      "sha256": "30137c871724fd060ea103f18bbcbcb190c1e86f728a64748afbe2a69690d0b7",
+      "bytes": 294632,
+      "sha256": "f8ea77dcb2c1b5ae57107cb017c1bbbda8d55fc313313c4bd14148f03f13c1a2",
       "kind": "glb"
     },
     {
       "path": "tex/plaster_pale.ktx2",
-      "bytes": 30804,
-      "sha256": "79a1b8c3b470a7c54768f2137900cf16a329bbc05de76b21fc1a1799d89a091a",
+      "bytes": 30818,
+      "sha256": "281bcd559cdc1fb9870788e98117c46719ea41f6053efed8fd50efd969905b3a",
       "kind": "ktx2"
     },
     {
       "path": "tex/stone_band.ktx2",
-      "bytes": 29510,
-      "sha256": "97d3a4c8b77106416d70b89dc71d4a4d833634e208685264b22df25dac203997",
+      "bytes": 29689,
+      "sha256": "a62ce4f1fbb179f8a5c0c8296304b80bb055876b730551b72ee419c665a3014c",
       "kind": "ktx2"
     },
     {
       "path": "tex/stone_flags.ktx2",
-      "bytes": 15464,
-      "sha256": "e1e681a217075ac81a0d7e3516f77b3095ce4f493aff4490f536161d5008a561",
+      "bytes": 15459,
+      "sha256": "d397c9746855bdd7a787a504a99a7142ed89d17fd4e73f7b6590a6d6a4caf38b",
       "kind": "ktx2"
     },
     {
       "path": "tex/stucco_grey.ktx2",
-      "bytes": 1894,
-      "sha256": "3fc2002fa637c218bd875f819bb29317440deef16f9e60f8f90acaed20820aa4",
+      "bytes": 1872,
+      "sha256": "c4804133ef798f66ee505d828b1ae88950be307a64db1c816c89914a49c60cde",
       "kind": "ktx2"
     }
   ],
@@ -61,8 +61,8 @@
       {
         "name": "shell",
         "instances": 1,
-        "primitives": 7,
-        "triangles": 11616
+        "primitives": 8,
+        "triangles": 11626
       },
       {
         "name": "sconce",
@@ -71,8 +71,8 @@
         "triangles": 66
       }
     ],
-    "trianglesUnique": 11682,
-    "trianglesDrawn": 12540,
+    "trianglesUnique": 11692,
+    "trianglesDrawn": 12550,
     "extensionsRequired": [
       "EXT_meshopt_compression",
       "KHR_mesh_quantization",

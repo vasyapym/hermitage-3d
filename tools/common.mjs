@@ -31,7 +31,13 @@ export const KTX2_MAGIC = Buffer.from([
   0x1a,
   0x0a, // «»KTX 20»\r\n\x1A\n
 ]);
-export const GLTF_TRANSFORM = { cmd: 'pnpm', args: ['exec', 'gltf-transform'] };
+// The CLI spawns without a shell: a bare `pnpm` never resolves the Windows .cmd shim
+// (and Node >= 18.20 blocks .cmd/.bat spawns outright) - invoke the installed bin through
+// node itself, which resolves on every platform.
+export const GLTF_TRANSFORM = {
+  cmd: process.execPath,
+  args: [join(ROOT, 'node_modules', '@gltf-transform', 'cli', 'bin', 'cli.js')],
+};
 export const BLENDER =
   process.env.ZIMNY_BLENDER ?? '/Applications/Blender.app/Contents/MacOS/Blender';
 

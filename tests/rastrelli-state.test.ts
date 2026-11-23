@@ -12,7 +12,12 @@
 //    the shell's roster with ADOPTED TEXCOORD_1 (the hosts' cells; no new atlas cells), so
 //    all three plates stayed byte-identical and only the glb grew, +40,224 B). The three
 //    plate shas below are the junction-law values and HELD through the RG-F5 re-bake proof
-//    (the bake chain never builds the families — build_room guards on ZIMNY_BAKE).
+//    (the bake chain never builds the families — build_room guards on ZIMNY_BAKE). RG-F6
+//    (the threshold round, 2026-11-23) re-pinned the glb DELIBERATELY again: the displaced
+//    twin + five borrowed faces (the doorcard face itself displaced export-chain-only; the
+//    bake scene byte-unchanged — the plates re-hash to the same shas on the untouched
+//    files), glb 292,928 → 294,632 B (+1,704), tris 12,540 → 12,550 drawn, the shell's
+//    8th slot (stucco_shade_airlock).
 //    THE JUNCTION LAW (rg-audit batch B) re-pinned ALL THREE PLATES deliberately: the day and
 //    dusk plates carry the S2A junction relief (the never-exported proxies baked
 //    Selected-to-Active into the atlas; the committed flat path untouched as the base), and
@@ -90,7 +95,7 @@ describe('rastrelli-gallery state (RG-F4)', () => {
     const day = MANIFEST.files.find((f) => f.path === 'lm/day.ktx2');
     const dusk = MANIFEST.files.find((f) => f.path === 'lm/dusk.ktx2');
     const night = MANIFEST.files.find((f) => f.path === 'lm/night.ktx2');
-    expect(glb?.sha256).toBe('30137c871724fd060ea103f18bbcbcb190c1e86f728a64748afbe2a69690d0b7');
+    expect(glb?.sha256).toBe('f8ea77dcb2c1b5ae57107cb017c1bbbda8d55fc313313c4bd14148f03f13c1a2');
     expect(day?.sha256).toBe('21070dfc50ded69a9ec45769e72972a25c9a60b23cd0d822eba44c13e15b86a3');
     expect(dusk?.sha256).toBe('d4eec68c205bd6cde4f47eef67c84ba7963169a4db75ad5da903722f0e6cfe25');
     expect(night?.sha256).toBe('27bb7c1eedd4e9cbb7e90e617da3e1ae00a817b7fa8f11ba5cf43a311b6f55e9');
@@ -102,15 +107,15 @@ describe('rastrelli-gallery state (RG-F4)', () => {
     expect(MANIFEST.lightmaps.intensity).toEqual({ day: 0.8, dusk: 0.8, nightChandeliers: 0.8 });
   });
 
-  it('the room envelopes hold: payload ≤ 2M, textures ≤ 1M, tris 12,544 drawn', () => {
+  it('the room envelopes hold: payload ≤ 2M, textures ≤ 1M, tris 12,550 drawn', () => {
     const sum = MANIFEST.files.reduce((acc, f) => acc + f.bytes, 0);
     const tex = MANIFEST.files
       .filter((f) => f.kind === 'ktx2')
       .reduce((acc, f) => acc + f.bytes, 0);
     expect(sum).toBeLessThanOrEqual(MANIFEST.budget.payloadBytesMax);
     expect(tex).toBeLessThanOrEqual(MANIFEST.budget.textureBytesMax);
-    expect(sum).toBe(1184825); // the RG-F5 manifest (the geometry's +40,224 B; the plates byte-held)
-    expect(tex).toBe(891897);
-    expect(MANIFEST.geometry?.trianglesDrawn).toBe(12540); // the file-level law rides tests/assets.test.ts
+    expect(sum).toBe(1186695); // the RG-F6 manifest (the threshold's +1,870 B; the plates byte-held)
+    expect(tex).toBe(892063);
+    expect(MANIFEST.geometry?.trianglesDrawn).toBe(12550); // the file-level law rides tests/assets.test.ts
   });
 });
