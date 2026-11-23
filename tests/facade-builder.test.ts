@@ -28,11 +28,11 @@ const build = buildOk();
 
 describe('facade builder', () => {
   it('creates one InstancedMesh per populated part, in catalogue order', () => {
-    expect(build.meshes).toHaveLength(17);
+    expect(build.meshes).toHaveLength(21);
     const populated = PART_IDS.filter((partId) => build.meshes.some((m) => m.name === partId));
     expect(build.meshes.map((m) => m.name)).toEqual(populated);
     expect(build.group.name).toBe('FacadeKit');
-    expect(build.group.children).toHaveLength(17);
+    expect(build.group.children).toHaveLength(21);
   });
 
   it('matches the solver instance counts per part', () => {
@@ -41,7 +41,7 @@ describe('facade builder', () => {
       const partId = mesh.name as PartId;
       expect(mesh.count).toBe(solved.byPart[partId].length);
     }
-    expect(build.instanceTotal).toBe(659);
+    expect(build.instanceTotal).toBe(671);
   });
 
   it('stays under every KIT triangle ceiling', () => {
@@ -51,6 +51,12 @@ describe('facade builder', () => {
       expect(tris).toBeLessThanOrEqual(KIT[partId].triangleCeiling);
       expect(build.trianglesByPart[partId]).toBe(tris);
     }
+  });
+
+  it('carries a kit row and a builder for every emitted part', () => {
+    for (const partId of PART_IDS) expect(KIT[partId]).toBeDefined();
+    const emitted = new Set(solveOk().placements.map((placement) => placement.partId));
+    for (const partId of emitted) expect(() => getPartGeometry(partId)).not.toThrow();
   });
 
   it('decodes instance matrices back to the solver placements', () => {
@@ -98,11 +104,93 @@ describe('facade builder', () => {
     }
   });
 
-  it('marks kit meshes for shadow casting and receiving', () => {
+  it('marks kit meshes for shadow casting and receiving; the socle only receives', () => {
     for (const mesh of build.meshes) {
-      expect(mesh.castShadow).toBe(true);
+      expect(mesh.castShadow).toBe(KIT[mesh.name as PartId].castShadow);
       expect(mesh.receiveShadow).toBe(true);
     }
+  });
+
+  it('keeps the built geometry inside its declared bounds', () => {
+    // The pre-existing declared-vs-actual mismatches, measured by this pin on
+    // the review pass (2026-11-23). The declared bounds stay as committed —
+    // re-deriving them is a successor's call; the geometry is bit-identical.
+    // A violation must match its recorded exception verbatim, so any real
+    // regression fails here.
+    const MEASURED_EXCEPTIONS: Partial<Record<PartId, string>> = {
+      'paired-column': 'max.z 0.7500 > 0.65', // the bell flare
+      'corner-bunch': 'max.z 0.8200 > 0.75', // the bell flare
+      'giant-column': 'min.z -0.1250 < 0 | max.z 0.9750 > 0.85', // the plinth-tier prism
+    };
+    for (const mesh of build.meshes) {
+      const partId = mesh.name as PartId;
+      const bounds = KIT[partId].localBounds;
+      mesh.geometry.computeBoundingBox();
+      const box = mesh.geometry.boundingBox;
+      if (!box) throw new Error('no bounding box');
+      const violations: string[] = [];
+      if (box.min.x < bounds.min.x - 1e-6) {
+        violations.push(`min.x ${box.min.x.toFixed(4)} < ${bounds.min.x}`);
+      }
+      if (box.min.y < bounds.min.y - 1e-6) {
+        violations.push(`min.y ${box.min.y.toFixed(4)} < ${bounds.min.y}`);
+      }
+      if (box.min.z < bounds.min.z - 1e-6) {
+        violations.push(`min.z ${box.min.z.toFixed(4)} < ${bounds.min.z}`);
+      }
+      if (box.max.x > bounds.max.x + 1e-6) {
+        violations.push(`max.x ${box.max.x.toFixed(4)} > ${bounds.max.x}`);
+      }
+      if (box.max.y > bounds.max.y + 1e-6) {
+        violations.push(`max.y ${box.max.y.toFixed(4)} > ${bounds.max.y}`);
+      }
+      if (box.max.z > bounds.max.z + 1e-6) {
+        violations.push(`max.z ${box.max.z.toFixed(4)} > ${bounds.max.z}`);
+      }
+      if (violations.length > 0) {
+        const exception = MEASURED_EXCEPTIONS[partId];
+        expect(violations.join(' | '), `${partId} vs its recorded exception`).toBe(exception);
+      }
+    }
+  });
+
+  it('winds the keystone mask outward', () => {
+    const geometry = getPartGeometry('surround-row2-risalit');
+    const position = geometry.getAttribute('position');
+    const index = geometry.getIndex();
+    if (!index) throw new Error('unindexed geometry');
+    // The non-degenerate triangle whose centroid sits nearest the mask's
+    // flank near the proud tip; the mask is the only geometry there, so its
+    // winding is the dome's. Degenerate tip triangles (zero area) are skipped.
+    const target = new THREE.Vector3(0.05, 4.25 - 0.65 / 2, 0.32 + 0.08);
+    let bestNormal: THREE.Vector3 | null = null;
+    let bestDistance = Number.POSITIVE_INFINITY;
+    for (let t = 0; t < index.count; t += 3) {
+      const a = index.getX(t);
+      const b = index.getX(t + 1);
+      const c = index.getX(t + 2);
+      if (a === undefined || b === undefined || c === undefined) throw new Error('bad index');
+      const va = new THREE.Vector3(position.getX(a), position.getY(a), position.getZ(a));
+      const vb = new THREE.Vector3(position.getX(b), position.getY(b), position.getZ(b));
+      const vc = new THREE.Vector3(position.getX(c), position.getY(c), position.getZ(c));
+      const normal = new THREE.Vector3()
+        .subVectors(vb, va)
+        .cross(new THREE.Vector3().subVectors(vc, va));
+      if (normal.lengthSq() < 1e-12) continue;
+      normal.normalize();
+      const centroid = new THREE.Vector3()
+        .addVectors(va, vb)
+        .add(vc)
+        .multiplyScalar(1 / 3);
+      const distance = centroid.distanceToSquared(target);
+      if (distance < bestDistance) {
+        bestDistance = distance;
+        bestNormal = normal;
+      }
+    }
+    if (bestNormal === null) throw new Error('no non-degenerate triangles');
+    // The mask's outward faces point away from the wall (+Z).
+    expect(bestNormal.z).toBeGreaterThan(0.5);
   });
 
   it('memoizes part geometry and builds deterministically', () => {

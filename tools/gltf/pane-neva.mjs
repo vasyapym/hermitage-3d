@@ -70,7 +70,9 @@ function fail(message) {
 // TOKTX_ARGS law in tools/gltf/jordan.mjs) runs FIRST; the transport only pairs a
 // complete candidate.
 if (!existsSync(join(ROOM_DIR, NEVA_URI))) {
-  fail(`tex/neva.ktx2 not found - run the toktx encode first; the transport never writes a half-paired tree`);
+  fail(
+    `tex/neva.ktx2 not found - run the toktx encode first; the transport never writes a half-paired tree`,
+  );
 }
 
 function makeIO() {
@@ -290,7 +292,7 @@ const vEmis = vMat.getEmissiveTexture();
 if (!vBase || vBase.getURI() !== NEVA_URI) fail(`verify: baseColorTexture != ${NEVA_URI}`);
 if (!vEmis || vEmis.getURI() !== NEVA_URI) fail(`verify: emissiveTexture != ${NEVA_URI}`);
 const vSampler = vMat.getEmissiveTextureInfo();
-if (!vSampler || vSampler.getWrapS() !== 33071 || vSampler.getWrapT() !== 33071) {
+if (vSampler?.getWrapS() !== 33071 || vSampler?.getWrapT() !== 33071) {
   fail('verify: the neva sampler is not CLAMP_TO_EDGE on both axes');
 }
 const written = parseGlb(readFileSync(tmpPath));
@@ -313,14 +315,18 @@ const glbRow = manifest.files.find((f) => f.path === `${ROOM_ID}.glb`);
 if (!glbRow) fail('manifest: jordan.glb row missing');
 glbRow.bytes = glb.length;
 glbRow.sha256 = sha256(glb);
-console.log(`manifest: updated ${ROOM_ID}.glb -> ${glb.length} B sha256 ${glbRow.sha256.slice(0, 16)}...`);
+console.log(
+  `manifest: updated ${ROOM_ID}.glb -> ${glb.length} B sha256 ${glbRow.sha256.slice(0, 16)}...`,
+);
 const ktx = readFileSync(join(ROOM_DIR, NEVA_URI));
 const row = { path: NEVA_URI, bytes: ktx.length, sha256: sha256(ktx), kind: 'ktx2' };
 const existing = manifest.files.find((f) => f.path === NEVA_URI);
 if (existing) {
   existing.bytes = row.bytes;
   existing.sha256 = row.sha256;
-  console.log(`manifest: updated ${NEVA_URI} -> ${row.bytes} B sha256 ${row.sha256.slice(0, 16)}...`);
+  console.log(
+    `manifest: updated ${NEVA_URI} -> ${row.bytes} B sha256 ${row.sha256.slice(0, 16)}...`,
+  );
 } else {
   manifest.files.push(row);
   manifest.files.sort((a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0));

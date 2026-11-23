@@ -809,9 +809,9 @@
           "id": "kit.surround-row2-large",
           "cells": [
             "surround-row2-large",
-            "56",
+            "42",
             "288",
-            "16 128"
+            "12 096"
           ],
           "provenance": [
             {
@@ -824,9 +824,9 @@
           "id": "kit.surround-row3-large",
           "cells": [
             "surround-row3-large",
-            "62",
+            "20",
             "256",
-            "15 872"
+            "5 120"
           ],
           "provenance": [
             {
@@ -842,6 +842,51 @@
             "62",
             "224",
             "13 888"
+          ],
+          "provenance": [
+            {
+              "kind": "derived",
+              "formula": "counts.byPart × KIT.triangleCeiling"
+            }
+          ]
+        },
+        {
+          "id": "kit.surround-row2-risalit",
+          "cells": [
+            "surround-row2-risalit",
+            "14",
+            "320",
+            "4 480"
+          ],
+          "provenance": [
+            {
+              "kind": "derived",
+              "formula": "counts.byPart × KIT.triangleCeiling"
+            }
+          ]
+        },
+        {
+          "id": "kit.surround-row3-segmental",
+          "cells": [
+            "surround-row3-segmental",
+            "20",
+            "256",
+            "5 120"
+          ],
+          "provenance": [
+            {
+              "kind": "derived",
+              "formula": "counts.byPart × KIT.triangleCeiling"
+            }
+          ]
+        },
+        {
+          "id": "kit.surround-row3-risalit",
+          "cells": [
+            "surround-row3-risalit",
+            "22",
+            "320",
+            "7 040"
           ],
           "provenance": [
             {
@@ -1046,12 +1091,27 @@
           ]
         },
         {
+          "id": "kit.socle",
+          "cells": [
+            "socle",
+            "12",
+            "12",
+            "144"
+          ],
+          "provenance": [
+            {
+              "kind": "derived",
+              "formula": "counts.byPart × KIT.triangleCeiling"
+            }
+          ]
+        },
+        {
           "id": "kit.total",
           "cells": [
-            "Итого — активных деталей: 17",
-            "659",
+            "Итого — активных деталей: 21",
+            "671",
             "—",
-            "132 264"
+            "134 264"
           ],
           "provenance": [
             {
@@ -1083,47 +1143,47 @@
         {
           "id": "budget.facadeDrawCalls",
           "label": "Вызовы отрисовки фасада",
-          "value": 34,
+          "value": 41,
           "unit": "",
-          "display": "34",
+          "display": "41",
           "provenance": {
             "kind": "derived",
-            "formula": "projectBudget: инстансированные вызовы отрисовки активных деталей по всем проходам"
+            "formula": "цветовые семейства + семейства с тенью × теневой проход (цоколь тень не отбрасывает)"
           }
         },
         {
           "id": "budget.frameDrawCalls",
           "label": "Вызовы отрисовки за кадр",
-          "value": 50,
+          "value": 57,
           "unit": "",
-          "display": "50",
+          "display": "57",
           "provenance": {
             "kind": "derived",
             "formula": "facadeDrawCalls + прочие вызовы отрисовки (16)"
           },
-          "note": "запас 200"
+          "note": "запас 193"
         },
         {
           "id": "budget.frustumTriangles",
           "label": "Треугольники в пирамиде видимости",
-          "value": 136506,
+          "value": 138506,
           "unit": "",
-          "display": "136 506",
+          "display": "138 506",
           "provenance": {
             "kind": "derived",
-            "formula": "набор 132 264 + массинг 146 + небо 4 096"
+            "formula": "набор 134 264 + массинг 146 + небо 4 096"
           },
-          "note": "запас 863 494"
+          "note": "запас 861 494"
         },
         {
           "id": "budget.submittedTriangleCeiling",
           "label": "Потолок отправляемых треугольников",
-          "value": 273012,
+          "value": 272626,
           "unit": "",
-          "display": "273 012",
+          "display": "272 626",
           "provenance": {
             "kind": "derived",
-            "formula": "frustumTriangles × (1 + 1) за счёт теневых проходов"
+            "formula": "frustumTriangles + сумма потолков деталей, отбрасывающих тень (теневой проход)"
           }
         },
         {

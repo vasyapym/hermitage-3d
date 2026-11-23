@@ -617,8 +617,9 @@ test('smoke walk: the 1812 edge runs both ways, the ledger returns at boot', asy
   await expect(page.locator('#caption')).toHaveText(
     'The upper landing. The portal to the state rooms — the airlock: onward to the Military Gallery of 1812.',
     {
-    timeout: 60_000,
-  });
+      timeout: 60_000,
+    },
+  );
   await expect
     .poll(async () => readInteger(hud, 'data-ledger-bytes'), { timeout: 60_000 })
     .toBe(atJordan);

@@ -47,7 +47,9 @@ try {
     .map((entry) => entry.name)
     .sort();
 } catch (error) {
-  console.log(`budget: rooms/ unreadable (${error?.message ?? error}) — room grouping disabled, everything 'other'`);
+  console.log(
+    `budget: rooms/ unreadable (${error?.message ?? error}) — room grouping disabled, everything 'other'`,
+  );
 }
 try {
   for (const name of readdirSync(distAssets)) {
@@ -67,7 +69,9 @@ try {
     console.log(`budget: chunk ${row.name} ${row.gzip} gz (${row.raw} raw)`);
   }
   if (ruNames.length > 1) {
-    console.log(`budget: ru marker matched ${ruNames.length} chunks (${ruNames.join(', ')}) — the ru row/cap reads the last match; diagnose the split`);
+    console.log(
+      `budget: ru marker matched ${ruNames.length} chunks (${ruNames.join(', ')}) — the ru row/cap reads the last match; diagnose the split`,
+    );
   }
   const sums = new Map();
   for (const row of rows) {
@@ -84,7 +88,9 @@ try {
   if (otherSum !== undefined) parts.push(`other ${otherSum}`);
   console.log(`budget: rooms (lazy chunk gzip) ${parts.join(' · ')}`);
 } catch (error) {
-  console.error(`budget: dist/assets missing or unreadable (${error?.message ?? error}) — run pnpm build first`);
+  console.error(
+    `budget: dist/assets missing or unreadable (${error?.message ?? error}) — run pnpm build first`,
+  );
   process.exit(1);
 }
 console.log(`budget: ${chunks} js chunk(s), ${total} gzip bytes of ${LIMIT_BYTES}`);

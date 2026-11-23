@@ -102,7 +102,9 @@ const mean = sum / (count * 255);
 // The mean pin gates the WRITE (the round-30 review F-4): an out-of-window plate never
 // replaces the accepted art - fail loud, keep the accepted bytes on disk.
 if (mean < 0.75 || mean > 0.85) {
-  console.error(`neva-raster: in-pane mean ${mean.toFixed(4)} outside [0.75, 0.85] - png NOT written`);
+  console.error(
+    `neva-raster: in-pane mean ${mean.toFixed(4)} outside [0.75, 0.85] - png NOT written`,
+  );
   process.exit(2);
 }
 // The canonical plate is the square 1024 (the TEXTURE_SIZES law); other sizes rasterize

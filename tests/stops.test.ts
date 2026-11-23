@@ -377,10 +377,7 @@ describe('jordan stop-gaze swings (the 2026-11-23 plafond arrival: PLAFOND_CENTE
     const pose = samplePose(JORDAN, restingAt(stopParameter(JORDAN, JORDAN.stops.indexOf(j2))));
     const [px, py, pz] = xyz(pose.position);
     const [tx, ty, tz] = xyz(pose.target);
-    expect((Math.atan2(ty - py, Math.hypot(tx - px, tz - pz)) * 180) / Math.PI).toBeCloseTo(
-      24,
-      1,
-    );
+    expect((Math.atan2(ty - py, Math.hypot(tx - px, tz - pz)) * 180) / Math.PI).toBeCloseTo(24, 1);
   });
   for (const [n, measured, expected] of [
     ...swingRows(JORDAN, 'J1b', 'J2', 63.7), // the plafond pan — the ~58 design frame relaxed on this leg; the §9 MAX_SWING 90 head law holds

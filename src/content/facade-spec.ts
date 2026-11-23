@@ -103,8 +103,14 @@ export const SHELL = {
  * The sourced window/decor system (Alekseeva via wiki-ru): openings come in
  * three width modules; 12 window types carry 22 surround types, 32 sculptural
  * decor types, five capital varieties, four cartouche kinds. The grammar
- * reproduces the MODULE system and the paired/bunched column rhythm; the
- * individual type counts are catalogued, not one-for-one modelled.
+ * reproduces the MODULE system and the paired/bunched column rhythm. The
+ * surround class is modelled as a law (sq-facade, 2026-11-23): the window
+ * type is the (row × section-class) cell — all twelve populate on the south
+ * front (the portal's six arch axes void rows 1–2; its flanking axes keep
+ * them as windows) — and the head variant per cell is HEAD_LAW in
+ * facade-solver (the parity alternation on the stretches, the richer risalit
+ * heads, the socle course). The 32 sculptural decor types and the five
+ * capital varieties remain catalogued, not one-for-one modelled.
  */
 export const DECOR_SYSTEM = {
   windowWidthModules: 3,
