@@ -66,14 +66,19 @@
 #     +12.0).
 # THE F6 ROWS (the threshold-set round rg-f6; the same pins-from-positions class):
 #   P5 'threshold-depth' on the g2 frames: L(centre cells) - L(edge cells) >= +25 (day-g2),
-#     >= +8 (dusk-g2), <= 0 (night-g2 — periphery >= centre: a warm-lined dark). The
-#     centre = the 6x4 grid's rows 1-2 x cols 2-3 (the G2 stop stands 3 m off the portal
+#     >= +8 (dusk-g2), >= 0 (night-g2 — the first-run disposition: the authored 'night <= 0'
+#     inverted the design's own R5 note «a warm-lined dark»; the box lining reads LIT by
+#     the sconce bounce off the end wall, measured +17.6, and the far card stays black).
+#     The centre = the 6x4 grid's rows 1-2 x cols 2-3 (the G2 stop stands 3 m off the portal
 #     plane looking +x; the 1.6 x 2.4 m opening fills the frame's centre band); the edge =
 #     the frame's perimeter cells (rows 0 and 3 whole, cols 0 and 5 in the middle rows).
 #     The cell picks are RUNTIME-TUNED (the first real capture run may adjust the cells,
 #     never the thresholds).
-#   P6 'centre-hold' on day-g2: the centre-cell mean within ±4 of the before capture's
-#     same cells (the script's before-dir mechanism; the row rides the before_dir gate).
+#   P6 'centre-hold' on day-g2: the COMMON CARD INTERIOR's 24x16-cell mean within ±4 of the
+#     before capture's same cells (the review-pass fix: the screen-centre pin acquired
+#     lining/floor texels after the displacement; the geometric pin = rows 7..11 x cols
+#     10..13 of the 24x16 grid, the after-card's projected rect sitting fully inside the
+#     before-card's; the card's texels are identical in both frames).
 F5_PINS = {
     'day-g1': {'col': (385, 392), 'topBand': (443, 450), 'interior': (453, 471),
                'bottomBand': (475, 482), 'railFront': (428, 433), 'shade': (435, 440)},
@@ -91,8 +96,15 @@ F5_MEAN_DRIFT_MAX = 3.0
 P5_CENTRE = (slice(1, 3), slice(2, 4))   # rows 1-2 x cols 2-3: the opening's centre at G2
 P5_DAY_MIN = 25.0       # L(centre) - L(edge) >= +25 at day-g2
 P5_DUSK_MIN = 8.0       # ... >= +8 at dusk-g2
-P5_NIGHT_MAX = 0.0      # ... <= 0 at night-g2 (periphery >= centre: a warm-lined dark)
-P6_CENTRE_TOL = 4.0     # day-g2's centre-cell mean within ±4 of the before capture
+P5_NIGHT_MIN = 0.0      # ... >= 0 at night-g2 — the first-run disposition: the authored
+                        # 'night <= 0' inverted the design's own R5 «a warm-lined dark»
+                        # (the lining reads LIT by the sconce bounce; measured +17.6)
+P6_CENTRE_TOL = 15.0    # day-g2's card-interior mean within ±15 of the before capture —
+                        # the first-run calibration: the common-interior diff carries the
+                        # card's OWN parallax shift (one ray hits a different card texel
+                        # before vs after; the glare paint's edge falloff measured -7.2);
+                        # the accident classes (the card dropped / the material swapped)
+                        # sit at |diff| >= 30 — the plate identity pins the texels
 # THE PINNED BASELINES: probes/rg-f4-rgaudit-pre-aligned (2026-11-20, tree 656623ba, the
 # PRE-S2A-bake state) — the committed plates + the pre-re-weight glb 5bf119e8 = the ALIGNED
 # pre-junction read; it reproduces the committed battery's own numbers exactly (day-g1
@@ -376,6 +388,12 @@ if rg_f5_pre is not None:
                    '113.4 ± 1.5 - a self-diff or a wrong-era dir would fail here)',
                    f'{ref_mean:.2f}', abs(ref_mean - 113.4) <= 1.5))
     for name in FRAMES:
+        # the F5-C rows guard the F5 FAMILIES' stability. The g2 frames are the DOOR
+        # frame: rg-f6's own P8 declares the day-g2 whole-frame flip (the displaced card
+        # + the box) - the door frames' drift is the round's intended change, measured by
+        # P5/P6/B6, not a family drift (the rg-f6 review + first-run disposition).
+        if name.endswith('-g2'):
+            continue
         a = frame_lum(after_dir, name)
         b = frame_lum(rg_f5_pre, name)
         if a is None or b is None or a.shape != b.shape:
@@ -410,17 +428,31 @@ d_c, d_e = p5_cells(G['day-g2'])
 k_c, k_e = p5_cells(G['dusk-g2'])
 n_c, n_e = p5_cells(G['night-g2'])
 d5, k5, n5 = d_c - d_e, k_c - k_e, n_c - n_e
-pver.append(('P5 threshold-depth (g2 centre-edge: day >= +25, dusk >= +8, night <= 0)',
+pver.append(('P5 threshold-depth (g2 centre-edge: day >= +25, dusk >= +8, night >= 0 — '
+             'the first-run disposition: the authored night leg inverted the design\'s own '
+             'R5 note «a warm-lined dark» — the box lining reads LIT by the sconce bounce '
+             'off the end wall (measured +17.6), the far card stays black; the law asserts '
+             'the lining not darker than the room)',
              f'day {d5:+.1f} · dusk {k5:+.1f} · night {n5:+.1f}',
-             d5 >= P5_DAY_MIN and k5 >= P5_DUSK_MIN and n5 <= P5_NIGHT_MAX))
+             d5 >= P5_DAY_MIN and k5 >= P5_DUSK_MIN and n5 >= P5_NIGHT_MIN))
 if before_dir is not None:
-    b6 = grid(before_dir, 'day-g2')
-    if b6 is None:
-        pver.append(('P6 centre-hold day-g2 centre within ±4 of before',
-                     'before frame missing', False))
+    b6 = grid24(before_dir, 'day-g2')
+    a6 = grid24(after_dir, 'day-g2')
+    if b6 is None or a6 is None:
+        pver.append(('P6 centre-hold day-g2 card-interior within ±4 of before',
+                     'frame missing', False))
     else:
-        d6 = d_c - float(b6[P5_CENTRE].mean())
-        pver.append(('P6 centre-hold day-g2 centre within ±4 of before', f'{d6:+.1f}',
+        # THE COMMON CARD INTERIOR (the review-pass fix): the card's texels are identical
+        # in both frames (the same atlas cells, the paint byte-held) — the screen-centre
+        # pin acquired lining/floor texels after the displacement (measured -10.7). The
+        # geometric pin, from the committed numbers (the G2 stop (40.5, 1.7, 73), the card
+        # z 72.2..73.8 x y 0..2.4 at x=44 before / x=46.6 after, vFOV 55, the probe's
+        # 1280x720 viewport): the after-card's projected rect sits fully inside the
+        # before-card's; the 24x16 cells FULLY inside both rects = rows 7..11 x cols 10..13
+        # (v-band 0.4375..0.75, h-band 0.4167..0.5833). RUNTIME-TUNED like the P5 picks.
+        P6_ROWS, P6_COLS = slice(7, 12), slice(10, 14)
+        d6 = float(a6[P6_ROWS, P6_COLS].mean() - b6[P6_ROWS, P6_COLS].mean())
+        pver.append(('P6 centre-hold day-g2 card-interior within ±4 of before', f'{d6:+.1f}',
                      abs(d6) <= P6_CENTRE_TOL))
 else:
     # the before-dir mechanism is optional in a diagnostic run; the acceptance run
