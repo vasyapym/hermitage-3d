@@ -2,7 +2,7 @@
   "name": "zimny",
   "private": true,
   "type": "module",
-  "description": "Zimny \u2014 a stylized 3D recreation of the Winter Palace (Hermitage, Saint Petersburg) in the browser.",
+  "description": "Zimny — a stylized 3D recreation of the Winter Palace (Hermitage, Saint Petersburg) in the browser.",
   "engines": {
     "node": ">=20"
   },
@@ -42,6 +42,9 @@
   "devDependencies": {
     "@biomejs/biome": "2.5.15",
     "@gltf-transform/cli": "4.5.1",
+    "@gltf-transform/core": "4.5.1",
+    "@gltf-transform/extensions": "4.5.1",
+    "@gltf-transform/functions": "4.5.1",
     "@ibm/plex-sans": "1.1.0",
     "@ibm/plex-serif": "2.0.0",
     "@playwright/test": "1.64.1",
@@ -49,11 +52,12 @@
     "@types/pngjs": "^6.0.5",
     "@types/three": "0.186.0",
     "fontkit": "^2.0.4",
+    "jpeg-js": "0.4.4",
+    "meshoptimizer": "1.2.0",
     "pngjs": "^7.0.0",
     "subset-font": "^2.9.0",
     "typescript": "7.0.2",
     "vite": "8.3.4",
-    "vitest": "5.0.4",
-    "jpeg-js": "0.4.4"
+    "vitest": "5.0.4"
   }
 }

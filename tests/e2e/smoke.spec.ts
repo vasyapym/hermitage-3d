@@ -346,13 +346,13 @@ test('keyboard walk: every stop reachable, reduced-motion cuts', async ({ page }
     Gjb: 'Inside the gallery. The vault runs level to the east door and its light.',
     G1: 'compression',
     G2: 'the door (airlock)',
-    J0: 'looking up into light',
-    J1: 'the flight',
+    J0: 'The stair foot. The gaze climbs on its own — to the windows and the light above the flights.',
+    J1: 'The first flight along the windows: behind the glass — the lead-grey Neva and the fortress spire on the far bank.',
     J1b: 'The upper flight\u2019s sconce shows across the well: Rastrelli lights the turn in advance.',
     J2: 'The landing: the stair divides; the flights meet again beneath the painted ceiling.',
-    J2b: 'The upper tier of windows: the Neva light enters high and carries the last flight.',
+    J2b: 'The upper tier of windows: the Neva light enters high and carries the last flight; above the river — the white Petersburg sky.',
     J3: 'Near the top the eastern portal comes square to the eye: the doorway to the state rooms, framed in gilt between columns of grey granite.',
-    J4: 'arrival; the portal (landing airlock)',
+    J4: 'The upper landing. The portal to the state rooms — the airlock: onward to the Military Gallery of 1812.',
     // R3 (DEC-025): the five 1812 landings join the walk — the EN corpus verbatim.
     M0: 'The threshold: the long view south, to the portraits of the heroes of 1812.',
     M1: 'The west wall — a block of portraits in gilt frames.',
@@ -495,7 +495,7 @@ test('keyboard walk: every stop reachable, reduced-motion cuts', async ({ page }
   }
   // The live region names the stop (§1.2) and tracks the walk's landings.
   await expect(page.locator('#caption-live')).toHaveText(
-    'J4 · arrival; the portal (landing airlock)',
+    'J4 · The upper landing. The portal to the state rooms — the airlock: onward to the Military Gallery of 1812.',
   );
   // DEC-025: the landing's far end is no longer inert — the same forward press crosses the
   // retargeted airlock into the 1812 room (a cut: the card, then the M0 seed), and the walk
@@ -614,7 +614,9 @@ test('smoke walk: the 1812 edge runs both ways, the ledger returns at boot', asy
     timeout: 60_000,
   });
   await expect(hud).toHaveAttribute('data-room', 'jordan', { timeout: 60_000 });
-  await expect(page.locator('#caption')).toHaveText('arrival; the portal (landing airlock)', {
+  await expect(page.locator('#caption')).toHaveText(
+    'The upper landing. The portal to the state rooms — the airlock: onward to the Military Gallery of 1812.',
+    {
     timeout: 60_000,
   });
   await expect

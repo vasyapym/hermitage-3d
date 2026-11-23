@@ -71,13 +71,16 @@ export const ROOM = {
   },
 };
 
-export const TEXTURES = ['marble_floor', 'plaster_warm', 'granite_grey', 'gilt', 'plafond'];
+export const TEXTURES = ['marble_floor', 'plaster_warm', 'granite_grey', 'gilt', 'plafond', 'neva'];
 export const TEXTURE_SIZES = {
   marble_floor: 512,
   plaster_warm: 512,
   granite_grey: 256,
   gilt: 256,
   plafond: 1024,
+  // The round-29 Neva backcloth: the pane's painted view plate (the square plate, the
+  // v law (y − 2)/16; the mean pin lives in the rasterizer).
+  neva: 1024,
 };
 export const ATLAS_BYTES_MAX = 2_000_000;
 export const EXPECTED_INSTANCES = {
