@@ -28,11 +28,11 @@ const build = buildOk();
 
 describe('facade builder', () => {
   it('creates one InstancedMesh per populated part, in catalogue order', () => {
-    expect(build.meshes).toHaveLength(18);
+    expect(build.meshes).toHaveLength(20);
     const populated = PART_IDS.filter((partId) => build.meshes.some((m) => m.name === partId));
     expect(build.meshes.map((m) => m.name)).toEqual(populated);
     expect(build.group.name).toBe('FacadeKit');
-    expect(build.group.children).toHaveLength(18);
+    expect(build.group.children).toHaveLength(20);
   });
 
   it('matches the solver instance counts per part', () => {

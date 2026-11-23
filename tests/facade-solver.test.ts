@@ -54,12 +54,14 @@ describe('facade solver', () => {
     expect(counts.portalVoidCells).toBe(12);
     expect(counts.columnShafts).toBe(68);
     expect(counts.instances).toBe(659);
-    expect(counts.activeParts).toBe(18);
-    expect(counts.triangles).toBe(132_264);
+    expect(counts.activeParts).toBe(20);
+    expect(counts.triangles).toBe(134_120);
     expect(counts.byPart['surround-row1-small']).toBe(56);
-    expect(counts.byPart['surround-row2-large']).toBe(56);
-    expect(counts.byPart['surround-row3-large']).toBe(42);
+    expect(counts.byPart['surround-row2-large']).toBe(42);
+    expect(counts.byPart['surround-row2-risalit']).toBe(14);
+    expect(counts.byPart['surround-row3-large']).toBe(20);
     expect(counts.byPart['surround-row3-segmental']).toBe(20);
+    expect(counts.byPart['surround-row3-risalit']).toBe(22);
     expect(counts.byPart['surround-row4-small']).toBe(62);
     expect(counts.byPart.sill).toBe(236);
     expect(counts.byPart['paired-column']).toBe(20);
@@ -89,7 +91,7 @@ describe('facade solver', () => {
     const byPart = solveOk().byPart;
     const base = byPart['surround-row3-large'];
     const segmental = byPart['surround-row3-segmental'];
-    expect(base).toHaveLength(42);
+    expect(base).toHaveLength(20);
     expect(segmental).toHaveLength(20);
     for (const placement of segmental) {
       const mirrored = segmental.some(
@@ -109,6 +111,18 @@ describe('facade solver', () => {
       const current = west[index];
       if (previous === undefined || current === undefined) throw new Error('placement missing');
       expect(previous.partId === current.partId).toBe(false);
+    }
+    // The risalit and portal windows of the upper rows carry the risalit head.
+    const risalitRow2 = byPart['surround-row2-risalit'];
+    expect(risalitRow2).toHaveLength(14);
+    const risalitRow3 = byPart['surround-row3-risalit'];
+    expect(risalitRow3).toHaveLength(22);
+    expect(risalitRow3.filter((placement) => Math.abs(placement.position.x) < 13)).toHaveLength(8);
+    for (const placement of [...risalitRow2, ...risalitRow3]) {
+      const mirrored = [...risalitRow2, ...risalitRow3].some(
+        (candidate) => Math.abs(candidate.position.x + placement.position.x) < 1e-9,
+      );
+      expect(mirrored).toBe(true);
     }
   });
 
@@ -238,8 +252,6 @@ describe('facade solver', () => {
       'surround-row3-medium',
       'surround-row4-medium',
       'surround-row4-large',
-      'surround-row2-risalit',
-      'surround-row3-risalit',
     ]);
   });
 
@@ -282,10 +294,10 @@ describe('facade solver', () => {
       skyTriangles: 4096,
       measuredJsGzipBytes: null,
     });
-    expect(projection.facadeDrawCalls).toBe(36);
-    expect(projection.frameDrawCalls).toBe(52);
-    expect(projection.frustumTriangles).toBe(136_495);
-    expect(projection.submittedTriangleCeiling).toBe(272_990);
+    expect(projection.facadeDrawCalls).toBe(40);
+    expect(projection.frameDrawCalls).toBe(56);
+    expect(projection.frustumTriangles).toBe(138_351);
+    expect(projection.submittedTriangleCeiling).toBe(276_702);
     expect(projection.jsGzipBytes).toBeNull();
   });
 

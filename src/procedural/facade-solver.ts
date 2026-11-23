@@ -98,12 +98,11 @@ const SURROUND_ROW2 = part(2.1, 4.25, 0.32, 288, 0);
 const SURROUND_ROW3 = part(2.1, 3.8, 0.32, 256, 0);
 const SURROUND_ROW4 = part(1.7, 2.65, 0.32, 224, 0);
 // The variant surround envelopes equal their row's base envelope (the dressings
-// law, sq-facade): only the ceilings differ — placement bounds and
-// surroundOffsetZ are untouched, and the night lattice sizes the pane from
-// the same row parameters.
-const SURROUND_ROW2_RISALIT = SURROUND_ROW2;
-const SURROUND_ROW3_SEGMENTAL = SURROUND_ROW3;
-const SURROUND_ROW3_RISALIT = SURROUND_ROW3;
+// law, sq-facade): the ceilings carry the variant's own relief budget, so the
+// census sum and the builder's ceiling check price them per the design.
+const SURROUND_ROW2_RISALIT = part(2.1, 4.25, 0.32, 320, 0);
+const SURROUND_ROW3_SEGMENTAL = part(2.1, 3.8, 0.32, 256, 0);
+const SURROUND_ROW3_RISALIT = part(2.1, 3.8, 0.32, 320, 0);
 
 export const KIT: Readonly<Record<PartId, PartMeta>> = {
   'surround-row1-small': SURROUND_ROW1,
@@ -296,8 +295,8 @@ export const HEAD_LAW: Readonly<
   Record<WindowRowId, Readonly<Record<SectionClass, readonly HeadVariant[]>>>
 > = {
   row1: { risalit: ['base'], stretch: ['base'], portal: ['base'] },
-  row2: { risalit: ['base'], stretch: ['base'], portal: ['base'] },
-  row3: { risalit: ['base'], stretch: ['base', 'segmental'], portal: ['base'] },
+  row2: { risalit: ['risalit'], stretch: ['base'], portal: ['base'] },
+  row3: { risalit: ['risalit'], stretch: ['base', 'segmental'], portal: ['risalit'] },
   row4: { risalit: ['base'], stretch: ['base'], portal: ['base'] },
 };
 

@@ -204,17 +204,24 @@ function surround(id: PartId, opening: number, head: HeadKind, rise: number): TH
 
 /** The surround's pieces in the part's local frame; 'none' leaves the head
  * relief to the variant builders (the dressings law's row2/row3 variants). */
-function surroundPieces(id: PartId, opening: number, head: HeadKind, rise: number): Piece[] {
+function surroundPieces(
+  id: PartId,
+  opening: number,
+  head: HeadKind,
+  rise: number,
+  jambInset = 0,
+): Piece[] {
   const { sx, sy, sz } = envelope(id);
   const openH = sy - rise; // the opening fills the envelope; the head ornament owns the top `rise`
-  const jamb = Math.max(0.12, (sx - opening) / 2);
+  const jamb = Math.max(0.12, (sx - opening) / 2 - jambInset);
+  const jambCentre = opening / 2 + jamb / 2;
   const rd = panelDepth(sz);
   const dz = sz * 0.7;
   const yHead = openH;
   const half = sx / 2;
   const pieces: Piece[] = [
-    box(jamb, openH, dz, -(opening + jamb) / 2, 0, 0, WHITE),
-    box(jamb, openH, dz, (opening + jamb) / 2, 0, 0, WHITE),
+    box(jamb, openH, dz, -jambCentre, 0, 0, WHITE),
+    box(jamb, openH, dz, jambCentre, 0, 0, WHITE),
     box(opening, openH, rd, 0, 0, 0, DARK),
     box(0.06, openH, rd, 0, 0, rd, DARK),
     box(opening, 0.06, rd, 0, openH * 0.62, rd, DARK),
@@ -538,12 +545,89 @@ function surroundRow3Segmental(id: PartId): THREE.BufferGeometry {
   return merge(pieces);
 }
 
+/** The dressings law's row3 risalit head (design §B3): the row3 base with a
+ * broken pediment — two raking slabs leaving a 0.3 sx apex gap, a centre
+ * block rising through the break, and lugged ears at the architrave's outer
+ * top corners; the jambs step in 0.08 sx so the ears stay inside the
+ * envelope. */
+function surroundRow3Risalit(id: PartId): THREE.BufferGeometry {
+  const p = surroundParams(id);
+  const { sx, sy, sz } = envelope(id);
+  const pieces = surroundPieces(id, p.opening, 'none', p.rise, 0.08 * sx);
+  const yHead = sy - p.rise;
+  const yBase = yHead + 0.15;
+  const apex = yHead + p.rise;
+  const gapHalf = 0.15 * sx;
+  const earCentre = sx / 2 - 0.06 * sx;
+  pieces.push(
+    box(sx, 0.15, sz, 0, yHead, 0, WHITE),
+    slab(
+      [
+        [-sx / 2, yBase],
+        [-gapHalf, apex],
+        [-gapHalf, yBase],
+      ],
+      sz * 0.85,
+      WHITE,
+    ),
+    slab(
+      [
+        [gapHalf, yBase],
+        [gapHalf, apex],
+        [sx / 2, yBase],
+      ],
+      sz * 0.85,
+      WHITE,
+    ),
+    box(0.26 * sx, 0.2 * sy, 0.6 * sz, 0, yBase, 0, WHITE),
+    box(0.12 * sx, 0.12 * sy, 0.7 * sz, -earCentre, yBase, 0, WHITE),
+    box(0.12 * sx, 0.12 * sy, 0.7 * sz, earCentre, yBase, 0, WHITE),
+  );
+  return merge(pieces);
+}
+
+/** The dressings law's row2 risalit head (design §B4): the base broken-arch
+ * head with a keystone mask — a 6-segment lathe dome of 5 profile points,
+ * radius 0.12 sx, proud 0.3 sz, scaled to the 0.2 sy mask height and seated
+ * on the keystone block's face — plus the lugged ears of §B3 at the
+ * surround's top corners. */
+function surroundRow2Risalit(id: PartId): THREE.BufferGeometry {
+  const p = surroundParams(id);
+  const { sx, sy, sz } = envelope(id);
+  const pieces = surroundPieces(id, p.opening, 'broken-arch', p.rise);
+  const profile: readonly Pt[] = [
+    [0, 0.3 * sz],
+    [0.05 * sx, 0.27 * sz],
+    [0.09 * sx, 0.18 * sz],
+    [0.115 * sx, 0.06 * sz],
+    [0.12 * sx, 0],
+  ];
+  const dome = new THREE.LatheGeometry(
+    profile.map(([radius, axial]) => new THREE.Vector2(radius, axial)),
+    6,
+  )
+    .rotateX(Math.PI / 2)
+    .scale(1, (0.2 * sy) / (2 * 0.12 * sx), 1)
+    .translate(0, sy - p.rise / 2, sz);
+  dome.computeVertexNormals();
+  const earCentre = sx / 2 - 0.06 * sx;
+  const earY = sy - 0.12 * sy;
+  pieces.push(
+    { g: dome, c: WHITE },
+    box(0.12 * sx, 0.12 * sy, 0.7 * sz, -earCentre, earY, 0, WHITE),
+    box(0.12 * sx, 0.12 * sy, 0.7 * sz, earCentre, earY, 0, WHITE),
+  );
+  return merge(pieces);
+}
+
 const BUILDERS: Partial<Record<PartId, (id: PartId) => THREE.BufferGeometry>> = {
   'surround-row1-small': surroundOf,
   'surround-row2-large': surroundOf,
   'surround-row3-large': surroundOf,
   'surround-row4-small': surroundOf,
   'surround-row3-segmental': surroundRow3Segmental,
+  'surround-row2-risalit': surroundRow2Risalit,
+  'surround-row3-risalit': surroundRow3Risalit,
   sill,
   'paired-column': pairedColumn,
   'corner-bunch': cornerBunch,
