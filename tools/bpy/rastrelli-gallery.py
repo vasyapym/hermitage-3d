@@ -560,8 +560,14 @@ class Builder:
         self.tags = {}
         self.counts = {}
 
+    @staticmethod
+    def _weld(p):
+        """The weld key (WELD_DP decimals): vert()'s rounding, shared with face() so the
+        ring's normal is computed on exactly the coordinates the verts carry."""
+        return (round(p[0], WELD_DP), round(p[1], WELD_DP), round(p[2], WELD_DP))
+
     def vert(self, p):
-        key = (round(p[0], WELD_DP), round(p[1], WELD_DP), round(p[2], WELD_DP))
+        key = self._weld(p)
         v = self.cache.get(key)
         if v is None:
             v = self.bm.verts.new(to_b(key))
@@ -569,23 +575,37 @@ class Builder:
         return v
 
     def face(self, pts, mat, element, normal, uid=None, tag=None, smooth=False):
-        verts, maps = [], []
+        verts, maps, keys = [], [], []
         for j, p in enumerate(pts):
             v = self.vert(p)
             if not verts or v is not verts[-1]:
                 verts.append(v)
+                keys.append(self._weld(p))
                 maps.append(None if uid is None else uid[j])
         if len(verts) > 1 and verts[0] is verts[-1]:
             verts.pop()
             maps.pop()
+            keys.pop()
         if len(set(verts)) < 3:
             return None
-        n = Vector((0.0, 0.0, 0.0))
-        for a, b in zip(verts, verts[1:] + verts[:1]):
-            n += a.co.cross(b.co)
-        if n.length <= FACE_AREA_MIN * 2.0:
+        # THE RING'S NORMAL from the welded keys, in double precision - not from the a.co
+        # floats: bmesh stores them float32, and at the room's coordinate magnitudes the
+        # cross terms quantise at the float32 ulp (~2.4e-4 at 3250 = z*x of the east wall),
+        # far above the FACE_AREA_MIN floor - rings of true area up to ~4 mm^2 evaluated to
+        # exactly 0.0 there and were dropped although the authored law keeps them (the
+        # stock-take's arc raise: the new niche/lunette chord lines graze the neighbouring
+        # mask corners and the partition grows six such pieces - wall.field scheduled 2892
+        # emitted 2888, wall.e 181/179). The schedule's plan formulas enumerate exactly
+        # these keys, so the drop gate (2*area <= FACE_AREA_MIN) and the winding read the
+        # same arithmetic the schedule derives: the check agrees by construction.
+        n = (0.0, 0.0, 0.0)
+        for a, b in zip(keys, keys[1:] + keys[:1]):
+            n = (n[0] + a[1] * b[2] - a[2] * b[1],
+                 n[1] + a[2] * b[0] - a[0] * b[2],
+                 n[2] + a[0] * b[1] - a[1] * b[0])
+        if n[0] * n[0] + n[1] * n[1] + n[2] * n[2] <= FACE_AREA_MIN * FACE_AREA_MIN * 4.0:
             return None  # a degenerate ring is dropped, never emitted
-        if n.dot(Vector(to_b(normal))) < 0.0:
+        if n[0] * normal[0] + n[1] * normal[1] + n[2] * normal[2] < 0.0:
             verts.reverse()
             maps.reverse()
         try:
