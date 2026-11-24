@@ -293,7 +293,9 @@ try {
         path: join(OUT, `${shotRow.name}.png`),
         clip: { x: 0, y: 0, width: VIEWPORT.width, height: VIEWPORT.height },
       });
-      results.push({ ...shotRow, file: `${shotRow.name}.png`, hud: { draws: hudDraws, tris: hudTris }, ok: true });
+      shotRow.draws = hudDraws;
+      shotRow.tris = hudTris;
+      results.push({ ...shotRow, file: `${shotRow.name}.png`, ok: true });
       console.log(`shot ${shotRow.name} ok`);
     } catch (e) {
       failures += 1;
