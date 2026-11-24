@@ -777,6 +777,11 @@ sun.shadow.camera.top = SUN_SHADOW_FIT.top;
 sun.shadow.camera.bottom = SUN_SHADOW_FIT.bottom;
 sun.shadow.camera.near = SUN_SHADOW_FIT.near;
 sun.shadow.camera.far = SUN_SHADOW_FIT.far;
+// The projection rebuild is the FIT's second half: the assignments above change the camera's
+// frustum PROPERTIES, and three's DirectionalLightShadow never rebuilds the projection matrix
+// itself (its default is ±5 m) — without this line the shadow map covers a 10 × 10 m patch at
+// the rig centre and no cast shadow ever lands (the sq-arch-day frames' read).
+sun.shadow.camera.updateProjectionMatrix();
 sun.shadow.bias = -0.0001;
 sun.shadow.normalBias = 0.05; // sq-arch-day B1a (the Q11 pick): the dec grazing band's bias
 // DEC-037: the committed ±130 m box re-centred on z = SUN_SHADOW_FIT.centreZ so it reaches the
