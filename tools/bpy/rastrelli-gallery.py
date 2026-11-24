@@ -105,6 +105,10 @@ TEXTURE_NAMES = ('stone_flags', 'plaster_pale', 'stucco_grey', 'stone_band')
 M_PALE, M_FLAGS, M_STUCCO, M_BAND, M_STAIR, M_PANE = 0, 1, 2, 3, 4, 5
 M_SHADE = 6
 M_SHADE_AIRLOCK = 7    # RG-F6: the airlock shade's flat slot (export chain only, like M_SHADE)
+# The O5 bench switch (the 2026-11-24 stock-take, artifact o5; bench-only, never shipped):
+# RG_BENCH_WEB_SLOT=pale retags the axis vault's web rows (vault.gallery) to M_PALE for the
+# A/B glb pair; unset is the committed behaviour bit-for-bit (the determinism gates hold).
+WEB_SLOT = M_PALE if os.environ.get('RG_BENCH_WEB_SLOT') == 'pale' else M_STUCCO
 S_IRON, S_GLOW = 0, 1
 
 # ---- gallery proper (east of the arch passage), metres -------------------------------------
@@ -1412,7 +1416,7 @@ def build_vault_and_arches(b):
     cuts = [XS_GI[0]] + sorted(t for x_c in PILASTER_X for t in (x_c - ARCH_HALF_W, x_c + ARCH_HALF_W)) + [G_X1]
     for k in range(0, len(cuts), 2):  # bays only; the arch footprints are solid-on-solid
         xa, xb = cuts[k], cuts[k + 1]
-        b.rows([[(xa, y, z) for z, y in G_ARC], [(xb, y, z) for z, y in G_ARC]], M_STUCCO, 'vault.gallery',
+        b.rows([[(xa, y, z) for z, y in G_ARC], [(xb, y, z) for z, y in G_ARC]], WEB_SLOT, 'vault.gallery',
                vault_normal, uid_rows=[[(xa, m) for m in G_ARC_M], [(xb, m) for m in G_ARC_M]])
     b.face([(G_X0, G_SPRING, G_Z0 + CORNICE_PROUD), (XS_GI[0], G_SPRING, G_Z0 + CORNICE_PROUD),
             (XS_GI[0], G_SPRING, G_Z1 - CORNICE_PROUD), (G_X0, G_SPRING, G_Z1 - CORNICE_PROUD)],
