@@ -80,6 +80,7 @@ const FRAMES = [
   ['day', 'G0'],
   ['day', 'G0b'],
   ['day', 'Gj'],
+  ['day', 'Gjb'],
   ['day', 'G1'],
   ['day', 'G2'],
   ['dusk', 'G0'],
@@ -88,6 +89,7 @@ const FRAMES = [
   ['dusk', 'G2'],
   ['night', 'G0'],
   ['night', 'Gj'],
+  ['night', 'Gjb'],
   ['night', 'G1'],
   ['night', 'G2'],
 ];
