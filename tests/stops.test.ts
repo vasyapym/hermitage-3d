@@ -16,7 +16,7 @@
 import { describe, expect, it } from 'vitest';
 import { contract as contract1812 } from '../rooms/1812/contract';
 import { contract as jordanContract } from '../rooms/jordan/contract';
-import { MOUTH_TURN, contract as galleryContract } from '../rooms/rastrelli-gallery/contract';
+import { contract as galleryContract, MOUTH_TURN } from '../rooms/rastrelli-gallery/contract';
 import { restingAt, samplePose, samplePosition, stopParameter } from '../src/camera/rail';
 import {
   SQUARE_RAIL,
