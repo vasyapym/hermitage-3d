@@ -430,9 +430,15 @@ describe('sq-arch-day B3 — the day lane law (the Q7 pick)', () => {
       [laneCentreX(177) + 5, 177],
       [laneCentreX(177) + 8, 177],
     ] as const) {
-      const t = trampleField(x, z);
       const day = trampleFieldDay(x, z, 1);
-      expect(day).toBeCloseTo(GROUND_TRAMPLE_BASE + (t - GROUND_TRAMPLE_BASE) * 0.5, 12);
+      // The law composes both deltas (the design's B3 + the Q7 pick): the widened edge's
+      // lane value carries the halved contrast — the night lane value feeds the night
+      // field only, so the expectation reads laneValueDay, not t.
+      const laneDay = laneValueDay(x, z, 1);
+      expect(day).toBeCloseTo(
+        GROUND_TRAMPLE_BASE + (1 - GROUND_TRAMPLE_BASE) * laneDay * 0.5,
+        12,
+      );
     }
     // The feather: the old edge's skirt is now inside the lane's falloff at full day.
     const c = laneCentreX(177);

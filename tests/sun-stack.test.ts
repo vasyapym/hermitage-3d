@@ -57,8 +57,14 @@ describe('B1a — the renderer shadow enable (the main.ts law scan)', () => {
   it('the ground receives; the sun and only the sun casts; castShadow never toggles', () => {
     expect(main).toContain('ground.receiveShadow = true;');
     expect(main).toContain('sun.castShadow = true;');
-    // The B1a(2) fade replaces the toggle: no E-driven castShadow write exists.
-    expect(main).not.toMatch(/sun\.castShadow\s*=\s*(?!true)/);
+    // The B1a(2) fade replaces the toggle: no E-driven castShadow write exists. The scan
+    // extracts every assignment's RHS and asserts each one is the literal true (a
+    // lookahead-after-backtrackable-\s* would match any value, so the check is positive).
+    const castShadowAssigns = main.match(/sun\.castShadow\s*=\s*[^;\n]+/g) ?? [];
+    expect(castShadowAssigns.length).toBeGreaterThan(0);
+    for (const assign of castShadowAssigns) {
+      expect(assign).toMatch(/=\s*true\b/);
+    }
     // The hemisphere is the only other light and it casts nothing.
     expect(main).toContain('new THREE.HemisphereLight');
     expect(main).not.toContain('hemi.castShadow');
