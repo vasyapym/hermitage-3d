@@ -130,12 +130,7 @@ import {
 import { type SkySample, sampleSky } from './sky/appearance';
 import type { ArrivalState } from './sky/arrival';
 import { advanceArrival, initialArrival, presentationForArrival } from './sky/arrival';
-import {
-  fillGroundColor,
-  fillIntensity,
-  fillSkyColor,
-  groundHalfAlbedo,
-} from './sky/fill';
+import { fillGroundColor, fillIntensity, fillSkyColor, groundHalfAlbedo } from './sky/fill';
 import { lightmapWeights } from './sky/lightmap-weights';
 import { createSkyRig } from './sky/rig';
 import { isSeasonId, type SeasonId, seasonInstant, seasonOf } from './sky/season';

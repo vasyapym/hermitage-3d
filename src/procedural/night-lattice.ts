@@ -46,11 +46,11 @@ import {
   PANE_BASE_TONE,
   PANE_LEVELS,
   PANE_STANDOFF,
+  PANE_TINT_MAX,
+  PANE_TINT_MIN,
   type PaneLevel,
   paneDayAlbedo,
   paneIntensity,
-  PANE_TINT_MAX,
-  PANE_TINT_MIN,
   WINDOW_WARM_LINEAR,
 } from '../world/night-facade';
 import { type SurroundOpening, surroundOpening } from './facade-builder';

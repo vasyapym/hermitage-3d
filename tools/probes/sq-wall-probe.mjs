@@ -92,7 +92,12 @@ try {
         if (region === null) {
           for (let gy = 0; gy < 4; gy++) {
             for (let gx = 0; gx < 4; gx++) {
-              const cell = lumaAt((gx * w) / 4, (gy * h) / 4, ((gx + 1) * w) / 4, ((gy + 1) * h) / 4);
+              const cell = lumaAt(
+                (gx * w) / 4,
+                (gy * h) / 4,
+                ((gx + 1) * w) / 4,
+                ((gy + 1) * h) / 4,
+              );
               grid.push({ cell: `r${gy}c${gx}`, ...cell });
             }
           }

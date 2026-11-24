@@ -4,8 +4,8 @@
 // The law is pure numbers; the builder turns them into buffers; the facade fixture is the
 // real frozen chain (solve → build) so openGroundArch is gated on the committed kit.
 
-import * as THREE from 'three';
 import { readFileSync } from 'node:fs';
+import * as THREE from 'three';
 import { describe, expect, it } from 'vitest';
 import { SOUTH_FACADE, WINDOW_ROWS } from '../src/content/facade-spec';
 import { EXPOSURE } from '../src/content/sky-time';
@@ -20,10 +20,10 @@ import {
 import { lightmapWeights } from '../src/sky/lightmap-weights';
 import { KIT_PORTAL_BOX, SQUARE_DRAW_CAP, SQUARE_TRI_CAP } from '../src/world/square-kit';
 import {
+  headSolidAt,
   LAMP_REACH_M,
   LAMP_STATIONS_M,
   LIT_STATIONS_M,
-  headSolidAt,
   lampRadiance,
   lampSlab,
   lampSpill,

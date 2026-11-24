@@ -21,6 +21,9 @@ import {
   patchGroundSnowSlot,
 } from '../src/procedural/ground-snow';
 import {
+  detailFade,
+  driftFactor,
+  driftNoise,
   GROUND_BOUNCE_LINEAR,
   GROUND_DETAIL_FADE,
   GROUND_DRIFT_MIN,
@@ -31,16 +34,13 @@ import {
   GROUND_SNOW_FRESH_LINEAR,
   GROUND_SNOW_TRAMPLED_LINEAR,
   GROUND_TRAMPLE_BASE,
-  detailFade,
-  driftFactor,
-  driftNoise,
   groundSnowAlbedo,
   gsNoise,
+  LANE_DAY_CONTRAST,
+  LANE_DAY_FEATHER_M,
   laneCentreX,
   laneValue,
   laneValueDay,
-  LANE_DAY_CONTRAST,
-  LANE_DAY_FEATHER_M,
   macroFactor,
   snowBounceGround,
   trampleField,
@@ -325,9 +325,7 @@ describe('GLSL / TS agreement', () => {
       `* ( 1.0 + ( ${glslFloat(LANE_DAY_CONTRAST)} - 1.0 ) * uDay )`,
     );
     // The drift: the uniform-paired octaves and the uDriftMin floor, inside the uSnow mix.
-    expect(GROUND_SNOW_FRAGMENT_BODY).toContain(
-      'uDriftMin + ( 1.0 - uDriftMin ) * ( uOctaveA.y',
-    );
+    expect(GROUND_SNOW_FRAGMENT_BODY).toContain('uDriftMin + ( 1.0 - uDriftMin ) * ( uOctaveA.y');
     expect(GROUND_SNOW_FRAGMENT_BODY).toContain('groundSnowRgb *= mix( 1.0, groundDrift, uDay );');
     expect(GROUND_SNOW_FRAGMENT_BODY).toContain(
       'diffuseColor.rgb = mix( diffuseColor.rgb, groundSnowRgb, uSnow );',
@@ -441,9 +439,7 @@ describe('sq-arch-day B3 — the day lane law (the Q7 pick)', () => {
     expect(laneValue(c + GROUND_LANE.edgeHalfM, 177)).toBe(0);
     expect(laneValueDay(c + GROUND_LANE.edgeHalfM, 177, 1)).toBeGreaterThan(0);
     // Clear of the feathered edge (the exact boundary is an FP tie — the skirt's 0.01 margin).
-    expect(
-      laneValueDay(c + GROUND_LANE.edgeHalfM + LANE_DAY_FEATHER_M + 0.01, 177, 1),
-    ).toBe(0);
+    expect(laneValueDay(c + GROUND_LANE.edgeHalfM + LANE_DAY_FEATHER_M + 0.01, 177, 1)).toBe(0);
   });
 });
 

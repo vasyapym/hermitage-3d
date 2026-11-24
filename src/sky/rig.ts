@@ -45,7 +45,7 @@ export function horizonSunFactor(facing: number, day: number): number {
 /** The TS twin of the fragment's aureole term: AUREOLE_COLOR·day·pow(facing, AUREOLE_POW),
  * exactly [0, 0, 0] at day = 0. */
 export function aureoleTerm(facing: number, day: number): Triple {
-  const k = day * Math.pow(Math.max(0, facing), AUREOLE_POW);
+  const k = day * Math.max(0, facing) ** AUREOLE_POW;
   return [AUREOLE_COLOR[0] * k, AUREOLE_COLOR[1] * k, AUREOLE_COLOR[2] * k];
 }
 

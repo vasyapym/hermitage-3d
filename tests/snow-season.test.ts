@@ -2,6 +2,14 @@
 // no current-clock dependency; every instant is a dated literal built with Date.UTC.
 import { describe, expect, it } from 'vitest';
 import {
+  driftFactor,
+  driftNoise,
+  GROUND_DRIFT_MIN,
+  GROUND_DRIFT_OCTAVES,
+  GROUND_MACRO_OCTAVE,
+  gsNoise,
+} from '../src/world/ground-snow';
+import {
   SEASON_DAYS,
   SNOW_ANCHORS,
   SNOW_SKY_GAIN_K,
@@ -11,14 +19,6 @@ import {
   snowVisible,
   snowWeight,
 } from '../src/world/snow-season';
-import {
-  GROUND_DRIFT_MIN,
-  GROUND_DRIFT_OCTAVES,
-  GROUND_MACRO_OCTAVE,
-  driftFactor,
-  driftNoise,
-  gsNoise,
-} from '../src/world/ground-snow';
 
 const DAY_MS = 86_400_000;
 

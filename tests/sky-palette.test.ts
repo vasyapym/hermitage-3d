@@ -7,8 +7,8 @@
  */
 import { describe, expect, it } from 'vitest';
 import { PALETTE } from '../src/content/sky-time';
-import { fillIntensity, fillSkyColor, fillZenithWeight } from '../src/sky/fill';
 import { sampleSky } from '../src/sky/appearance';
+import { fillIntensity, fillSkyColor, fillZenithWeight } from '../src/sky/fill';
 import {
   AUREOLE_COLOR,
   AUREOLE_POW,
@@ -40,7 +40,7 @@ describe('B2 — the fill the B1 stack rides on', () => {
   });
 });
 
-describe('B2 — the sun-side horizon gain and the aureole (the dome law\'s twins)', () => {
+describe("B2 — the sun-side horizon gain and the aureole (the dome law's twins)", () => {
   it('both terms vanish exactly at E = 0 (the night dome is the committed palette)', () => {
     expect(horizonSunFactor(1, 0)).toBe(1);
     expect(horizonSunFactor(0.3, 0)).toBe(1);
@@ -53,7 +53,7 @@ describe('B2 — the sun-side horizon gain and the aureole (the dome law\'s twin
     expect(horizonSunFactor(1, 1)).toBeCloseTo(1.35, 12);
     expect(horizonSunFactor(0, 1)).toBe(1); // away from the sun: the committed horizon
     // pow 4: the half-strength point sits at cos⁴θ = 0.5 → θ ≈ 33.6° off the sun azimuth.
-    expect(horizonSunFactor(Math.pow(0.5, 0.25), 1)).toBeCloseTo(1.175, 12);
+    expect(horizonSunFactor(0.5 ** 0.25, 1)).toBeCloseTo(1.175, 12);
   });
 
   it('the aureole is [0.90, 0.75, 0.50]·E·pow(facing, 64) — ≈ 8° half-width', () => {
@@ -62,7 +62,7 @@ describe('B2 — the sun-side horizon gain and the aureole (the dome law\'s twin
     expect(aureoleTerm(1, 1)[0]).toBeCloseTo(0.9, 12);
     expect(aureoleTerm(1, 1)[1]).toBeCloseTo(0.75, 12);
     expect(aureoleTerm(1, 1)[2]).toBeCloseTo(0.5, 12);
-    expect(aureoleTerm(Math.pow(0.5, 1 / 64), 1)[0]).toBeCloseTo(0.45, 12);
+    expect(aureoleTerm(0.5 ** (1 / 64), 1)[0]).toBeCloseTo(0.45, 12);
   });
 
   it('the fragment carries both E-gates and the dome K lookup', () => {

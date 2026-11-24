@@ -105,7 +105,7 @@ export function paneDayAlbedo(wNight: number, day: number): LinearRgb {
  * the un-K'd fill colour × uDomeK (the dome's K: the pane reflects the dome, not the fill).
  */
 export function paneTintFactor(ndotV: number, day: number): number {
-  const grazing = Math.pow(1 - clamp01(ndotV), 3);
+  const grazing = (1 - clamp01(ndotV)) ** 3;
   return clamp01(day) * (PANE_TINT_MIN + (PANE_TINT_MAX - PANE_TINT_MIN) * grazing);
 }
 /** Endpoint-exact clamp: w < 0 → 0, w > 1 → 1, NaN not legal input (the callers' law). */

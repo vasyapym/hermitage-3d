@@ -13,12 +13,12 @@ import { buildNightLattice, patchPaneDayTint } from '../src/procedural/night-lat
 import {
   DARK_PANE_TONE,
   DAY_PANE_TONE,
-  paneBaseTone,
   PANE_DAY_ALBEDO,
-  paneDayAlbedo,
-  paneTintFactor,
   PANE_TINT_MAX,
   PANE_TINT_MIN,
+  paneBaseTone,
+  paneDayAlbedo,
+  paneTintFactor,
 } from '../src/world/night-facade';
 import { snowSkyGain } from '../src/world/snow-season';
 
@@ -61,7 +61,7 @@ describe('B4 — the sky tint after lighting', () => {
   it('is 0.20 at NdotV 1 and 0.40 at NdotV 0, scaled by E(h)', () => {
     expect(paneTintFactor(1, 1)).toBeCloseTo(0.2, 12);
     expect(paneTintFactor(0, 1)).toBeCloseTo(0.4, 12);
-    expect(paneTintFactor(0.5, 1)).toBeCloseTo(0.2 + 0.2 * Math.pow(0.5, 3), 12);
+    expect(paneTintFactor(0.5, 1)).toBeCloseTo(0.2 + 0.2 * 0.5 ** 3, 12);
     expect(paneTintFactor(1, 0.5)).toBeCloseTo(0.1, 12);
   });
 
@@ -71,7 +71,7 @@ describe('B4 — the sky tint after lighting', () => {
     }
   });
 
-  it('uDomeK is the dome\'s K: 1.5 snow season, 1 else', () => {
+  it("uDomeK is the dome's K: 1.5 snow season, 1 else", () => {
     expect(snowSkyGain(1, 0)).toBeCloseTo(1.5, 12); // dec-noon
     expect(snowSkyGain(0, 0)).toBe(1); // june-noon
     expect(snowSkyGain(1, 1)).toBe(1); // any night
@@ -134,7 +134,7 @@ describe('B4 — the day-tint shader patch', () => {
     );
   });
 
-  it('the tint law\'s constants and uniforms are in the emitted program', () => {
+  it("the tint law's constants and uniforms are in the emitted program", () => {
     expect(latticeSrc).toContain('uSkyFill * uDomeK');
     expect(latticeSrc).toContain('pow( 1.0 - paneNdotV, 3.0 )');
     expect(latticeSrc).toContain("'Pane/day-tint@1'");

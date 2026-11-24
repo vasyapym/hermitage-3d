@@ -8,6 +8,8 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { DAYLIGHT_SUN_INTENSITY_MAX, PALETTE, SUN_COLOR } from '../src/content/sky-time';
+import { TIERS } from '../src/engine/tier';
+import { sampleSky } from '../src/sky/appearance';
 import {
   FILL_DAY_GAIN,
   FILL_GROUND_HALF_ASPHALT,
@@ -19,12 +21,10 @@ import {
   groundHalfAlbedo,
 } from '../src/sky/fill';
 import { sunLightIntensity } from '../src/sky/lightmap-weights';
-import { sampleSky } from '../src/sky/appearance';
+import { SUN_SHADOW_FIT } from '../src/world/column';
 import { snowBounceGround } from '../src/world/ground-snow';
 import { WINDOW_WARM_LINEAR, warmGround } from '../src/world/night-facade';
 import { snowSkyGain, snowWeight } from '../src/world/snow-season';
-import { SUN_SHADOW_FIT } from '../src/world/column';
-import { TIERS } from '../src/engine/tier';
 
 const REC709 = [0.2126, 0.7152, 0.0722] as const;
 const lum = (c: readonly [number, number, number]): number =>
@@ -123,7 +123,7 @@ describe('B1b — the fill (weights, intensity, ground class)', () => {
     expect(fill[2]).toBe(baseline[2]);
   });
 
-  it('the day fill is the un-K\'d 0.60/0.40 blend of the §7 palette', () => {
+  it("the day fill is the un-K'd 0.60/0.40 blend of the §7 palette", () => {
     const fill = fillSkyColor(PALETTE.dayZenith, PALETTE.dayHorizon, 1);
     expect(fill[0]).toBeCloseTo(0.6 * 0.08 + 0.4 * 0.58, 12); // 0.28
     expect(fill[1]).toBeCloseTo(0.6 * 0.2 + 0.4 * 0.7, 12); // 0.40
@@ -151,7 +151,7 @@ describe('B1b — the fill (weights, intensity, ground class)', () => {
     expect(snowSkyGain(1, 0)).not.toBe(1); // the K lives on the dome lookup (B2) instead
   });
 
-  it('the ground class: today\'s warmGround path at night, half the season albedo at day', () => {
+  it("the ground class: today's warmGround path at night, half the season albedo at day", () => {
     expect(FILL_GROUND_HALF_ASPHALT).toEqual([0.025, 0.025, 0.025]);
     expect(FILL_GROUND_HALF_SNOW).toEqual([0.41, 0.43, 0.46]);
     expect(groundHalfAlbedo(0)).toEqual(FILL_GROUND_HALF_ASPHALT);
@@ -172,7 +172,7 @@ describe('B1b — the fill (weights, intensity, ground class)', () => {
 });
 
 describe('B1 derived — the analytic shade:lit on a vertical white', () => {
-  it('is 0.33 ± 0.03 at the design\'s derived geometry (south vertical, white 0.85)', () => {
+  it("is 0.33 ± 0.03 at the design's derived geometry (south vertical, white 0.85)", () => {
     // The design's derivation: a south-facing vertical white (≈ 0.85 linear) at h = 40°,
     // sun 6·cosθ, the fill's vertical irradiance = 11·0.5·(fill lum + ground lum).
     const cosH = Math.cos((40 * Math.PI) / 180);
