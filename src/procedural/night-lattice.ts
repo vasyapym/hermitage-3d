@@ -135,6 +135,13 @@ const PANE_TINT_CACHE_KEY = 'Pane/day-tint@1';
  */
 export function patchPaneDayTint(shader: { fragmentShader: string }): void {
   const anchor = '#include <opaque_fragment>';
+  // The splice's uniform declarations prepend the fragment at global scope (uniforms cannot
+  // be declared inside main, where the anchor sits): onBeforeCompile's shader.uniforms
+  // carries the VALUES, but the source never declared them — without these three lines
+  // every pane program fails to compile (uPaneDay/uSkyFill/uDomeK : undeclared identifier).
+  shader.fragmentShader =
+    'uniform float uPaneDay;\nuniform vec3 uSkyFill;\nuniform float uDomeK;\n' +
+    shader.fragmentShader;
   const patch = `{
 	float paneNdotV = clamp( dot( normalize( normal ), normalize( vViewPosition ) ), 0.0, 1.0 );
 	float paneTint = uPaneDay * mix( ${PANE_TINT_MIN}, ${PANE_TINT_MAX}, pow( 1.0 - paneNdotV, 3.0 ) );
