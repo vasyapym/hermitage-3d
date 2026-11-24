@@ -435,10 +435,7 @@ describe('sq-arch-day B3 — the day lane law (the Q7 pick)', () => {
       // lane value carries the halved contrast — the night lane value feeds the night
       // field only, so the expectation reads laneValueDay, not t.
       const laneDay = laneValueDay(x, z, 1);
-      expect(day).toBeCloseTo(
-        GROUND_TRAMPLE_BASE + (1 - GROUND_TRAMPLE_BASE) * laneDay * 0.5,
-        12,
-      );
+      expect(day).toBeCloseTo(GROUND_TRAMPLE_BASE + (1 - GROUND_TRAMPLE_BASE) * laneDay * 0.5, 12);
     }
     // The feather: the old edge's skirt is now inside the lane's falloff at full day.
     const c = laneCentreX(177);
