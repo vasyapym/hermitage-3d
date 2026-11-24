@@ -163,21 +163,21 @@ GRID_COLS, GRID_ROWS = 24, 16      # the S1 24×16 screen grid, rows top→botto
 TAN_HALF_V = math.tan(math.radians(VFOV_DEG / 2.0))
 TAN_HALF_H = TAN_HALF_V * ASPECT   # portrait-frame.ts:41-43's horizontal law
 
-# ---- the six stops (rooms/rastrelli-gallery/contract.ts:49-108) --------------------------------
+# ---- the six stops (rooms/rastrelli-gallery/contract.ts:49-114) --------------------------------
 # gaze = the stop's authored SUBJECT (src/camera/rail.ts:18-19); each subject cited.
 STOPS = (
     {'id': 'G0', 'eye': (0.0, 1.7, 86.0), 'subject': (1.6, 2.4, 73.0),
-     'cite': 'contract.ts:50-51 (subject JUNCTION :29)'},
-    {'id': 'G0b', 'eye': (0.8, 1.7, 79.5), 'subject': (4.4, 1.7, 73.0),
-     'cite': 'contract.ts:63-64 (subject GALLERY_MOUTH :31)'},
+     'cite': 'contract.ts:54-55 (subject JUNCTION :29)'},
+    {'id': 'G0b', 'eye': (0.8, 1.7, 79.5), 'subject': (5.4, 1.7, 73.0),
+     'cite': 'contract.ts:67-68 (subject MOUTH_TURN :35; the 2026-11-24 feel tune)'},
     {'id': 'Gj', 'eye': (1.6, 1.7, 73.0), 'subject': (43.5, 1.7, 73.0),
-     'cite': 'contract.ts:74-75 (subject EAST_DOOR :27)'},
+     'cite': 'contract.ts:78-79 (subject EAST_DOOR :27)'},
     {'id': 'Gjb', 'eye': (12.8, 1.7, 73.0), 'subject': (43.5, 1.7, 73.0),
-     'cite': 'contract.ts:89-90 (subject EAST_DOOR :27)'},
+     'cite': 'contract.ts:93-94 (subject EAST_DOOR :27)'},
     {'id': 'G1', 'eye': (24.0, 1.7, 73.0), 'subject': (43.5, 1.7, 73.0),
-     'cite': 'contract.ts:96-97 (subject EAST_DOOR :27)'},
+     'cite': 'contract.ts:100-101 (subject EAST_DOOR :27)'},
     {'id': 'G2', 'eye': (40.5, 1.7, 73.0), 'subject': (43.5, 1.7, 73.0),
-     'cite': 'contract.ts:104-105 (subject EAST_DOOR :27)'},
+     'cite': 'contract.ts:108-109 (subject EAST_DOOR :27)'},
 )
 
 # ---- the committed lm facts (manifest.json + bake-logs/rastrelli-gallery.json) -----------------

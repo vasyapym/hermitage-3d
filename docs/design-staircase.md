@@ -263,10 +263,11 @@ Rail: Catmull-Rom through stop positions with two helper points per flight for t
 > span, no near-field class (its former exemption's
 > distance weight is now every pair's law), no held-point parallax.
 > Back Gj→G0b reads the re-choreographed field (the 2026-11-16 walk re-choreography, the
-> rg-walk-tune round): the passage pan is split 22°/61° — G0b is pre-turned onto the lit
-> mouth (GALLERY_MOUTH) and settles level, G0's 3.06° fence stays — superseding the
-> recorded 83°/6.10° linear rows and FIXUPS 2's ≈10.05°; the superseded rows live in the
-> round archive.
+> rg-walk-tune round; the 2026-11-24 feel tune re-splits it — the owner's steer: the second
+> click −10 %): the passage pan is split 28°/55° — G0b is pre-turned past the lit mouth
+> toward the door (MOUTH_TURN, 2.6 % of the way from GALLERY_MOUTH to EAST_DOOR) and settles
+> level, G0's 3.06° fence stays — superseding the 22°/61° split, the recorded 83°/6.10°
+> linear rows and FIXUPS 2's ≈10.05°; the superseded rows live in the round archives.
 > Shared targets stay locked dollies; the position path is this section's spline. At
 > stops the pose is bit-identical, which keeps the eight goldens green un-rebaselined.
 > Only stops whose authored data an R18-ux D-item changes re-baseline, under that item.

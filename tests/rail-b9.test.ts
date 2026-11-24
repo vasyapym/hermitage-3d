@@ -202,7 +202,7 @@ describe('B9 pacing: the look turns with the travel', () => {
   const yawOf = (pose: ReturnType<typeof samplePose>): number =>
     aimOf(pose.position, pose.target).yaw;
   const cases: readonly (readonly [string, Rail, number])[] = [
-    ['gallery G0b→Gj', galleryContract.rail, 1], // the passage pan (the 2026-11-16 split's 61° leg)
+    ['gallery G0b→Gj', galleryContract.rail, 1], // the passage pan (the 2026-11-24 split's 55° leg)
     ['jordan J2b→J3', jordanContract.rail, 4],
   ];
   for (const [label, rail, i] of cases) {
@@ -262,24 +262,25 @@ describe('B9 pacing: the look turns with the travel', () => {
 });
 
 describe('B9 keeps the recorded rows', () => {
-  it('the 2026-11-16 split: G0→G0b 22.0° with the pitch settling 3.06° → 0°, G0b→Gj 61.0° flat, both in the g(s) shape', () => {
-    // The 2026-11-16 re-choreography split the passage's 83° pan across the two passage
-    // legs — 22.0° (7.02° → 28.98°) onto the lit mouth on G0→G0b, the remaining 61.0° onto
-    // the door on G0b→Gj — and re-authored G0b level: its GALLERY_MOUTH subject sits at
-    // eye height, so the recorded 6.1009° Back settle at G0b retires (the pitch rows are
-    // 3.06° → 0° and 0° → 0°); G0's own 3.06° fence keeps its unchanged data. The
-    // mid-segment samples read the B9c lag weight g(s) — the hold keeps the source aim
-    // across the first 20 % — not the old linear distance
+  it('the 2026-11-24 feel tune: G0→G0b 28.2° with the pitch settling 3.06° → 0°, G0b→Gj 54.7° flat, both in the g(s) shape', () => {
+    // The 2026-11-24 feel tune re-splits the passage's 83° pan across the two passage
+    // legs — 28.2° (7.02° → 35.29°) pre-turned past the mouth on G0→G0b, the remaining
+    // 54.7° onto the door on G0b→Gj (the owner's split steer: the second click −10 %;
+    // the 2026-11-16 22.0°/61.0° rows live in that round's archive) — G0b stays level: its
+    // MOUTH_TURN subject sits at eye height, so the recorded 6.1009° Back settle at G0b
+    // stays retired (the pitch rows are 3.06° → 0° and 0° → 0°); G0's own 3.06° fence keeps
+    // its unchanged data. The mid-segment samples read the B9c lag weight g(s) — the hold
+    // keeps the source aim across the first 20 % — not the old linear distance
     // fraction (the old 83.0°/6.1009° rows retire with the 2026-11-14 split).
     const rail = galleryContract.rail;
     const end0 = framings(rail, 0);
-    expect(Math.abs(wrapDeg(end0.b.yaw - end0.a.yaw))).toBeCloseTo(22.0, 1);
-    expect(end0.a.yaw).toBeCloseTo(7.02, 1); // from the junction arch onto the mouth
-    expect(end0.b.yaw).toBeCloseTo(28.98, 1);
+    expect(Math.abs(wrapDeg(end0.b.yaw - end0.a.yaw))).toBeCloseTo(28.27, 1);
+    expect(end0.a.yaw).toBeCloseTo(7.02, 1); // from the junction arch onto the pre-turned mouth gaze
+    expect(end0.b.yaw).toBeCloseTo(35.29, 1);
     expect(end0.a.pitch).toBeCloseTo(3.06, 2); // G0's fence, unchanged data
-    expect(end0.b.pitch).toBeCloseTo(0, 9); // G0b level on the mouth
+    expect(end0.b.pitch).toBeCloseTo(0, 9); // G0b level on the pre-turned gaze
     const end1 = framings(rail, 1);
-    expect(Math.abs(wrapDeg(end1.b.yaw - end1.a.yaw))).toBeCloseTo(61.0, 1);
+    expect(Math.abs(wrapDeg(end1.b.yaw - end1.a.yaw))).toBeCloseTo(54.7, 1);
     expect(end1.a.pitch).toBeCloseTo(0, 9);
     expect(end1.b.pitch).toBeCloseTo(0, 9); // the 6.10° down-settle is gone
     // Segment 0: the pitch settles 3.06° → 0°, monotone non-increasing (the B9c hold keeps

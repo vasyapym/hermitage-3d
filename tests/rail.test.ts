@@ -262,8 +262,9 @@ describe('the travel law (B9 field, superseding the R18/R19 departure turns)', (
     // B9: the framings carry the whole segment arc (the near-field class retired — its
     // distance weight is now every pair's law). The fence holds at the exact stops; west
     // of the fence the aim is strictly between the framings. The 2026-11-16 re-choreography
-    // split the passage pan (61° on G0b→Gj, 22° on G0→G0b onto the mouth) and re-authored
-    // G0b's subject to GALLERY_MOUTH — the fence-pose pins below hold by construction.
+    // split the passage pan and re-authored G0b's subject; the 2026-11-24 feel tune re-splits
+    // it (55° on G0b→Gj, 28° on G0→G0b, G0b's subject MOUTH_TURN pre-turned past the mouth) —
+    // the fence-pose pins below hold by construction.
     const uG0b = stopParameter(GALLERY, 1);
     const uGj = stopParameter(GALLERY, 2);
     const just = samplePose(GALLERY, back(GALLERY, uGj));
@@ -353,7 +354,7 @@ describe('the travel law (B9 field, superseding the R18/R19 departure turns)', (
     expect(state.u).toBe(stopParameter(GALLERY, GALLERY.stops.length - 1));
   });
   it('Back G0b→G0 pitch climbs in the lag shape g(s), monotonically to its 3.06° fence (B9c)', () => {
-    // B9b re-authored G0b level (its GALLERY_MOUTH subject sits at eye height — the
+    // B9b re-authored G0b level (its MOUTH_TURN subject sits at eye height — the
     // recorded 6.1009° settle retires), so the climb lives on the G0b→G0 leg: the pitch
     // holds 0 across the first 20 % (the B9c lag) and then rises 0 → 3.0591 with the lag
     // weight, pitch = fence·g(s) at the fraction s travelled from G0b toward G0 (no longer
@@ -382,14 +383,14 @@ describe('the travel law (B9 field, superseding the R18/R19 departure turns)', (
     expect(pitches[499] ?? Number.NaN).toBeCloseTo(settle * g(0.5), 3);
   });
 
-  it('Back Gj→G0b spans the whole heading: the framings’ 61° pan in the lag shape (B9c)', () => {
-    // B9c: the Back pan Gj→G0b is 61.02° wide now (G0b re-authors onto the lit mouth; the
-    // 22° remainder lives on G0→G0b) with the lag weight: at the fraction f measured from
-    // G0b toward Gj the Back walk has covered 1 − f of its remaining segment, so the
-    // bearing = 61.02°·g(1 − f) — 9.53° at f 0.6, 19.31° at mid (the mirror identity:
-    // 1 − g_old(0.6) = 0.15625, 1 − g_old(0.5) = 0.31640625). Each fence reads once:
-    // G0b's 61.02°, and G0's unchanged 82.98° — the two chord stops no longer share the
-    // bearing (G0 still holds the junction arch).
+  it('Back Gj→G0b spans the whole heading: the framings’ 55° pan in the lag shape (B9c)', () => {
+    // B9c: the Back pan Gj→G0b is 54.71° wide now (G0b pre-turns past the lit mouth toward
+    // the door — the 2026-11-24 feel tune; the 28° remainder lives on G0→G0b) with the lag
+    // weight: at the fraction f measured from G0b toward Gj the Back walk has covered 1 − f
+    // of its remaining segment, so the bearing = 54.71°·g(1 − f) — 8.55° at f 0.6, 17.31° at
+    // mid (the mirror identity: 1 − g_old(0.6) = 0.15625, 1 − g_old(0.5) = 0.31640625). Each
+    // fence reads once: G0b's 54.71°, and G0's unchanged 82.98° — the two chord stops no
+    // longer share the bearing (G0 still holds the junction arch).
     const uG0b = stopParameter(GALLERY, 1);
     const uGj = stopParameter(GALLERY, 2);
     const bearingDeg = (pose: ReturnType<typeof samplePose>): number => {
@@ -398,14 +399,14 @@ describe('the travel law (B9 field, superseding the R18/R19 departure turns)', (
       return (Math.atan2(Math.abs(hz), hx) * 180) / Math.PI;
     };
     expect(bearingDeg(samplePose(GALLERY, back(GALLERY, uG0b + 0.6 * (uGj - uG0b))))).toBeCloseTo(
-      61.02 * g(0.4),
+      54.71 * g(0.4),
       1,
     );
     expect(bearingDeg(samplePose(GALLERY, back(GALLERY, uG0b + 0.5 * (uGj - uG0b))))).toBeCloseTo(
-      61.02 * g(0.5),
+      54.71 * g(0.5),
       1,
     );
-    expect(bearingDeg(samplePose(GALLERY, back(GALLERY, uG0b)))).toBeCloseTo(61.02, 1);
+    expect(bearingDeg(samplePose(GALLERY, back(GALLERY, uG0b)))).toBeCloseTo(54.71, 1);
     expect(bearingDeg(samplePose(GALLERY, restingAt(0)))).toBeCloseTo(82.98, 1); // G0's fence
   });
   it('a vertical destination aim at departure yields no NaN and the committed gaze', () => {
@@ -663,7 +664,7 @@ describe('corner runs and the approach field (R18-ux D3)', () => {
   });
   it('a Forward approach into Gj reads the committed framings on both headings (B9c)', () => {
     // B9c: GALLERY_MOUTH stays recorded but no longer steers — each heading's aim travels
-    // the arc between G0b's mouth framing and Gj's EAST_DOOR framing over its own
+    // the arc between G0b's pre-turned framing and Gj's EAST_DOOR framing over its own
     // anchored segment (the old cross-heading point-equality was a linear-weight
     // consequence), and the arrival meets EAST_DOOR. u 0.3 is the pan segment's midpoint
     // (k 1.5 of 5 — the 2026-11-17 walk re-tune retires G1b; the old 0.25 read was the
@@ -680,7 +681,7 @@ describe('corner runs and the approach field (R18-ux D3)', () => {
     };
     const stopAim = (index: number): { yaw: number; pitch: number } =>
       aimAngles(samplePose(GALLERY, restingAt(stopParameter(GALLERY, index))));
-    const a = stopAim(1); // G0b's mouth framing
+    const a = stopAim(1); // G0b's pre-turned framing
     const b = stopAim(2); // Gj's EAST_DOOR framing
     const mid = 0.3; // k 1.5 of 5: s = 0.5 of the G0b→Gj segment, either heading's midpoint
     const fwd = aimAngles(samplePose(GALLERY, restingAt(mid)));

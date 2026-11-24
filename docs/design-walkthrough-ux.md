@@ -330,7 +330,9 @@ are untouched; an arrive never reads the tangent.
   per-gap pace law makes the unsplit 22.4 m leg run 14.9 m/s — so Gjb/G1b are
   reinstated as axis rests on the EAST_DOOR lock, speed for sameness, and G0b's
   subject is re-authored from JUNCTION to GALLERY_MOUTH: the head pre-turns toward
-  the light before the corner). The G0 gaze stays «down the
+  the light before the corner). The 2026-11-24 feel tune pre-turns G0b's subject past
+  the mouth toward the door (MOUTH_TURN — the pan splits 28°/55°, the second click
+  −10 %; the owner's eye validates the feel). The G0 gaze stays «down the
   passage toward the lit junction» (the vault leads the entry frame, its 3.06°
   fence untouched); G2 (the door) keeps its authored subject (the
   door's light); G1 keeps the lock-on east, gaze exactly (1, 0, 0).
@@ -441,9 +443,11 @@ pick destinations; the wheel's travel (and its sustained-scroll boundary pass) i
   wall retired); J3/J4 → EAST_PORTAL
   (locked approach). Local presses from J0 land at J1, J1b, J2, J2b, J3, J4. The sconce
   and window are intentional subjects, not random samples. Corridor (re-authored
-  2026-11-16): G0 → JUNCTION (the vault leads the entry frame); G0b → GALLERY_MOUTH (the
-  head pre-turns toward the light before the corner); Gj/Gjb/G1/G1b/G2 → EAST_DOOR (one
-  locked dolly onto the door's light; Gjb/G1b are the 2026-11-16 axis rests for the pace);
+  2026-11-16, pre-turned 2026-11-24): G0 → JUNCTION (the vault leads the entry frame);
+  G0b → MOUTH_TURN (the head pre-turns past the mouth toward the door; the 2026-11-24
+  feel tune, the pan split 28°/55°); Gj/Gjb/G1/G2 → EAST_DOOR (one
+  locked dolly onto the door's light; Gjb is the 2026-11-16 axis rest for the pace,
+  G1b retired 2026-11-17);
   GALLERY_MOUTH stays recorded as Gj's approach on the committed ray
   and, under B9, no longer steers the Forward glide.
 - Look limits (B9): the gaze's distance weight blends departure rows (or the rows at a

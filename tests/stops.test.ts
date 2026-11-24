@@ -16,7 +16,7 @@
 import { describe, expect, it } from 'vitest';
 import { contract as contract1812 } from '../rooms/1812/contract';
 import { contract as jordanContract } from '../rooms/jordan/contract';
-import { GALLERY_MOUTH, contract as galleryContract } from '../rooms/rastrelli-gallery/contract';
+import { MOUTH_TURN, contract as galleryContract } from '../rooms/rastrelli-gallery/contract';
 import { restingAt, samplePose, samplePosition, stopParameter } from '../src/camera/rail';
 import {
   SQUARE_RAIL,
@@ -208,18 +208,23 @@ describe('gallery stops (R-UX5 §7: the junction)', () => {
     // reinstated both rests (seven stops); the owner's 2026-11-17 walk re-tune (the rg-move
     // lane) retires G1b — six stops, the corridor reads as three beats (11.2 / 11.2 / 16.5 m).
     // Gj keeps the corner flag and the mouth approach, G0b keeps its chord position with
-    // the re-authored mouth subject.
+    // the pre-turned mouth subject (the 2026-11-24 feel tune).
     expect(GALLERY.stops.map((s) => s.id)).toEqual(['G0', 'G0b', 'Gj', 'Gjb', 'G1', 'G2']);
   });
-  it('carries the 2026-11-14 insert re-authored by the 2026-11-16 re-choreography: the mid-passage rest on the GALLERY_MOUTH lock', () => {
+  it('carries the 2026-11-14 insert re-authored by the 2026-11-16 re-choreography, pre-turned by the 2026-11-24 feel tune: the mid-passage rest on the MOUTH_TURN lock', () => {
     const g0b = GALLERY.stops[1];
     if (!g0b) throw new Error('G0b missing');
     expect(g0b.position).toEqual([0.8, 1.7, 79.5]); // the exact G0→Gj midpoint
-    // The subject is the GALLERY_MOUTH const by reference — the head pre-turns toward the
-    // light before the corner: G0→G0b pans 22° right onto the mouth and settles level
+    // The subject is the MOUTH_TURN const by reference — the head pre-turns past the light
+    // toward the door (the 2026-11-24 feel tune): G0→G0b pans 28° right and settles level
     // (3.06° → 0°), so G0b is NOT on G0's JUNCTION lock anymore.
-    expect(g0b.subject).toBe(GALLERY_MOUTH);
+    expect(g0b.subject).toBe(MOUTH_TURN);
     expect(g0b.subject).not.toBe(GALLERY.stops[0]?.subject);
+    // The 2026-11-24 feel tune pins the split: the passage's 83° pan reads 28° (press 1)
+    // then 55° (press 2) — the second click carries −10 % of its old 61°.
+    const g0bAim = gazeDirection(GALLERY, stopParameter(GALLERY, 1));
+    const gjAim = gazeDirection(GALLERY, stopParameter(GALLERY, 2));
+    expect(angleDeg(g0bAim, gjAim)).toBeCloseTo(54.7, 1);
     // No corner/approach: a straight run; the R18-ux D3 law stays Gj's.
     expect(g0b.corner).toBeUndefined();
     expect(g0b.approach).toBeUndefined();

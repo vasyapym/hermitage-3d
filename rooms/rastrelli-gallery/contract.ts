@@ -8,10 +8,10 @@
  * and §8 (authored subjects, R-UX5). Budget rows mirror the generated manifest.
  *
  * Subjects (world metres): G0 gazes down the passage at the lit junction (the vault leads the
- * entry frame); G0b, mid-passage, turns toward the lit mouth — GALLERY_MOUTH by reference: the
- * head pre-turns toward the light before the corner (22° of the passage's 83° turn), so
- * G0→G0b pans 22° right and settles level, and G0b→Gj carries the remaining 61° onto the door,
- * flat. Gj and every stop east of it (Gjb, G1, G2) share the east door's opening centre
+ * entry frame); G0b, mid-passage, pre-turns past the lit mouth toward the door — MOUTH_TURN by
+ * reference (the 2026-11-24 feel tune: the head runs ahead of the corner; 28° of the passage's
+ * 83° turn), so G0→G0b pans 28° right and settles level, and G0b→Gj carries the remaining 55°
+ * onto the door, flat. Gj and every stop east of it (Gjb, G1, G2) share the east door's opening centre
  * at eye height, so Gj→…→G2 is one locked dolly onto the door's light; from G1 that direction
  * is exactly (1, 0, 0) — the three G1 goldens hold. G2 stands 3 m off the door so the portal
  * frame reads as architecture. Six stops since the 2026-11-17 walk re-tune (the rg-move
@@ -29,6 +29,10 @@ const EAST_DOOR: Vec3 = [43.5, 1.7, 73];
 const JUNCTION: Vec3 = [1.6, 2.4, 73];
 /** R18-ux D3: the passage mouth's opening centre at eye height — Gj's Forward approach point. */
 export const GALLERY_MOUTH: Vec3 = [4.4, 1.7, 73];
+/** The G0b gaze since the 2026-11-24 feel tune (the owner's split steer): the mouth pre-turned
+ * east — 2.6 % of the way from GALLERY_MOUTH toward EAST_DOOR — so the passage pan splits
+ * 28°/55° (the second click carries −10 % of its old 61°) while G0b stays level. */
+export const MOUTH_TURN: Vec3 = [5.4, 1.7, 73];
 
 /**
  * R18-ux D3: Gj is a corner stop — the path G0→G0b→Gj is the passage chord and Gj→G1→G2 the
@@ -57,13 +61,13 @@ export const contract: RoomContract = {
       {
         // The owner's 2026-11-14 walk steer («one added stop before the turn; minus two
         // after it») placed this rest at the G0→Gj diagonal's exact midpoint. The
-        // 2026-11-16 re-choreography re-authors its subject: GALLERY_MOUTH by reference —
-        // the head pre-turns toward the light before the corner. G0→G0b pans 22° right onto
-        // the lit mouth and settles level (3.06° → 0°); G0b→Gj carries the remaining 61°
+        // 2026-11-16 re-choreography authored the mouth subject; the 2026-11-24 feel tune
+        // pre-turns it past the mouth toward the door (MOUTH_TURN by reference): G0→G0b pans
+        // 28° right and settles level (3.06° → 0°); G0b→Gj carries the remaining 55°
         // onto the door, flat. Look rows: Gj's verbatim. No corner/approach.
         id: 'G0b',
         position: [0.8, 1.7, 79.5],
-        subject: GALLERY_MOUTH,
+        subject: MOUTH_TURN,
         look: { yaw: 30, pitchUp: 15, pitchDown: 15 },
         caption: 'caption.g0b',
       },
