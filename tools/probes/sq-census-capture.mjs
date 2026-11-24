@@ -272,6 +272,10 @@ try {
       ) {
         throw new Error('#scene does not fill the viewport exactly (the DPR crop trap)');
       }
+      // The HUD's whole-frame aggregates (data-draws / data-tris) ride every provenance row —
+      // the shadow-enabled cap re-derivation reads its measured values from here.
+      const hudDraws = Number(await page.getAttribute('#hud', 'data-draws'));
+      const hudTris = Number(await page.getAttribute('#hud', 'data-tris'));
       await page.waitForTimeout(300);
       if (shotRow.drag !== null) {
         const cx = VIEWPORT.width / 2;
@@ -289,7 +293,7 @@ try {
         path: join(OUT, `${shotRow.name}.png`),
         clip: { x: 0, y: 0, width: VIEWPORT.width, height: VIEWPORT.height },
       });
-      results.push({ ...shotRow, file: `${shotRow.name}.png`, ok: true });
+      results.push({ ...shotRow, file: `${shotRow.name}.png`, hud: { draws: hudDraws, tris: hudTris }, ok: true });
       console.log(`shot ${shotRow.name} ok`);
     } catch (e) {
       failures += 1;
