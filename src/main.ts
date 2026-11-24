@@ -1,6 +1,10 @@
 // Phase 0 coordinator — design-sky-time.md §9, §10, §11. Owns the DOM, the renderer and
 // the frame loop; every time or appearance rule itself lives in the pure sky modules.
 // §10 arrival order is immutable: sky frame → title frame → massing fade → settled.
+// sq-arch-day (2026-11-24): B1a/B1b the sun/sky stack (the shadow enable, the sun:fill
+// ratio + temperature), B2 the dome K, B4 the pane day tint, B5 the one-piece arch head —
+// the day gains blend by E(h) = sample.lightmaps.day; the night state vector is untouched.
+// Extends DEC-019/035/037/041/043/048/053.
 import './fonts.css';
 import './style.css';
 import * as THREE from 'three';
@@ -35,7 +39,7 @@ import {
 } from './camera/rail';
 import { SQUARE_RAIL } from './camera/square-rail';
 import { SOUTH_FACADE, WINDOW_ROWS } from './content/facade-spec';
-import { TIME } from './content/sky-time';
+import { SUN_COLOR, TIME } from './content/sky-time';
 import { createLedger } from './engine/ledger';
 import {
   BENCHMARK,
@@ -126,6 +130,12 @@ import {
 import { type SkySample, sampleSky } from './sky/appearance';
 import type { ArrivalState } from './sky/arrival';
 import { advanceArrival, initialArrival, presentationForArrival } from './sky/arrival';
+import {
+  fillGroundColor,
+  fillIntensity,
+  fillSkyColor,
+  groundHalfAlbedo,
+} from './sky/fill';
 import { lightmapWeights } from './sky/lightmap-weights';
 import { createSkyRig } from './sky/rig';
 import { isSeasonId, type SeasonId, seasonInstant, seasonOf } from './sky/season';
@@ -552,6 +562,13 @@ const renderer = createRenderer();
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.AgXToneMapping;
 renderer.toneMappingExposure = sample.exposure;
+// sq-arch-day B1a (the shadow enable; extends DEC-037's fit): the project's FIRST cast
+// shadows — enabled ONCE here, before the tier rows apply mapSize (settleTier), PCFSoft for
+// the grazing winter sun. The sun's castShadow never toggles per hour: the shadow's strength
+// fades by E(h) in applyEpoch instead (B1a(2), three r166+ LightShadow.intensity — no
+// per-crossing program recompiles, the same night image).
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 // §11 runtime counting: one reset per frame, every render in that frame aggregates.
 renderer.info.autoReset = false;
 // Dev/test-only scene readout (the earlier SUB-BISECT probe, committed by R24-ux as the
@@ -665,17 +682,31 @@ const southWings = SOUTH_FACADE.sections.flatMap((section) => {
   const depth = deep ? PALACE.wingDepth + PALACE.protrude : PALACE.wingDepth;
   const z = deep ? protrusionZ : innerZ;
   if (section.kind !== 'centralPortal') return [block(width, depth, centreX, z)];
-  // R-UX3 (§3): the gate pavilion is voided through its middle arch for the throat — two piers
-  // and a lintel instead of one solid; the throat's own surfaces line the void (THROAT_VOID
-  // clears them by 0.25 m so no pier face is coplanar with a throat wall).
-  const pierW = (width - 2 * THROAT_VOID.halfWidth) / 2;
-  const pierX = THROAT_VOID.halfWidth + pierW / 2;
-  const lintelH = PALACE.cornice - THROAT_VOID.topY;
-  return [
-    block(pierW, depth, centreX - pierX, z),
-    block(pierW, depth, centreX + pierX, z),
-    block(2 * THROAT_VOID.halfWidth, depth, centreX, z, lintelH, THROAT_VOID.topY + lintelH / 2),
-  ];
+  // sq-arch-day B5 (the Q10 pick): the gate pavilion is ONE arch-topped piece — the full
+  // cross-section (the section's width × the cornice height) minus the arch opening (the
+  // r 2.45 arc about (0, 7.25) through the crown 9.70), extruded the pavilion depth. The
+  // two piers and the lintel boxes are gone: −2 draws, +≤ 72 tris; the head joins the
+  // palace's shadow loop below (the B1a(3) honour list). The curveSegments 12 discretizes
+  // the arc; the bevel is off — the massing stays a card-model solid.
+  const headShape = new THREE.Shape();
+  headShape.moveTo(-width / 2, 0);
+  headShape.lineTo(-THROAT_VOID.halfWidth, 0);
+  headShape.lineTo(-THROAT_VOID.halfWidth, THROAT_VOID.springY);
+  headShape.absarc(0, THROAT_VOID.springY, THROAT_VOID.radius, Math.PI, 0, true);
+  headShape.lineTo(THROAT_VOID.halfWidth, 0);
+  headShape.lineTo(width / 2, 0);
+  headShape.lineTo(width / 2, PALACE.cornice);
+  headShape.lineTo(-width / 2, PALACE.cornice);
+  headShape.closePath();
+  const headGeometry = new THREE.ExtrudeGeometry(headShape, {
+    depth, // the pavilion depth — the section's own 30 m band
+    curveSegments: 12,
+    bevelEnabled: false,
+  });
+  const head = new THREE.Mesh(headGeometry, massingMaterial);
+  // The extrusion runs +z from the shape plane: centre the band on the pavilion's z box.
+  head.position.set(centreX - width / 2, 0, z - depth / 2);
+  return [head];
 });
 const northWings = [block(PALACE.halfWidth * 2, PALACE.wingDepth, 0, -innerZ)];
 const sideWings = [
@@ -740,6 +771,9 @@ roomsRoot.visible = false;
 scene.add(roomsRoot);
 
 const sun = new THREE.DirectionalLight(0xffffff, 0); // intensity driven by the sample
+// sq-arch-day B1b (the Q1 temperature): the sun's scene-linear colour — the warm cast on
+// every lit face (setRGB's default colour space is the renderer's working space, linear).
+sun.color.setRGB(...SUN_COLOR);
 sun.castShadow = true;
 sun.shadow.mapSize.set(1024, 1024); // T1 default until quality tiers land
 sun.shadow.camera.left = SUN_SHADOW_FIT.left;
@@ -749,7 +783,7 @@ sun.shadow.camera.bottom = SUN_SHADOW_FIT.bottom;
 sun.shadow.camera.near = SUN_SHADOW_FIT.near;
 sun.shadow.camera.far = SUN_SHADOW_FIT.far;
 sun.shadow.bias = -0.0001;
-sun.shadow.normalBias = 0.25;
+sun.shadow.normalBias = 0.05; // sq-arch-day B1a (the Q11 pick): the dec grazing band's bias
 // DEC-037: the committed ±130 m box re-centred on z = SUN_SHADOW_FIT.centreZ so it reaches the
 // Column. The rig carries the light AND its target: applyEpoch's sun.position stays the rig-local
 // sunDirection × SUN_DISTANCE, so the light direction is unchanged while the box translates.
@@ -831,24 +865,33 @@ const applyEpoch = (nextEpochMs: number): void => {
   rig.apply(sample);
   renderer.toneMappingExposure = sample.exposure;
   const { atmosphere } = sample;
+  // sq-arch-day: E(h) — the §8 day lightmap weight (exactly 0 at night and dusk, 1.0 from
+  // +10°): the ONE day factor every day gain below blends by, so the night state vector
+  // (sun intensity, hemi colours, hemi intensity) is bit-identical today's by construction.
+  const day = sample.lightmaps.day;
   sun.intensity = atmosphere.sunIntensity;
+  // sq-arch-day B1a(2): the castShadow toggle retired — the shadow's strength fades by E(h)
+  // (LightShadow.intensity; castShadow stays true, no per-crossing program recompiles).
+  sun.shadow.intensity = day;
   sun.position.set(
     sample.sunDirection[0] * SUN_DISTANCE,
     sample.sunDirection[1] * SUN_DISTANCE,
     sample.sunDirection[2] * SUN_DISTANCE,
   );
+  // sq-arch-day B1b (the Q3 fill shape): the fill is w·zenith + (1−w)·horizon with
+  // w = 0.25 + 0.35·E(h) — the committed 0.25/0.75 split at night, 0.60/0.40 at day; the
+  // intensity rides FILL_DAY_GAIN 11 (the Q2 pick); the fill is UN-K'd (the Q9 pick).
   const { zenithRgb: z, horizonRgb: h } = atmosphere;
-  hemi.color.setRGB(
-    0.25 * z[0] + 0.75 * h[0],
-    0.25 * z[1] + 0.75 * h[1],
-    0.25 * z[2] + 0.75 * h[2],
-  );
+  hemi.color.setRGB(...fillSkyColor(z, h, day));
+  hemi.intensity = fillIntensity(day);
   // DEC-019: the night facade's lattice and the hemisphere's ground warm-up ride the same §8
   // weight the interiors blend by — one clock curve, so inside and outside agree. warmGround is
   // endpoint-exact: at wNight === 0 (day, white-night plateau) the ground law is bit-identical
   // to the pre-lattice sample line, and the lattice group is hidden outright.
+  // sq-arch-day B1b: the ground class — today's warmGround result blended toward half the
+  // ground's own season albedo by E(h) (the june asphalt 0.025, the dec snow 0.41/0.43/0.46).
   const wNight = lightmapWeights(elevationDegOf(sample)).nightChandeliers;
-  nightLattice.setNight(wNight);
+  nightLattice.setNight(wNight, day);
   setThroatNightSpill(throat, wNight); // the doorway's lamp forward spill rides the same switch
   // DEC-033: the season law reads the same instant the sun samples (at=/det=), never Date.now();
   // four writes per frame — morph influence + cap visibility, and the two slots' uniforms (R12).
@@ -856,17 +899,20 @@ const applyEpoch = (nextEpochMs: number): void => {
   snowCap.setSnow(wSnow);
   FACADE_SURFACE_UNIFORMS.uSnow.value = wSnow;
   GROUND_SNOW_UNIFORMS.uSnow.value = wSnow;
-  hemi.groundColor.setRGB(...warmGround(snowBounceGround(h, wSnow), WINDOW_WARM_LINEAR, wNight));
-  // The winter-square round's class-I grant (owner-conditional on the dec-noon battery): a
-  // wSnow-gated winter sky gain on the hemisphere's SKY colour — the pure law snowSkyGain is
-  // exactly 1.0 at wSnow = 0 and at wNight = 1, so the multiply SKIPS at those endpoints and
-  // the gain introduces no sky-colour change there; out of season the short-circuit costs
-  // nothing. NOTE (the Sol review): the 2a ground albedo still applies at night — dec-night
-  // re-baselines at the merge beside dec-noon (the (1 − wNight) gate bounds the sky term only).
-  const skyGain = snowSkyGain(wSnow, wNight);
-  if (skyGain !== 1) {
-    hemi.color.multiplyScalar(skyGain);
-  }
+  GROUND_SNOW_UNIFORMS.uDay.value = day; // sq-arch-day B3: the ground's day-class blend
+  hemi.groundColor.setRGB(
+    ...fillGroundColor(
+      warmGround(snowBounceGround(h, wSnow), WINDOW_WARM_LINEAR, wNight),
+      groundHalfAlbedo(wSnow),
+      day,
+    ),
+  );
+  // sq-arch-day B2 (the Q9 pick): DEC-043's winter sky gain K left the fill path — it now
+  // multiplies the dome LOOKUP only and the pane reflection (B4) with it; exactly 1.0 at
+  // night and out of season, so the night dome stays bit-identical.
+  const domeK = snowSkyGain(wSnow, wNight);
+  rig.setDomeK(domeK);
+  nightLattice.setDayTint(hemi.color, domeK);
   // Label churn guard: the DOM text only changes when the minute actually changes.
   if (nextEpochMs !== lastLabelEpochMs) {
     lastLabelEpochMs = nextEpochMs;

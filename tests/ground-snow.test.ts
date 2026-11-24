@@ -1,6 +1,9 @@
 // tests/ground-snow.test.ts
 /**
  * R12 — the ground-snow look (design-ground-snow.md §§1–4); DEC-037 re-centres the lane.
+ * sq-arch-day B3 (2026-11-24): the winter drift + the june day class (the macro octave, the
+ * 12/60 detail fade, the lane delta × 0.5 with the 0.35 m feather) — every day term is the
+ * identity at E(h) = 0. Extends DEC-035/041/043.
  * Pins the purity fence, the laws, the bit-exact identities at wSnow = 0 and 1,
  * the GLSL/TS agreement, and the splice-and-throw discipline.
  * The lane is the square rail's XZ line (GROUND_LANE_LINE) — laneValue/trampleField take BOTH
@@ -11,22 +14,37 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { SQUARE_RAIL } from '../src/camera/square-rail';
 import {
+  GROUND_NOISE_GLSL,
+  GROUND_NOISE_GLSL_FN,
   GROUND_SNOW_FRAGMENT_BODY,
   GROUND_SNOW_UNIFORMS,
   patchGroundSnowSlot,
 } from '../src/procedural/ground-snow';
 import {
   GROUND_BOUNCE_LINEAR,
+  GROUND_DETAIL_FADE,
+  GROUND_DRIFT_MIN,
+  GROUND_DRIFT_OCTAVES,
   GROUND_LANE,
   GROUND_LANE_LINE,
+  GROUND_MACRO_OCTAVE,
   GROUND_SNOW_FRESH_LINEAR,
   GROUND_SNOW_TRAMPLED_LINEAR,
   GROUND_TRAMPLE_BASE,
+  detailFade,
+  driftFactor,
+  driftNoise,
   groundSnowAlbedo,
+  gsNoise,
   laneCentreX,
   laneValue,
+  laneValueDay,
+  LANE_DAY_CONTRAST,
+  LANE_DAY_FEATHER_M,
+  macroFactor,
   snowBounceGround,
   trampleField,
+  trampleFieldDay,
 } from '../src/world/ground-snow';
 import type { LinearRgb } from '../src/world/night-facade';
 import { WINDOW_WARM_LINEAR, warmGround } from '../src/world/night-facade';
@@ -298,6 +316,146 @@ describe('GLSL / TS agreement', () => {
     expect(GROUND_SNOW_FRAGMENT_BODY).toContain('clamp( vGroundXZ.y');
     expect(GROUND_SNOW_FRAGMENT_BODY).toContain('abs( vGroundXZ.x - groundLaneX )');
   });
+
+  it('emits the B3 day-class constants and the shared noise uniforms', () => {
+    // The lane's day law: the feather and the contrast, blended by uDay.
+    const feather = `${glslFloat(GROUND_LANE.edgeHalfM)} + ${glslFloat(LANE_DAY_FEATHER_M)} * uDay`;
+    expect(GROUND_SNOW_FRAGMENT_BODY).toContain(feather);
+    expect(GROUND_SNOW_FRAGMENT_BODY).toContain(
+      `* ( 1.0 + ( ${glslFloat(LANE_DAY_CONTRAST)} - 1.0 ) * uDay )`,
+    );
+    // The drift: the uniform-paired octaves and the uDriftMin floor, inside the uSnow mix.
+    expect(GROUND_SNOW_FRAGMENT_BODY).toContain(
+      'uDriftMin + ( 1.0 - uDriftMin ) * ( uOctaveA.y',
+    );
+    expect(GROUND_SNOW_FRAGMENT_BODY).toContain('groundSnowRgb *= mix( 1.0, groundDrift, uDay );');
+    expect(GROUND_SNOW_FRAGMENT_BODY).toContain(
+      'diffuseColor.rgb = mix( diffuseColor.rgb, groundSnowRgb, uSnow );',
+    );
+    // The june macro octave, blended by uDay; the detail fade inside the paving call.
+    expect(GROUND_SNOW_FRAGMENT_BODY).toContain('vGroundXZ / uMacro.x');
+    const macroCall = `${GROUND_NOISE_GLSL_FN}( vGroundXZ / uMacro.x ) - 0.5`;
+    expect(GROUND_SNOW_FRAGMENT_BODY).toContain(`mix( 1.0, 1.0 + ( ${macroCall} )`);
+    expect(GROUND_SNOW_FRAGMENT_BODY).toContain('* 2.0 * uMacro.y, uDay );');
+    expect(GROUND_SNOW_FRAGMENT_BODY).toContain(
+      'pavingAlbedo( vGroundXZ, diffuseColor.rgb, groundDist )',
+    );
+    expect(GROUND_SNOW_FRAGMENT_BODY).toContain('float groundDist = length( vViewPosition );');
+    // The uniform initial values are the laws' constants.
+    expect(GROUND_SNOW_UNIFORMS.uDriftMin.value).toBe(GROUND_DRIFT_MIN);
+    expect(GROUND_SNOW_UNIFORMS.uOctaveA.value).toEqual([
+      GROUND_DRIFT_OCTAVES.a.scaleM,
+      GROUND_DRIFT_OCTAVES.a.amp,
+    ]);
+    expect(GROUND_SNOW_UNIFORMS.uOctaveB.value).toEqual([
+      GROUND_DRIFT_OCTAVES.b.scaleM,
+      GROUND_DRIFT_OCTAVES.b.amp,
+    ]);
+    expect(GROUND_SNOW_UNIFORMS.uMacro.value).toEqual([
+      GROUND_MACRO_OCTAVE.scaleM,
+      GROUND_MACRO_OCTAVE.amp,
+    ]);
+    // The ONE shared hash value-noise: emitted before the paving function, which samples it.
+    expect(GROUND_NOISE_GLSL).toContain('float gsNoise(vec2 p)');
+    expect(GROUND_NOISE_GLSL).toContain('gsNoiseHash(vec2 p)');
+    expect(GROUND_NOISE_GLSL.indexOf('gsNoiseHash')).toBeLessThan(
+      GROUND_NOISE_GLSL.indexOf('float gsNoise(vec2 p)'),
+    );
+  });
+});
+
+describe('sq-arch-day B3 — the winter drift (the Q8 pick)', () => {
+  it('modulates the snow albedo over [DRIFT_MIN, 1] — DRIFT_MIN 0.50 at the 5.5 m octave', () => {
+    expect(GROUND_DRIFT_MIN).toBe(0.5);
+    expect(GROUND_DRIFT_OCTAVES.a).toEqual({ scaleM: 5.5, amp: 0.8 });
+    expect(GROUND_DRIFT_OCTAVES.b).toEqual({ scaleM: 1.2, amp: 0.2 });
+    expect(driftFactor(0)).toBe(0.5);
+    expect(driftFactor(1)).toBe(1);
+  });
+
+  it('the n2 field over a 200 m sample stays in [0, 1] and actually varies', () => {
+    let min = Number.POSITIVE_INFINITY;
+    let max = Number.NEGATIVE_INFINITY;
+    for (let x = -100; x <= 100; x += 7) {
+      for (let z = 100; z <= 300; z += 11) {
+        const n2 = driftNoise(x + 0.37, z + 0.29);
+        expect(n2).toBeGreaterThanOrEqual(0);
+        expect(n2).toBeLessThanOrEqual(1);
+        min = Math.min(min, n2);
+        max = Math.max(max, n2);
+      }
+    }
+    expect(max - min).toBeGreaterThan(0.1); // the band is not flat
+    // The albedo factor over the same sample: [0.50, 1.0].
+    expect(driftFactor(min)).toBeGreaterThanOrEqual(0.5 - 1e-12);
+    expect(driftFactor(max)).toBeLessThanOrEqual(1);
+  });
+
+  it('the shared noise twin is a [0, 1) bilinear value noise; the macro is its 6 m sample', () => {
+    for (let x = -50; x <= 50; x += 3) {
+      for (let z = 100; z <= 300; z += 7) {
+        const v = gsNoise(x / 6, z / 6);
+        expect(v).toBeGreaterThanOrEqual(0);
+        expect(v).toBeLessThan(1);
+      }
+    }
+    expect(GROUND_MACRO_OCTAVE).toEqual({ scaleM: 6, amp: 0.06 });
+    // The macro factor is the ±6 % swing about 1: [0.94, 1.06].
+    const swing = 2 * GROUND_MACRO_OCTAVE.amp;
+    expect(macroFactor(0.37, 190.3)).toBeGreaterThanOrEqual(1 - swing - 1e-12);
+    expect(macroFactor(0.37, 190.3)).toBeLessThanOrEqual(1 + swing + 1e-12);
+  });
+});
+
+describe('sq-arch-day B3 — the day lane law (the Q7 pick)', () => {
+  it('at E = 0 both laws are the committed lane law bit for bit', () => {
+    for (const [x, z] of [
+      [0, 124],
+      [-12, 177],
+      [-24, 230],
+      [laneCentreX(177) + 5, 177],
+      [laneCentreX(177) + 8, 177],
+      [15, 300],
+      [0, 50],
+    ] as const) {
+      expect(laneValueDay(x, z, 0)).toBe(laneValue(x, z));
+      expect(trampleFieldDay(x, z, 0)).toBe(trampleField(x, z));
+    }
+  });
+
+  it('at E = 1 the lane delta halves and the edge feathers by 0.35 m', () => {
+    expect(LANE_DAY_CONTRAST).toBe(0.5);
+    expect(LANE_DAY_FEATHER_M).toBe(0.35);
+    for (const [x, z] of [
+      [0, 124],
+      [-12, 177],
+      [laneCentreX(177) + 5, 177],
+      [laneCentreX(177) + 8, 177],
+    ] as const) {
+      const t = trampleField(x, z);
+      const day = trampleFieldDay(x, z, 1);
+      expect(day).toBeCloseTo(GROUND_TRAMPLE_BASE + (t - GROUND_TRAMPLE_BASE) * 0.5, 12);
+    }
+    // The feather: the old edge's skirt is now inside the lane's falloff at full day.
+    const c = laneCentreX(177);
+    expect(laneValue(c + GROUND_LANE.edgeHalfM, 177)).toBe(0);
+    expect(laneValueDay(c + GROUND_LANE.edgeHalfM, 177, 1)).toBeGreaterThan(0);
+    // Clear of the feathered edge (the exact boundary is an FP tie — the skirt's 0.01 margin).
+    expect(
+      laneValueDay(c + GROUND_LANE.edgeHalfM + LANE_DAY_FEATHER_M + 0.01, 177, 1),
+    ).toBe(0);
+  });
+});
+
+describe('sq-arch-day B3 — the cobble detail fade (the june pair 12/60)', () => {
+  it('is 1 near, 0 far, monotone between the constants', () => {
+    expect(GROUND_DETAIL_FADE).toEqual({ nearM: 12, farM: 60 });
+    expect(detailFade(0)).toBe(1);
+    expect(detailFade(12)).toBe(1);
+    expect(detailFade(60)).toBe(0);
+    expect(detailFade(36)).toBeCloseTo(0.5, 12);
+    expect(detailFade(30)).toBeGreaterThan(detailFade(40));
+  });
 });
 
 describe('patchGroundSnowSlot', () => {
@@ -329,7 +487,8 @@ describe('patchGroundSnowSlot', () => {
     expect(material.customProgramCacheKey).toBeTypeOf('function');
     // Brief 19 §B.2 (W4c): the paving slot composes INSIDE the snow hook, so the key compounds —
     // patched and unpatched materials still never share a cache entry.
-    expect(material.customProgramCacheKey?.()).toBe('Ground/snow-slot@2|Ground/paving-slot@1');
+    // sq-arch-day B3: the snow slot is @3 (the drift + macro + day-lane body), the paving @2.
+    expect(material.customProgramCacheKey?.()).toBe('Ground/snow-slot@3|Ground/paving-slot@2');
   });
 
   it('throws when an anchor is missing', () => {

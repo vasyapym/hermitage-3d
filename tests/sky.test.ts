@@ -219,12 +219,12 @@ describe('appearance', () => {
     expect(atmosphere.sunIntensity).toBe(0);
   });
 
-  it('is exactly the day palette well above the ramp', () => {
+  it('is exactly the day palette above the ramp (sq-arch-day: the B2 zenith, the B1 peak)', () => {
     const atmosphere = atmosphereForElevation(20);
-    expect(atmosphere.zenithRgb).toEqual([0.14, 0.3, 0.56]);
+    expect(atmosphere.zenithRgb).toEqual([0.08, 0.2, 0.5]);
     expect(atmosphere.horizonRgb).toEqual([0.58, 0.7, 0.8]);
     expect(atmosphere.glowStrength).toBe(0);
-    expect(atmosphere.sunIntensity).toBe(3);
+    expect(atmosphere.sunIntensity).toBe(6);
   });
 
   it('is finite, non-negative and continuous through the twilight band', () => {

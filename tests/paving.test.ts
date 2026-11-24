@@ -1,6 +1,7 @@
 // tests/paving.test.ts
 /**
- * Brief 19 §B.2 — the Palace Square paving law (classes A–C; DEC-paving). Pins the declared
+ * Brief 19 §B.2 — the Palace Square paving law (classes A–C; DEC-paving; sq-arch-day B3
+ * extends it with the 12/60 detail fade — slot @2). Pins the declared
  * constants, the anchored band grid geometry, the square footprint, the GLSL twin's emitted
  * program (contents, literals, no comments, length), and the purity/anti-copy laws of both files.
  */
@@ -21,7 +22,8 @@ import {
 describe('1 · the declared constants', () => {
   it('sources the square from wiki-ru and derives the cell-mean-exact body tone', () => {
     expect(PAVING_SOURCE).toBe('wiki-ru');
-    expect(PAVING_SLOT).toBe('Ground/paving-slot@1');
+    // sq-arch-day B3: the slot bumps to @2 for the distance fade (the emitted body changed).
+    expect(PAVING_SLOT).toBe('Ground/paving-slot@2');
     expect(PAVING_GLSL_FN).toBe('pavingAlbedo');
     expect(PAVING_JOINT_FRACTION).toBeCloseTo(0.19, 6);
     expect(PAVING_BODY_TONE).toBeCloseTo(1.060445, 5);
@@ -63,7 +65,8 @@ describe('4 · the GLSL twin', () => {
   const glsl = pavingGlsl();
 
   it('declares the paving function and interpolates every interpreted constant', () => {
-    expect(glsl).toContain('vec3 pavingAlbedo(vec2 xz,vec3 base)');
+    // sq-arch-day B3: the function takes the camera distance for the detail fade.
+    expect(glsl).toContain('vec3 pavingAlbedo(vec2 xz,vec3 base,float dist)');
     for (const literal of [
       '20.0',
       '0.12',
@@ -83,10 +86,18 @@ describe('4 · the GLSL twin', () => {
     expect(glsl.split('10.0')).toHaveLength(4); // the anchor plus both lo/hi '110.0' carry-overs
   });
 
-  it('ships without comments and stays within the budget of 1400 characters', () => {
+  it('fades the cobble detail by the 12/60 distance pair, blended by uDay', () => {
+    // The fade is 1 near and 0 far; the E-blend keeps the committed program at E = 0.
+    expect(glsl).toContain('1.0-smoothstep(12.0,60.0,dist)');
+    expect(glsl).toContain('pvDetail=mix(1.0,pvDetail,uDay);');
+    expect(glsl).toContain('mix(1.0,near,fade*pvDetail)');
+    expect(glsl).toContain('*mf*pvDetail');
+  });
+
+  it('ships without comments and stays within the budget of 1500 characters', () => {
     expect(glsl).not.toContain('//');
     expect(glsl).not.toContain('/*');
-    expect(glsl.length).toBeLessThanOrEqual(1400);
+    expect(glsl.length).toBeLessThanOrEqual(1500);
   });
 });
 

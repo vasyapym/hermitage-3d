@@ -5,6 +5,15 @@
  * §8 weight of design-sky-time.md (lightmapWeights(elev).nightChandeliers). Same pattern as
  * facade-builder.ts; the laws live in src/world/night-facade.ts.
  *
+ * sq-arch-day B4 (the Q6 pick): the DAY pane class rides the SAME three stock materials —
+ * the albedo's day endpoint via setNight(wNight, day) = paneDayAlbedo, and the sky tint AFTER
+ * lighting through one onBeforeCompile patch on the shared program: out = mix(out, uSkyFill ×
+ * uDomeK, E(h)·mix(0.20, 0.40, pow(1−NdotV, 3))). uSkyFill SHARES the hemi.color instance (no
+ * per-frame copy) and uDomeK is the dome's K (DEC-043's snowSkyGain: 1.5 snow season, 1 else —
+ * the pane reflects the dome, not the fill). At E = 0 the tint factor is exactly 0 and the
+ * albedo law is paneBaseTone bit-exact: the DEC-048 night baseline holds. The DEC-019 lattice
+ * geometry is untouched. Extends DEC-019/048/053.
+ *
  * Budget: three InstancedMesh (one per level, one shared stock MeshStandardMaterial each) in one
  * Group — +3 draw calls, no lights, no custom materials, no fourth lightmap state. The host adds
  * the group to the palace group, so the indoors flip is inherited for free.
@@ -38,8 +47,10 @@ import {
   PANE_LEVELS,
   PANE_STANDOFF,
   type PaneLevel,
-  paneBaseTone,
+  paneDayAlbedo,
   paneIntensity,
+  PANE_TINT_MAX,
+  PANE_TINT_MIN,
   WINDOW_WARM_LINEAR,
 } from '../world/night-facade';
 import { type SurroundOpening, surroundOpening } from './facade-builder';
@@ -52,7 +63,12 @@ export type NightLattice = Readonly<{
   materials: Readonly<Record<PaneLevel, MeshStandardMaterial>>;
   counts: Readonly<Record<PaneLevel, number>>;
   levelById: ReadonlyMap<string, PaneLevel>;
-  setNight: (wNight: number) => void;
+  /** The night law + the sq-arch-day day class: the albedo is paneDayAlbedo(wNight, day) —
+   * at day 0 (the default) exactly the committed paneBaseTone write. */
+  setNight: (wNight: number, day?: number) => void;
+  /** sq-arch-day B4: binds the day tint — uSkyFill SHARES the passed colour instance (the
+   * hemi's), uDomeK is the dome's K. Called every applyEpoch after the fill write. */
+  setDayTint: (skyFill: Color, domeK: number) => void;
   /** The presentation fade for the stock materials (the round-2 review fix): the HQ's pane
    * quads bound by reference fade with the wall; identity at settle (opacity 1, opaque). */
   setFade: (opacity: number) => void;
@@ -91,6 +107,47 @@ function openingFor(partId: PartId): SurroundOpening {
   }
   return opening;
 }
+
+// --- sq-arch-day B4: the day pane tint --------------------------------------------------------
+
+/** The shared day-tint uniforms' shape: mutable values — the host writes them per epoch. */
+type PaneDayUniforms = {
+  uSkyFill: { value: Color };
+  uDomeK: { value: number };
+  uPaneDay: { value: number };
+};
+
+/** The shared day-tint uniforms: ONE object for all three stock levels — uSkyFill is bound to
+ * the hemi's colour INSTANCE by setDayTint (no per-frame copy), uDomeK is the dome's K. */
+const PANE_DAY_UNIFORMS: PaneDayUniforms = {
+  uSkyFill: { value: new Color(0, 0, 0) },
+  uDomeK: { value: 1 },
+  uPaneDay: { value: 0 },
+};
+
+const PANE_TINT_CACHE_KEY = 'Pane/day-tint@1';
+
+/**
+ * The day pane tint's shader patch (sq-arch-day B4): after lighting, before the opaque write,
+ * the outgoing light mixes toward the sky fill by the E-gated, view-dependent factor. `normal`,
+ * `vViewPosition` and `outgoingLight` are all in scope at three's `#include <opaque_fragment>`
+ * in the standard material. Loud-fails if three renames the token (the repo's silent-noop law).
+ */
+export function patchPaneDayTint(shader: { fragmentShader: string }): void {
+  const anchor = '#include <opaque_fragment>';
+  const patch = `{
+	float paneNdotV = clamp( dot( normalize( normal ), normalize( vViewPosition ) ), 0.0, 1.0 );
+	float paneTint = uPaneDay * mix( ${PANE_TINT_MIN}, ${PANE_TINT_MAX}, pow( 1.0 - paneNdotV, 3.0 ) );
+	outgoingLight = mix( outgoingLight, uSkyFill * uDomeK, paneTint );
+}
+${anchor}`;
+  const patched = shader.fragmentShader.replace(anchor, patch);
+  if (patched === shader.fragmentShader) {
+    throw new Error('panes: the day-tint patch found no <opaque_fragment> token');
+  }
+  shader.fragmentShader = patched;
+}
+
 function paneMaterial(level: PaneLevel): MeshStandardMaterial {
   const [r, g, b] = WINDOW_WARM_LINEAR;
   const emissive = level === 'dark' ? new Color(0, 0, 0) : new Color().setRGB(r, g, b);
@@ -107,6 +164,15 @@ function paneMaterial(level: PaneLevel): MeshStandardMaterial {
     metalness: 0,
   });
   material.name = `night-pane-${level}`;
+  // sq-arch-day B4: the day tint rides the shared program — one patch, one cache key, the
+  // three levels' differences stay uniforms (emissive colour/intensity, the albedo write).
+  material.onBeforeCompile = (shader) => {
+    shader.uniforms.uSkyFill = PANE_DAY_UNIFORMS.uSkyFill;
+    shader.uniforms.uDomeK = PANE_DAY_UNIFORMS.uDomeK;
+    shader.uniforms.uPaneDay = PANE_DAY_UNIFORMS.uPaneDay;
+    patchPaneDayTint(shader);
+  };
+  material.customProgramCacheKey = (): string => PANE_TINT_CACHE_KEY;
   return material;
 }
 function buildLevel(
@@ -175,15 +241,24 @@ export function buildNightLattice(solved: LatticeSource): NightLattice {
   for (const level of PANE_LEVELS) {
     group.add(meshes[level]);
   }
-  const setNight = (wNight: number): void => {
+  const setNight = (wNight: number, day = 0): void => {
     group.visible = latticeVisible(wNight);
+    // sq-arch-day B4: the day class blends by E(h) — clamped at the ONE write site.
+    PANE_DAY_UNIFORMS.uPaneDay.value = Math.min(1, Math.max(0, day));
     for (const level of PANE_LEVELS) {
       materials[level].emissiveIntensity = paneIntensity(level, wNight);
-      // The hour law (the square-next-2 round): the ONE unlit albedo rides wNight — the day
-      // glass tone at w 0 (the kit group is never hidden), DARK_PANE_TONE bit-exact at w 1.
-      // All three levels take the SAME value: the no-checkerboard invariant holds at every w.
-      materials[level].color.setRGB(...paneBaseTone(wNight));
+      // The hour law (the square-next-2 round) extended by the day class (sq-arch-day B4):
+      // paneDayAlbedo is paneBaseTone bit-exact at day 0, PANE_DAY_ALBEDO at full day — the
+      // no-checkerboard invariant holds at every w and every day.
+      materials[level].color.setRGB(...paneDayAlbedo(wNight, day));
     }
+  };
+  const setDayTint = (skyFill: Color, domeK: number): void => {
+    // sq-arch-day B4: uSkyFill SHARES the hemi's colour instance (no per-frame copy); the
+    // shader multiplies it by uDomeK — the dome's K (1.5 snow season, 1 else), the pane
+    // reflects the dome, not the fill. Idempotent: the same instance is bound every epoch.
+    PANE_DAY_UNIFORMS.uSkyFill.value = skyFill;
+    PANE_DAY_UNIFORMS.uDomeK.value = domeK;
   };
   const setFade = (opacity: number): void => {
     // The round-2 review fix: the pane stocks ride the presentation fade — the HQ's
@@ -196,5 +271,5 @@ export function buildNightLattice(solved: LatticeSource): NightLattice {
     }
   };
   setNight(0);
-  return { group, meshes, materials, counts, levelById, setNight, setFade };
+  return { group, meshes, materials, counts, levelById, setNight, setDayTint, setFade };
 }
