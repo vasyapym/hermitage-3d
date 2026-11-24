@@ -300,8 +300,13 @@ def o5_frame_readout(g24, band_rows, arch_cells):
         return None, None, None
     web_cells = [(r, c) for r in band_rows for c in range(JUNCTION_GRID[0])
                  if (r, c) not in arch_cells]
-    web = float(g24[list(zip(*web_cells))].mean()) if web_cells else None
-    arch = float(g24[list(zip(*arch_cells))].mean()) if arch_cells else None
+    # numpy 2.x: a list of tuples is NOT the (rows, cols) pair-index — the explicit arrays are.
+    rows_arr = np.array([r for r, _ in web_cells])
+    cols_arr = np.array([c for _, c in web_cells])
+    web = float(g24[rows_arr, cols_arr].mean()) if web_cells else None
+    arch_rows = np.array([r for r, _ in arch_cells])
+    arch_cols = np.array([c for _, c in arch_cells])
+    arch = float(g24[arch_rows, arch_cols].mean()) if arch_cells else None
     vault = arch / web if (arch is not None and web) else None
     return vault, arch, web
 
