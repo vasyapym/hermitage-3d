@@ -19,7 +19,8 @@
 # RG-F2 PALETTE (the value split): the whole order + vaults in white stucco over a warm
 # limewash field with a dark stone base; texture NAMES kept, stone_band added (4 textures).
 # RG-F2 EAST END: the x = 44 plane is one partition; 'stairlight' = the lunette half-disc
-# (8 segs) and 'doorcard' = the 1.6 m x 2.40 m rectangle, both AT x = 44.0, both painted per
+# (LUNETTE_SEGS; the stock-take R5 raises it 8 -> 24) and 'doorcard' = the 1.6 m x 2.40 m
+# rectangle, both AT x = 44.0, both painted per
 # published state at encode (tools/lm_compose.py + reencode); the bake world no longer enters.
 # RG-F3 (the ruling's builder-header record): existing courtyard niche backs become declared
 # panes without new faces. 'pane' and 'stairlight' ship non-emissive; bake.py supplies their
@@ -45,6 +46,14 @@
 # gate itself is untouched). The atlas still packs at LM_RES 1536 (D4: 2048 stays rejected,
 # +5,930 B over the texture cap). The bake-side constants (the per-target CAGE table, D3,
 # max_ray_distance 0.35) live in tools/probes/rg-sightline.py and are consumed by batch B.
+# THE STOCK-TAKE (the 2026-11-24 adopted round: the geometry artifact R1-R5 + the bake
+# artifact W1-W5): the arc counts raise (G_ARC_SEGS/ARCH_SEGS/NICHE_HEAD_SEGS 8 -> 16,
+# LUNETTE_SEGS 8 -> 24 - each an integer multiple, every existing node stays), the web's
+# slot sits on M_PALE committed (the adopted V2 word - the o5 bench switch retires), and
+# the atlas law ends the borrowed class: the applied families (the F5 dado/panels + the
+# five airlock faces) pack their own cells (W2-W4), the short-axis texel floors land
+# (W1/W3/W5), and the emitter row rides bake.py STAGE_SPILL_PARTS['rastrelli-gallery']
+# ['doorcard'].
 
 import json
 import math
@@ -105,10 +114,11 @@ TEXTURE_NAMES = ('stone_flags', 'plaster_pale', 'stucco_grey', 'stone_band')
 M_PALE, M_FLAGS, M_STUCCO, M_BAND, M_STAIR, M_PANE = 0, 1, 2, 3, 4, 5
 M_SHADE = 6
 M_SHADE_AIRLOCK = 7    # RG-F6: the airlock shade's flat slot (export chain only, like M_SHADE)
-# The O5 bench switch (the 2026-11-24 stock-take, artifact o5; bench-only, never shipped):
-# RG_BENCH_WEB_SLOT=pale retags the axis vault's web rows (vault.gallery) to M_PALE for the
-# A/B glb pair; unset is the committed behaviour bit-for-bit (the determinism gates hold).
-WEB_SLOT = M_PALE if os.environ.get('RG_BENCH_WEB_SLOT') == 'pale' else M_STUCCO
+# The adopted stock-take word (DECISION-1, the short sitting 2026-11-24: «B looks a bit
+# richer so i choose it» = the word «B»): the axis vault's web rows (vault.gallery) sit on
+# M_PALE committed. The o5 bench switch (RG_BENCH_WEB_SLOT) that A/B-tested this slot is
+# retired - the committed builder sets the web directly.
+WEB_SLOT = M_PALE
 S_IRON, S_GLOW = 0, 1
 
 # ---- gallery proper (east of the arch passage), metres -------------------------------------
@@ -120,7 +130,10 @@ G_PEAK = 3.6
 G_HALF = 3.0
 G_REVEAL = 0.8
 G_LEN_SEGS = 10
-G_ARC_SEGS = 8
+# (the stock-take geometry artifact R1) 8 -> 16: an integer multiple, so every existing node
+# stays where it is (arch feet, bay seams, the mouth, spring and peak); the new nodes fall on
+# the same curve between them. The web is a judged field under the adopted V2 word.
+G_ARC_SEGS = 16
 XS_G = [G_X0, G_X0 + G_REVEAL] + [
     G_X0 + G_REVEAL + (G_X1 - G_X0 - G_REVEAL) * k / G_LEN_SEGS for k in range(1, G_LEN_SEGS + 1)
 ]
@@ -163,7 +176,9 @@ CAPITAL_PROFILE = (  # relative to the SHAFT face (verdict 2.3, pinned there)
     (0.00, 2.45), (0.02, 2.49), (0.05, 2.53), (0.05, 2.58), (0.08, 2.62), (0.08, 2.70),
 )
 ABACUS_HALF_W = 0.28
-ARCH_WIDTH, ARCH_HALF, ARCH_SPRING, ARCH_CROWN, ARCH_SEGS = 0.44, 2.72, 3.00, 3.34, 8
+# (the stock-take geometry artifact R2) ARCH_SEGS 8 -> 16, one count with R1: the arch
+# soffit bands close against the vault's web polyline, so they share the raised count.
+ARCH_WIDTH, ARCH_HALF, ARCH_SPRING, ARCH_CROWN, ARCH_SEGS = 0.44, 2.72, 3.00, 3.34, 16
 FLOOR_BORDER = 0.30
 FLOOR_ARCH_BAND = 0.44
 NICHE_SURROUND_W, NICHE_SURROUND_D = 0.10, 0.03
@@ -196,22 +211,24 @@ NICHE_SPRING = 1.60
 NICHE_HEAD_R = 0.90
 NICHE_PEAK = NICHE_SPRING + NICHE_HEAD_R      # 2.50
 NICHE_RECESS = 0.22
-NICHE_HEAD_SEGS = 8
+# (the stock-take geometry artifact R4) 8 -> 16: an arc against an emitter, the hardest
+# edge in the room - the kink halves (22.5 deg -> 11.25 deg).
+NICHE_HEAD_SEGS = 16
 NICHE_CENTRES = tuple(G_X1 - BAY_PITCH * (k - 0.5) for k in range(1, PILASTERS_PER_SIDE + 1))
 # (RG-F3) the NICHE_CENTRES order runs EAST -> WEST: k=1 x 42.3065 (the bay nearest the
 # door) ... k=11 x 8.4365, one bay pitch 3.387 apart. The pane tags pane01..pane11 keep
 # this k order (k=1 = the EAST-most bay).
 
-# ---- RG-F5: the dado datum + the framed panel order (the exported-never-baked families) ----
-# THE RECIPROCAL of DEC-050 (the accepted verdict reply-1 §2): the junction proxies are
-# baked-never-exported; these families are EXPORTED-NEVER-BAKED. They carry no atlas cells
-# of their own - the shelf packer skips them (BORROWED_ELEMENTS) and every loop adopts its
-# host wall face's TEXCOORD_1 (adopt_lm_uv) - so all three plates stay byte-identical BY
-# CONSTRUCTION (the bake chain never builds them: build_wall_families is export-only) and
-# the articulation reads through the albedo split (M_STUCCO fronts over the M_PALE fields,
-# the DEC-042 white-order step 0.88/0.86/0.82 vs 0.72/0.67/0.58 = a 22-41% albedo step) +
-# the silhouette/parallax + the deterministic fillet-shade device: M_SHADE = the stucco
-# value x FILLET_AO on the down-facing and lateral faces (a corner's AO is
+# ---- RG-F5: the dado datum + the framed panel order (the export-only applied families) ------
+# THE APPLIED FAMILIES (the DEC-050 reciprocal, as amended by the 2026-11-24 stock-take
+# bake artifact W2-W4): export-only geometry (the bake chain never builds them -
+# build_wall_families is export-only) that NOW PACKS ITS OWN ATLAS CELLS - the shelf
+# packer packs every family face onto its own rect, and the old adopted-TEXCOORD_1
+# machinery (the host wall face's map + the declared airlock host rows) is deleted. The
+# articulation still reads through the albedo split (M_STUCCO fronts over the M_PALE
+# fields, the DEC-042 white-order step 0.88/0.86/0.82 vs 0.72/0.67/0.58 = a 22-41% albedo
+# step) + the silhouette/parallax + the deterministic fillet-shade device: M_SHADE = the
+# stucco value x FILLET_AO on the down-facing and lateral faces (a corner's AO is
 # light-direction-independent; the lamps and the panes both sit above the rail, so the
 # underside is the dark face at every stop). Form PROVISIONAL pending the axial-photo
 # evidence pass (S4) - the re-tune surface is this constant table.
@@ -250,15 +267,14 @@ F5_PANELS = F5_PANEL_DADO + F5_PANEL_TALL                   # 56
 F5_RAIL_RUNS = 2 * (1 + 2 * len(NICHE_CENTRES)) + 4 + 4      # 54 (46 gallery + 4 passage + 4 end wall)
 F5_RAIL_CAPS = 2                                            # the 2 jamb-band caps (the mouth
                                                             # ends are the mating mitres now)
-# RG-F6: the airlock set's five borrowed elements (export chain only; the same
-# exported-never-baked class as the F5 families - no atlas cells, adopted light).
+# RG-F6: the airlock set's five applied elements (export chain only). The stock-take bake
+# artifact W4: they leave the declared host onto their own atlas cells at the gallery
+# floor's density (the floor they continue); the host declaration is deleted.
 AIRLOCK_ELEMENTS = ('airlock.reveal.w', 'airlock.reveal.e', 'airlock.soffit',
                     'airlock.floor', 'airlock.threshold')
-BORROWED_ELEMENTS = ('dado.panel', 'dado.rail') + AIRLOCK_ELEMENTS
-F5_HOST_ELEMENTS = ('wall.field', 'passage.field', 'wall.e')
+FAMILY_ELEMENTS = ('dado.panel', 'dado.rail') + AIRLOCK_ELEMENTS
 F5_COLLIDER_ELEMENTS = ('pilaster', 'ressaut', 'cornice', 'skirting', 'impost', 'doorcase',
                         'niche')
-F5_ADOPT_CLAMP_M = 0.08    # the nearest-host clamp (the mitre wraps are 0.06 deep)
 
 # ---- east doorcase + stairlight lunette + door card, around the UNCHANGED opening ----------
 PORTAL_X0, PORTAL_X1 = 43.2, 44.0
@@ -266,7 +282,14 @@ PORTAL_Z0, PORTAL_Z1 = 72.2, 73.8     # 1.6 m clear opening, centred on Z = 73
 DOOR_JAMB_W = 0.25
 DOOR_BAND_Y = (2.40, 2.70)
 LUNETTE_R = 0.75                      # half-disc ON the x = 44 plane, centre (44, 2.70, 73): top 3.45
-LUNETTE_SEGS = 8
+# (the stock-take geometry artifact R5) 8 -> 24: the lunette's arc is its OWN half-disc
+# (end_halfdisc below) - it shares no node with the vault's end ring, so the R5 condition
+# "the builder shows it owns its nodes" holds and the count goes to 24 (the walk's last stop
+# g2 stands 3 m off it). The count serves every lunette site: the end-wall hole footprint,
+# the stairlight disc, and the ARCHIVOLT_W band's ring + step ring (they close against the
+# disc rim's polyline). NOTE: the constant used to sit unused while the sites hardcoded 8 -
+# the sites now read it, so one count rules the whole lunette.
+LUNETTE_SEGS = 24
 ARCHIVOLT_W, ARCHIVOLT_D = 0.07, 0.04
 STAIRLIGHT_PAINT = {  # declared record (the machine source is bake.py PANE_PAINT / lm_compose)
     'day': (0.55, 0.58, 0.62), 'dusk': (0.45, 0.32, 0.17), 'night': (0.60, 0.42, 0.22),
@@ -277,14 +300,13 @@ JAMB_BAND_Z = (PORTAL_Z0 - DOOR_JAMB_W, PORTAL_Z1 + DOOR_JAMB_W)   # 71.95 / 74.
 # ---- RG-F6 «the threshold» (DECISION-41, DEC-A as amended): the east airlock set -----------
 # THE DISPLACED-TWIN LAW (stated once, declaratively): the bake scene stays authoritative.
 # The export chain (`not BAKE`) alone displaces the 'doorcard' face to the box's far plane
-# (x = G_X1 + AIRLOCK_DEPTH) and dresses the 2.6 m-deep threshold box on BORROWED light:
-# the shelf packer packs the NON-borrowed roster subsequence, so the borrowed box faces add
-# no atlas cell and the displaced card keeps its own cell exactly (same (t, y) rectangle,
-# same projected extents, same packed index); the borrowed faces adopt declared host cells
-# (adopt_airlock_uv) and the three committed plates regenerate byte-identically by
-# construction. The box's interior joins the export chain's analytic air set (air_contains).
+# (x = G_X1 + AIRLOCK_DEPTH) and dresses the 2.6 m-deep threshold box. THE STOCK-TAKE
+# AMENDMENT (the bake artifact W4): the box's five faces are no longer BORROWED light -
+# they pack their own atlas cells at the gallery floor's density (the declared host rows
+# and the adoption map are deleted), and the displaced card keeps its own cell exactly
+# (same (t, y) rectangle, same projected extents, same packed index). The box's interior
+# joins the export chain's analytic air set (air_contains).
 AIRLOCK_DEPTH = 2.6                    # the box's depth: x G_X1 .. G_X1 + AIRLOCK_DEPTH
-AIRLOCK_HOST_FALLOFF = 0.6             # the borrowed strip's extent on each declared host
 AIRLOCK_THRESHOLD_W = 0.30             # the box-side threshold strip's width (x G_X1 ..+W)
 AIRLOCK_AO = 0.85                      # the airlock shade's albedo step (the creative's
 #   constant, explicitly not FILLET_AO 0.62)
@@ -537,8 +559,6 @@ class Builder:
         self.roster = []
         self.tags = {}
         self.counts = {}
-        self.borrowed_planes = {}   # RG-F5: the borrowed faces' host planes (adopt_lm_uv)
-        self.borrowed_wraps = set()  # RG-F5: the mitred-wrap faces (the fallback's lawful users)
 
     def vert(self, p):
         key = (round(p[0], WELD_DP), round(p[1], WELD_DP), round(p[2], WELD_DP))
@@ -1053,12 +1073,14 @@ def author_schedule():
         'doorcard': 1,
     }
     if not BAKE:
-        # RG-F5: the exported-never-baked families' rows. The bake chain's scene is the
-        # committed one - its schedule stays byte-equal to the committed builder's.
+        # RG-F5: the applied families' rows (export-only construction; the bake chain's
+        # scene is the committed one - its schedule stays byte-equal to the committed
+        # builder's). The stock-take W2-W4 change is the ATLAS law only: the families
+        # pack their own cells now - the face counts are untouched.
         schedule['dado.panel'] = F5_PANELS * F5_PANEL_FACES
         schedule['dado.rail'] = F5_RAIL_RUNS * 3 + F5_RAIL_CAPS
-        # RG-F6: the airlock set's rows - the same exported-never-baked law as the F5
-        # rows (the counts match build_airlock_set's faces exactly).
+        # RG-F6: the airlock set's rows - the same export-only law as the F5 rows
+        # (the counts match build_airlock_set's faces exactly).
         for name in AIRLOCK_ELEMENTS:
             schedule[name] = 1
     return schedule
@@ -1459,12 +1481,14 @@ def build_passage(b):
 # ---- the east end wall: one x = 44 partition (RG-F2 part 3) ---------------------------------
 # The verdict 2.2's law: ONE partition of the end-wall plane; the doorcase bands + archivolt
 # own their footprints; the lunette 'stairlight' half-disc and the 'doorcard' sit AT x = 44.0
-# (proud 0). DOORCASE_FACES = 16 (the Sol-reviewed rebuild: 2 jamb fronts + 4 corrected jamb
-# sides + the head band front with NO end caps + the archivolt ring front + the 8-quad step
-# ring — the caps were buried head/jamb interfaces; the schedule pins it via DOORCASE_FACES).
+# (proud 0). DOORCASE_FACES = 2 + 4 + 1 + 1 + LUNETTE_SEGS (the Sol-reviewed rebuild: the
+# jamb fronts, the corrected jamb sides, the head band front with NO end caps, the archivolt
+# ring front, the step ring — the caps were buried head/jamb interfaces; the schedule pins it
+# via DOORCASE_FACES). The stock-take R5 raises LUNETTE_SEGS 8 -> 24, so the step ring's
+# quads grow with it: 16 -> 32 faces.
+DOORCASE_FACES = 2 + 4 + 1 + 1 + LUNETTE_SEGS
 # F8 stays with the S1-amended constants (owner-ratified): CORNICE_PROUD 0.18, RESSAUT_PROUD
 # 0.28 = the arch foot.
-DOORCASE_FACES = 16
 # (RG-F3) the two door patches join the eleven declared pane tags: THIRTEEN single-rect
 # parts, one rect per part on the shelf, the SAME schema as before (one face per tag).
 PATCH_PARTS = ('stairlight', 'doorcard',
@@ -1487,7 +1511,7 @@ def plan_end_wall():
     boundary = [(z, y) for z, y in G_ARC] + [(G_Z1, SKIRTING_TOP), (G_Z0, SKIRTING_TOP)]
     layers = [
         (rectangle(G_Z0, G_Z1, CORNICE_Y0, G_PEAK), M_STUCCO),
-        (end_halfdisc(G_ZC, DOOR_BAND_Y[1], LUNETTE_R + ARCHIVOLT_W, 8), HOLE),
+        (end_halfdisc(G_ZC, DOOR_BAND_Y[1], LUNETTE_R + ARCHIVOLT_W, LUNETTE_SEGS), HOLE),
         (rectangle(71.95, 72.20, 0.0, CORNICE_Y0), HOLE),
         (rectangle(73.80, 74.05, 0.0, CORNICE_Y0), HOLE),
         (rectangle(71.95, 74.05, DOOR_BAND_Y[0], CORNICE_Y0), HOLE),
@@ -1511,10 +1535,11 @@ def plan_end_wall():
 
 
 def build_doorcase(b):
-    """16 faces (the Sol-reviewed topology): jamb fronts 2 + the corrected jamb sides 4 + the
-    head band front 1 + the archivolt ring front 1 + the 8-quad step ring. NO head-band end
-    caps: the head/jamb interfaces are internal to the applied band's solid, never faced.
-    Then the tagged 'stairlight' half-disc and the 'doorcard' rectangle, both AT x = 44.0."""
+    """16 faces at LUNETTE_SEGS 8, 32 at the stock-take's 24 (the Sol-reviewed topology):
+    jamb fronts 2 + the corrected jamb sides 4 + the head band front 1 + the archivolt ring
+    front 1 + the LUNETTE_SEGS-quad step ring. NO head-band end caps: the head/jamb
+    interfaces are internal to the applied band's solid, never faced. Then the tagged
+    'stairlight' half-disc and the 'doorcard' rectangle, both AT x = 44.0."""
     el = 'doorcase'
     P = WALL_E.world
     D = DOOR_JAMB_PROUD
@@ -1537,26 +1562,28 @@ def build_doorcase(b):
     # the archivolt ring front: the annular n-gon at proud D. The walk = the outer arc
     # left->right (no closure), then the inner arc right->left; the two radial baseline
     # edges close it (the outer 0.07 ring footprints the surround; the disc sits inside).
+    # Both arcs ride LUNETTE_SEGS (R5: one count rules the whole lunette - the ring and
+    # the step ring close against the disc rim's polyline).
     outer_pts = arc(G_ZC, LUNETTE_R + ARCHIVOLT_W, DOOR_BAND_Y[1],
-                    DOOR_BAND_Y[1] + LUNETTE_R + ARCHIVOLT_W, 8)
-    inner_pts = arc(G_ZC, LUNETTE_R, DOOR_BAND_Y[1], DOOR_BAND_Y[1] + LUNETTE_R, 8)
+                    DOOR_BAND_Y[1] + LUNETTE_R + ARCHIVOLT_W, LUNETTE_SEGS)
+    inner_pts = arc(G_ZC, LUNETTE_R, DOOR_BAND_Y[1], DOOR_BAND_Y[1] + LUNETTE_R, LUNETTE_SEGS)
     b.face([P(t, y, D) for t, y in outer_pts + list(reversed(inner_pts))],
            M_STUCCO, el, (-1.0, 0.0, 0.0))
-    # the step ring: 8 quads from the ring's inner edge (proud D) down to the disc rim (proud 0)
+    # the step ring: LUNETTE_SEGS quads from the ring's inner edge (proud D) down to the disc rim (proud 0)
     for (t0a, y0a), (t1a, y1a) in zip(inner_pts, inner_pts[1:]):
         b.face([P(t0a, y0a, D), P(t1a, y1a, D), P(t1a, y1a, 0.0), P(t0a, y0a, 0.0)],
                M_STUCCO, el, (-1.0, 0.0, 0.0))
     # the lunette back: the exact half-disc at proud 0 — tag 'stairlight'
-    b.face([P(t, y, 0.0) for t, y in end_halfdisc(G_ZC, DOOR_BAND_Y[1], LUNETTE_R, 8)],
+    b.face([P(t, y, 0.0) for t, y in end_halfdisc(G_ZC, DOOR_BAND_Y[1], LUNETTE_R, LUNETTE_SEGS)],
            M_STAIR, 'stairlight', (-1.0, 0.0, 0.0), tag='stairlight')
     # the doorcard: the doorway's exact rectangle at proud 0 — tag 'doorcard'.
     # RG-F6 THE DISPLACED TWIN: in the export chain the card builds on AIRLOCK_BACK (the
     # box's far plane, x 46.6) at proud 0 - same normal, same tag, same M_STAIR slot, same
     # (z, y) rectangle. The shelf pack reproduces the card's cell exactly: finish() packs
-    # the NON-borrowed roster subsequence (the card is not borrowed), keyed by the card's
-    # unchanged projected extents - for an x-normal face the projection reads (world y,
-    # -world z) only, so the packed (t, y) box, the cell size and the packed index are
-    # identical, and the lm.patches rect for the encode paint survives byte-for-byte. The
+    # every roster face on its own cell, keyed by the card's unchanged projected extents -
+    # for an x-normal face the projection reads (world y, -world z) only, so the packed
+    # (t, y) box, the cell size and the packed index are identical, and the lm.patches rect
+    # for the encode paint survives byte-for-byte. The
     # bake chain keeps today's path: the card at the x = 44 wall plane, byte-identical.
     card_plane = AIRLOCK_BACK if not BAKE else WALL_E
     b.face([card_plane.world(t, y, 0.0) for t, y in rectangle(PORTAL_Z0, PORTAL_Z1, 0.0, DOOR_BAND_Y[0])],
@@ -1586,8 +1613,10 @@ def build_end_wall(b):
 
 def build_airlock_set(b):
     """THE RG-F6 AIRLOCK SET (export chain only - the call site guards on BAKE, the F5
-    guard pattern): five borrowed faces closing the 2.6 m threshold box against the
-    displaced doorcard. The opening is RECTANGULAR (DEC-41 amendment 1): the soffit is a
+    guard pattern): five family faces closing the 2.6 m threshold box against the
+    displaced doorcard (the stock-take W4: they pack their own atlas cells at the gallery
+    floor's density - no host adoption). The opening is RECTANGULAR (DEC-41 amendment 1):
+    the soffit is a
     FLAT face at y = DOOR_BAND_Y[0] spanning the box - no arch sweep; the lunette
     half-disc stays on the end-wall plane above it. Every face abuts exactly, never
     overlaps coplanar (the COVERED gate): the threshold and the floor continuation abut at
@@ -1745,11 +1774,39 @@ def shelf_pack(cells, res, first_row):
 # recompute with moved coordinates every run. The capital band rides the probe's own
 # discriminator (rg-sightline's capital_faces: the pilaster faces whose min world y >=
 # SHAFT_Y1; blender co.z is the world y per to_w).
+#
+# THE STOCK-TAKE AMENDMENTS (the 2026-11-24 bake artifact, UV2 LAW + W1-W5):
+#   W4 - the five airlock faces join the HALF table: they pack at the gallery floor's
+#        density (the floor they continue; g2 stands 3 m off).
+#   W5 - the raised arcs (vault.gallery, arch, niche heads, lunette) KEEP their rects and
+#        their density - only the strip lines inside them move (no table change here); the
+#        vault.reveal's >= 4-texel-across floor rides LM_TEXEL_FLOOR_SHORT below.
+#   The UV2 LAW: the weights are FLOORS in texels across a face's short axis at 1536, read
+#   off the exported UV2 - LM_TEXEL_FLOOR_SHORT carries them (the MAPPED interior span, the
+#   pads excluded, so the shelf allocation carries floor + 2 x LM_PAD_PX):
+#   W1 impost - the cove's across-profile measure 1.12 x 4.0 = 4.48, snapped to 5 whole
+#        texels; the floor sits on the impost element, whose every IMPOST_PROFILE face then
+#        reads >= 2 across a fortiori (the mechanism carries one floor per element - the
+#        cove's 4 of 18 faces are not element-separable, and the over-delivery costs
+#        ~0.4 % of the atlas). The along-run axis is untouched (the floor rides the short
+#        projected axis only).
+#   W2 panels - every moulding return >= 2 texels across (the panel field keeps the wall
+#        field's density 1.0 - the default weight).
+#   W3 dado - the cap's profile faces >= 2 texels each (the dado field at the wall field's
+#        density 1.0).
+#   W5 vault.reveal - >= 4 texels across (the mouth's edge under g0b's pre-turn).
 LM_DENSITY_DOUBLE = 2.0
 LM_DENSITY_HALF = 0.5
 LM_DENSITY_DOUBLE_ELEMENTS = ('cornice', 'ressaut', 'arch', 'vault.gallery')
-LM_DENSITY_HALF_ELEMENTS = ('floor.flags', 'floor.band', 'vault.passage', 'vault.reveal')
+LM_DENSITY_HALF_ELEMENTS = ('floor.flags', 'floor.band', 'vault.passage', 'vault.reveal') \
+    + AIRLOCK_ELEMENTS
 LM_CAPITAL_BAND_EPS = 1e-9
+LM_TEXEL_FLOOR_SHORT = {
+    'impost': 5.0,        # W1: the cove 1.12 -> 4.48, snapped to 5 whole texels
+    'dado.panel': 2.0,    # W2: every moulding return >= 2 texels across
+    'dado.rail': 2.0,     # W3: the cap's profile faces >= 2 texels each
+    'vault.reveal': 4.0,  # W5: the mouth's edge under g0b's pre-turn
+}
 
 
 def lm_density_weight(entry):
@@ -1765,12 +1822,31 @@ def lm_density_weight(entry):
     return 1.0
 
 
+def lm_cell_axis(extent_m, px, weight, floor):
+    """One shelf-cell axis in px: the density law's rounded extent, raised to the artifact's
+    texel floor where one is declared (the floor counts the MAPPED interior - the pads
+    excluded - so the allocation carries floor + 2 x LM_PAD_PX), then the CELL bracket."""
+    floor_px = int(math.ceil(floor)) + 2 * int(LM_PAD_PX) if floor else 0
+    return min(max(int(round(extent_m * px * weight)), floor_px, LM_CELL_MIN_PX), LM_CELL_MAX_PX)
+
+
+def lm_face_cell(extents, px, weight, floor):
+    """The face's shelf cell (u, v) in px. The floor rides the SHORT projected axis - the
+    UV2 LAW's 'across a face's short axis' (for the impost's run faces that is the
+    across-profile measure; the along-run axis keeps the bare density law)."""
+    du, dv = extents
+    if dv < du:
+        return (lm_cell_axis(du, px, weight, 0.0), lm_cell_axis(dv, px, weight, floor))
+    return (lm_cell_axis(du, px, weight, floor), lm_cell_axis(dv, px, weight, 0.0))
+
+
 def finish(name, builder, materials, mode='shelf'):
     """Two UV layers: 'uv' (albedo: box projection, or the tagged cylindrical arc mapping,
     always world metres / UV_TILE_M) and 'lm' (the atlas cells).
 
     mode='shelf': per-face cells on the deterministic row shelf — cell size
-    clamp(round(extent_m * px), 6, 480) px with the 2 px pad inside the footprint; px steps
+    clamp(round(extent_m * px), 6, 480) px with the 2 px pad inside the footprint, raised
+    where LM_TEXEL_FLOOR_SHORT declares the face's short-axis texel floor; px steps
     down from LM_PX_PER_M until the pack fits the atlas under the reserved strip, and FAILS
     if it would go below LM_PX_PER_M_MIN (the verdict's CELL law: cut T3/T2 before touching
     resolution). mode='strip' (the sconce template): the reserved v range
@@ -1780,12 +1856,9 @@ def finish(name, builder, materials, mode='shelf'):
     bm.normal_update()
     uv_lay = bm.loops.layers.uv.new('uv')
     lm_lay = bm.loops.layers.uv.new('lm')
-    roster_all = [entry for entry in builder.roster if entry[0] is not None]
-    # RG-F5: the borrowed families (dado.panel/dado.rail) carry no atlas cells of their
-    # own - they are skipped by the shelf pack and their lm UVs adopt the host wall
-    # faces' mapped cells (adopt_lm_uv). The strip mode never sees them.
-    roster = [entry for entry in roster_all if entry[3] not in BORROWED_ELEMENTS]
-    borrowed = [entry for entry in roster_all if entry[3] in BORROWED_ELEMENTS]
+    # The stock-take W2-W4: every roster face packs its own cell - the borrowed class is
+    # gone (no atlas adoption, no host rows), so the roster needs no split.
+    roster = [entry for entry in builder.roster if entry[0] is not None]
     pad_px = int(LM_PAD_PX)
     pad_uv = LM_PAD_PX / LM_RES
     first_row = int(round((1.0 - LM_STRIP_FRAC) * LM_RES))
@@ -1805,6 +1878,7 @@ def finish(name, builder, materials, mode='shelf'):
             vs = [p[1] for p in uv]
             extents.append(((max(us) - min(us)) or 1.0, (max(vs) - min(vs)) or 1.0))
         weights = [lm_density_weight(entry) for entry, _uv in faces_uv]
+        floors = [LM_TEXEL_FLOOR_SHORT.get(entry[3], 0.0) for entry, _uv in faces_uv]
         px = float(LM_PX_PER_M)
         placed = None
         cell_px = None
@@ -1813,11 +1887,8 @@ def finish(name, builder, materials, mode='shelf'):
                 fail(f'the lm shelf needs pxPerM {px:g} < the CELL floor {LM_PX_PER_M_MIN} — '
                      'cut T3/T2 (the verdict failure case (i))')
             cell_px = [
-                (
-                    min(max(int(round(du * px * weight)), LM_CELL_MIN_PX), LM_CELL_MAX_PX),
-                    min(max(int(round(dv * px * weight)), LM_CELL_MIN_PX), LM_CELL_MAX_PX),
-                )
-                for (du, dv), weight in zip(extents, weights)
+                lm_face_cell((du, dv), px, weight, floor)
+                for (du, dv), weight, floor in zip(extents, weights, floors)
             ]
             if os.environ.get('RGF2_DUMP_SHELF'):
                 import collections as _co
@@ -1872,17 +1943,6 @@ def finish(name, builder, materials, mode='shelf'):
                     (x + pad_px + fu * w_in) / LM_RES,
                     1.0 - (y + pad_px + fv * h_in) / LM_RES,
                 )
-        if borrowed:
-            # RG-F6: the airlock borrowers adopt DECLARED host rows (adopt_airlock_uv) -
-            # they are not in their hosts' planes, so the automatic containment scan
-            # cannot serve them; the dado families keep the scan.
-            adopt_lm_uv(builder, lm_lay, roster,
-                        [entry for entry in borrowed if entry[3] not in AIRLOCK_ELEMENTS])
-            adopt_airlock_uv(builder, lm_lay, roster)
-            for entry in borrowed:
-                f, _kind, _uid, _el = entry
-                for loop, (pu, pv) in zip(f.loops, planar(entry)):
-                    loop[uv_lay].uv = (pu / UV_TILE_M, pv / UV_TILE_M)
         used = float(sum(wt * ht for _x, _y, wt, ht in placed.values()))
         min_cell = min(min(w, h) for w, h in cell_px)
         chart = [
@@ -1897,8 +1957,6 @@ def finish(name, builder, materials, mode='shelf'):
             'faces': len(roster),
             'stripRowPx': first_row,
         }
-        if borrowed:
-            block['borrowedFaces'] = len(borrowed)
         # the cells law (part-3 addition): the lm block serialises every shelf cell —
         # rect [x, y, w_total, h_total] in chart px, y from the top, one entry per face in
         # roster order, the element name riding each row. The same placements the UV law
@@ -2027,19 +2085,13 @@ def rail_run(b, plane, t0, t1, mitre0=0, mitre1=0, cap0=False, cap1=False):
     """The dado datum: the sill-ledge section (y 0.84-0.90, proud 0.06) run t0..t1. The
     mitre/cap laws are the kit's own (profile_run/profile_cap); the exposed caps read
     M_SHADE (end grain), the plinth/shaft ends emit no cap (solid-on-solid). A mitred end
-    is a WRAP (its mating run supplies the diagonal half) - the wrap faces register in
-    builder.borrowed_wraps for the adoption's fallback law."""
-    n0 = len(b.roster)
+    is a WRAP (its mating run supplies the diagonal half)."""
     profile_run(b, plane, DADO_RAIL_PROFILE, t0, t1, _rail_mat, lambda _y: 'dado.rail',
                 mitre0, mitre1)
     if cap0:
         profile_cap(b, plane, DADO_RAIL_PROFILE, t0, -1.0, M_SHADE, 'dado.rail')
     if cap1:
         profile_cap(b, plane, DADO_RAIL_PROFILE, t1, 1.0, M_SHADE, 'dado.rail')
-    if mitre0 or mitre1:
-        for entry in b.roster[n0:]:
-            if entry[3] in BORROWED_ELEMENTS:
-                b.borrowed_wraps.add(entry[0])
 
 
 def build_panel(b, plane, t0, t1, y0, y1):
@@ -2047,8 +2099,7 @@ def build_panel(b, plane, t0, t1, y0, y1):
     seam faces are interior (dropped - the bands press against each other, the fronts tile
     the corner squares along the shared diagonals). Fronts and up-facing sides M_STUCCO;
     down-facing and lateral sides M_SHADE. The host field face behind the frame is NOT cut
-    (the frame's interior IS the wall; the COVERED gate flags coplanar pairs only) and
-    serves as the borrowed loops' adoption host."""
+    (the frame's interior IS the wall; the COVERED gate flags coplanar pairs only)."""
     P = plane.world
     w, d = PANEL_BAND_W, PANEL_BAND_PROUD
     n_front = plane.normal()
@@ -2102,12 +2153,10 @@ def build_gallery_rails(b, plane):
 
 def build_gallery_dado(b, plane):
     """One long wall's datum + the under-niche panels."""
-    n0 = len(b.roster)
     build_gallery_rails(b, plane)
     for x_c in NICHE_CENTRES:
         build_panel(b, plane, x_c - PANEL_HALF_W_GALLERY, x_c + PANEL_HALF_W_GALLERY,
                     DADO_PANEL_Y0, DADO_PANEL_Y1)
-    _register_borrowed(b, plane, n0)
 
 
 def build_passage_families(b):
@@ -2118,50 +2167,36 @@ def build_passage_families(b):
     panels, and the tall panels SKIP the two bays hosting the mouth sconces (SCONCE_SEW_Z:
     the sconce back plates occupy y 1.68-2.18 proud 0.10 - a tall panel there would
     positively intersect, the collision gate's own case)."""
-    n0 = len(b.roster)
     rail_run(b, PWALL_W, P_Z0, P_Z1, mitre0=1)
-    _register_borrowed(b, PWALL_W, n0)
     # the mouth corners (4, 70)/(4, 76) are EXTERNAL: BOTH runs wrap (mitre -1) and meet
     # at the 45-deg seam - the gallery's reveal runs carry the matching mitre0=-1. A
     # square cap here would leave the diagonal half of the corner cube open (the
     # review-pass finding: a notch at the joint; the FACING/COVERED gates cannot see it).
-    n0 = len(b.roster)
     rail_run(b, PWALL_E, P_Z0, G_Z0, mitre0=1, mitre1=-1)
-    _register_borrowed(b, PWALL_E, n0)
     # the facade ends (z 87.5, the open arch plane) carry NO cap: the room's air ends
     # there (air_contains stops at P_Z1) and a +z cap would fail the FACING gate - the
     # rail dies at the plane exactly like the fields' own open edges.
-    n0 = len(b.roster)
     rail_run(b, PWALL_E, G_Z1, P_Z1, mitre0=-1)
-    _register_borrowed(b, PWALL_E, n0)
-    n0 = len(b.roster)
     rail_run(b, PWALL_N, P_X0, P_X1, mitre0=1, mitre1=1)
-    _register_borrowed(b, PWALL_N, n0)
     for za, zb in zip(P_Z_NODES, P_Z_NODES[1:]):
         if zb <= G_Z0 or za >= G_Z1:      # the east wall's bays clear of the mouth
-            n0 = len(b.roster)
             build_panel(b, PWALL_E, za + PASSAGE_PANEL_MARGIN, zb - PASSAGE_PANEL_MARGIN,
                         DADO_PANEL_Y0, DADO_PANEL_Y1)
             if not any(za < z < zb for z in SCONCE_SEW_Z):
                 build_panel(b, PWALL_E, za + PASSAGE_PANEL_MARGIN, zb - PASSAGE_PANEL_MARGIN,
                             UPPER_PANEL_BOTTOM, UPPER_PANEL_TOP_PASSAGE)
-            _register_borrowed(b, PWALL_E, n0)
-        n0 = len(b.roster)
         build_panel(b, PWALL_W, za + PASSAGE_PANEL_MARGIN, zb - PASSAGE_PANEL_MARGIN,
                     DADO_PANEL_Y0, DADO_PANEL_Y1)
         build_panel(b, PWALL_W, za + PASSAGE_PANEL_MARGIN, zb - PASSAGE_PANEL_MARGIN,
                     UPPER_PANEL_BOTTOM, UPPER_PANEL_TOP_PASSAGE)
-        _register_borrowed(b, PWALL_W, n0)
     for k in range(int((P_X1 - P_X0) / F5_PASSAGE_BAY_N)):
         c = P_X0 + (k + 0.5) * F5_PASSAGE_BAY_N
-        n0 = len(b.roster)
         build_panel(b, PWALL_N, c - F5_PASSAGE_BAY_N / 2.0 + PASSAGE_PANEL_MARGIN,
                     c + F5_PASSAGE_BAY_N / 2.0 - PASSAGE_PANEL_MARGIN,
                     DADO_PANEL_Y0, DADO_PANEL_Y1)
         build_panel(b, PWALL_N, c - F5_PASSAGE_BAY_N / 2.0 + PASSAGE_PANEL_MARGIN,
                     c + F5_PASSAGE_BAY_N / 2.0 - PASSAGE_PANEL_MARGIN,
                     UPPER_PANEL_BOTTOM, UPPER_PANEL_TOP_PASSAGE)
-        _register_borrowed(b, PWALL_N, n0)
 
 
 def build_endwall_families(b):
@@ -2169,7 +2204,6 @@ def build_endwall_families(b):
     rails) and dies into the corner returns' plinths (no caps, solid-on-solid); the two
     flank runs stop DOOR_RAIL_STOP short of the jamb bands (exposed caps); one dado + one
     tall panel per flank."""
-    n0 = len(b.roster)
     rail_run(b, WALL_E, G_Z0, CORNER_RETURN_Z[0] - PLINTH_HALF_W, mitre0=1)
     rail_run(b, WALL_E, CORNER_RETURN_Z[0] + PLINTH_HALF_W, JAMB_BAND_Z[0] - DOOR_RAIL_STOP,
              cap1=True)
@@ -2186,14 +2220,6 @@ def build_endwall_families(b):
     build_panel(b, WALL_E, JAMB_BAND_Z[1] + DOOR_RAIL_STOP + PANEL_INSET,
                 CORNER_RETURN_Z[1] - PLINTH_HALF_W - PANEL_INSET,
                 UPPER_PANEL_BOTTOM, UPPER_PANEL_TOP_ENDWALL)
-    _register_borrowed(b, WALL_E, n0)
-
-
-def _register_borrowed(b, plane, n0):
-    """Records every borrowed face's host plane for adopt_lm_uv (the faces from n0 on)."""
-    for entry in b.roster[n0:]:
-        if entry[3] in BORROWED_ELEMENTS:
-            b.borrowed_planes[entry[0]] = plane
 
 
 def build_wall_families(b):
@@ -2205,384 +2231,10 @@ def build_wall_families(b):
     build_endwall_families(b)
     counts = {}
     for entry in b.roster[n0:]:
-        if entry[3] not in BORROWED_ELEMENTS:
-            fail(f'build_wall_families emitted a non-borrowed element {entry[3]!r}')
+        if entry[3] not in FAMILY_ELEMENTS:
+            fail(f'build_wall_families emitted a non-family element {entry[3]!r}')
         counts[entry[3]] = counts.get(entry[3], 0) + 1
     return counts
-
-
-def _f5_ty(axis, co):
-    """A world point's (t, y) on an axis plane's frame (t along the wall, y up)."""
-    return (co[0], co[1]) if axis == 'z' else (co[2], co[1])
-
-
-def _bary(p, a, b, c):
-    """Barycentric weights of p in the 2-D triangle, or None when outside (eps-tolerant)."""
-    det = (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0])
-    if abs(det) < 1e-12:
-        return None
-    wa = ((b[0] - p[0]) * (c[1] - p[1]) - (b[1] - p[1]) * (c[0] - p[0])) / det
-    wb = ((c[0] - p[0]) * (a[1] - p[1]) - (c[1] - p[1]) * (a[0] - p[0])) / det
-    wc = 1.0 - wa - wb
-    if wa < -1e-9 or wb < -1e-9 or wc < -1e-9:
-        return None
-    return (wa, wb, wc)
-
-
-def _point_in_poly(p, poly):
-    """The polygon-exact containment: the on-segment pre-test first (the boundary is
-    inside, ALL edge orientations - the review-pass NOTE: a foot on a horizontal shared
-    edge used to skip both hosts' tests and let the roster order decide), then the
-    crossing test (concave-safe)."""
-    n = len(poly)
-    for i in range(n):
-        ax, ay = poly[i]
-        bx, by = poly[(i + 1) % n]
-        cross = (bx - ax) * (p[1] - ay) - (by - ay) * (p[0] - ax)
-        if abs(cross) <= 1e-9 and min(ax, bx) - 1e-9 <= p[0] <= max(ax, bx) + 1e-9 \
-                and min(ay, by) - 1e-9 <= p[1] <= max(ay, by) + 1e-9:
-            return True
-    inside = False
-    for i in range(n):
-        ax, ay = poly[i]
-        bx, by = poly[(i + 1) % n]
-        if (ay > p[1]) != (by > p[1]):
-            t = (p[1] - ay) / (by - ay)
-            if ax + t * (bx - ax) > p[0] + 1e-9:
-                inside = not inside
-    return inside
-
-
-def _affine_map(p0, p1, p2, uv0, uv1, uv2):
-    """The exact affine map (t, y) -> (u, v) through three non-collinear pairs, or None."""
-    det = (p1[0] - p0[0]) * (p2[1] - p0[1]) - (p1[1] - p0[1]) * (p2[0] - p0[0])
-    if abs(det) < 1e-9:
-        return None
-    du1 = (uv1[0] - uv0[0], uv1[1] - uv0[1])
-    du2 = (uv2[0] - uv0[0], uv2[1] - uv0[1])
-    a11 = ((p2[1] - p0[1]) * du1[0] - (p1[1] - p0[1]) * du2[0]) / det
-    a12 = (-(p2[0] - p0[0]) * du1[0] + (p1[0] - p0[0]) * du2[0]) / det
-    a21 = ((p2[1] - p0[1]) * du1[1] - (p1[1] - p0[1]) * du2[1]) / det
-    a22 = (-(p2[0] - p0[0]) * du1[1] + (p1[0] - p0[0]) * du2[1]) / det
-    b0 = uv0[0] - a11 * p0[0] - a12 * p0[1]
-    b1 = uv0[1] - a21 * p0[0] - a22 * p0[1]
-    return (a11, a12, a21, a22, b0, b1)
-
-
-def _apply_affine(m, p):
-    return (m[0] * p[0] + m[1] * p[1] + m[4], m[2] * p[0] + m[3] * p[1] + m[5])
-
-
-def _nearest_on_poly(p, poly):
-    """The closest point of the polygon's boundary to p (the edge-walk)."""
-    best, best_d = None, None
-    n = len(poly)
-    for i in range(n):
-        a, b = poly[i], poly[(i + 1) % n]
-        ab = (b[0] - a[0], b[1] - a[1])
-        ap = (p[0] - a[0], p[1] - a[1])
-        denom = ab[0] * ab[0] + ab[1] * ab[1]
-        if denom < 1e-18:
-            q = a
-        else:
-            t = max(0.0, min(1.0, (ab[0] * ap[0] + ab[1] * ap[1]) / denom))
-            q = (a[0] + t * ab[0], a[1] + t * ab[1])
-        d = (q[0] - p[0]) ** 2 + (q[1] - p[1]) ** 2
-        if best_d is None or d < best_d:
-            best, best_d = q, d
-    return best
-
-
-def adopt_lm_uv(builder, lm_lay, packed, borrowed):
-    """The borrowed-UV law: every borrowed FACE adopts ONE host wall face's TEXCOORD_1 map
-    (the host picked per FACE by its centroid's foot point - polygon-exact containment,
-    the crossing test, concave-safe; the first containing field face in roster order) and
-    all the face's loops map through THAT host's exact affine cell map (the pack's
-    per-face mapping is affine over its plane - solved from the host's first three
-    non-collinear loops). ONE host per face keeps every face's uv quad inside one atlas
-    cell - the per-loop picking let a concave piece's fan triangle (which extends outside
-    its polygon) falsely contain a neighbouring face's feet and scatter the face's loops
-    across cells (the rendered speckle class, found and fixed the same session). EVERY
-    loop's foot clamps onto the host polygon before the map (a foot outside - a band
-    crossing a concave cutout, a mitre-wrap end - would extrapolate into the cutout's
-    unpainted/dilated texels). The uv clamps 1 texel inside the host's mapped bbox (the
-    gutter law). The centroid fallback is WRAP-ONLY (the tagged mitre-wrap faces; an
-    ordinary family face failing containment fails loud)."""
-    hosts = {}
-    for entry in packed:
-        f, _kind, _uid, el = entry
-        if el not in F5_HOST_ELEMENTS:
-            continue
-        world = [to_w(v.co) for v in f.verts]
-        axis = None
-        for name, idx in (('x', 0), ('z', 2)):
-            span = max(w[idx] for w in world) - min(w[idx] for w in world)
-            if span < 1e-6:
-                axis = name
-                break
-        if axis is None:
-            continue  # not an axis-aligned wall face (the fields always are)
-        offset = round(world[0][0 if axis == 'x' else 2], 4)
-        ty = [_f5_ty_from_axis(axis, w) for w in world]
-        uvs = [tuple(loop[lm_lay].uv) for loop in f.loops]
-        xs = [q[0] for q in ty]
-        ys = [q[1] for q in ty]
-        bbox = (min(u for u, _v in uvs), max(u for u, _v in uvs),
-                min(v for _u, v in uvs), max(v for _u, v in uvs))
-        hosts.setdefault((axis, offset), []).append(
-            (ty, uvs, bbox, el, min(xs), max(xs), min(ys), max(ys)))
-    tx = 1.0 / LM_RES
-    for entry in borrowed:
-        f, _kind, _uid, el = entry
-        plane = builder.borrowed_planes.get(f)
-        if plane is None:
-            fail(f'adopt_lm_uv: the borrowed {el} face carries no host plane')
-        candidates = hosts.get((plane.axis, round(plane.offset, 4)))
-        if not candidates:
-            fail(f'adopt_lm_uv: no {el} hosts on {plane.name}')
-        loops = list(zip(f.loops, f.verts))
-        feet = [_f5_ty(plane.axis, to_w(v.co)) for _l, v in loops]
-        centre = (sum(q[0] for q in feet) / len(feet), sum(q[1] for q in feet) / len(feet))
-        hit = None
-        for ty, uvs, bbox, host_el, x0, x1, y0, y1 in candidates:
-            if not (x0 - F5_ADOPT_CLAMP_M <= centre[0] <= x1 + F5_ADOPT_CLAMP_M
-                    and y0 - F5_ADOPT_CLAMP_M <= centre[1] <= y1 + F5_ADOPT_CLAMP_M):
-                continue
-            if _point_in_poly(centre, ty):
-                hit = (ty, uvs, bbox, host_el)
-                break
-        if hit is None:
-            # The fallback is WRAP-ONLY (the review-pass finding): a face whose centroid
-            # sits outside every host polygon is lawful only for the tagged mitre-wrap
-            # class (the mouth corners belong to neither wall's field by design); an
-            # ordinary family face failing containment is a construction error - fail
-            # loud instead of silently borrowing a neighbour's edge texels.
-            if f not in builder.borrowed_wraps:
-                fail(f'adopt_lm_uv: the borrowed {el} face at '
-                     f'({centre[0]:.3f}, {centre[1]:.3f}) is not a tagged mitre wrap '
-                     f'but finds no host on {plane.name}')
-            best = None
-            for ty, uvs, bbox, host_el, _x0, _x1, _y0, _y1 in candidates:
-                q = _nearest_on_poly(centre, ty)
-                d2 = (q[0] - centre[0]) ** 2 + (q[1] - centre[1]) ** 2
-                if best is None or d2 < best[0]:
-                    best = (d2, q, (ty, uvs, bbox, host_el))
-            if best is None or best[0] > F5_ADOPT_CLAMP_M ** 2:
-                fail(f'adopt_lm_uv: the borrowed {el} face at '
-                     f'({centre[0]:.3f}, {centre[1]:.3f}) has no host on {plane.name}')
-            hit = best[2]
-        ty, uvs, bbox, host_el = hit
-        affine = None
-        n = len(ty)
-        for i in range(n):
-            for j in range(i + 1, n):
-                for k in range(j + 1, n):
-                    affine = _affine_map(ty[i], ty[j], ty[k], uvs[i], uvs[j], uvs[k])
-                    if affine is not None:
-                        break
-                if affine is not None:
-                    break
-            if affine is not None:
-                break
-        if affine is None:
-            fail(f'adopt_lm_uv: the host {host_el} has no non-collinear loops')
-        for loop, _vert, foot in zip(f.loops, f.verts, feet):
-            # the per-foot polygon clamp (the review-pass FIX: a loop's foot outside the
-            # host polygon - a band crossing a concave cutout, a mitre-wrap end - would
-            # EXTRAPOLATE the affine map into the cutout's unpainted/dilated texels;
-            # clamp the foot onto the host boundary first, then map).
-            q = foot if _point_in_poly(foot, ty) else _nearest_on_poly(foot, ty)
-            u, v = _apply_affine(affine, q)
-            loop[lm_lay].uv = (min(max(u, bbox[0] + tx), bbox[1] - tx),
-                               min(max(v, bbox[2] + tx), bbox[3] - tx))
-
-
-def _f5_ty_from_axis(axis, w):
-    return (w[0], w[1]) if axis == 'z' else (w[2], w[1])
-
-
-# ---- RG-F6: the declared-host adoption (the airlock borrowers' rows) -------------------------
-# THE DECLARED-HOST LAW: the airlock borrowers are NOT in their hosts' planes (the box's
-# faces stand off the end wall and the floor), so adopt_lm_uv's automatic containment scan
-# cannot serve them; each element instead carries a DECLARED host row below - the host
-# element and an ANCHOR rect in the host face's own (t, y) frame. The anchors are fixed
-# from the real plan faces (verified against plan_end_wall's and plan_floor's emitted
-# polygons: each anchor's centre lands in exactly ONE host face - the end-wall field is a
-# halfplane-cut mosaic (the sequential cutter extends every mask edge across the whole
-# field), so a full-height clean flank strip does not exist; the anchors name the mosaic's
-# biggest flanking fragments, whose y ranges are the corner-return profile's own bands).
-# THE MAP (the F5 machinery, _affine_map/_apply_affine): the host face is the anchor
-# centre's containing face; the anchor shrunk by F5_ADOPT_CLAMP_M per side (the brief's
-# 'gutter + 0.08' clamp, in its metre form - a degenerate anchor fails loud) carries the
-# law's endpoints: the borrower's depth axis (x) runs REVERSED - the far (deep) edge maps
-# to the shrunk anchor's door-adjacent t edge, the near (mouth) edge to its outer t edge
-# (AIRLOCK_HOST_FALLOFF outward on the host's own axis) - and the borrower's parallel axis
-# ('y' for the reveals, 'z' for the soffit/floor/threshold) maps linearly onto the shrunk
-# anchor's parallel span (for the floor rows that span equals the borrower's z span, so
-# the law reads identity up to the shrink). Every mapped point then clamps onto the host
-# polygon (the F5 foot clamp - the mosaic's diagonal cuts) and the uv clamps 1 atlas texel
-# inside the host face's mapped cell bbox (the F5 clamp verbatim). One host face per
-# borrower keeps every face's uv quad inside one atlas cell.
-AIRLOCK_REVEAL_W_HOST_ANCHOR = (JAMB_BAND_Z[0] - AIRLOCK_HOST_FALLOFF, SHAFT_Y0,
-                                JAMB_BAND_Z[0], DOOR_BAND_Y[0])
-AIRLOCK_REVEAL_E_HOST_ANCHOR = (JAMB_BAND_Z[1], SHAFT_Y0,
-                                JAMB_BAND_Z[1] + AIRLOCK_HOST_FALLOFF, DOOR_BAND_Y[0])
-# the soffit's host: the tympanum field's fragment directly above the west reveal's strip
-# (one continuous borrowed column); its top sits under both the fragment's own 3.361 edge
-# and the end wall's FACETED vault boundary at the strip's west edge (vault_y_at, the
-# plan's own interpolation, asserted below - the analytic gallery_air_y overestimates it).
-AIRLOCK_SOFFIT_HOST_Y1 = 3.36
-AIRLOCK_SOFFIT_HOST_ANCHOR = (JAMB_BAND_Z[0] - AIRLOCK_HOST_FALLOFF, G_SPRING, JAMB_BAND_Z[0],
-                              AIRLOCK_SOFFIT_HOST_Y1)
-AIRLOCK_FLOOR_HOST_ANCHOR = (PORTAL_X0 - AIRLOCK_HOST_FALLOFF, PORTAL_Z0, PORTAL_X0, PORTAL_Z1)
-# the threshold's host: the doorway's wider M_BAND face (x PORTAL_X0 .. G_X1 - FLOOR_BORDER,
-# the border band's west edge). The narrower 43.7..43.91 remnant beyond it is capped by the
-# end-wall skirting hole (x 43.91..44 across all z) and its 6-px atlas cell cannot carry
-# the clamp law's gutter - the adjacent full-depth face hosts the strip instead.
-AIRLOCK_THRESHOLD_HOST_ANCHOR = (PORTAL_X0, PORTAL_Z0, G_X1 - FLOOR_BORDER, PORTAL_Z1)
-if not BAKE and vault_y_at(JAMB_BAND_Z[0] - AIRLOCK_HOST_FALLOFF) <= AIRLOCK_SOFFIT_HOST_Y1:
-    # the review-pass fix: the assertion is export-only law - the bake chain never
-    # constructs the borrower, so a retune must not fail ZIMNY_BAKE=1 at module load.
-    fail("the soffit host anchor's top must sit under the end wall's faceted vault boundary")
-AIRLOCK_HOST_ELEMENTS = ('wall.e', 'floor.flags', 'floor.band')
-AIRLOCK_HOST_ROWS = {
-    # (host element, the anchor rect (t0, y0, t1, y1) in the host face's frame, the
-    # borrower x at its far/deep and near/mouth edges, the borrower's parallel axis and
-    # that axis's source span - the span maps linearly onto the shrunk anchor's span;
-    # far_high names which shrunk endpoint the DEEP edge maps to: the DOOR-ADJACENT one -
-    # the anchor's t1 on the west flank (71.95 lies at the jamb), its t0 on the east
-    # (74.05 does) - the review-pass direction fix on the east row)
-    'airlock.reveal.w': {
-        'host': 'wall.e', 'anchor': AIRLOCK_REVEAL_W_HOST_ANCHOR,
-        'x_far': G_X1 + AIRLOCK_DEPTH, 'x_near': G_X1,
-        'parallel': 'y', 'src': (0.0, DOOR_BAND_Y[0]), 'far_high': True,
-    },
-    'airlock.reveal.e': {
-        'host': 'wall.e', 'anchor': AIRLOCK_REVEAL_E_HOST_ANCHOR,
-        'x_far': G_X1 + AIRLOCK_DEPTH, 'x_near': G_X1,
-        'parallel': 'y', 'src': (0.0, DOOR_BAND_Y[0]), 'far_high': False,
-    },
-    'airlock.soffit': {
-        'host': 'wall.e', 'anchor': AIRLOCK_SOFFIT_HOST_ANCHOR,
-        'x_far': G_X1 + AIRLOCK_DEPTH, 'x_near': G_X1,
-        'parallel': 'z', 'src': (PORTAL_Z0, PORTAL_Z1), 'far_high': True,
-    },
-    'airlock.floor': {
-        'host': 'floor.flags', 'anchor': AIRLOCK_FLOOR_HOST_ANCHOR,
-        'x_far': G_X1 + AIRLOCK_DEPTH, 'x_near': G_X1 + AIRLOCK_THRESHOLD_W,
-        'parallel': 'z', 'src': (PORTAL_Z0, PORTAL_Z1), 'far_high': True,
-    },
-    'airlock.threshold': {
-        'host': 'floor.band', 'anchor': AIRLOCK_THRESHOLD_HOST_ANCHOR,
-        'x_far': G_X1 + AIRLOCK_THRESHOLD_W, 'x_near': G_X1 - SKIRTING_PROUD,
-        'parallel': 'z', 'src': (PORTAL_Z0, PORTAL_Z1), 'far_high': True,
-    },
-}
-
-
-def _airlock_face_frame(world):
-    """A host face's (t, y) frame class from its world verts: the F5 wall classes ('x':
-    frame (z, y); 'z': frame (x, y)) plus the FLOOR's 'y' class (frame (x, z), normal +y)
-    - the RG-F6 extension the horizontal hosts need. Returns (axis, ty points) or None."""
-    for axis, idx in (('x', 0), ('y', 1), ('z', 2)):
-        span = max(w[idx] for w in world) - min(w[idx] for w in world)
-        if span < 1e-6:
-            if axis == 'x':
-                return 'x', [(w[2], w[1]) for w in world]
-            if axis == 'y':
-                return 'y', [(w[0], w[2]) for w in world]
-            return 'z', [(w[0], w[1]) for w in world]
-    return None
-
-
-def adopt_airlock_uv(builder, lm_lay, roster):
-    """The RG-F6 declared-host law: every airlock borrower adopts its row's DECLARED host
-    face - the face whose polygon contains the anchor rect's centre (the F5 containment
-    law, the same F5_ADOPT_CLAMP_M bbox band; the mosaic makes each centre unique) - and
-    maps every loop through that face's exact (t, y) -> (u, v) affine (solved from the
-    host's lm loops through _affine_map/_apply_affine; one host face per borrower keeps
-    the face's uv quad inside one atlas cell). The loop's mapped point: the borrower's
-    depth axis (x) through the row's reversed linear law onto the shrunk anchor's t span
-    (the far edge -> the door-adjacent edge, the near edge -> the outer edge), the
-    parallel axis linearly onto the shrunk anchor's parallel span, then the F5 foot clamp
-    onto the host polygon and the uv clamp 1 texel inside the host's mapped cell bbox."""
-    hosts = {}
-    for entry in roster:
-        f, _kind, _uid, el = entry
-        if el not in AIRLOCK_HOST_ELEMENTS:
-            continue
-        world = [to_w(v.co) for v in f.verts]
-        frame = _airlock_face_frame(world)
-        if frame is None:
-            continue  # not an axis-aligned host face (the fields always are)
-        uvs = [tuple(loop[lm_lay].uv) for loop in f.loops]
-        hosts.setdefault(el, []).append((frame[1], uvs))
-    tx = 1.0 / LM_RES
-    for entry in builder.roster:
-        f, _kind, _uid, el = entry
-        if el not in AIRLOCK_ELEMENTS:
-            continue
-        row = AIRLOCK_HOST_ROWS[el]
-        anchor = row['anchor']
-        centre = ((anchor[0] + anchor[2]) / 2.0, (anchor[1] + anchor[3]) / 2.0)
-        hit = None
-        for ty, uvs in hosts.get(row['host'], []):
-            xs = [q[0] for q in ty]
-            ys = [q[1] for q in ty]
-            if not (min(xs) - F5_ADOPT_CLAMP_M <= centre[0] <= max(xs) + F5_ADOPT_CLAMP_M
-                    and min(ys) - F5_ADOPT_CLAMP_M <= centre[1] <= max(ys) + F5_ADOPT_CLAMP_M):
-                continue
-            if _point_in_poly(centre, ty):
-                hit = (ty, uvs)
-                break
-        if hit is None:
-            fail(f"adopt_airlock_uv: the declared {el} anchor {anchor} matches no "
-                 f"{row['host']} face")
-        ty, uvs = hit
-        affine = None
-        n = len(ty)
-        for i in range(n):
-            for j in range(i + 1, n):
-                for k in range(j + 1, n):
-                    affine = _affine_map(ty[i], ty[j], ty[k], uvs[i], uvs[j], uvs[k])
-                    if affine is not None:
-                        break
-                if affine is not None:
-                    break
-            if affine is not None:
-                break
-        if affine is None:
-            fail(f'adopt_airlock_uv: the {el} host has no non-collinear loops')
-        # the shrunk anchor: the clamp law's metre form - the map's endpoints sit
-        # F5_ADOPT_CLAMP_M inside the declared anchor on both axes.
-        shrunk = (anchor[0] + F5_ADOPT_CLAMP_M, anchor[1] + F5_ADOPT_CLAMP_M,
-                  anchor[2] - F5_ADOPT_CLAMP_M, anchor[3] - F5_ADOPT_CLAMP_M)
-        if shrunk[2] - shrunk[0] <= 0.0 or shrunk[3] - shrunk[1] <= 0.0:
-            fail(f'adopt_airlock_uv: the {el} host anchor {anchor} is too small for the clamp law')
-        # the host face's mapped cell bbox (the F5 clamp's own reference)
-        bbox = (min(q[0] for q in uvs), max(q[0] for q in uvs),
-                min(q[1] for q in uvs), max(q[1] for q in uvs))
-        for loop, vert in zip(f.loops, f.verts):
-            w = to_w(vert.co)
-            # the reversed depth law: the borrower's DEEP edge (x_far) maps to the
-            # shrunk anchor's DOOR-ADJACENT endpoint (far_high: its t1, else its t0) -
-            # the review-pass direction fix (the east flank's jamb-adjacent edge is the
-            # anchor's LOW endpoint); the mouth edge maps to the opposite endpoint.
-            far_t = shrunk[2] if row['far_high'] else shrunk[0]
-            near_t = shrunk[0] if row['far_high'] else shrunk[2]
-            t = far_t + (near_t - far_t) * (w[0] - row['x_far']) \
-                / (row['x_near'] - row['x_far'])
-            source = w[1] if row['parallel'] == 'y' else w[2]
-            src0, src1 = row['src']
-            parallel = shrunk[1] + (shrunk[3] - shrunk[1]) * (source - src0) / (src1 - src0)
-            # the F5 foot clamp: a mapped point outside the host polygon rides the
-            # boundary (the mosaic's diagonal cuts), never the cutout's texels
-            q = (t, parallel)
-            if not _point_in_poly(q, ty):
-                q = _nearest_on_poly(q, ty)
-            u, v = _apply_affine(affine, q)
-            loop[lm_lay].uv = (min(max(u, bbox[0] + tx), bbox[1] - tx),
-                               min(max(v, bbox[2] + tx), bbox[3] - tx))
 
 
 def _face_aabb(face):
@@ -2618,7 +2270,8 @@ def _face_penetrates(box, collider_box):
 
 
 def gate_f5_collision(b):
-    """RG-F5's own belt: no borrowed face penetrates any committed proud element's AABB -
+    """RG-F5's own belt: no applied family face penetrates any committed proud element's
+    AABB -
     the strict overlap (the partial class) or the centroid-in-shrunk-box (the buried
     class). The exact-boundary abutments (the ledge ends, the plinth contacts) touch on
     a zero-measure boundary and pass. The fields are NOT colliders (the families sit ON
@@ -2628,17 +2281,17 @@ def gate_f5_collision(b):
                  if entry[3] in F5_COLLIDER_ELEMENTS]
     offenders = []
     for entry in b.roster:
-        if entry[3] not in BORROWED_ELEMENTS:
+        if entry[3] not in FAMILY_ELEMENTS:
             continue
         box = _face_aabb(entry[0])
         for cbox, el in colliders:
             if _face_penetrates(box, cbox):
-                offenders.append({'borrowed': entry[3], 'collider': el})
+                offenders.append({'family': entry[3], 'collider': el})
     return offenders
 
 
-def gate_f5_sconces(scene, borrowed_boxes):
-    """The borrowed faces' clearance from the SCONCE INSTANCES (the bay-skip law's own
+def gate_f5_sconces(scene, family_boxes):
+    """The applied families' clearance from the SCONCE INSTANCES (the bay-skip law's own
     belt: the passage tall panels skip the 2 mouth-sconce bays by construction; this
     proves it - the shell-roster scan cannot see the separate sconce meshes). The faces'
     boxes are snapshotted BEFORE finish() frees the builder's bmesh."""
@@ -2650,10 +2303,10 @@ def gate_f5_sconces(scene, borrowed_boxes):
                                  min(c.y for c in corners), max(c.y for c in corners),
                                  min(c.z for c in corners), max(c.z for c in corners)))
     offenders = []
-    for box, el in borrowed_boxes:
+    for box, el in family_boxes:
         for sbox in sconce_boxes:
             if _face_penetrates(box, sbox):
-                offenders.append({'borrowed': el, 'sconce': True})
+                offenders.append({'family': el, 'sconce': True})
     return offenders
 
 
@@ -2666,11 +2319,11 @@ def build_room(b):
     build_floor(b)
     build_end_wall(b)
     if not BAKE:
-        # RG-F5: the exported-never-baked wall families exist ONLY in the export chain -
-        # the bake chain's scene (and therefore all three plates) stays the committed one
-        # byte-for-byte by construction.
-        # RG-F6: the airlock set joins the same law - five borrowed faces under the same
-        # guard, built straight after the end wall they dress.
+        # RG-F5: the applied wall families exist ONLY in the export chain - the bake
+        # chain's scene stays the committed one by construction.
+        # RG-F6: the airlock set joins the same law - five family faces under the same
+        # guard, built straight after the end wall they dress. The stock-take W2-W4
+        # changes their ATLAS law (own cells, no host adoption), not this guard.
         build_airlock_set(b)
         build_wall_families(b)
 
@@ -3034,10 +2687,10 @@ def main():
         collisions = gate_f5_collision(b)
         if collisions:
             fail('F5 COLLISION offenders: ' + json.dumps(collisions[:8]))
-        # the borrowed boxes ride the sconce belt AFTER the instances exist (the bmesh
+        # the family boxes ride the sconce belt AFTER the instances exist (the bmesh
         # frees at finish - the faces are dead by then, the boxes are the snapshot)
-        borrowed_boxes = [(_face_aabb(entry[0]), entry[3]) for entry in b.roster
-                          if entry[3] in BORROWED_ELEMENTS]
+        family_boxes = [(_face_aabb(entry[0]), entry[3]) for entry in b.roster
+                        if entry[3] in FAMILY_ELEMENTS]
 
     img_stone, png_stone = write_texture('stone_flags', stone_flags_px, tex_dir)
     img_pale, png_pale = write_texture('plaster_pale', plaster_pale_px, tex_dir)
@@ -3078,7 +2731,7 @@ def main():
     for z in SCONCE_SEW_Z:  # 2 passage-mouth sconces on the passage's east wall, facing west
         instance('sconce', me_sconce, (P_X1, SCONCE_Y, z), -math.pi / 2)
     if not BAKE:
-        sconce_offenders = gate_f5_sconces(bpy.context.scene, borrowed_boxes)
+        sconce_offenders = gate_f5_sconces(bpy.context.scene, family_boxes)
         if sconce_offenders:
             fail('F5 SCONCE offenders: ' + json.dumps(sconce_offenders[:8]))
     build_junction_proxies(JUNCTION)

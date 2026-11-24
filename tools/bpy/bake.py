@@ -211,6 +211,38 @@ STAGE_SPILL_PARTS = {
             'dusk': ((0.70, 0.55, 0.38), 0.9),
             'nightChandeliers': ((0.0, 0.0, 0.0), 0.0),
         },
+        # THE STOCK-TAKE EMITTER ROW (the 2026-11-24 bake artifact, EMITTER ROW + VALUES +
+        # TUNE): the displaced doorcard twin (the builder's tag 'doorcard', one face,
+        # one-sided toward -x - at export into the 2.6 m threshold box, at bake into the
+        # room from the x = 44 wall plane) joins the spill set beside 'pane'. The key is a
+        # PART name, not a material - the card shares its 'stairlight' material with the
+        # lunette, and only the card lights - so apply_stage_spill_parts resolves it
+        # through the builder's LM_FACE_ELEMENTS roster and splits the card's polygons onto
+        # their own material slot (bake-scene-only; the glb's slots stay 0..7). The row's
+        # colours: the pane's own per state for day/dusk; night = the rig's sconce colour
+        # (the builder's SCONCE_GLOW_RGB (1.0, 0.72, 0.42)), the lamp family the room
+        # already burns. The strengths: the seeds - the pane's x 1.35 (the DOOR bands' own
+        # floor ratio), rounded; night starts low and is STRUCK TO 0.0 if the card's night
+        # frame is not brighter than the wall round it.
+        # COMPOSE TRAP (the artifact's fix, the divide form): the nightChandeliers source
+        # publishes at GALLERY_LAMP_SCALE k (tools/lm-recipes.mjs, k = 3) in EVERY recipe -
+        # day k, dusk k-1, night k - so a door term baked into it multiplies by k. The row
+        # enters the seed DIVIDED by k: the published night reads the seed
+        # (0.3 / 3 = 0.1 below), and the day/dusk leak shrinks x k. The recipes gain no
+        # term: the file's ComposeTerm sources resolve to the three rig EXRs, so a
+        # door-only {source, scale: 1} term has no source to resolve.
+        # TUNE, on the bench, not on the bake: at most three low-sample runs of the east
+        # two bays per state (seed, x 1.5, x 0.67; the response is sublinear, as the pane's
+        # comment records). Take the lowest strength at which SPILL reads (gates), and stop
+        # while the DOOR ratio holds >= 1.40 on the bench - the spill lights the door's own
+        # surround, so it spends the DOOR margin. Enter the chosen figures here (a
+        # day/dusk strength as-is; a night strength divided by k), and the bench numbers
+        # ride this comment. BENCH NUMBERS: (the seeds; none tuned yet)
+        'doorcard': {
+            'day': ((0.82, 0.86, 0.92), 3.6),
+            'dusk': ((0.70, 0.55, 0.38), 1.2),
+            'nightChandeliers': ((1.0, 0.72, 0.42), 0.1),   # the seed 0.3 / k 3
+        },
     },
 }
 CYCLES_SEED = 0
@@ -690,16 +722,54 @@ def apply_stage_spill(materials, room, state):
             'strength': strength}
 
 
-def apply_stage_spill_parts(materials, room, state):
+def element_spill_material(namespace, meshes, element):
+    """The stock-take emitter row's PART path: the shell polygons whose builder element is
+    `element` (the LM_FACE_ELEMENTS roster - the roster order IS the mesh polygon order,
+    the S2A belt's correspondence), split onto their OWN material slot: a copy of the
+    faces' current material, renamed to the element. The spill applies AFTER the emitter
+    scan, so the extra slot never reclassifies the shell (the RG-F3 law); it is
+    bake-scene-only - the glb export never runs in the bake chain, so the room's shipped
+    slots stay 0..7. Returns the new material, or None when the namespace carries no
+    element map (a sibling room's namespace - the caller's material path already missed).
+    Fail-loud on a declared element with no faces (the pane rows' rated-look law)."""
+    if 'LM_FACE_ELEMENTS' not in namespace:
+        return None
+    elements = builder_constant(namespace, 'LM_FACE_ELEMENTS')
+    faces = [i for i, el in enumerate(elements) if el == element]
+    if not faces:
+        fail(f'the stage-spill-parts row names element {element!r} and the LM_FACE_ELEMENTS '
+             'roster carries no such face - the spill rows are rated look, a silent miss '
+             'would publish an unlit door')
+    shell = next((obj for obj in meshes if obj.name == 'shell'), None)
+    if shell is None:
+        fail(f'the stage-spill-parts row names element {element!r} and the scene carries '
+             "no 'shell' object - the element path splits the shell's polygons")
+    source = shell.data.materials[shell.data.polygons[faces[0]].material_index]
+    if source is None:
+        fail(f'the stage-spill-parts row names element {element!r} whose face carries no '
+             'material to split')
+    mat = source.copy()
+    mat.name = element
+    slot = len(shell.data.materials)
+    shell.data.materials.append(mat)
+    for pi in faces:
+        shell.data.polygons[pi].material_index = slot
+    return mat
+
+
+def apply_stage_spill_parts(materials, room, state, namespace=None, meshes=None):
     """RG-F3: the declared panes' bake-only emission, by MATERIAL NAME at the door
     spill's insertion point — the same post-scan, post-fixtures-off law as
     apply_stage_spill (the shell object carries the 'pane' slot beside its other slots,
     so a pre-scan live emission would exclusion-reclassify the WHOLE shell object; this
     runs only after emitter_names is built). Rooms without a row are untouched: absent =
     unchanged behaviour, keeps the door's no-raise default for the siblings.
-    Proof law (stricter than the door's, per the ruling): the pane rows are the RATED
-    look, so a declared row with NO matching material, a partial application, or a
-    read-back mismatch fails the bake (fail(); no re-raise-free path). paneApplied =
+    THE STOCK-TAKE EXTENSION: a row key that names no material resolves as a PART (the
+    doorcard twin) through element_spill_material - the namespace/meshes pair is required
+    for that path and untouched for the material-keyed rows ('pane' byte-identical).
+    Proof law (stricter than the door's, per the ruling): a declared row with NO matching
+    material, a partial application, or a read-back mismatch fails the bake (fail(); no
+    re-raise-free path). paneApplied =
     the row's assignment AND read-back verification succeeded — a declared zero
     (nightChandeliers) that reads back zero is a successful verified application
     ('declared-zero-verified'), not a failure; a nonzero state reads back equal to the
@@ -715,6 +785,10 @@ def apply_stage_spill_parts(materials, room, state):
         rgb, strength = per_state[state]
         found = [mat for mat in materials
                  if mat.use_nodes and material_base(mat) == material_name]
+        if not found and namespace is not None:
+            split = element_spill_material(namespace, meshes, material_name)
+            if split is not None:
+                found = [split]
         if not found:
             fail(f'the stage-spill-parts row of {room} declares material '
                  f'{material_name!r} with no matching material in the scene — the pane '
@@ -1715,7 +1789,11 @@ def main():
     # RG-F3: the declared panes' parallel STAGE_SPILL_PARTS rows apply at the SAME
     # insertion point (post-emit-scan, post-fixtures-off; never the pre-scan emission
     # path) — the door's row above is untouched and still the only STAGE_SPILL row.
-    pane_spill = apply_stage_spill_parts(materials, room, state)
+    # The stock-take's 'doorcard' row rides the same call: its PART key resolves through
+    # the exec namespace's LM_FACE_ELEMENTS (the element path is inert for the
+    # material-keyed rows and for rooms whose builder declares no element map).
+    pane_spill = apply_stage_spill_parts(materials, room, state,
+                                         namespace=namespace, meshes=meshes)
     for spec in charts:
         prefix = '' if spec['name'] == 'arch' else 'kit-'
         configure_cycles(scene, samples)
