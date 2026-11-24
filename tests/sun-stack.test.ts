@@ -27,7 +27,7 @@ import { SUN_SHADOW_FIT } from '../src/world/column';
 import { TIERS } from '../src/engine/tier';
 
 const REC709 = [0.2126, 0.7152, 0.0722] as const;
-const lum = (c: readonly number[]): number =>
+const lum = (c: readonly [number, number, number]): number =>
   REC709[0] * c[0] + REC709[1] * c[1] + REC709[2] * c[2];
 
 describe('B1a — the renderer shadow enable (the main.ts law scan)', () => {

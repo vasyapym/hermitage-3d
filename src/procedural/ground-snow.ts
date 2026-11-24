@@ -25,7 +25,6 @@
  */
 import type { Material } from 'three';
 import {
-  GROUND_DETAIL_FADE,
   GROUND_DRIFT_MIN,
   GROUND_DRIFT_OCTAVES,
   GROUND_LANE,
@@ -85,8 +84,6 @@ const CORE = glslFloat(GROUND_LANE.coreHalfM);
 const EDGE = glslFloat(GROUND_LANE.edgeHalfM);
 const FEATHER = glslFloat(LANE_DAY_FEATHER_M);
 const CONTRAST = glslFloat(LANE_DAY_CONTRAST);
-const DETAIL_NEAR = glslFloat(GROUND_DETAIL_FADE.nearM);
-const DETAIL_FAR = glslFloat(GROUND_DETAIL_FADE.farM);
 
 /**
  * The ONE shared hash value-noise (sq-arch-day B3): the drift octaves and the june macro

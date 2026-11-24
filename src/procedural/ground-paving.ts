@@ -16,8 +16,8 @@
  * and the surround are macro structure and never fade. The june macro octave rides the shared
  * `gsNoise` (the snow slot emits it before this function); this twin only fades the detail.
  */
+import { GROUND_DETAIL_FADE } from '../world/ground-snow';
 import {
-  GROUND_DETAIL_FADE,
   PAVING_BAND_ANCHOR,
   PAVING_BAND_PERIOD_M,
   PAVING_BAND_TONE,
