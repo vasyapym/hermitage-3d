@@ -380,7 +380,9 @@ describe('jordan stop-gaze swings (the 2026-11-23 plafond arrival: CHANDELIER_CR
     expect((Math.atan2(ty - py, Math.hypot(tx - px, tz - pz)) * 180) / Math.PI).toBeCloseTo(24, 1);
   });
   for (const [n, measured, expected] of [
-    ...swingRows(JORDAN, 'J1b', 'J2', 52.8), // the turn-preview softened the pan (the owner's 23% pre-turn); the ~58 design frame holds again
+    ...swingRows(JORDAN, 'J0', 'J1', 10.2), // the 2026-11-24 redistribution: the climb's first click pre-turns 13% toward the crown
+    ...swingRows(JORDAN, 'J1', 'J1b', 47.4), // the second click (the turn-preview pan, carried by the redistribution)
+    ...swingRows(JORDAN, 'J1b', 'J2', 45.7), // the plafond arrival (was 63.7 → the turn-preview 52.8 → the 2026-11-24 redistribution 45.7)
     ...swingRows(JORDAN, 'J2', 'J2b', 28.7), // the ceiling-to-flight turn (the D-J2b locked dolly retired 2026-11-23)
   ]) {
     it(`${n}: swing ≈ ${expected}° stays under the head law`, () => {

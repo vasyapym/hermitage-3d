@@ -14,29 +14,42 @@
  * it needs a knot wherever the slope breaks — J1b (top of flight 1) and J3 (top of flight 2)
  * exist for that reason; J0 and J2 stand 0.5 m before their first risers.
  *
- * Subjects: J0 and J1 share the window light over the mezzanine (the locked climb); J1b
- * gazes 23% of the way from the flight-2 sconce toward the chandelier's crown (the owner's
- * turn-preview: the sconce stays in frame, the press-3 arrival reads as a continuation);
- * J2 is RE-AUTHORED (owner
+ * Subjects: the climb's gazes pre-turn toward the chandelier's crown (the owner's
+ * 2026-11-24 redistribution ask — the first two Forward clicks turn a bit more right and
+ * upwards, ~13% of the angular way each, so press 3's arrival keeps less rotation to spend):
+ * J0 keeps the mezzanine window light (the locked climb ends here); J1 gazes 13% of the
+ * way from that light toward the crown (FLIGHT1_TURN); J1b 36% of the way from the flight-2
+ * sconce (FLIGHT2_TURN — the turn-preview law grown by the 13 points; the sconce stays in
+ * frame left). The click swings read 10.2 / 47.4 / 45.7° (stops.test.ts pins them). J2 is
+ * RE-AUTHORED (owner
  * 2026-11-23, the plafond-arrival ask) to CHANDELIER_CROWN so press 3's gaze lands on the
  * chandelier with the painted Olimpo ceiling partly above it — the base gaze is ≈24° up, the
  * owner's own reference framing (a plafond-centred ≈41° read as too much rotation); J2b
  * keeps FLIGHT2_TOP alone (the D-J2b locked pairing with J2 is retired by the same ask —
  * press 4 turns the gaze from the ceiling down to the flight ahead); J3 and J4 share the
  * modelled east-wall portal (the landing is a locked dolly toward it). The ~58° consecutive-
- * swing design frame is relaxed on the J1b→J2 leg (≈64°, still under the §9 MAX_SWING 90
- * head law). Every value is declared and framed by capture at integration.
+ * swing design frame: the J1b→J2 leg reads 45.7° after the redistribution (the turn-preview
+ * 52.8°, the pre-relaxation 63.7°), under the §9 MAX_SWING 90 head law. Every value is
+ * declared and framed by capture at integration.
  */
 import type { RoomContract, Vec3 } from '../../src/world/registry';
 
 /** Over the mezzanine, in front of the window wall: the upper-tier light reads above it. */
 const MEZZ_LIGHT: Vec3 = [69.2, 7.5, -84];
-/** Flight 2's middle sconce (x 75.1, datum 7.67 + 1.8), just off the north wall — the
- * fixtures bake rig's light anchor (jordan_fixtures.py SCONCE_GAZE_POINT).
- * The J1b gaze: 23% of the way from the sconce toward the chandelier's crown (the owner's
- * 2026-11-23 turn-preview ask — press 3's arrival reads as a continuation, not a jump);
- * the sconce stays in frame left. */
-const FLIGHT2_TURN: Vec3 = [76.0, 10.1, -83.8];
+/** Flight 1's turn anchor — the J1 gaze: 13% of the angular way from the mezzanine window
+ * light toward the chandelier's crown, on the light's ray (11.2 m out). The owner's
+ * 2026-11-24 redistribution ask: the first Forward click already turns right+up (the climb
+ * reads as the turn's beginning), so press 3's arrival keeps less rotation to spend.
+ * The mezzanine light [69.2, 7.5, −84] stays J0's subject. */
+const FLIGHT1_TURN: Vec3 = [70.4, 8.1, -83.5];
+/** Flight 2's turn anchor — the J1b gaze: 36% of the angular way from the flight-2 middle
+ * sconce ([75.1, 9.5, −85.5], the fixtures bake rig's light anchor — jordan_fixtures.py
+ * SCONCE_GAZE_POINT) toward the chandelier's crown, on the sconce's ray (10.6 m out). The
+ * owner's asks: the 2026-11-23 turn-preview (23% — press 3's arrival reads as a
+ * continuation, not a jump) grown by 13 points by the 2026-11-24 redistribution (~13% for
+ * both of the first two Forward clicks); the sconce stays in frame left (az ≈18° off gaze
+ * centre, the turn-preview's ≈11° widened). */
+const FLIGHT2_TURN: Vec3 = [76.4, 10.4, -82.6];
 /** Flight 2's top (x 82.0, datum 9.983 + 1.7), on flight 2's band centre line. R18-ux D4 committed
  * it at J2; J2b still holds it (D-J2b, owner 2026-11-02) — the J2 pairing retired 2026-11-23 by
  * the plafond-arrival ask; the upper-window glance (UPPER_WINDOW [84.85, 14.75, −86], the north
@@ -66,19 +79,22 @@ export const contract: RoomContract = {
         caption: 'caption.j0',
       },
       {
-        // Mid flight 1: run 5.38 → datum 2.40 → eye 4.10.
+        // Mid flight 1: run 5.38 → datum 2.40 → eye 4.10. The gaze pre-turns 13% of the
+        // angular way from the mezzanine light toward the chandelier's crown (the owner's
+        // 2026-11-24 redistribution ask — the first Forward click turns right+up already;
+        // the locked climb ends here, J0 keeps the mezzanine light).
         id: 'J1',
         position: [67.2, 4.1, -73.5],
-        subject: MEZZ_LIGHT,
+        subject: FLIGHT1_TURN,
         look: { yaw: 35, pitchUp: 40, pitchDown: 20 },
         caption: 'caption.j1',
       },
       {
         // The top nose of flight 1 (run 10.88 → datum 5): the slope-break knot.
-        // The gaze pre-turns 23% of the way from the flight-2 sconce toward the
-        // chandelier's crown (the owner's 2026-11-23 turn-preview ask): press 3's
-        // arrival (J1b→J2) reads as a continuation, not a jump; the sconce stays
-        // in frame left (caption j1b unchanged).
+        // The gaze pre-turns 36% of the angular way from the flight-2 sconce toward the
+        // chandelier's crown (the owner's 2026-11-23 turn-preview ask grown by the
+        // 2026-11-24 redistribution): press 3's arrival reads as a continuation, not a
+        // jump; the sconce stays in frame left (caption j1b unchanged).
         id: 'J1b',
         position: [67.2, 6.7, -79],
         subject: FLIGHT2_TURN,
