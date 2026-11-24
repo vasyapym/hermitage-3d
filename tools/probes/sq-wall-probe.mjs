@@ -15,11 +15,9 @@
 // wall reads near 1.0; a modulated one separates (the HQ's recorded AFTER was 0.226 ≤ 0.35).
 // Local-only: this tool stages nothing and publishes nothing.
 import { readFileSync } from 'node:fs';
-import { dirname, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { resolve } from 'node:path';
 import { chromium } from '@playwright/test';
 
-const HERE = dirname(fileURLToPath(import.meta.url));
 const files = process.argv.slice(2);
 if (files.length === 0) {
   console.error('usage: node tools/probes/sq-wall-probe.mjs <captured.png> [...]');
