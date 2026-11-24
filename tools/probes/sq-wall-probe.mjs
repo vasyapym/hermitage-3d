@@ -24,9 +24,18 @@ if (files.length === 0) {
   process.exit(1);
 }
 for (const file of files) {
-  if (!file.endsWith('.png') || !readFileSync(resolve(file)).length) {
-    console.error(`not a readable png: ${file}`);
-    process.exit(1);
+  // A missing plate skips with a warning instead of throwing: a mid-battery crash would take
+  // the already-buffered JSON rows with it (node block-buffers stdout to a file), so a single
+  // failed capture must never blank the other rows' measurements.
+  if (!file.endsWith('.png')) {
+    console.error(`not a png, skipping: ${file}`);
+    continue;
+  }
+  try {
+    if (!readFileSync(resolve(file)).length) throw new Error('empty file');
+  } catch (error) {
+    console.error(`unreadable png, skipping: ${file} (${(error as Error).message.split('\n')[0]})`);
+    continue;
   }
 }
 const regionParam = (process.env.SQ_REGION ?? '').trim();
