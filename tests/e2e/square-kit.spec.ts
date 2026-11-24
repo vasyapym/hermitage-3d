@@ -79,7 +79,7 @@ const STOPS = ['S0', 'S0b', 'Sh', 'Shb', 'S1'] as const;
 const DEC_NIGHT = 'at=2026-12-21T18:00:00Z';
 
 for (const stop of STOPS) {
-  test(`(d) ${stop} @ dec-night: the whole-frame caps hold (draws ≤ 120 · tris ≤ 150,000)`, async ({
+  test(`(d) ${stop} @ dec-night: the whole-frame caps hold (draws ≤ 96 · tris ≤ 120,000)`, async ({
     page,
   }) => {
     await settled(page, `${DEC_NIGHT}&det=1&stop=${stop}&hud=1&${Q}`);
@@ -89,9 +89,10 @@ for (const stop of STOPS) {
     const tris = Number(await hud.getAttribute('data-tris'));
     // sq-arch-day B1a: the shadow map is enabled for the first time — every casting family
     // adds its depth-pass draw (+ tris), so the shadowless-era caps (56 / 75,000) no longer
-    // describe the frame. These are the MEASUREMENT-window caps: the final cap rows pin from
-    // the after-battery's recorded hud numbers, one DEC at the merge.
-    expect(draws).toBeLessThanOrEqual(120);
-    expect(tris).toBeLessThanOrEqual(150_000);
+    // describe the frame. The pinned numbers come from the after-battery's measured rows
+    // (the max across all 15 plates: draws 86, tris 115,630) + the same headroom class the
+    // 56/75,000 pair carried — one DEC at the merge re-derives the contract.
+    expect(draws).toBeLessThanOrEqual(96);
+    expect(tris).toBeLessThanOrEqual(120_000);
   });
 }
