@@ -3,8 +3,8 @@
   "files": [
     {
       "path": "jordan.glb",
-      "bytes": 334416,
-      "sha256": "9b30ac7bd6c8c2c1b486e563c9de8c69bfcd18258acd7e9f74c82bad51ad26bf",
+      "bytes": 439648,
+      "sha256": "38050c790f5cf33253c0558f7134103afdb40d57cc9366f393a7b25ea2a0c748",
       "kind": "glb"
     },
     {
@@ -51,14 +51,14 @@
     },
     {
       "path": "tex/neva.ktx2",
-      "bytes": 22861,
-      "sha256": "39484d7e39b68e2c858caa0762ae4acfdf04e70fa716cc4595f066b652eb1320",
+      "bytes": 22870,
+      "sha256": "f64c06a8b7b624348b69d0b6385d1cbbda7989e7ff75c967271c86868fb0a8aa",
       "kind": "ktx2"
     },
     {
       "path": "tex/plafond.ktx2",
-      "bytes": 135065,
-      "sha256": "32dd661b62e04bc70ce162f16ac87532ca1242676cdca462ad1c5ade5a1e5693",
+      "bytes": 135005,
+      "sha256": "c6b7afc3f7bf347e53d1ea15402d267dea1f4631b9067dd981630e7956698ad8",
       "kind": "ktx2"
     },
     {
@@ -119,9 +119,15 @@
         "triangles": 444
       },
       {
+        "name": "wall_order",
+        "instances": 1,
+        "primitives": 2,
+        "triangles": 4296
+      },
+      {
         "name": "cornice",
         "instances": 1,
-        "primitives": 1,
+        "primitives": 2,
         "triangles": 190
       },
       {
@@ -239,8 +245,8 @@
         "triangles": 32
       }
     ],
-    "trianglesUnique": 7034,
-    "trianglesDrawn": 31882,
+    "trianglesUnique": 11330,
+    "trianglesDrawn": 36178,
     "extensionsRequired": [
       "EXT_meshopt_compression",
       "KHR_mesh_quantization",

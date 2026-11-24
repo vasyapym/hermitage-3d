@@ -113,8 +113,10 @@ describe('jordan-fixtures: the sconce archetype in the committed glb', () => {
     // The B2 room totals (the chandelier assembly landed: 25,242 − 356 + 7,200).
     // The plafond round (2026-11-21): the 20 field bays drop their coffers (−360) and
     // the field +40 / the frame +116 join — 32,086 − 204 = 31,882 drawn, 7,034 unique.
-    expect(manifest.geometry.trianglesDrawn).toBe(31882);
-    expect(manifest.geometry.trianglesUnique).toBe(7034);
+    // The slice-2b wall order (2026-11-24): the wall_order kit's 4,296 tris join once
+    // (merged, uninstanced) — 36,178 drawn, 11,330 unique (tests/jordan-walls.test.ts).
+    expect(manifest.geometry.trianglesDrawn).toBe(36178);
+    expect(manifest.geometry.trianglesUnique).toBe(11330);
   });
 
   it('carries the committed 7 materials + crystal + the plafond plate and nothing else', () => {
@@ -314,9 +316,10 @@ describe('jordan-fixtures: the chandelier assembly in the committed glb', () => 
     // The draw gate: 42 unique primitives room-wide at B2 — 39 at B1 minus the
     // placeholder's 2 plus the assembly's 5 (stem 1 / arm 3 / bead 1). The plafond
     // round (2026-11-21): the field's and the frame's single-primitive meshes join —
-    // 42 + 2 = 44 (the round's exact ceiling; drawsMax 60 untouched).
+    // 42 + 2 = 44 (the round's exact ceiling; drawsMax 60 untouched). The slice-2b
+    // wall order (2026-11-24): +3 (the wall_order's 2 + the cornice's L7 gilt slot).
     const draws = (json.meshes ?? []).reduce((n, m) => n + m.primitives.length, 0);
-    expect(draws).toBe(44);
+    expect(draws).toBe(47);
   });
 
   it('stays under the pinned tri caps (stem ≤ 900, arm ≤ 150, drawn ≤ 9,800)', () => {
