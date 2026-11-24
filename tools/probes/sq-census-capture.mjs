@@ -253,7 +253,7 @@ try {
     // a black dome; the frames and this stream can).
     const consoleErrors = [];
     page.on('console', (message) => {
-      if (message.type() === 'error') consoleErrors.push(message.text().slice(0, 240));
+      if (message.type() === 'error') consoleErrors.push(message.text().slice(0, 1500));
     });
     try {
       await page.goto(`${base}/${shotRow.path}`, { waitUntil: 'load' });

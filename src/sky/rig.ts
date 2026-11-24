@@ -59,7 +59,7 @@ float horizonSunFactorG( float facing, float day ) {
   return 1.0 + ${HZ_SUN_GAIN} * day * f * f * f * f;
 }
 vec3 aureoleTermG( float facing, float day ) {
-  float k = day * pow( max( facing, 0.0 ), ${AUREOLE_POW} );
+  float k = day * pow( max( facing, 0.0 ), ${AUREOLE_POW}.0 );
   return vec3( ${AUREOLE_COLOR.join(', ')} ) * k;
 }
 `;
