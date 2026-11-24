@@ -53,7 +53,7 @@ const STOPS = ['S0', 'S0b', 'Sh', 'Shb', 'S1'];
 const DRAG_PX = 437;
 const shot = (name, at, stop, drag = null) => ({
   name,
-  path: `#/?at=${at}&det=1&stop=${stop}`,
+  path: `#/?at=${at}&det=1&stop=${stop}&hud=1`,
   drag,
 });
 const BATTERY = [
@@ -248,6 +248,13 @@ try {
   for (const shotRow of SHOTS) {
     // FRESH PAGE per shot — the same-base goto is a fragment navigation (transport trap 4).
     const page = await browser.newPage({ viewport: VIEWPORT });
+    // The console's error stream rides the row: three prints GLSL compile/link failures as
+    // console.error — the pixel battery's companion diagnostic (the e2e HUD rows cannot see
+    // a black dome; the frames and this stream can).
+    const consoleErrors = [];
+    page.on('console', (message) => {
+      if (message.type() === 'error') consoleErrors.push(message.text().slice(0, 240));
+    });
     try {
       await page.goto(`${base}/${shotRow.path}`, { waitUntil: 'load' });
       await page
@@ -295,6 +302,7 @@ try {
       });
       shotRow.draws = hudDraws;
       shotRow.tris = hudTris;
+      shotRow.consoleErrors = consoleErrors.slice(0, 8);
       results.push({ ...shotRow, file: `${shotRow.name}.png`, ok: true });
       console.log(`shot ${shotRow.name} ok`);
     } catch (e) {
