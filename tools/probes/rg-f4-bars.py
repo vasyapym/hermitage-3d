@@ -79,6 +79,15 @@
 #     lining/floor texels after the displacement; the geometric pin = rows 7..11 x cols
 #     10..13 of the 24x16 grid, the after-card's projected rect sitting fully inside the
 #     before-card's; the card's texels are identical in both frames).
+# THE O5 VAULT READOUTS (artifact o5, the 2026-11-24 stock-take; print-only diagnostics —
+# no verdicts, never the exit code): VAULT, per frame, = the ARCH cells' mean ÷ the WEB
+# cells' mean inside the frame's vault band; CROWN, per night frame (nightChandeliers), =
+# the WEB cells' mean there. The classification is geometric, from tools/probes/
+# rg-sightline.py's projection machinery (its STOPS + camera_basis + project_point +
+# class_sight_rows; VFOV 55, the 1280×720 frame, the 24×16 grid rows top→bottom — mirrored
+# below with the D5 vaultBand pin's own derivation): the arch cells are the rib bands'
+# in-frame projections, the web is the vault band's remaining area; a stop whose frame
+# carries no vault band prints n/a.
 F5_PINS = {
     'day-g1': {'col': (385, 392), 'topBand': (443, 450), 'interior': (453, 471),
                'bottomBand': (475, 482), 'railFront': (428, 433), 'shade': (435, 440)},
@@ -151,6 +160,152 @@ JUNCTION_BASELINES = {            # the pinned pre-junction maxima (24x16, rgaud
 JUNCTION_FRAMES = ('day-g1', 'dusk-g1', 'day-g0b')  # the frames the rows read (in FRAMES)
 
 
+# ---- the o5 readouts' geometry (tools/probes/rg-sightline.py's projection machinery,
+# mirrored; the cites ride that file) ---------------------------------------------------------
+# Artifact o5 reads the axis vault through the bench's A/B glb pair (tools/bpy/
+# rastrelli-gallery.py: RG_BENCH_WEB_SLOT=pale retags the vault.gallery web rows to M_PALE;
+# the 'arch' bands keep M_STUCCO). The classification here is geometric: the ARCH cells are
+# the rib bands' in-frame 24x16 projections, the WEB is the vault band's remaining area.
+O5_VFOV_DEG = 55.0        # src/camera/portrait-frame.ts:17 (the sightline probe's VFOV_DEG)
+O5_TAN_HALF_V = float(np.tan(np.radians(O5_VFOV_DEG / 2.0)))
+O5_TAN_HALF_H = O5_TAN_HALF_V * (1280.0 / 720.0)   # portrait-frame.ts:41-43 (aspect 16:9)
+O5_VAULT_X0, O5_VAULT_X1 = 4.8, 44.0   # XS_GI[0] .. G_X1 — the vaulted bays' span (builder :124-127)
+O5_G_ZC, O5_G_SPRING, O5_G_PEAK, O5_G_HALF, O5_G_ARC_SEGS = 73.0, 3.0, 3.6, 3.0, 8
+O5_ARCH_WIDTH, O5_ARCH_SPRING, O5_ARCH_CROWN, O5_ARCH_SEGS = 0.44, 3.0, 3.34, 8
+O5_PILASTER_X = tuple(44.0 - 3.387 * k for k in range(1, 12))   # BAY_PITCH 3.387 x 11 (:143-144)
+
+
+def o5_arc(c, half, spring, peak, segs):
+    """The builder's arc (rastrelli-gallery.py:308-313, mirrored in the sightline probe)."""
+    return [(c - half * float(np.cos(np.pi * i / segs)),
+             spring + (peak - spring) * float(np.sin(np.pi * i / segs)))
+            for i in range(segs + 1)]
+
+
+O5_G_ARC = o5_arc(O5_G_ZC, O5_G_HALF, O5_G_SPRING, O5_G_PEAK, O5_G_ARC_SEGS)
+O5_ARCH_PROFILE = o5_arc(O5_G_ZC, O5_ARCH_WIDTH / 2.0, O5_ARCH_SPRING, O5_ARCH_CROWN,
+                         O5_ARCH_SEGS)
+# the frames' stops (rooms/rastrelli-gallery/contract.ts, the sightline STOPS rows; Gjb is
+# not a frame stop — no f4 frame reads it):
+O5_STOPS = {
+    'g0': ((0.0, 1.7, 86.0), (1.6, 2.4, 73.0)),      # contract.ts:54-55 (subject JUNCTION)
+    'g0b': ((0.8, 1.7, 79.5), (5.4, 1.7, 73.0)),     # contract.ts:67-68 (subject MOUTH_TURN)
+    'gj': ((1.6, 1.7, 73.0), (43.5, 1.7, 73.0)),     # contract.ts:78-79 (subject EAST_DOOR)
+    'gjb': ((12.8, 1.7, 73.0), (43.5, 1.7, 73.0)),   # contract.ts:93-94 (subject EAST_DOOR)
+    'g1': ((24.0, 1.7, 73.0), (43.5, 1.7, 73.0)),    # contract.ts:100-101 (subject EAST_DOOR)
+    'g2': ((40.5, 1.7, 73.0), (43.5, 1.7, 73.0)),    # contract.ts:108-109 (subject EAST_DOOR)
+}
+
+
+def o5_sub(a, b):
+    return (a[0] - b[0], a[1] - b[1], a[2] - b[2])
+
+
+def o5_dot(a, b):
+    return a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
+
+
+def o5_cross(a, b):
+    return (a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0])
+
+
+def o5_norm(a):
+    return tuple(v / o5_dot(a, a) ** 0.5 for v in a)
+
+
+def o5_basis(eye, subject):
+    """camera_basis (sightline :236-242): forward at the SUBJECT (src/camera/rail.ts:18-19),
+    world up; right/upc the orthonormal pair."""
+    f = o5_norm(o5_sub(subject, eye))
+    right = o5_norm(o5_cross(f, (0.0, 1.0, 0.0)))
+    return f, right, o5_norm(o5_cross(right, f))
+
+
+def o5_project(eye, basis, point):
+    """project_point + its inFrame law (sightline :245-253): the tangent pair for in-frame
+    points, None for the behind-eye or the out-of-frame ones."""
+    v = o5_sub(point, eye)
+    depth = o5_dot(v, basis[0])
+    if depth <= 1e-9:
+        return None
+    tan_y = o5_dot(v, basis[2]) / depth
+    tan_x = o5_dot(v, basis[1]) / depth
+    if abs(tan_y) > O5_TAN_HALF_V or abs(tan_x) > O5_TAN_HALF_H:
+        return None
+    return tan_x, tan_y
+
+
+def o5_cell(tan_x, tan_y):
+    """The 24x16 cell of a tangent pair: the row per row_from_tan (sightline :256-260, rows
+    top→bottom), the column its left→right mirror (this file's P6 h-band convention)."""
+    row = int((1.0 - tan_y / O5_TAN_HALF_V) * (JUNCTION_GRID[1] / 2.0))
+    col = int((1.0 + tan_x / O5_TAN_HALF_H) * (JUNCTION_GRID[0] / 2.0))
+    return max(0, min(JUNCTION_GRID[1] - 1, row)), max(0, min(JUNCTION_GRID[0] - 1, col))
+
+
+def o5_vault_samples():
+    """The D5 vault-band sampler (sightline :399-407) generalized to the vault's own span —
+    the G_ARC profile at every x of O5_VAULT_X0..O5_VAULT_X1, endpoints included, the
+    interior divided evenly at the 0.5 m sampler step (plane_line's form, sightline
+    :272-282): the x=44.0 end sample must ride the set for the G1 band to derive the D5
+    pin's rowsSpanned 0..7 exactly."""
+    pts = []
+    n = int(round((O5_VAULT_X1 - O5_VAULT_X0) / 0.5))
+    for k in range(n + 1):
+        x = O5_VAULT_X0 + (O5_VAULT_X1 - O5_VAULT_X0) * k / n
+        pts.extend((x, y, z) for z, y in O5_G_ARC)
+    return pts
+
+
+def o5_arch_samples():
+    """The 'arch' class's sample set — the sightline probe's ribsBand sampler (:286-294):
+    the 11 rib bands' both edge planes' ARCH_PROFILE arcs (the builder's 'arch' element,
+    rastrelli-gallery.py:1425-1432)."""
+    pts = []
+    for x_c in O5_PILASTER_X:
+        for s in (-1.0, 1.0):
+            x = x_c + s * (O5_ARCH_WIDTH / 2.0)
+            pts.extend((x, y, z) for z, y in O5_ARCH_PROFILE)
+    return pts
+
+
+def o5_stop_cells(stop_key):
+    """The o5 classification at one stop — the D5-pin method (sightline run_sight :486-494):
+    the vault band = the vault surface's in-frame 24x16 rows; the arch cells = the rib
+    bands' in-frame projections inside those rows. Returns (band_rows, arch_cells);
+    band_rows == () when the stop's frame carries no vault geometry."""
+    eye, subject = O5_STOPS[stop_key]
+    basis = o5_basis(eye, subject)
+    rows = set()
+    for p in o5_vault_samples():
+        pr = o5_project(eye, basis, p)
+        if pr is not None:
+            rows.add(o5_cell(pr[0], pr[1])[0])
+    if not rows:
+        return (), set()
+    arch = set()
+    for p in o5_arch_samples():
+        pr = o5_project(eye, basis, p)
+        if pr is not None:
+            r, c = o5_cell(pr[0], pr[1])
+            if r in rows:
+                arch.add((r, c))
+    return tuple(sorted(rows)), arch
+
+
+def o5_frame_readout(g24, band_rows, arch_cells):
+    """The readouts off one 24x16 grid at a stop's cell sets: (VAULT arch÷web, the ARCH
+    mean, the WEB mean) — None where a mean has no samples inside the band."""
+    if not band_rows:
+        return None, None, None
+    web_cells = [(r, c) for r in band_rows for c in range(JUNCTION_GRID[0])
+                 if (r, c) not in arch_cells]
+    web = float(g24[list(zip(*web_cells))].mean()) if web_cells else None
+    arch = float(g24[list(zip(*arch_cells))].mean()) if arch_cells else None
+    vault = arch / web if (arch is not None and web) else None
+    return vault, arch, web
+
+
 def grid24(directory, name):
     """The 24x16 grid, full-sample (the same derivation as the 6x4 grid())."""
     f = directory / f'{name}.png'
@@ -204,6 +359,37 @@ for f in FRAMES:
             reused.append(f)
     if G[f] is None:
         incomplete.append(f)
+
+# ---- the o5 readouts (print-only diagnostics; artifact o5 — no verdicts, no exit-code effect)
+# dir-driven on purpose: the bench's 8-frame A/B dir reads here BEFORE the full-set
+# completeness check below (the committed bars' frame law stays untouched), and the gate
+# runs' 18-frame dir reads the same rows.
+print('== vault readouts (VAULT = arch mean ÷ web mean in the stop vault band; '
+      'CROWN = web mean, night frames — diagnostics, no verdicts) ==')
+O5_CELLS = {key: o5_stop_cells(key) for key in O5_STOPS}
+for o5_path in sorted(p for p in after_dir.iterdir()
+                      if p.suffix == '.png' and p.stem.split('-', 1)[-1] in O5_STOPS):
+    stop_key = o5_path.stem.split('-', 1)[-1]
+    band_rows, arch_cells = O5_CELLS[stop_key]
+    g24 = grid24(after_dir, o5_path.stem)
+    if g24 is None:
+        print(f'{o5_path.stem}: VAULT n/a · CROWN n/a — the 24x16 grid missing')
+        continue
+    vault, arch, web = o5_frame_readout(g24, band_rows, arch_cells)
+    if not band_rows:
+        print(f'{o5_path.stem}: VAULT n/a · CROWN n/a — no vault band in the stop frame')
+        continue
+    parts = []
+    if arch:
+        parts.append(f'VAULT {vault:.3f} (arch {arch:.1f} / web {web:.1f})'
+                     if vault is not None else 'VAULT n/a')
+    else:
+        parts.append('VAULT n/a (no arch cells in the band)')
+    if o5_path.stem.startswith('night-'):
+        parts.append(f'CROWN {web:.1f}' if web is not None else 'CROWN n/a')
+    print(f'{o5_path.stem}: ' + ' · '.join(parts)
+          + f' · band rows {",".join(str(r) for r in band_rows)}'
+          + f' · arch cells {len(arch_cells)}/{len(band_rows) * JUNCTION_GRID[0]}')
 
 if incomplete:
     print(f'INCOMPLETE — missing current frames: {", ".join(incomplete)}')
@@ -462,6 +648,7 @@ else:
 fails += len([1 for _n, _d, ok in pver if not ok])
 for name, detail, ok in pver:
     print(f'{"PASS" if ok else "FAIL"}  {name}: {detail}')
+
 total = len(verd) + len(jver) + len(f5) + len(pver)
 print(f'{total - fails}/{total} bars pass')
 sys.exit(0 if fails == 0 else 1)
