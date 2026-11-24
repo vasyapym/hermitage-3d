@@ -104,6 +104,10 @@ the vault texts (26/30/32/37-REPLY), and the pinned probe logs.
    stage ends `TRUNCATED-HERE: <next artifact>`, the final ends `COMPLETE`; no recap
    transitions, each stage opens on its own facts. The generation dead-air (a passive-framed
    specialist stalls mid-output with nothing yielded) is the trap this law exists to prevent.
+   AMENDMENT (owner, 2026-11-24): the creative capacity is ONE output per chat — it cannot
+   pause and proceed; a creative round's stages travel INSIDE one output (the artifact blocks
+   and the ⏎ markers carry the sequence, the reply ends `COMPLETE` once), and the
+   multi-message sequence is for the iterative/relay capacities only.
 
 **Brief boilerplate (copy blocks, compose fresh only the task-specific parts).**
 - ROLE line (the engineering-peer frame; OWNER AMENDMENT 2026-11-03 — the fresh-session law
