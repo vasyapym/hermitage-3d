@@ -149,7 +149,7 @@ try {
       const w = 1280;
       const load = async (dataUrl) => {
         const img = new Image();
-        img.src = dataUrl;
+        img.src = 'data:image/png;base64,' + dataUrl;
         await img.decode();
         const canvas = document.createElement('canvas');
         canvas.width = img.naturalWidth;
