@@ -23,6 +23,7 @@ import {
 import {
   detailFade,
   driftFactor,
+  driftLaneDay,
   driftNoise,
   GROUND_BOUNCE_LINEAR,
   GROUND_DETAIL_FADE,
@@ -324,9 +325,12 @@ describe('GLSL / TS agreement', () => {
     expect(GROUND_SNOW_FRAGMENT_BODY).toContain(
       `* ( 1.0 + ( ${glslFloat(LANE_DAY_CONTRAST)} - 1.0 ) * uDay )`,
     );
-    // The drift: the uniform-paired octaves and the uDriftMin floor, inside the uSnow mix.
+    // The drift: the uniform-paired octaves and the uDriftMin floor, inside the uSnow mix —
+    // gated OFF-lane (the review's P1: the drift cannot refill the cleared lane).
     expect(GROUND_SNOW_FRAGMENT_BODY).toContain('uDriftMin + ( 1.0 - uDriftMin ) * ( uOctaveA.y');
-    expect(GROUND_SNOW_FRAGMENT_BODY).toContain('groundSnowRgb *= mix( 1.0, groundDrift, uDay );');
+    expect(GROUND_SNOW_FRAGMENT_BODY).toContain(
+      'groundSnowRgb *= mix( 1.0, mix( 1.0, groundDrift, 1.0 - groundLane ), uDay );',
+    );
     expect(GROUND_SNOW_FRAGMENT_BODY).toContain(
       'diffuseColor.rgb = mix( diffuseColor.rgb, groundSnowRgb, uSnow );',
     );
@@ -387,6 +391,31 @@ describe('sq-arch-day B3 — the winter drift (the Q8 pick)', () => {
     // The albedo factor over the same sample: [0.50, 1.0].
     expect(driftFactor(min)).toBeGreaterThanOrEqual(0.5 - 1e-12);
     expect(driftFactor(max)).toBeLessThanOrEqual(1);
+  });
+
+  it('driftLaneDay: the identity at day 0, exactly 1 in the lane core, the drift off-lane', () => {
+    // The review's P1: every day multiplier is neutral at E = 0 — bit for bit 1.
+    for (const z of [124, 177, 230, 300]) {
+      for (const x of [-24, -12, 0, 12, 24]) {
+        expect(driftLaneDay(x, z, 0)).toBe(1);
+      }
+    }
+    // In the lane core (lane = 1) the drift is gated out at any day.
+    for (const day of [0.25, 0.6, 1]) {
+      expect(driftLaneDay(-24, 230, day)).toBe(1); // the S0 lane centre
+      expect(driftLaneDay(0, 124, day)).toBe(1); // the S1 lane centre
+      expect(driftLaneDay(-12, 177, day)).toBe(1); // the Sh lane centre
+    }
+    // Off-lane at full day the composed factor IS the raw drift factor.
+    const x = -60;
+    const z = 230;
+    expect(driftLaneDay(x, z, 1)).toBe(driftFactor(driftNoise(x, z)));
+    // And it never leaves the [DRIFT_MIN, 1] band off-lane at partial day.
+    for (let day = 0; day <= 1; day += 0.125) {
+      const f = driftLaneDay(x, z, day);
+      expect(f).toBeLessThanOrEqual(1);
+      expect(f).toBeGreaterThanOrEqual(0.5 - 1e-12);
+    }
   });
 
   it('the shared noise twin is a [0, 1) bilinear value noise; the macro is its 6 m sample', () => {
@@ -486,8 +515,9 @@ describe('patchGroundSnowSlot', () => {
     expect(material.customProgramCacheKey).toBeTypeOf('function');
     // Brief 19 §B.2 (W4c): the paving slot composes INSIDE the snow hook, so the key compounds —
     // patched and unpatched materials still never share a cache entry.
-    // sq-arch-day B3: the snow slot is @3 (the drift + macro + day-lane body), the paving @2.
-    expect(material.customProgramCacheKey?.()).toBe('Ground/snow-slot@3|Ground/paving-slot@2');
+    // sq-arch-day B3: the snow slot is @3 (the drift + macro + day-lane body); @4 adds the
+    // review's P1 off-lane drift gate; the paving @2.
+    expect(material.customProgramCacheKey?.()).toBe('Ground/snow-slot@4|Ground/paving-slot@2');
   });
 
   it('throws when an anchor is missing', () => {

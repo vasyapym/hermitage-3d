@@ -34,8 +34,8 @@ describe('B2 — the fill the B1 stack rides on', () => {
     expect(fill[0]).toBeCloseTo(0.28, 2);
     expect(fill[1]).toBeCloseTo(0.4, 2);
     expect(fill[2]).toBeCloseTo(0.62, 2);
-    // The B1 numbers: intensity 11, weight 0.60.
-    expect(fillIntensity(juneNoon.lightmaps.day)).toBe(11);
+    // The B1 numbers: intensity 4.5, weight 0.60.
+    expect(fillIntensity(juneNoon.lightmaps.day)).toBe(4.5);
     expect(fillZenithWeight(juneNoon.lightmaps.day)).toBeCloseTo(0.6, 12);
   });
 });

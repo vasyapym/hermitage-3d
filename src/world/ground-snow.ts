@@ -23,7 +23,9 @@
  *                                    |x - laneCentreX(z)|)
  *   trampleField(x, z) = BASE + (1 - BASE) * lane(x, z) · (1 + (LANE_DAY_CONTRAST−1)·day)
  *                    in [BASE, 1]; at day = 0 exactly the committed law
- *   snowRgb(x, z)  = mix(FRESH, TRAMPLED, trampleField(x, z)) · mix(1, drift(x, z), day)
+ *   snowRgb(x, z)  = mix(FRESH, TRAMPLED, trampleField(x, z))
+ *                    · mix(1, mix(1, drift(x, z), 1 − lane(x, z)), day) — the drift gates
+ *                    OFF-lane (the review's P1: it cannot refill the cleared lane)
  *   drift(x, z)    = DRIFT_MIN + (1 − DRIFT_MIN)·n2(p), n2 = A.amp·value(p/A.scale)
  *                    + B.amp·value(p/B.scale) — snow season only (inside the uSnow mix)
  *   groundSnowAlbedo(x, z, wSnow, asphalt) = mix(asphalt, snowRgb(x, z), wSnow)
@@ -200,6 +202,18 @@ export function driftNoise(x: number, z: number): number {
 /** The drift's albedo factor: DRIFT_MIN + (1 − DRIFT_MIN)·n2 ∈ [DRIFT_MIN, 1]. */
 export function driftFactor(n2: number): number {
   return GROUND_DRIFT_MIN + (1 - GROUND_DRIFT_MIN) * n2;
+}
+
+/**
+ * The drift's factor as the fragment composes it: `mix(1, mix(1, drift, 1 − lane), day)` —
+ * the drift gates OFF-lane (the review's P1 ordering: it cannot refill the cleared lane),
+ * then blends by day. The identity (1.0) at day = 0 and exactly 1 in the lane core;
+ * off-lane at day = 1 it is driftFactor(driftNoise(x, z)) bit for bit.
+ */
+export function driftLaneDay(x: number, z: number, day: number): number {
+  const drift = driftFactor(driftNoise(x, z));
+  const offLane = lerp(1, drift, 1 - laneValueDay(x, z, day));
+  return lerp(1, offLane, day);
 }
 
 /** The june macro octave's factor: 1 + (value(p/6 m) − 0.5)·2·0.06 — the albedo's ±6 %. */

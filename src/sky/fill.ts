@@ -13,8 +13,8 @@
  *   fillSkyColor(z, h, day) = w·z + (1−w)·h, w = fillZenithWeight(day) — UN-K'd: the winter
  *                             sky gain (DEC-043's snowSkyGain) multiplies the dome lookup and
  *                             the pane reflection only, never the fill (the Q9 pick)
- *   fillIntensity(day)      = 1 + (FILL_DAY_GAIN − 1)·day, FILL_DAY_GAIN = 11 (the Q2 pick:
- *                             the shade:lit 1/3 law on a south white at june noon)
+ *   fillIntensity(day)      = 1 + (FILL_DAY_GAIN − 1)·day, FILL_DAY_GAIN = 4.5 (the Brief-5
+ *                             pick: the shade:lit ≈ 1/6 law on a south white at june noon)
  *   fillGroundColor(cur, albedo, day) = per-channel lerp(cur, albedo, day): the committed
  *                             warmGround path at night, 0.5·seasonAlbedo at full day
  *   groundHalfAlbedo(wSnow) = mix(FILL_GROUND_HALF_ASPHALT, FILL_GROUND_HALF_SNOW, wSnow)
@@ -30,8 +30,11 @@ import type { LinearRgb } from '../world/night-facade';
 export const FILL_ZENITH_NIGHT = 0.25;
 /** The day gain over the night weight: 0.25 + 0.35 = 0.60/0.40 at full day (the Q3 pick). */
 export const FILL_ZENITH_GAIN = 0.35;
-/** FILL_DAY_GAIN = 11 (the Q2 pick): the day fill intensity — shade:lit 1/3 at june noon. */
-export const FILL_DAY_GAIN = 11;
+/** FILL_DAY_GAIN = 4.5 (the Brief-5 pick; was 11, the Q2 pick): the day fill intensity —
+ * shade:lit ≈ 1/6 at june noon by the Q2 law's scaling. The probed ladder 11 → 7.5 → 4.5
+ * measured the june facade darkQ 98–109 → 90–101 → 82–93 and the dec off-lane snow 0.92–0.94
+ * at every step. */
+export const FILL_DAY_GAIN = 4.5;
 /** Half the june asphalt albedo (0x3f3f3f → linear ≈ 0.0508, halved, rounded as declared). */
 export const FILL_GROUND_HALF_ASPHALT: LinearRgb = [0.025, 0.025, 0.025];
 /** Half the season snow albedo (DEC-033's SNOW_ALBEDO_LINEAR × 0.5): the dec fill ground. */
@@ -56,7 +59,7 @@ export function fillSkyColor(zenith: Rgb3, horizon: Rgb3, day: number): LinearRg
   ];
 }
 
-/** The fill's intensity: 1 + (FILL_DAY_GAIN − 1)·E(h) — 1.00 at night, 11.0 at full day. */
+/** The fill's intensity: 1 + (FILL_DAY_GAIN − 1)·E(h) — 1.00 at night, 4.5 at full day. */
 export function fillIntensity(day: number): number {
   return 1 + (FILL_DAY_GAIN - 1) * day;
 }

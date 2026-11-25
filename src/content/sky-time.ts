@@ -67,6 +67,8 @@ export const PALETTE = {
 // shape (sunLightIntensity stays smootherstep(h/10) × this peak; dec-noon sun 1.2–2.0).
 export const DAYLIGHT_SUN_INTENSITY_MAX = 6;
 
-/** sq-arch-day B1b: the sun's scene-linear colour — the warm 5000 K cast on every lit face
- * (was the raw white DirectionalLight). Applied once at the rig in main.ts; never per frame. */
-export const SUN_COLOR: Rgb3 = [1.0, 0.95, 0.85];
+/** sq-arch-day B1b + Brief-5 (row 2): the sun's scene-linear colour — ≈ 4600 K (was
+ * [1.0, 0.95, 0.85] ≈ 5000 K): the warm/cool split against the blue hemisphere fill.
+ * applyEpoch lerps the white legacy sun toward this by E(h) per frame — white at E = 0,
+ * the night identity (THREE.Color.lerp adds (target − this)·0 = exact). */
+export const SUN_COLOR: Rgb3 = [1.0, 0.92, 0.78];

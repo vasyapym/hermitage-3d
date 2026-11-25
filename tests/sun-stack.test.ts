@@ -33,9 +33,12 @@ const lum = (c: readonly [number, number, number]): number =>
 describe('B1a — the renderer shadow enable (the main.ts law scan)', () => {
   const main = readFileSync('src/main.ts', 'utf8');
 
-  it('enables the shadow map once, PCFSoft, at renderer creation before the tier rows', () => {
+  it('enables the shadow map once, PCF (r186 removed PCFSoft), at renderer creation before the tier rows', () => {
     expect(main).toContain('renderer.shadowMap.enabled = true;');
-    expect(main).toContain('renderer.shadowMap.type = THREE.PCFSoftShadowMap;');
+    // The review's readout: PCFSoftShadowMap warned and reset to PCF on the FIRST shadow
+    // pass (three r186 removed it) — the code carries the filter that actually renders.
+    expect(main).toContain('renderer.shadowMap.type = THREE.PCFShadowMap;');
+    expect(main).not.toContain('PCFSoftShadowMap');
     // Once at creation: the enable lines precede the tier's mapSize application site.
     const enabledAt = main.indexOf('renderer.shadowMap.enabled = true;');
     const tierAt = main.indexOf('sun.shadow.mapSize.set(next.shadowMapSize');
@@ -85,17 +88,20 @@ describe('B1b — the sun level and temperature', () => {
     expect(sunLightIntensity(juneNoon.solar.elevationDeg)).toBeCloseTo(6.0, 1);
   });
 
-  it('is the warm linear [1, 0.95, 0.85]', () => {
+  it('is the warm linear [1, 0.92, 0.78] (≈ 4600 K), day-lerped from the white legacy sun', () => {
     expect(SUN_COLOR[0]).toBe(1);
-    expect(SUN_COLOR[1]).toBeCloseTo(0.95, 12);
-    expect(SUN_COLOR[2]).toBeCloseTo(0.85, 12);
+    expect(SUN_COLOR[1]).toBeCloseTo(0.92, 12);
+    expect(SUN_COLOR[2]).toBeCloseTo(0.78, 12);
     expect(mainContainsSunColor()).toBe(true);
   });
 
   function mainContainsSunColor(): boolean {
     const main = readFileSync('src/main.ts', 'utf8');
+    // The review's P1 (the night identity): applyEpoch lerps the white legacy sun toward
+    // SUN_COLOR by E(h) — at day = 0 the light is the pre-round white bit for bit.
     return (
-      main.includes('sun.color.setRGB(...SUN_COLOR);') &&
+      main.includes('sun.color.setRGB(1, 1, 1).lerp(SUN_WARM, day);') &&
+      main.includes('const SUN_WARM = new THREE.Color().setRGB(...SUN_COLOR);') &&
       main.includes("import { SUN_COLOR, TIME } from './content/sky-time';")
     );
   }
@@ -107,10 +113,10 @@ describe('B1b — the fill (weights, intensity, ground class)', () => {
     expect(fillZenithWeight(1)).toBeCloseTo(0.6, 12);
   });
 
-  it('intensity: night 1.00, june-noon 11.0 (FILL_DAY_GAIN 11)', () => {
+  it('intensity: night 1.00, june-noon 4.5 (FILL_DAY_GAIN 4.5)', () => {
     expect(fillIntensity(0)).toBe(1);
-    expect(fillIntensity(1)).toBe(11);
-    expect(FILL_DAY_GAIN).toBe(11);
+    expect(fillIntensity(1)).toBe(4.5);
+    expect(FILL_DAY_GAIN).toBe(4.5);
   });
 
   it('the night fill colour is the baseline law bit-exactly (0.25·z + 0.75·h)', () => {
@@ -178,9 +184,10 @@ describe('B1b — the fill (weights, intensity, ground class)', () => {
 });
 
 describe('B1 derived — the analytic shade:lit on a vertical white', () => {
-  it("is 0.33 ± 0.03 at the design's derived geometry (south vertical, white 0.85)", () => {
+  it("is 1/6 ± 0.03 at the design's derived geometry (south vertical, white 0.85)", () => {
     // The design's derivation: a south-facing vertical white (≈ 0.85 linear) at h = 40°,
-    // sun 6·cosθ, the fill's vertical irradiance = 11·0.5·(fill lum + ground lum).
+    // sun 6·cosθ, the fill's vertical irradiance = 4.5·0.5·(fill lum + ground lum) — the
+    // Brief-5 pick: the fill term scales as 4.5/11 of the Q2 pick's, the sun term unchanged.
     const cosH = Math.cos((40 * Math.PI) / 180);
     const fill = fillSkyColor(PALETTE.dayZenith, PALETTE.dayHorizon, 1);
     const fillLum = lum(fill);
@@ -188,6 +195,6 @@ describe('B1 derived — the analytic shade:lit on a vertical white', () => {
     const fillVertical = fillIntensity(1) * 0.5 * (fillLum + groundLum);
     const sunVertical = DAYLIGHT_SUN_INTENSITY_MAX * cosH * lum(SUN_COLOR);
     const ratio = fillVertical / (sunVertical + fillVertical);
-    expect(Math.abs(ratio - 1 / 3)).toBeLessThanOrEqual(0.03);
+    expect(Math.abs(ratio - 1 / 6)).toBeLessThanOrEqual(0.03);
   });
 });

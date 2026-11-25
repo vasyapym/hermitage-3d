@@ -30,6 +30,13 @@ type Triple = readonly [number, number, number];
  * brightens toward the sun by 1 + HZ_SUN_GAIN·E(h)·pow⁴(dot(dirXZ, sunXZ)) — sun-side 1.35×
  * at full day (display ≈ 198 against the 187 horizon). */
 export const HZ_SUN_GAIN = 0.35;
+/** Brief-5 (row 5): the dome gradient's day knee — the horizon→zenith smootherstep runs over
+ * (d.y + 0.08) / knee. The committed 1.08 reaches the zenith straight up; the day 0.72
+ * reaches it at ~40° elevation, so the visible sky band above the roofline deepens
+ * (est. ~178 → ~163 sRGB at 17°, ~163 → ~130 at 30°) while the 0–5° horizon seam moves
+ * < 1 sRGB and the fill (fillSkyColor never reads v), the HZ sun lobe and the aureole are
+ * untouched. Mixed by uDay FROM the unchanged committed expression — bit-identical at E = 0. */
+export const DOME_KNEE_DAY = 0.72;
 /** sq-arch-day B2 (the Q5 pick): the aureole — added to the base, E-gated, pow 64 about the
  * sun direction (half-width ≈ 8°), scene-linear [0.90, 0.75, 0.50]. */
 export const AUREOLE_COLOR: Triple = [0.9, 0.75, 0.5];
@@ -106,7 +113,10 @@ float smootherStep(float x) {
 void main() {
   vec3 d = normalize(vNdc.x * uRayTanX * uCamRight + vNdc.y * uRayTanY * uCamUp + uCamForward);
 
-  float v = smootherStep((d.y + 0.08) / 1.08);
+  float v0 = smootherStep((d.y + 0.08) / 1.08);
+  // Brief-5: v0 is the committed ramp, vDay the day knee, mixed by uDay.
+  float vDay = smootherStep((d.y + 0.08) / ${DOME_KNEE_DAY});
+  float v = mix(v0, vDay, uDay);
   // sq-arch-day B2: the sun-side horizon gain — the horizon colour times the E-gated lobe
   // (the flattened directions; a straight-up ray's tiny xz flattens guarded to facing 0).
   vec2 hzFlat = d.xz;

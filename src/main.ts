@@ -558,12 +558,14 @@ renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.AgXToneMapping;
 renderer.toneMappingExposure = sample.exposure;
 // sq-arch-day B1a (the shadow enable; extends DEC-037's fit): the project's FIRST cast
-// shadows — enabled ONCE here, before the tier rows apply mapSize (settleTier), PCFSoft for
-// the grazing winter sun. The sun's castShadow never toggles per hour: the shadow's strength
-// fades by E(h) in applyEpoch instead (B1a(2), three r166+ LightShadow.intensity — no
-// per-crossing program recompiles, the same night image).
+// shadows — enabled ONCE here, before the tier rows apply mapSize (settleTier). The filter
+// is PCF: three r186 removed the PCFSoft filter — assigning its constant warns on the first
+// shadow pass and resets to PCF there (the review's readout showed the effective type "1");
+// the code carries the filter that actually renders. The sun's castShadow never toggles
+// per hour: the shadow's strength fades by E(h) in applyEpoch instead (B1a(2), three
+// r166+ LightShadow.intensity — no per-crossing program recompiles, the same night image).
 renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.shadowMap.type = THREE.PCFShadowMap;
 // §11 runtime counting: one reset per frame, every render in that frame aggregates.
 renderer.info.autoReset = false;
 // Dev/test-only scene readout (the earlier SUB-BISECT probe, committed by R24-ux as the
@@ -699,8 +701,11 @@ const southWings = SOUTH_FACADE.sections.flatMap((section) => {
     bevelEnabled: false,
   });
   const head = new THREE.Mesh(headGeometry, massingMaterial);
-  // The extrusion runs +z from the shape plane: centre the band on the pavilion's z box.
-  head.position.set(centreX - width / 2, 0, z - depth / 2);
+  // The shape is x-centred like BoxGeometry, but the extrusion spans z [0, depth] — each
+  // axis centres by its own convention (the review's P1: `centreX - width/2` double-counted
+  // the x centring — the head sat half a width west, its arch cutout off the throat void;
+  // the Shb/S1 plates show the read).
+  head.position.set(centreX, 0, z - depth / 2);
   return [head];
 });
 const northWings = [block(PALACE.halfWidth * 2, PALACE.wingDepth, 0, -innerZ)];
@@ -768,7 +773,9 @@ scene.add(roomsRoot);
 const sun = new THREE.DirectionalLight(0xffffff, 0); // intensity driven by the sample
 // sq-arch-day B1b (the Q1 temperature): the sun's scene-linear colour — the warm cast on
 // every lit face (setRGB's default colour space is the renderer's working space, linear).
-sun.color.setRGB(...SUN_COLOR);
+// The review's P1 (the night identity): the warm tint rode E=0 too — applyEpoch lerps the
+// white legacy sun toward this colour by the same E(h) the intensity rides, per frame.
+const SUN_WARM = new THREE.Color().setRGB(...SUN_COLOR);
 sun.castShadow = true;
 sun.shadow.mapSize.set(1024, 1024); // T1 default until quality tiers land
 sun.shadow.camera.left = SUN_SHADOW_FIT.left;
@@ -878,6 +885,10 @@ const applyEpoch = (nextEpochMs: number): void => {
   // (sun intensity, hemi colours, hemi intensity) is bit-identical today's by construction.
   const day = sample.lightmaps.day;
   sun.intensity = atmosphere.sunIntensity;
+  // sq-arch-day B1b + the review's P1: the warm sun is a DAY state — at day = 0 the light
+  // is the pre-round white bit for bit (the colour rides the same E(h) as the intensity;
+  // setRGB + lerp mutate in place, no per-frame allocation).
+  sun.color.setRGB(1, 1, 1).lerp(SUN_WARM, day);
   // sq-arch-day B1a(2): the castShadow toggle retired — the shadow's strength fades by E(h)
   // (LightShadow.intensity; castShadow stays true, no per-crossing program recompiles).
   sun.shadow.intensity = day;
@@ -888,7 +899,7 @@ const applyEpoch = (nextEpochMs: number): void => {
   );
   // sq-arch-day B1b (the Q3 fill shape): the fill is w·zenith + (1−w)·horizon with
   // w = 0.25 + 0.35·E(h) — the committed 0.25/0.75 split at night, 0.60/0.40 at day; the
-  // intensity rides FILL_DAY_GAIN 11 (the Q2 pick); the fill is UN-K'd (the Q9 pick).
+  // intensity rides FILL_DAY_GAIN 4.5 (the Brief-5 pick); the fill is UN-K'd (the Q9 pick).
   const { zenithRgb: z, horizonRgb: h } = atmosphere;
   hemi.color.setRGB(...fillSkyColor(z, h, day));
   hemi.intensity = fillIntensity(day);

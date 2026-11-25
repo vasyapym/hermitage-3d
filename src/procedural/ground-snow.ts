@@ -17,8 +17,9 @@
  * sq-arch-day B3 (the Q7/Q8 picks + the deltas' shared-noise path): ONE shared hash
  * value-noise `gsNoise` (emitted before the paving function, which samples it for the june
  * macro octave) drives three uniform-paired terms — the winter drift octaves (5.5 m @ 0.8 +
- * 1.2 m @ 0.2, floor uDriftMin 0.5, inside the uSnow mix), the june macro octave (6 m @ ±6 %,
- * the whole ground's albedo) and the day lane law (the delta × 0.5, the edge feather 0.35 m).
+ * 1.2 m @ 0.2, floor uDriftMin 0.5, gated OFF-lane per the review's P1 ordering, inside the
+ * uSnow mix), the june macro octave (6 m @ ±6 %, the whole ground's albedo) and the day lane
+ * law (the delta × 0.5, the edge feather 0.35 m).
  * Every day term blends by uDay (E(h)) and is the IDENTITY at uDay = 0 — x·1.0 is bit-exact —
  * and the paving slot's distance fade blends the same way, so the night/dusk/white-night
  * ground is bit-exact today's. Extends DEC-035/041/043.
@@ -61,7 +62,8 @@ export const GROUND_SNOW_UNIFORMS: GroundSnowUniforms = {
 // The winter-square round bumped the snow slot to @2 (the emitted body changed —
 // the re-declared lane/tone/base constants are interpolated into the fragment).
 // sq-arch-day B3 bumps to @3: the drift + macro + day-lane body and the noise uniforms.
-const GROUND_SNOW_CACHE_KEY = 'Ground/snow-slot@3';
+// @4: the drift gates OFF-lane (the review's P1 ordering — it cannot refill the lane).
+const GROUND_SNOW_CACHE_KEY = 'Ground/snow-slot@4';
 
 const glslFloat = (x: number): string => (Number.isInteger(x) ? `${x}.0` : `${x}`);
 
@@ -115,7 +117,9 @@ float groundLane = 1.0 - smoothstep( ${CORE}, ${EDGE} + ${FEATHER} * uDay, abs( 
 float groundTrample = ${BASE_GLSL} + ( 1.0 - ${BASE_GLSL} ) * groundLane * ( 1.0 + ( ${CONTRAST} - 1.0 ) * uDay );
 vec3 groundSnowRgb = mix( vec3( ${FRESH_GLSL} ), vec3( ${TRAMPLED_GLSL} ), groundTrample );
 float groundDrift = uDriftMin + ( 1.0 - uDriftMin ) * ( uOctaveA.y * ${GROUND_NOISE_GLSL_FN}( vGroundXZ / uOctaveA.x ) + uOctaveB.y * ${GROUND_NOISE_GLSL_FN}( vGroundXZ / uOctaveB.x ) );
-groundSnowRgb *= mix( 1.0, groundDrift, uDay );
+// The review's P1 ordering: the drift gates OFF-lane (mix by 1 − lane) so it cannot refill
+// the cleared lane — the DEC-043 lane law rides its original inputs, before any drift.
+groundSnowRgb *= mix( 1.0, mix( 1.0, groundDrift, 1.0 - groundLane ), uDay );
 diffuseColor.rgb = mix( diffuseColor.rgb, groundSnowRgb, uSnow );
 }`;
 

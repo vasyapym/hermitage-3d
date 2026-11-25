@@ -34,7 +34,8 @@ for (const file of files) {
   try {
     if (!readFileSync(resolve(file)).length) throw new Error('empty file');
   } catch (error) {
-    console.error(`unreadable png, skipping: ${file} (${(error as Error).message.split('\n')[0]})`);
+    const message = error instanceof Error ? error.message : String(error);
+    console.error(`unreadable png, skipping: ${file} (${message.split('\n')[0]})`);
     continue;
   }
 }
