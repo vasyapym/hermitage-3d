@@ -119,6 +119,21 @@ the vault texts (26/30/32/37-REPLY), and the pinned probe logs.
    pause and proceed; a creative round's stages travel INSIDE one output (the artifact blocks
    and the ⏎ markers carry the sequence, the reply ends `COMPLETE` once), and the
    multi-message sequence is for the iterative/relay capacities only.
+6. THE PATH TABLE AND THE ENUMERATE-FIRST SWEEP (owner, 2026-11-25; the bake9–11 precedent —
+   one bug, three symptoms, three box runs). A relay design that introduces or moves FILE
+   PATHS ships with a PATH TABLE: file family → written by (the resolved path) → read by
+   (the resolved path); ONE canonical location per family (the round's precedent: the stage
+   ROOT beside summary.json — never the per-state dirs, whose names belong to bake.mjs's own
+   law). The integrator verifies the table against the committed code like the sources,
+   resolves every named uncertainty ONCE before wiring (recorded in the integration notes,
+   applied everywhere — a per-call-site resolution costs one box run per seam), and runs the
+   ENUMERATE-FIRST sweep before the first box run: grep every new file name and env var
+   across the touched tree and list every writer and reader with its resolved path — all
+   sites agree → file the run; a disagreement → fix locally, no run. The readout contract
+   cites only OBSERVABLE signals: check which drivers capture stdout before filing (bake.mjs
+   captures — only the ZIMNY_SUMMARY line goes up; asset.mjs and reencode.mjs echo; the
+   layout-identity proofs live in the stage summary + the bake-summary sidecars + the
+   manifest row, not in chain.log).
 
 **Brief boilerplate (copy blocks, compose fresh only the task-specific parts).**
 - ROLE line (the engineering-peer frame; OWNER AMENDMENT 2026-11-03 — the fresh-session law
@@ -129,6 +144,10 @@ the vault texts (26/30/32/37-REPLY), and the pinned probe logs.
   validates everything against the repository's own gates (build chain, budgets, the tests it
   writes from your pins). Everything you may consult is inside this brief. Every brief is a
   fresh session — carry forward whatever the reply itself needs.»
+- THE PATH TABLE (when the design introduces or moves files): file family → written by
+  (the resolved path) → read by (the resolved path), ONE canonical location per family —
+  the orchestrator verifies it against the committed code and runs the enumerate-first sweep
+  before the first box run (standing protocol trap 6).
 - HOUSE STYLE (binds every file): leading block comment citing the design sections implemented;
   named exports only, no default exports; no enums; `satisfies` over `as` where a literal object
   is typed; `import type` for type-only imports; strict TS — noUncheckedIndexedAccess (index
