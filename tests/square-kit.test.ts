@@ -13,7 +13,6 @@ import { levelOf } from '../src/world/night-facade';
 import type { Bounds, Vec3 } from '../src/world/registry';
 import type { SquareKitNode, SquareManifest } from '../src/world/square-kit';
 import * as kit from '../src/world/square-kit';
-import { THROAT_VOID } from '../src/world/throat';
 
 const SHA = 'a'.repeat(64);
 
@@ -351,11 +350,9 @@ describe('2 · manifest fixtures and allowances', () => {
 
 describe('3 · rail band, portal exclusion and HQ fixture envelope', () => {
   it('derives the portal dimensions and pins the committed rail segment', () => {
-    expect(kit.KIT_PORTAL_BOX).toEqual({
-      xHalf: THROAT_VOID.halfWidth,
-      yTop: THROAT_VOID.topY,
-      zSouth: 93.5,
-    });
+    // sq-arch-day B5: the box is explicit now — it clears the concentric arch family out to
+    // the kit ring's outer edge (the void radius 2.45 + 0.30 margin) and 0.3 above the crown.
+    expect(kit.KIT_PORTAL_BOX).toEqual({ xHalf: 2.75, yTop: 10.0, zSouth: 93.5 });
     expect(kit.KIT_RAIL_CLEARANCE_M).toBe(3);
     expect(kit.KIT_RAIL_SEGMENT).toEqual({
       start: [-24, 0, 230],
@@ -376,10 +373,11 @@ describe('3 · rail band, portal exclusion and HQ fixture envelope', () => {
   it('protects the mouth and northward passage, including boundary contact', () => {
     expect(kit.squareKitClearsPortal(bounds([-1, 0, 93], [1, 2, 94]))).toBe(false);
     expect(kit.squareKitClearsPortal(bounds([-1, 0, 60], [1, 2, 61]))).toBe(false);
-    expect(kit.squareKitClearsPortal(bounds([2.6, 0, 93], [3, 2, 94]))).toBe(false);
-    expect(kit.squareKitClearsPortal(bounds([2.601, 0, 93], [3, 2, 94]))).toBe(true);
+    // sq-arch-day B5: the box is ±2.75 × 10.0 — the boundary rows move with it.
+    expect(kit.squareKitClearsPortal(bounds([2.75, 0, 93], [3, 2, 94]))).toBe(false);
+    expect(kit.squareKitClearsPortal(bounds([2.751, 0, 93], [3, 2, 94]))).toBe(true);
     expect(kit.squareKitClearsPortal(bounds([-1, 0, 93.501], [1, 2, 94]))).toBe(true);
-    expect(kit.squareKitClearsPortal(bounds([-1, 9.751, 90], [1, 10, 94]))).toBe(true);
+    expect(kit.squareKitClearsPortal(bounds([-1, 10.001, 90], [1, 10.5, 94]))).toBe(true);
   });
 
   it('rejects either geometry-law violation at the manifest boundary', () => {

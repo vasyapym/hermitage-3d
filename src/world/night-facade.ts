@@ -5,6 +5,10 @@
  * §8 contract of design-sky-time.md: callers pass `lightmapWeights(elev).nightChandeliers`
  * in as `wNight`; this module never re-derives it.
  *
+ * sq-arch-day B4: the day pane class — the albedo's day endpoint extends by E(h)
+ * (paneDayAlbedo) and the lit pane gains the sky tint after lighting (paneTintFactor).
+ * At E(h) = 0 both are exactly the committed laws; extends DEC-019/048/053.
+ *
  * Pure by contract: no three, no DOM (regex-scanned, node Vitest). Meshes live in
  * src/procedural/night-lattice.ts; the hemisphere light stays with the host.
  *
@@ -66,6 +70,18 @@ export const PANE_BASE_TONE: LinearRgb = DARK_PANE_TONE;
  */
 export const DAY_PANE_TONE: LinearRgb = [0.03, 0.034, 0.042];
 /**
+ * sq-arch-day B4 (the Q6 pick) — the DAY PANE CLASS: the existing paneBaseTone law's day
+ * endpoint extends by E(h) — paneDayAlbedo(wNight, day) = mix(paneBaseTone(wNight),
+ * PANE_DAY_ALBEDO, day): the committed night law bit-exact at E = 0 (DEC-048's baseline), the
+ * lit-glass read [0.06, 0.07, 0.085] at full day (≈ 125 sRGB against the wall's 220 — the
+ * dark quartile becomes shading + glass, not holes). Linear channels, like the rest.
+ */
+export const PANE_DAY_ALBEDO: LinearRgb = [0.06, 0.07, 0.085];
+/** The day pane's sky tint after lighting, at NdotV = 1 (the Q6 pick's mix pair). */
+export const PANE_TINT_MIN = 0.2;
+/** The day pane's sky tint after lighting, at NdotV = 0 (grazing — the glass reads the sky). */
+export const PANE_TINT_MAX = 0.4;
+/**
  * The hour law: the stock panes' unlit albedo rides wNight — DAY_PANE_TONE at day (w = 0; the
  * kit group is never hidden, so the HQ's quads render it on the sunlit face), DARK_PANE_TONE at
  * night (w = 1: DEC-048's tone bit-exact, round 1's base untouched), the endpoint-exact lerp
@@ -74,6 +90,23 @@ export const DAY_PANE_TONE: LinearRgb = [0.03, 0.034, 0.042];
  */
 export function paneBaseTone(wNight: number): LinearRgb {
   return lerp3(DAY_PANE_TONE, DARK_PANE_TONE, clamp01(wNight));
+}
+/**
+ * sq-arch-day B4: the day class over the committed law — mix(paneBaseTone(wNight),
+ * PANE_DAY_ALBEDO, E(h)). At E = 0 this is paneBaseTone bit-exact (the DEC-048 baseline: the
+ * night state vector and every dusk row hold); at full day the lit-glass read takes over.
+ */
+export function paneDayAlbedo(wNight: number, day: number): LinearRgb {
+  return lerp3(paneBaseTone(wNight), PANE_DAY_ALBEDO, clamp01(day));
+}
+/**
+ * sq-arch-day B4: the pane's sky-tint factor AFTER lighting — E(h)·mix(PANE_TINT_MIN,
+ * PANE_TINT_MAX, pow(1 − NdotV, 3)): 0.20 head-on, 0.40 grazing. The host supplies uSkyFill =
+ * the un-K'd fill colour × uDomeK (the dome's K: the pane reflects the dome, not the fill).
+ */
+export function paneTintFactor(ndotV: number, day: number): number {
+  const grazing = (1 - clamp01(ndotV)) ** 3;
+  return clamp01(day) * (PANE_TINT_MIN + (PANE_TINT_MAX - PANE_TINT_MIN) * grazing);
 }
 /** Endpoint-exact clamp: w < 0 → 0, w > 1 → 1, NaN not legal input (the callers' law). */
 function clamp01(w: number): number {
