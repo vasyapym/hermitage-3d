@@ -1853,6 +1853,10 @@ def main():
     arch_row = None
     files = []
     lm_layout = None  # the layout-identity law: the bake lm block, set per shelf-law room
+    # bake.mjs passes the per-state dir (bake-<state> under the shared stage root — its own
+    # law: never the bpy stage dir); the export summary, the sidecars and the manifest all
+    # live at the ROOT.
+    stage_root = stage.parent if stage.name.startswith('bake-') else stage
     # The emitter look law (see emissive_objects): the emitters stay untouched in the
     # scene and out of every chart's target set; per-room gate: EMITTER_EXCLUSION.
     exclude_emitters = EMITTER_EXCLUSION.get(room, False)
@@ -1893,7 +1897,7 @@ def main():
         if room in LM_LAYOUT_LAW_ROOMS:
             # the layout-identity law: refuse to bake against a stale or divergent export
             lm_layout = assert_layout_identity(
-                stage / 'summary.json', stage / f'bake-layout.{state}.json', state)
+                stage_root / 'summary.json', stage / f'bake-layout.{state}.json', state)
         if opts.dump_layout and lm_grid:
             dump_layout(lm_dir / 'layout.json', targets, lm_grid)
         collapsed = (collapse_frame_backfaces(objects, namespace['_LAYOUT']['frames'])
@@ -2042,7 +2046,7 @@ def main():
     print_summary(summary)
     # The state's sidecar (new; the summary was print-only): the same dict, for the manifest
     # step's identity assertion and the job's evidence capture.
-    sidecar = stage / f'bake-summary.{state}.json'
+    sidecar = stage_root / f'bake-summary.{state}.json'
     sidecar.write_text(json.dumps(summary, indent=1, sort_keys=True) + '\n', encoding='utf-8')
     print(f'ZIMNY_BAKE_SIDECAR {sidecar}', flush=True)
 

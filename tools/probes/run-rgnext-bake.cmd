@@ -52,4 +52,9 @@ dir "%STAGE%"
 dir /s "%STAGE%" > "%ART%\stage-dir.txt"
 copy /Y "%STAGE%\*.json" "%ART%\" >nul
 copy /Y "%STAGE%\*.png" "%ART%\" >nul
+rem the per-state layouts live in the bake-<state> dirs (bake.mjs's own law) — the contract
+rem wants them beside the summary: copy them by name, best-effort.
+copy /Y "%STAGE%\bake-day\bake-layout.day.json" "%ART%\" >nul 2>nul
+copy /Y "%STAGE%\bake-dusk\bake-layout.dusk.json" "%ART%\" >nul 2>nul
+copy /Y "%STAGE%\bake-nightChandeliers\bake-layout.nightChandeliers.json" "%ART%\" >nul 2>nul
 exit /b %RC%
