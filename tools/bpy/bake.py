@@ -540,11 +540,15 @@ def build_room(room, stage, state):
     # bpy.data and (guard patch) skips the glb export + its ZIMNY_SUMMARY line.
     # The layout-identity law: a shelf-law builder writes its lm block to ZIMNY_LM_LAYOUT_OUT;
     # a stale file is removed first so only THIS exec's layout can satisfy the check below.
+    # The layout files live at the STAGE ROOT (one canonical place beside the summary and the
+    # sidecars — what the check's --layout paths and the wrapper's capture read); bake.mjs
+    # passes the per-state dir, so the root is its parent.
     bpy.ops.wm.read_factory_settings(use_empty=True)
     source_path = BPY_DIR / f'{room}.py'
     if not source_path.exists():
         fail(f'no committed builder at {source_path}')
-    layout_path = stage / f'bake-layout.{state}.json'
+    stage_root = stage.parent if stage.name.startswith('bake-') else stage
+    layout_path = stage_root / f'bake-layout.{state}.json'
     if layout_path.exists():
         layout_path.unlink()
     saved_argv = sys.argv

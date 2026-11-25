@@ -48,13 +48,10 @@ set RC=1
 rem the evidence capture, on success AND failure (bake8's gap): the stage listing into the
 rem log, every stage json (summary, bake-layout.*, bake-summary.*) and png (the composed and
 rem encoded plates) into the artifacts; EXR/float plates stay on the box and are listed.
+rem The layouts AND the sidecars live at the stage ROOT (bake.py's canonical place), so the
+rem plain *.json copy carries them all.
 dir "%STAGE%"
 dir /s "%STAGE%" > "%ART%\stage-dir.txt"
 copy /Y "%STAGE%\*.json" "%ART%\" >nul
 copy /Y "%STAGE%\*.png" "%ART%\" >nul
-rem the per-state layouts live in the bake-<state> dirs (bake.mjs's own law) — the contract
-rem wants them beside the summary: copy them by name, best-effort.
-copy /Y "%STAGE%\bake-day\bake-layout.day.json" "%ART%\" >nul 2>nul
-copy /Y "%STAGE%\bake-dusk\bake-layout.dusk.json" "%ART%\" >nul 2>nul
-copy /Y "%STAGE%\bake-nightChandeliers\bake-layout.nightChandeliers.json" "%ART%\" >nul 2>nul
 exit /b %RC%
