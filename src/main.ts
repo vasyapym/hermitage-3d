@@ -795,6 +795,13 @@ scene.add(sunRig);
 const hemi = new THREE.HemisphereLight(0xffffff, 0x000000, 1); // colours driven by the sample
 scene.add(hemi);
 
+// sq-arch-day: the DEV-only shadow diagnostics hook — the lane probes reach the light rig
+// through it (the toggle plate reads and writes sun.shadow.intensity, the receivers' state
+// and the renderer's shadow map flag). The production bundle never carries it.
+if (import.meta.env.DEV) {
+  (window as unknown as { __sqShadowDebug?: object }).__sqShadowDebug = { sun, hemi, renderer };
+}
+
 // Debug HUD — ?hud=1 shares the hash query with time/tier (parseHudParam never persists;
 // H toggles at runtime). Re-bound at most every 500 ms from the whole-frame aggregates.
 let hudOpen = false;
