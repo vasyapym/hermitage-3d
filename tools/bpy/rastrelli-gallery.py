@@ -219,12 +219,14 @@ NICHE_CENTRES = tuple(G_X1 - BAY_PITCH * (k - 0.5) for k in range(1, PILASTERS_P
 # door) ... k=11 x 8.4365, one bay pitch 3.387 apart. The pane tags pane01..pane11 keep
 # this k order (k=1 = the EAST-most bay).
 
-# ---- RG-F5: the dado datum + the framed panel order (the export-only applied families) ------
+# ---- RG-F5: the dado datum + the framed panel order (the applied families, both chains) ------
 # THE APPLIED FAMILIES (the DEC-050 reciprocal, as amended by the 2026-11-24 stock-take
-# bake artifact W2-W4): export-only geometry (the bake chain never builds them -
-# build_wall_families is export-only) that NOW PACKS ITS OWN ATLAS CELLS - the shelf
-# packer packs every family face onto its own rect, and the old adopted-TEXCOORD_1
-# machinery (the host wall face's map + the declared airlock host rows) is deleted. The
+# bake artifact W2-W4 and the rastrelli-next round-4 layout-identity law): geometry BOTH
+# chains build - build_wall_families runs in the export and the bake chain alike - so the
+# families pack their own atlas cells (the shelf packer packs every family face onto its
+# own rect; the old adopted-TEXCOORD_1 machinery - the host wall face's map + the declared
+# airlock host rows - is deleted) AND carry their own baked light (DIFFUSE direct + indirect
+# from the flat bake: real shading and contact shadows - the owner's word, 2026-11-25). The
 # articulation still reads through the albedo split (M_STUCCO fronts over the M_PALE
 # fields, the DEC-042 white-order step 0.88/0.86/0.82 vs 0.72/0.67/0.58 = a 22-41% albedo
 # step) + the silhouette/parallax + the deterministic fillet-shade device: M_SHADE = the
@@ -298,14 +300,14 @@ STAIRLIGHT_PAINT = {  # declared record (the machine source is bake.py PANE_PAIN
 # the skirting runs already stop at these literals in build_end_wall).
 JAMB_BAND_Z = (PORTAL_Z0 - DOOR_JAMB_W, PORTAL_Z1 + DOOR_JAMB_W)   # 71.95 / 74.05
 # ---- RG-F6 «the threshold» (DECISION-41, DEC-A as amended): the east airlock set -----------
-# THE DISPLACED-TWIN LAW (stated once, declaratively): the bake scene stays authoritative.
-# The export chain (`not BAKE`) alone displaces the 'doorcard' face to the box's far plane
-# (x = G_X1 + AIRLOCK_DEPTH) and dresses the 2.6 m-deep threshold box. THE STOCK-TAKE
-# AMENDMENT (the bake artifact W4): the box's five faces are no longer BORROWED light -
-# they pack their own atlas cells at the gallery floor's density (the declared host rows
-# and the adoption map are deleted), and the displaced card keeps its own cell exactly
-# (same (t, y) rectangle, same projected extents, same packed index). The box's interior
-# joins the export chain's analytic air set (air_contains).
+# THE DISPLACED-TWIN LAW (as amended by the rastrelli-next round-4 layout-identity law): BOTH
+# chains displace the 'doorcard' face to the box's far plane (x = G_X1 + AIRLOCK_DEPTH) and
+# dress the 2.6 m-deep threshold box - the bake scene and the export scene are one scene.
+# THE STOCK-TAKE AMENDMENT (the bake artifact W4): the box's five faces are no longer
+# BORROWED light - they pack their own atlas cells at the gallery floor's density (the
+# declared host rows and the adoption map are deleted) and bake their own, and the displaced
+# card keeps its own cell exactly (same (t, y) rectangle, same projected extents, same packed
+# index). The box's interior joins the analytic air set (air_contains) in both chains.
 AIRLOCK_DEPTH = 2.6                    # the box's depth: x G_X1 .. G_X1 + AIRLOCK_DEPTH
 AIRLOCK_THRESHOLD_W = 0.30             # the box-side threshold strip's width (x G_X1 ..+W)
 AIRLOCK_AO = 0.85                      # the airlock shade's albedo step (the creative's
@@ -511,8 +513,9 @@ def air_contains(p):
         return True
     # RG-F6: the export chain's air set gains the airlock box's interior - the box is open
     # room air through the doorway (the displaced card, the reveals, the soffit, the floor
-    # and the threshold face it). The bake chain's set stays the committed one.
-    if not BAKE and G_X1 < x < G_X1 + AIRLOCK_DEPTH and PORTAL_Z0 < z < PORTAL_Z1 \
+    # and the threshold face it) - in BOTH chains: the box is built in both (the
+    # layout-identity law), so its interior is air in both.
+    if G_X1 < x < G_X1 + AIRLOCK_DEPTH and PORTAL_Z0 < z < PORTAL_Z1 \
             and 0.0 < y < DOOR_BAND_Y[0]:
         return True
     for x0, x1, y0, y1, z0, z1 in NICHE_POCKETS:
@@ -1092,17 +1095,15 @@ def author_schedule():
         'stairlight': 1,
         'doorcard': 1,
     }
-    if not BAKE:
-        # RG-F5: the applied families' rows (export-only construction; the bake chain's
-        # scene is the committed one - its schedule stays byte-equal to the committed
-        # builder's). The stock-take W2-W4 change is the ATLAS law only: the families
-        # pack their own cells now - the face counts are untouched.
-        schedule['dado.panel'] = F5_PANELS * F5_PANEL_FACES
-        schedule['dado.rail'] = F5_RAIL_RUNS * 3 + F5_RAIL_CAPS
-        # RG-F6: the airlock set's rows - the same export-only law as the F5 rows
-        # (the counts match build_airlock_set's faces exactly).
-        for name in AIRLOCK_ELEMENTS:
-            schedule[name] = 1
+    # RG-F5: the applied families' rows - in BOTH chains (the layout-identity law: the bake
+    # chain builds the families now, and check_schedule runs in both). The face counts are
+    # untouched.
+    schedule['dado.panel'] = F5_PANELS * F5_PANEL_FACES
+    schedule['dado.rail'] = F5_RAIL_RUNS * 3 + F5_RAIL_CAPS
+    # RG-F6: the airlock set's rows - the same law as the F5 rows (the counts match
+    # build_airlock_set's faces exactly).
+    for name in AIRLOCK_ELEMENTS:
+        schedule[name] = 1
     return schedule
 
 
@@ -1597,15 +1598,17 @@ def build_doorcase(b):
     b.face([P(t, y, 0.0) for t, y in end_halfdisc(G_ZC, DOOR_BAND_Y[1], LUNETTE_R, LUNETTE_SEGS)],
            M_STAIR, 'stairlight', (-1.0, 0.0, 0.0), tag='stairlight')
     # the doorcard: the doorway's exact rectangle at proud 0 — tag 'doorcard'.
-    # RG-F6 THE DISPLACED TWIN: in the export chain the card builds on AIRLOCK_BACK (the
-    # box's far plane, x 46.6) at proud 0 - same normal, same tag, same M_STAIR slot, same
-    # (z, y) rectangle. The shelf pack reproduces the card's cell exactly: finish() packs
-    # every roster face on its own cell, keyed by the card's unchanged projected extents -
-    # for an x-normal face the projection reads (world y, -world z) only, so the packed
-    # (t, y) box, the cell size and the packed index are identical, and the lm.patches rect
-    # for the encode paint survives byte-for-byte. The
-    # bake chain keeps today's path: the card at the x = 44 wall plane, byte-identical.
-    card_plane = AIRLOCK_BACK if not BAKE else WALL_E
+    # RG-F6 THE DISPLACED TWIN: the card builds on AIRLOCK_BACK (the box's far plane,
+    # x 46.6) at proud 0 in BOTH chains - same normal, same tag, same M_STAIR slot, same
+    # (z, y) rectangle. The shelf pack reproduces the card's cell exactly: for an x-normal
+    # face the projection reads (world y, -world z) only, so the packed (t, y) box, the
+    # cell size and the packed index equal the committed card's, and the lm.patches rect
+    # for the encode paint survives byte-for-byte. The bake side (the layout-identity law):
+    # the box is built in the bake scene too, so the card stands on the plane the box
+    # closes against - at WALL_E it would seal the box into a lightless pocket and its five
+    # faces would bake black; at AIRLOCK_BACK the card's stage spill (the 'doorcard' row,
+    # resolved by element through LM_FACE_ELEMENTS, not by plane) is the box's light.
+    card_plane = AIRLOCK_BACK
     b.face([card_plane.world(t, y, 0.0) for t, y in rectangle(PORTAL_Z0, PORTAL_Z1, 0.0, DOOR_BAND_Y[0])],
            M_STAIR, 'doorcard', (-1.0, 0.0, 0.0), tag='doorcard')
 
@@ -1632,9 +1635,8 @@ def build_end_wall(b):
 
 
 def build_airlock_set(b):
-    """THE RG-F6 AIRLOCK SET (export chain only - the call site guards on BAKE, the F5
-    guard pattern): five family faces closing the 2.6 m threshold box against the
-    displaced doorcard (the stock-take W4: they pack their own atlas cells at the gallery
+    """THE RG-F6 AIRLOCK SET (built by BOTH chains - the layout-identity law): five family faces
+closing the 2.6 m threshold box against the displaced doorcard (the stock-take W4: they pack their own atlas cells at the gallery
     floor's density - no host adoption). The opening is RECTANGULAR (DEC-41 amendment 1):
     the soffit is a
     FLAT face at y = DOOR_BAND_Y[0] spanning the box - no arch sweep; the lunette
@@ -1860,6 +1862,20 @@ def lm_face_cell(extents, px, weight, floor):
     return (lm_cell_axis(du, px, weight, floor), lm_cell_axis(dv, px, weight, 0.0))
 
 
+def lm_layout_hash(block):
+    """The layout-identity law's one number: sha256 over the lm block's pack-defining fields
+    (pxPerM, stripRowPx, faces, cells in roster order), serialised canonically. The same
+    block in both chains hashes the same; any roster, size or placement change moves it.
+    Computed from the in-process ints in BOTH chains - the readers compare the stored string
+    and the fields, they never recompute it from a JSON round-trip."""
+    import hashlib as _hashlib
+    canon = json.dumps(
+        {'pxPerM': block['pxPerM'], 'stripRowPx': block['stripRowPx'],
+         'faces': block['faces'], 'cells': block['cells']},
+        sort_keys=True, separators=(',', ':'))
+    return _hashlib.sha256(canon.encode('utf-8')).hexdigest()
+
+
 def finish(name, builder, materials, mode='shelf'):
     """Two UV layers: 'uv' (albedo: box projection, or the tagged cylindrical arc mapping,
     always world metres / UV_TILE_M) and 'lm' (the atlas cells).
@@ -1926,7 +1942,10 @@ def finish(name, builder, materials, mode='shelf'):
                     big = max(fam[el], key=lambda wh: wh[0] * wh[1])
                     rows.append({'element': el, 'faces': cell[el], 'px2': area[el], 'biggest': big})
                 import json as _j
-                with open(COVERED_DUMP_PATH.rsplit('/', 1)[0] + '/rgf2-shelf-debug.json', 'w') as _fh:
+                # the dump dir is env-overridable (the layout-identity job sets it to a
+                # worktree-relative dir on the box; COVERED_DUMP_PATH is the Mac's debug path)
+                _dump_dir = os.environ.get('RGF2_DUMP_DIR') or COVERED_DUMP_PATH.rsplit('/', 1)[0]
+                with open(_dump_dir + '/rgf2-shelf-debug.json', 'w') as _fh:
                     _j.dump({'px': px, 'finder_row': first_row, 'rows': rows,
                              'cells': [[int(placed[idx][0]) if placed and idx in placed else None,
                                         tuple(cell_px[idx])] for idx in range(len(cell_px))]}, _fh, indent=1)
@@ -1986,6 +2005,12 @@ def finish(name, builder, materials, mode='shelf'):
              'element': _entry[3]}
             for idx, (_entry, _uv) in enumerate(faces_uv)
         ]
+        block['layoutHash'] = lm_layout_hash(block)
+        # the layout-identity law's witness: BOTH chains print it (the job greps four lines,
+        # one hash); the strip mode keeps no cells and prints nothing
+        print(f"RG_LM_LAYOUT faces={block['faces']} pxPerM={block['pxPerM']} "
+              f"stripRowPx={block['stripRowPx']} occupancy={block['occupancy']} "
+              f"minCellPx={block['minCellPx']} hash={block['layoutHash'][:16]}", flush=True)
     else:
         grid = LM_SCONCE_GRID
         cell_w = 1.0 / grid
@@ -2085,11 +2110,17 @@ def check_schedule(builder, schedule):
 
 
 # ---- RG-F5: the dado datum + the framed panel order (the accepted verdict reply-1 §2) --------
-# The exported-never-baked wall articulation. The families live in the SAME shell builder
-# (one mesh, the glTF exporter splits primitives per material slot - M_STUCCO faces join the
-# existing stucco primitive, M_SHADE opens the 7th) but ONLY in the export chain: the bake
-# chain (ZIMNY_BAKE=1) never builds them, so the committed bake's scene, roster and plates
-# are byte-identical BY CONSTRUCTION (the plates-identity bar).
+# The wall articulation, built AND baked. The families live in the SAME shell builder (one
+# mesh, the glTF exporter splits primitives per material slot - M_STUCCO faces join the
+# existing stucco primitive, M_SHADE opens the 7th) and in BOTH chains: the shelf pack is a
+# function of the whole roster, so the export and the bake chain feed it one roster.
+# THE LAYOUT-IDENTITY BAR (rastrelli-next round 4; it replaces the plates-identity bar, whose
+# premise - export-only families leave the bake's scene, roster and plates byte-identical -
+# ended with W2-W4): the export summary's lm (pxPerM, stripRowPx, faces, cells in roster
+# order; one sha256 = lm.layoutHash) equals every bake state's layout (ZIMNY_LM_LAYOUT_OUT),
+# asserted by bake.py before any bake op, by the dead-cell check before any sample, and
+# recorded in the manifest as provenance. Roster identity holds by construction: no BAKE
+# branch touches geometry, slots or the schedule - the chains differ only in what they WRITE.
 def _panel_t_dir(plane):
     """The plane's along-wall axis in world (t runs +x on the z-planes, +z on the x-planes)."""
     return (1.0, 0.0, 0.0) if plane.axis == 'z' else (0.0, 0.0, 1.0)
@@ -2243,7 +2274,7 @@ def build_endwall_families(b):
 
 
 def build_wall_families(b):
-    """The RG-F5 families, export chain ONLY (the call site guards on BAKE)."""
+    """The RG-F5 families, built by BOTH chains (the layout-identity law)."""
     n0 = len(b.roster)
     for plane in (WALL_S, WALL_N):
         build_gallery_dado(b, plane)
@@ -2338,14 +2369,12 @@ def build_room(b):
     build_vault_and_arches(b)
     build_floor(b)
     build_end_wall(b)
-    if not BAKE:
-        # RG-F5: the applied wall families exist ONLY in the export chain - the bake
-        # chain's scene stays the committed one by construction.
-        # RG-F6: the airlock set joins the same law - five family faces under the same
-        # guard, built straight after the end wall they dress. The stock-take W2-W4
-        # changes their ATLAS law (own cells, no host adoption), not this guard.
-        build_airlock_set(b)
-        build_wall_families(b)
+    # The layout-identity law (rastrelli-next round 4): the airlock set and the applied
+    # families pack their own cells (W2-W4), and the pack is a function of the whole
+    # roster, so both chains build them. RG-F5/F6's export-only guard is retired - its
+    # premise ended with the borrowed class.
+    build_airlock_set(b)
+    build_wall_families(b)
 
 
 COVERED_DUMP_PATH = '/private/var/folders/8x/yls1cw1d6s3fmbrxhqg0y17w0000gp/T/opencode/rg-verify/rgf2-covered-debug.json'
@@ -2724,16 +2753,27 @@ def main():
     mat_pane = flat_material('pane', (1.0, 1.0, 1.0), 1.0)   # (RG-F3) flat white, roughness 1.0
     mat_iron = flat_material('iron_dark', IRON_RGB, IRON_ROUGHNESS)
     mat_glow = flat_material('sconce_glow', GLOW_TINT_RGB, 0.92, emission=SCONCE_GLOW_RGB)
-    # RG-F5: the fillet-shade device (flat, no texture row) - exported only.
+    # RG-F5: the fillet-shade device (flat, no texture row). The layout-identity law: the
+    # 7th and 8th slots exist in BOTH chains - the family faces carry these slot indices,
+    # and a bake face whose slot holds no material carries no target node and inks nothing.
     mat_shade = flat_material('stucco_shade', M_STUCCO_SHADE_RGB, 0.92)
     shell_slots = [mat_pale, mat_stone, mat_stucco, mat_band, mat_stair, mat_pane]
-    if not BAKE:
-        shell_slots.append(mat_shade)
-        # RG-F6: the airlock shade (the 8th shell slot; the box's reveal/soffit faces ride
-        # it) - the same exported-only law as M_SHADE.
-        shell_slots.append(flat_material('stucco_shade_airlock', M_STUCCO_SHADE_AIRLOCK_RGB, 0.92))
+    shell_slots.append(mat_shade)
+    # RG-F6: the airlock shade (the 8th shell slot; the box's reveal/soffit faces ride it).
+    shell_slots.append(flat_material('stucco_shade_airlock', M_STUCCO_SHADE_AIRLOCK_RGB, 0.92))
     me_shell, t_shell, lm_shell = finish(
         'shell', b, shell_slots, mode='shelf')
+
+    if BAKE:
+        # the layout-identity law: the bake chain writes the lm block it packed to the path
+        # bake.py names (I/O only). The object is the one the export summary carries as
+        # `lm`, so one reader serves both; the sconce's strip is not the layout.
+        layout_out = os.environ.get('ZIMNY_LM_LAYOUT_OUT')
+        if not layout_out:
+            fail('ZIMNY_BAKE=1 needs ZIMNY_LM_LAYOUT_OUT (the layout-identity law)')
+        with open(layout_out, 'w', encoding='utf-8') as fh:
+            json.dump({'lm': lm_shell}, fh, indent=1, sort_keys=True)
+            fh.write('\n')
     if BAKE:
         # BATCH B's S2A wiring (the junction law): bake.py reads the shell's face→element
         # map straight from this exec namespace — the roster order IS the mesh polygon

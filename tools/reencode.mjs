@@ -386,6 +386,12 @@ function reencodeChart(room, state, chart, whitePoint, manifest, work, transfer)
   // `--python-exit-code 1` (read AFTER -P, BEFORE the script) propagates ordinary
   // Python exceptions' exit codes, so an unreadable png / invalid summary JSON aborts.
   if (room === 'rastrelli-gallery' && state === 'day' && chart === 'arch') {
+    // The layout-identity law (rastrelli-next round 4): every bake state's layout is proven
+    // equal to the stage summary's lm before a single sample is read (fail-closed under
+    // --required: a missing layout file loses the job, never passes a plate).
+    const layouts = ['day', 'dusk', 'nightChandeliers'].flatMap((s) => [
+      '--layout', join(STAGE_ROOT, room, `bake-layout.${s}.json`),
+    ]);
     run(BLENDER, [
       '-b',
       '--factory-startup',
@@ -398,6 +404,7 @@ function reencodeChart(room, state, chart, whitePoint, manifest, work, transfer)
       'check',
       png,
       join(STAGE_ROOT, room, 'summary.json'),
+      ...layouts,
       '--required',
     ]);
   }

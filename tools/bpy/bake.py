@@ -301,6 +301,12 @@ RIG_STATE_SCALE = {'jordan': {'day': 0.0, 'dusk': 0.1, 'nightChandeliers': 1.0}}
 # committed deterministic-first-object selection; jordan's 'centroid' picks the instance
 # nearest the roster's centroid.
 BAKE_TEMPLATE_INSTANCE = {'jordan': 'centroid'}
+# The layout-identity law (rastrelli-next round 4): the shelf-law rooms whose builder writes
+# its lm block to ZIMNY_LM_LAYOUT_OUT under ZIMNY_BAKE=1; bake.py asserts that layout equal
+# to the export stage's summary.lm before any bake op and records its hash in the state's
+# sidecar. Every other room is untouched by the law (cross-room byte-safety: no file is
+# required of their builders, no new summary row lands in their printed summaries).
+LM_LAYOUT_LAW_ROOMS = ('rastrelli-gallery',)
 
 # ---- RG-AUDIT «THE JUNCTION LAW» (batch B): the S2A (Selected-to-Active) pass table ---------
 # The accepted verdict + the S0 amendments' design contract, wired for rastrelli-gallery.
@@ -529,28 +535,67 @@ def parse_args():
     return args.room, state, Path(out).resolve(), args.preview, args
 
 
-def build_room(room, stage):
+def build_room(room, stage, state):
     # Factory-empty scene, then exec the committed builder with ZIMNY_BAKE=1 so it populates
     # bpy.data and (guard patch) skips the glb export + its ZIMNY_SUMMARY line.
+    # The layout-identity law: a shelf-law builder writes its lm block to ZIMNY_LM_LAYOUT_OUT;
+    # a stale file is removed first so only THIS exec's layout can satisfy the check below.
     bpy.ops.wm.read_factory_settings(use_empty=True)
     source_path = BPY_DIR / f'{room}.py'
     if not source_path.exists():
         fail(f'no committed builder at {source_path}')
+    layout_path = stage / f'bake-layout.{state}.json'
+    if layout_path.exists():
+        layout_path.unlink()
     saved_argv = sys.argv
     # The builders parse their own argv; hand them exactly their grammar (no --state).
     sys.argv = [sys.argv[0], '--', '--room', room, '--out', str(stage)]
     os.environ['ZIMNY_BAKE'] = '1'
+    os.environ['ZIMNY_LM_LAYOUT_OUT'] = str(layout_path)
     namespace = {'__name__': '__main__', '__file__': str(source_path)}
     try:
         code = compile(source_path.read_text(encoding='utf-8'), str(source_path), 'exec')
         exec(code, namespace)
     finally:
         sys.argv = saved_argv
+    if room in LM_LAYOUT_LAW_ROOMS and not layout_path.exists():
+        fail(f'the {room} builder wrote no layout at {layout_path} — the layout-identity law')
     scene = bpy.context.scene
     meshes = [obj for obj in scene.objects if obj.type == 'MESH' and not obj.hide_render]
     if not meshes:
         fail(f'the {room} builder produced no renderable mesh objects')
     return namespace, scene, meshes
+
+
+def assert_layout_identity(summary_path, layout_path, state):
+    """The layout-identity bar (rastrelli-next round 4): the export stage's summary.lm and
+    the layout this exec just wrote agree on pxPerM, stripRowPx, faces, layoutHash and
+    every cell in roster order - or the bake refuses to run, naming the first divergent
+    roster index. Seconds, not a bake. The stored hashes are compared as strings (never
+    recomputed from the JSON round-trip). Returns the bake lm block for the sidecar."""
+    if not summary_path.exists():
+        fail(f'layout identity: {summary_path} missing — run the export stage (asset.mjs bpy) '
+             'at this commit first')
+    export = json.loads(summary_path.read_text(encoding='utf-8')).get('lm') or {}
+    bake = json.loads(layout_path.read_text(encoding='utf-8')).get('lm') or {}
+    if not bake.get('layoutHash'):
+        fail(f'layout identity: {layout_path} carries no layoutHash — the builder predates the law')
+    keys = ('pxPerM', 'stripRowPx', 'faces', 'layoutHash')
+    e_cells = export.get('cells') or []
+    b_cells = bake.get('cells') or []
+    same = all(export.get(k) == bake.get(k) for k in keys) and e_cells == b_cells
+    if not same:
+        index = next((i for i, (a, b) in enumerate(zip(e_cells, b_cells)) if a != b),
+                     min(len(e_cells), len(b_cells)))
+        e_cell = e_cells[index] if index < len(e_cells) else None
+        b_cell = b_cells[index] if index < len(b_cells) else None
+        fail(f"layout identity: export faces {export.get('faces')} pxPerM {export.get('pxPerM')} "
+             f"hash {export.get('layoutHash')} vs bake {bake.get('faces')}/{bake.get('pxPerM')}/"
+             f"{bake.get('layoutHash')}; first divergence at roster index {index}: "
+             f'{e_cell} vs {b_cell}')
+    print(f"ZIMNY_LAYOUT_IDENTITY ok state={state} faces={bake['faces']} pxPerM={bake['pxPerM']} "
+          f"hash={bake['layoutHash'][:16]}", flush=True)
+    return bake
 
 
 def builder_constant(namespace, name, required=True):
@@ -1749,7 +1794,7 @@ def print_summary(summary):
 def main():
     room, state, stage, preview, opts = parse_args()
     stage.mkdir(parents=True, exist_ok=True)
-    namespace, scene, meshes = build_room(room, stage)
+    namespace, scene, meshes = build_room(room, stage, state)
     charts = chart_contract(namespace)
     # The denoiser decision knob (DENOISE_ENV): absent = the committed OIDN path, byte-identical;
     # 'off' = a decision re-run encodes from the RAW plates (the verdict's decision tree).
@@ -1807,6 +1852,7 @@ def main():
     chart_rows = []
     arch_row = None
     files = []
+    lm_layout = None  # the layout-identity law: the bake lm block, set per shelf-law room
     # The emitter look law (see emissive_objects): the emitters stay untouched in the
     # scene and out of every chart's target set; per-room gate: EMITTER_EXCLUSION.
     exclude_emitters = EMITTER_EXCLUSION.get(room, False)
@@ -1839,7 +1885,15 @@ def main():
             fail(f"chart {spec['name']!r} of {room} selected no objects")
         chart_mats = ensure_materials(objects)
         bake_mats = duplicate_chart_materials(objects) if spec['objectPrefixes'] else chart_mats
+        # 4.3 the observable: ensure_materials already returns every slotted material of
+        # every chart object (the union is a no-op); the print is what the job greps.
+        print('ZIMNY_BAKE_MATERIALS n=' + str(len(bake_mats)) + ' names=' +
+              json.dumps(sorted(mat.name for mat in bake_mats)), flush=True)
         targets, reps = bake_targets(objects, room)
+        if room in LM_LAYOUT_LAW_ROOMS:
+            # the layout-identity law: refuse to bake against a stale or divergent export
+            lm_layout = assert_layout_identity(
+                stage / 'summary.json', stage / f'bake-layout.{state}.json', state)
         if opts.dump_layout and lm_grid:
             dump_layout(lm_dir / 'layout.json', targets, lm_grid)
         collapsed = (collapse_frame_backfaces(objects, namespace['_LAYOUT']['frames'])
@@ -1977,7 +2031,20 @@ def main():
         summary['s2a'] = {'maxRayDistanceM': S2A_MAX_RAY_DISTANCE,
                           'passes': s2a_rows,
                           'writeOrder': S2A_WRITE_ORDER}
+    # The layout-identity law's provenance row: lands ONLY for the shelf-law rooms (the
+    # standing emit-gated pattern; every sibling's printed summary stays byte-stable).
+    if lm_layout is not None:
+        summary['lmLayout'] = {'layoutHash': lm_layout['layoutHash'],
+                               'pxPerM': lm_layout['pxPerM'],
+                               'faces': lm_layout['faces'],
+                               'stripRowPx': lm_layout['stripRowPx'],
+                               'state': state}
     print_summary(summary)
+    # The state's sidecar (new; the summary was print-only): the same dict, for the manifest
+    # step's identity assertion and the job's evidence capture.
+    sidecar = stage / f'bake-summary.{state}.json'
+    sidecar.write_text(json.dumps(summary, indent=1, sort_keys=True) + '\n', encoding='utf-8')
+    print(f'ZIMNY_BAKE_SIDECAR {sidecar}', flush=True)
 
 
 def run():

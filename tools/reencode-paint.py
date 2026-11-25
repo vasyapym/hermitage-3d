@@ -35,6 +35,7 @@
 # smooth cos² window — 1 at the rect's centre texel, 0 at its rim (the machine below).
 import json
 import math
+import os
 import sys
 
 import bpy
@@ -104,6 +105,28 @@ def paint(src_path, out_path, payload_path):
     print('reencode_paint: wrote ' + str(out_path))
 
 
+def layout_divergence(export_lm, bake_lm):
+    """The layout-identity comparison (the law bake.py asserts; a local copy - the two
+    tools do not import each other): None when the bake layout equals the export
+    summary's lm on pxPerM, stripRowPx, faces, layoutHash and every cell in roster
+    order, else the message naming the first divergent roster index. Stored hashes
+    compare as strings."""
+    keys = ('pxPerM', 'stripRowPx', 'faces', 'layoutHash')
+    e_cells = export_lm.get('cells') if isinstance(export_lm.get('cells'), list) else []
+    b_cells = bake_lm.get('cells') if isinstance(bake_lm.get('cells'), list) else []
+    if bake_lm.get('layoutHash') and all(export_lm.get(k) == bake_lm.get(k) for k in keys) \
+            and e_cells == b_cells:
+        return None
+    index = next((i for i, (a, b) in enumerate(zip(e_cells, b_cells)) if a != b),
+                 min(len(e_cells), len(b_cells)))
+    e_cell = e_cells[index] if index < len(e_cells) else None
+    b_cell = b_cells[index] if index < len(b_cells) else None
+    return (f"export faces {export_lm.get('faces')} pxPerM {export_lm.get('pxPerM')} hash "
+            f"{export_lm.get('layoutHash')} vs bake {bake_lm.get('faces')}/"
+            f"{bake_lm.get('pxPerM')}/{bake_lm.get('layoutHash')}; first divergence at roster "
+            f'index {index}: {e_cell} vs {b_cell}')
+
+
 def check(argv):
     """The DEAD_CELL gate (verdict 2.4): every OWNED atlas cell of the encoded PNG must
     read lit against the rest of the atlas. Cells = the bpy stage summary's lm.cells
@@ -122,6 +145,7 @@ def check(argv):
     no randomness, no clock."""
     max_pct = 0.5
     required = False
+    layouts = []
     positional = []
     rest = list(argv)
     while rest:
@@ -132,14 +156,28 @@ def check(argv):
             max_pct = float(rest.pop(0))
         elif token.startswith('--max='):
             max_pct = float(token.split('=', 1)[1])
+        elif token == '--layout':
+            if not rest:
+                raise SystemExit('check: --layout needs a path')
+            layouts.append(rest.pop(0))
+        elif token.startswith('--layout='):
+            layouts.append(token.split('=', 1)[1])
         elif token == '--required':
             required = True
         else:
             positional.append(token)
     if len(positional) != 2:
-        raise SystemExit('usage: ... -- check <png> <summary.json> [--max <pct>] [--required]')
+        raise SystemExit(
+            'usage: ... -- check <png> <summary.json> [--max <pct>] '
+            '[--layout <bake-layout.<state>.json>]... [--required]'
+        )
     if max_pct < 0.0:
         raise SystemExit('check: --max must be >= 0')
+    if required and not layouts:
+        raise SystemExit(
+            'check: required layout-identity gate: no --layout given — pass every bake '
+            "state's bake-layout.<state>.json"
+        )
     png_path, summary_path = positional
     with open(summary_path, 'r', encoding='utf-8') as handle:
         lm = json.load(handle).get('lm') or {}
@@ -170,6 +208,24 @@ def check(argv):
             f'stripRowPx (got {strip_row!r}) — regenerate the bpy stage'
         )
     strip_px = int(strip_row or 0)
+    # The layout-identity gate (rastrelli-next round 4): every bake state's layout is proven
+    # equal to this summary's lm BEFORE a single sample is read - the compose mixes three
+    # states' plates, and a plate baked on another layout is not this atlas.
+    for layout_path in layouts:
+        try:
+            with open(layout_path, 'r', encoding='utf-8') as handle:
+                bake_lm = json.load(handle).get('lm') or {}
+        except (OSError, ValueError) as exc:
+            raise SystemExit(f'check: layout identity: cannot read {layout_path}: {exc}')
+        divergence = layout_divergence(lm, bake_lm)
+        if divergence is not None:
+            raise SystemExit(
+                f'check: layout identity: {os.path.basename(layout_path)}: {divergence}'
+            )
+        print(
+            f'check: layout identity ok {os.path.basename(layout_path)} '
+            f"faces={bake_lm['faces']} hash={bake_lm['layoutHash'][:16]}"
+        )
     img = bpy.data.images.load(png_path, check_existing=False)
     # The gate reads the PNG's STORED 8-bit codes ((r+g+b)/3 as encoded): the load must
     # not colourspace-transform them (Blender tags plain PNGs sRGB by default).
@@ -199,7 +255,8 @@ def check(argv):
     threshold = (max_pct / 100.0) * atlas_p99
     dead = []
     owned = 0
-    for row in cells:
+    excluded = 0
+    for index, row in enumerate(cells):
         if not isinstance(row, dict) or not isinstance(row.get('rect'), list) or len(row['rect']) != 4:
             raise SystemExit(
                 f'check: malformed cell ownership record {row!r} '
@@ -213,6 +270,7 @@ def check(argv):
                 f'check: cell rect {rect!r} is outside the {width}x{height} atlas'
             )
         if y + h <= strip_px:
+            excluded += 1
             continue  # its whole y-range lies in the reserved strip
         owned += 1
         r0 = height - (y + h)
@@ -227,7 +285,7 @@ def check(argv):
                 'bake/encode plate, not a cell'
             )
         if mean < threshold:
-            dead.append([element, [x, y, w, h], mean, threshold])
+            dead.append([index, element, [x, y, w, h], mean, threshold])
     if required and owned == 0:
         raise SystemExit(
             'check: required dead-cell gate: zero owned cells remain after the '
@@ -235,17 +293,21 @@ def check(argv):
             'regenerate the bpy stage'
         )
     if dead:
-        for element, rect, mean, cell_threshold in dead:
+        for index, element, rect, mean, cell_threshold in dead:
             print(
                 'reencode_paint: dead cell '
                 + json.dumps(
-                    [element, rect, round(mean, 6), round(cell_threshold, 6)]
+                    [index, element, rect, round(mean, 6), round(cell_threshold, 6)]
                 )
             )
         raise SystemExit(
             f'reencode_paint: {len(dead)} of {owned} owned cells read below '
             f'{max_pct:g}% of the atlas P99'
         )
+    print(
+        f'reencode_paint: check ok — 0 of {owned} owned cells below {max_pct:g}% of P99 '
+        f'{atlas_p99:.4f} (threshold {threshold:.6f}); {excluded} strip cells excluded'
+    )
     print(
         f'reencode_paint: postEncode atlasP99={atlas_p99:.6f} threshold={threshold:.6f} '
         f'cells={len(cells)} owned={owned} dead=0'

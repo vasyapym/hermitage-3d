@@ -276,8 +276,10 @@ export function buildManifest(room, roomDir, tc) {
   return { id: room.id, files, geometry, lightmaps: room.lightmaps, budget: b, toolchain };
 }
 
-export function writeManifest(room, roomDir, tc) {
-  const manifest = buildManifest(room, roomDir, tc);
+export function writeManifest(room, roomDir, tc, extra = {}) {
+  // `extra`: provenance rows the chain proves before the write (the layout-identity law's
+  // lm.layoutHash); the budget sums in buildManifest exclude the manifest's bytes as before.
+  const manifest = { ...buildManifest(room, roomDir, tc), ...extra };
   writeFileSync(join(roomDir, 'manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`);
   return manifest;
 }

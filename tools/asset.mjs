@@ -96,10 +96,30 @@ async function stepGltf(tc) {
   await mod.optimise({ roomId, stage: paths.stage, out: paths.out, toolchain: tc });
 }
 
+// The layout-identity law (rastrelli-next round 4, design 6.4): the shelf-law room's bake
+// states. The gate is the stage summary's lm.layoutHash row — absent for every other room,
+// whose manifests stay byte-stable.
+const LM_LAYOUT_STATES = ['day', 'dusk', 'nightChandeliers'];
+function lmLayoutProvenance() {
+  const summaryPath = join(paths.stage, 'summary.json');
+  if (!existsSync(summaryPath)) return null;
+  const lm = JSON.parse(readFileSync(summaryPath, 'utf8')).lm ?? {};
+  if (typeof lm.layoutHash !== 'string' || lm.layoutHash === '') return null;
+  for (const state of LM_LAYOUT_STATES) {
+    const sidecar = join(paths.stage, `bake-summary.${state}.json`);
+    if (!existsSync(sidecar)) fail(`manifest: layout identity: ${sidecar} missing — run the ${state} bake at this commit`);
+    const row = JSON.parse(readFileSync(sidecar, 'utf8')).lmLayout ?? {};
+    if (row.layoutHash !== lm.layoutHash) fail(`manifest: layout identity: export hash ${lm.layoutHash} vs ${state} bake ${row.layoutHash}`);
+  }
+  console.log(`manifest: layout identity ok ${LM_LAYOUT_STATES.length} state(s) hash=${lm.layoutHash.slice(0, 16)}`);
+  return { layoutHash: lm.layoutHash };
+}
+
 async function stepManifest(tc) {
   const mod = await loadRoom();
   if (!existsSync(paths.out)) fail(`${paths.out} missing — run pnpm asset:gltf ${roomId} first`);
-  const m = writeManifest(mod.ROOM, paths.out, tc);
+  const lm = lmLayoutProvenance();
+  const m = writeManifest(mod.ROOM, paths.out, tc, lm ? { lm } : {});
   const bytes = m.files.reduce((t, f) => t + f.bytes, 0);
   console.log(
     `manifest: ${roomId} ${m.files.length} file(s) ${bytes} B, ${m.geometry.trianglesDrawn} tris drawn (${m.geometry.trianglesUnique} unique)`,
