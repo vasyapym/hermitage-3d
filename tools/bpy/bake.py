@@ -580,6 +580,9 @@ def assert_layout_identity(summary_path, layout_path, state):
     if not summary_path.exists():
         fail(f'layout identity: {summary_path} missing — run the export stage (asset.mjs bpy) '
              'at this commit first')
+    if not layout_path.exists():
+        fail(f'layout identity: {layout_path} missing — the builder wrote no layout '
+             '(the layout-identity law)')
     export = json.loads(summary_path.read_text(encoding='utf-8')).get('lm') or {}
     bake = json.loads(layout_path.read_text(encoding='utf-8')).get('lm') or {}
     if not bake.get('layoutHash'):
@@ -1900,8 +1903,9 @@ def main():
         targets, reps = bake_targets(objects, room)
         if room in LM_LAYOUT_LAW_ROOMS:
             # the layout-identity law: refuse to bake against a stale or divergent export
+            # (the summary AND the layout both live at the stage root — one canonical place)
             lm_layout = assert_layout_identity(
-                stage_root / 'summary.json', stage / f'bake-layout.{state}.json', state)
+                stage_root / 'summary.json', stage_root / f'bake-layout.{state}.json', state)
         if opts.dump_layout and lm_grid:
             dump_layout(lm_dir / 'layout.json', targets, lm_grid)
         collapsed = (collapse_frame_backfaces(objects, namespace['_LAYOUT']['frames'])
