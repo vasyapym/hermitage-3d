@@ -25,7 +25,7 @@ const DIST = process.env.SQ_DIST ? resolve(process.env.SQ_DIST) : join(ROOT, 'di
 const BASE = process.env.SHOT_BASE ?? '';
 const OUT = join(ROOT, 'probes', 'sq-shadow-toggle');
 const VIEWPORT = { width: 1280, height: 720 };
-const QUERY = '#/?at=2026-06-21T12:00:00Z&det=1&stop=S0&hud=1';
+const QUERY = '#/?at=2026-06-21T12:00:00Z&det=1&stop=S0&hud=1&sqdebug=1';
 
 const fail = (message) => {
   console.error(message);

@@ -795,10 +795,11 @@ scene.add(sunRig);
 const hemi = new THREE.HemisphereLight(0xffffff, 0x000000, 1); // colours driven by the sample
 scene.add(hemi);
 
-// sq-arch-day: the DEV-only shadow diagnostics hook — the lane probes reach the light rig
-// through it (the toggle plate reads and writes sun.shadow.intensity, the receivers' state
-// and the renderer's shadow map flag). The production bundle never carries it.
-if (import.meta.env.DEV) {
+// sq-arch-day: the URL-gated shadow diagnostics hook — __sqShadowDebug registers only with
+// `sqdebug=1` in the hash query (the parseHudParam read class): the bundle carries it inert
+// and the lane probes reach the light rig through it. A build-mode gate (import.meta.env.DEV)
+// did not survive rolldown-vite's build-time define — the URL gate is deterministic.
+if (new URLSearchParams(location.hash.split('?')[1] ?? '').get('sqdebug') === '1') {
   (window as unknown as { __sqShadowDebug?: object }).__sqShadowDebug = { sun, hemi, renderer };
 }
 
