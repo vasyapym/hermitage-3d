@@ -5,7 +5,7 @@ rem step shell. The box paths are the agent2 layout (toolchain.json pins; see th
 rem FAIL-FAST: every chain step guards with || exit /b 1 — one RED step ends the session
 rem non-zero so the runner's tally sees the failure (the bake4 lesson: the env lost between
 rem step shells and a killed bpy tree let the tail steps run on stale state).
-cd /d C:\Users\v.argunov\Desktop\agent2\hermitage-3d-rgnext3
+cd /d %1
 set ZIMNY_BLENDER=C:\Users\v.argunov\Desktop\agent2\blender-4.2.23-windows-x64\blender.exe
 set PATH=%PATH%;C:\Users\v.argunov\Desktop\agent2\ktx-4.4.2\bin
 node tools\asset.mjs bpy rastrelli-gallery || exit /b 1
