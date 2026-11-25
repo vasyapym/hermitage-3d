@@ -402,6 +402,36 @@ S2A_TARGETS = (  # the fixed pass order (the S0 probe's S2A_TARGETS declaration 
 #       vault.gallery 23 (the bay spring-edge pairs at the roster's stride-8 seats,
 #         3744..3825, + the corner face 3832; the SAME 23 faces offend in both states),
 #       impost 1 (3715, dusk-only; the day impost wrote clean).
+#     THE STOCK-TAKE RE-DERIVATION (the 2026-11-24 raised roster, probes/s2a-rederive.py +
+#     probes/s2a-match.py): the geometry transaction re-rowed the arcs (G_ARC_SEGS 8 -> 16,
+#     ARCH_SEGS 8 -> 16, NICHE_HEAD_SEGS 8 -> 16, LUNETTE_SEGS 8 -> 24) and re-partitioned
+#     the walls (wall.field 1640 -> 2892, wall.e 119 -> 181, niche 858 -> 1386, arch
+#     110 -> 198, doorcase 16 -> 32), so every pinned index shifted by the inserted faces'
+#     counts BEFORE it in the roster. THE IDENTITY LAWS, per part:
+#       cornice / impost (+0 faces, unchanged geometry): the SAME PHYSICAL FACES proved by
+#         EXACT welded-corner-key identity (28/28 and 1/1) — the runs only shift:
+#         runs (844..930, 2655..2741, 4504..4531) -> (1470..1556, 4171..4257, 6530..6557),
+#         impost 3711..3728 -> 5491..5508.
+#       vault.gallery (96 -> 192, 12 bays x 8 -> x 16 rows): the pins are the BAY
+#         SPRING-EDGE QUADS AT THE ARCH FEET — each interior arch's (bay b last quad,
+#         bay b+1 first quad) pair + the east end's last quad — and the plan slots are
+#         stable: the within-run positions move 7+8b / 8+8b -> 15+16b / 16+16b, the run
+#         start 3737 -> 5517 (+1780, the preceding parts' insertions). PHYSICAL IDENTITY
+#         VERIFIED 23/23: every mapped pair shares exactly its two SPRING-EDGE corner keys
+#         (the arc's end nodes — unchanged by the raise), while the chord corners moved
+#         outward (|z| 75.772 -> 75.942, y 3.2296 -> 3.1171 at the first chord) — the
+#         raised-arc law itself. The pairs stay consecutive at their new seats.
+#     OLD -> NEW (the same 52 physical faces):
+#       cornice:  850->1476 858->1484 865->1491 872->1498 879->1505 886->1512
+#                 893->1519 900->1526 907->1533 914->1540 921->1547 929->1555 930->1556
+#                 2655->4171 2661->4177 2669->4185 2676->4192 2683->4199 2690->4206
+#                 2697->4213 2704->4220 2711->4227 2718->4234 2725->4241 2732->4248
+#                 2740->4256 2741->4257  4509->6535
+#       vault.gallery: 3744->5532 3745->5533 3752->5548 3753->5549 3760->5564 3761->5565
+#                 3768->5580 3769->5581 3776->5596 3777->5597 3784->5612 3785->5613
+#                 3792->5628 3793->5629 3800->5644 3801->5645 3808->5660 3809->5661
+#                 3816->5676 3817->5677 3824->5692 3825->5693 3832->5708
+#       impost:   3715->5495
 #     The census's NON-target offenders (pilaster 12 faces / 176 texels, wall.field
 #     15 × 1, wall.e 1 × 1, passage.field) are the FLAT BASE'S OWN dark-crease class:
 #     they sit on faces no S2A pass ever writes (they show black in the RAW pre-denoise
@@ -414,13 +444,13 @@ S2A_TARGETS = (  # the fixed pass order (the S0 probe's S2A_TARGETS declaration 
 #     seam class collapsed to the flat base's own order; the exact before/after numbers
 #     ride the round record.
 S2A_SEAM_FACES = {
-    'cornice': (850, 858, 865, 872, 879, 886, 893, 900, 907, 914, 921, 929, 930,
-                2655, 2661, 2669, 2676, 2683, 2690, 2697, 2704, 2711, 2718, 2725,
-                2732, 2740, 2741, 4509),
-    'vault.gallery': (3744, 3745, 3752, 3753, 3760, 3761, 3768, 3769, 3776, 3777,
-                      3784, 3785, 3792, 3793, 3800, 3801, 3808, 3809, 3816, 3817,
-                      3824, 3825, 3832),
-    'impost': (3715,),
+    'cornice': (1476, 1484, 1491, 1498, 1505, 1512, 1519, 1526, 1533, 1540, 1547, 1555, 1556,
+                4171, 4177, 4185, 4192, 4199, 4206, 4213, 4220, 4227, 4234, 4241,
+                4248, 4256, 4257, 6535),
+    'vault.gallery': (5532, 5533, 5548, 5549, 5564, 5565, 5580, 5581, 5596, 5597,
+                      5612, 5613, 5628, 5629, 5644, 5645, 5660, 5661, 5676, 5677,
+                      5692, 5693, 5708),
+    'impost': (5495,),
 }
 # The denoiser decision knob (the verdict's decision tree; a DECISION-RUN override, never a
 # DEC-044 dial): bake day/dusk WITH the committed compositor OIDN first, run the B4 junction
