@@ -127,7 +127,7 @@ import {
   setThroatNightSpill,
   setThroatOpacity,
 } from './procedural/throat';
-import { type SkySample, sampleSky } from './sky/appearance';
+import { lowSunMix, type SkySample, SUN_LOW_RGB, sampleSky } from './sky/appearance';
 import type { ArrivalState } from './sky/arrival';
 import { advanceArrival, initialArrival, presentationForArrival } from './sky/arrival';
 import { fillGroundColor, fillIntensity, fillSkyColor, groundHalfAlbedo } from './sky/fill';
@@ -784,6 +784,11 @@ const sun = new THREE.DirectionalLight(0xffffff, 0); // intensity driven by the 
 // The review's P1 (the night identity): the warm tint rode E=0 too — applyEpoch lerps the
 // white legacy sun toward this colour by the same E(h) the intensity rides, per frame.
 const SUN_WARM = new THREE.Color().setRGB(...SUN_COLOR);
+// sq-fix-improve R2 (the low-sun warm key — creative's DEC-056 proposal): the sun's gold below
+// the ramp. The pure law lives in src/sky/appearance.ts (SUN_LOW_RGB, lowSunMix); the scratch
+// colour keeps applyEpoch allocation-free (setRGB + copy + lerp mutate in place).
+const SUN_LOW = new THREE.Color(...SUN_LOW_RGB);
+const sunWarmScratch = new THREE.Color();
 sun.castShadow = true;
 sun.shadow.mapSize.set(1024, 1024); // T1 default until quality tiers land
 sun.shadow.camera.left = SUN_SHADOW_FIT.left;
@@ -900,7 +905,13 @@ const applyEpoch = (nextEpochMs: number): void => {
   // sq-arch-day B1b + the review's P1: the warm sun is a DAY state — at day = 0 the light
   // is the pre-round white bit for bit (the colour rides the same E(h) as the intensity;
   // setRGB + lerp mutate in place, no per-frame allocation).
-  sun.color.setRGB(1, 1, 1).lerp(SUN_WARM, day);
+  // sq-fix-improve R2 (the low-sun warm key — creative's DEC-056 proposal): the warm endpoint
+  // keys on elevation — sunWarmScratch is SUN_WARM lerped toward SUN_LOW by 1 − lowSunMix(h),
+  // so at h ≥ 25° the scratch is SUN_WARM exactly (spring/summer bit-identical) and at dec's
+  // 6.6° the sun golds against the blue-grey snow, making the shadows legible by hue. The
+  // dusk/night endpoint, sun.intensity and sun.shadow.intensity rows are untouched (§8).
+  sunWarmScratch.copy(SUN_WARM).lerp(SUN_LOW, 1 - lowSunMix(elevationDegOf(sample)));
+  sun.color.setRGB(1, 1, 1).lerp(sunWarmScratch, day);
   // sq-arch-day B1a(2): the castShadow toggle retired — the shadow's strength rides E(h)
   // (LightShadow.intensity; castShadow stays true, no per-crossing program recompiles).
   // sq-shadow-dirt R4 (F10's rationale correction): shadows are binary — the low sun's

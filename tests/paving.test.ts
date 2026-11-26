@@ -22,8 +22,9 @@ import {
 describe('1 · the declared constants', () => {
   it('sources the square from wiki-ru and derives the cell-mean-exact body tone', () => {
     expect(PAVING_SOURCE).toBe('wiki-ru');
-    // sq-arch-day B3: the slot bumps to @2 for the distance fade (the emitted body changed).
-    expect(PAVING_SLOT).toBe('Ground/paving-slot@2');
+    // sq-arch-day B3: the slot bumps to @2 for the distance fade (the emitted body changed);
+    // sq-fix-improve R3: @3 adds the snow normal tilt (the emitted body changed again).
+    expect(PAVING_SLOT).toBe('Ground/paving-slot@3');
     expect(PAVING_GLSL_FN).toBe('pavingAlbedo');
     expect(PAVING_JOINT_FRACTION).toBeCloseTo(0.19, 6);
     expect(PAVING_BODY_TONE).toBeCloseTo(1.060445, 5);

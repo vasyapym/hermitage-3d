@@ -29,6 +29,13 @@ export const PAVING_JOINT_TONE = 0.7;
 export const PAVING_SETT_TONE_AMP = 0.18;
 export const PAVING_MOTTLE_M = 3.5;
 export const PAVING_MOTTLE_AMP = 0.1;
+// sq-fix-improve R3 (the snow drift lighting — creative's DEC-056 proposal): the snow mode's
+// normal tilt — a 0.05 rad (≈ 3°) tilt from the ground slot's shared hash-noise gradient at a
+// 4 m period, central differences e = 0.25 m in the twin. The gate is the slot's existing
+// uSnow weight (no new uniform, no draw); src/procedural/ground-paving.ts consumes both
+// constants as GLSL literals.
+export const SNOW_TILT_AMP = 0.05; // rad ≈ 3°
+export const SNOW_TILT_PERIOD_M = 4;
 export const PAVING_BAND_PERIOD_M = 20;
 export const PAVING_BAND_WIDTH_M = 0.6;
 export const PAVING_BAND_TONE: Vec3 = [3.6, 3.5, 3.3];

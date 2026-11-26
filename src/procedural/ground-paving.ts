@@ -1,7 +1,8 @@
 // src/procedural/ground-paving.ts
 /**
  * GLSL twin of src/world/paving.ts — brief 19 §B.2 (slot Ground/paving-slot@1; sq-arch-day B3
- * bumps the slot to @2 for the distance fade). Emits `vec3 pavingAlbedo(vec2 xz, vec3 base,
+ * bumps the slot to @2 for the distance fade; sq-fix-improve R3 bumps to @3 for the snow
+ * normal tilt). Emits `vec3 pavingAlbedo(vec2 xz, vec3 base,
  * float dist)`: sett field (per-sett tone, joints), wear mottle, granite band grid, footprint
  * + surround. Every sub-pixel feature is analytic: bands and joints by pixel-footprint
  * coverage (pvCover), hashes by a Nyquist fade to the mean. Hash inputs wrap mod 1024 (period
@@ -31,9 +32,12 @@ import {
   PAVING_SETT_M,
   PAVING_SETT_TONE_AMP,
   PAVING_SURROUND_TONE,
+  SNOW_TILT_AMP,
+  SNOW_TILT_PERIOD_M,
   SQUARE_FOOTPRINT,
 } from '../world/paving';
-export const PAVING_SLOT = 'Ground/paving-slot@2';
+// sq-fix-improve R3: the slot bumps to @3 — the emitted body changed (the snow normal tilt).
+export const PAVING_SLOT = 'Ground/paving-slot@3';
 export const PAVING_GLSL_FN = 'pavingAlbedo';
 const g = (v: number): string => {
   const s = `${Number(v.toFixed(6))}`;
@@ -72,5 +76,32 @@ export const pavingGlsl = (): string => {
     `vec2 lo=xz-vec2(${g(fp.xMin)},${g(fp.zMin)});vec2 hi=vec2(${g(fp.xMax)},${g(fp.zMax)})-xz;`,
     `float inside=smoothstep(-${g(PAVING_EDGE_SOFT_M)},${g(PAVING_EDGE_SOFT_M)},min(min(lo.x,lo.y),min(hi.x,hi.y)));`,
     `return mix(base*${g(PAVING_SURROUND_TONE)},paved,inside);}`,
+  ].join('\n');
+};
+
+/**
+ * The snow-drift normal tilt (sq-fix-improve R3 — creative's DEC-056 proposal): the snow mode's
+ * one physical lever under a frontal low sun. Spliced by the snow hook (patchGroundSnowSlot)
+ * AFTER #include <normal_fragment_begin>, before the Lambert lighting reads `normal`. The tilt
+ * is the shared `gsNoise` gradient (the snow slot emits it before this file's functions) at a
+ * SNOW_TILT_PERIOD_M period — central differences with e = 0.25 m — scaled by SNOW_TILT_AMP
+ * (≈ 3°) and gated by the slot's existing uSnow weight uniform: at uSnow = 0 the tilt term is
+ * exactly vec3(0.0) and the row degrades to the committed normal (no branch, the ruling's
+ * guard). The ground mesh's model matrix is rotation-only (uniform scale 1), so the world-space
+ * tilt rides the viewMatrix exactly — three's correct normal-space transform for this mesh.
+ * Constants arrive as GLSL literals from src/world/paving.ts. No comments inside the string:
+ * it ships.
+ */
+export const pavingNormalGlsl = (): string => {
+  const period = g(SNOW_TILT_PERIOD_M);
+  const amp = g(SNOW_TILT_AMP);
+  return [
+    '{',
+    'float pvTiltE=0.25;',
+    `float pvTiltGx=(gsNoise((vGroundXZ+vec2(pvTiltE,0.0))/${period})-gsNoise((vGroundXZ-vec2(pvTiltE,0.0))/${period}))/(2.0*pvTiltE);`,
+    `float pvTiltGz=(gsNoise((vGroundXZ+vec2(0.0,pvTiltE))/${period})-gsNoise((vGroundXZ-vec2(0.0,pvTiltE))/${period}))/(2.0*pvTiltE);`,
+    `vec3 pvTilt=vec3(pvTiltGx,0.0,pvTiltGz)*${amp}*uSnow;`,
+    'normal=normalize(normal-(viewMatrix*vec4(pvTilt,0.0)).xyz);',
+    '}',
   ].join('\n');
 };

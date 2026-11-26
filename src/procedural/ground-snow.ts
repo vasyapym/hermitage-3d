@@ -23,6 +23,12 @@
  * Every day term blends by uDay (E(h)) and is the IDENTITY at uDay = 0 — x·1.0 is bit-exact —
  * and the paving slot's distance fade blends the same way, so the night/dusk/white-night
  * ground is bit-exact today's. Extends DEC-035/041/043.
+ *
+ * sq-fix-improve R3 (the snow drift lighting — creative's DEC-056 proposal): the paving slot's
+ * snow normal tilt splices AFTER #include <normal_fragment_begin> — the snow mode's one
+ * physical lever under a frontal low sun (±≈3° from the shared gsNoise gradient, gated by the
+ * existing uSnow). At uSnow = 0 the tilt term is exactly vec3(0.0): the asphalt seasons keep
+ * the committed normal. No new uniform, no draw.
  */
 import type { Material } from 'three';
 import {
@@ -37,7 +43,7 @@ import {
   LANE_DAY_CONTRAST,
   LANE_DAY_FEATHER_M,
 } from '../world/ground-snow';
-import { PAVING_SLOT, pavingGlsl } from './ground-paving';
+import { PAVING_SLOT, pavingGlsl, pavingNormalGlsl } from './ground-paving';
 
 export type GroundSnowUniforms = Readonly<{
   uSnow: { value: number };
@@ -63,7 +69,9 @@ export const GROUND_SNOW_UNIFORMS: GroundSnowUniforms = {
 // the re-declared lane/tone/base constants are interpolated into the fragment).
 // sq-arch-day B3 bumps to @3: the drift + macro + day-lane body and the noise uniforms.
 // @4: the drift gates OFF-lane (the review's P1 ordering — it cannot refill the lane).
-const GROUND_SNOW_CACHE_KEY = 'Ground/snow-slot@4';
+// sq-fix-improve R3 bumps to @5: the paving slot's snow normal tilt splices after
+// #include <normal_fragment_begin> (the snow mode's one physical lever under a frontal sun).
+const GROUND_SNOW_CACHE_KEY = 'Ground/snow-slot@5';
 
 const glslFloat = (x: number): string => (Number.isInteger(x) ? `${x}.0` : `${x}`);
 
@@ -167,6 +175,13 @@ export function patchGroundSnowSlot(
       shader.fragmentShader,
       '#include <color_fragment>',
       GROUND_SNOW_FRAGMENT_BODY,
+    );
+    // sq-fix-improve R3: the snow normal tilt — after the include that defines `normal`, so
+    // the Lambert lighting (lights_fragment_begin's geometryNormal) reads the tilted one.
+    shader.fragmentShader = spliceChunk(
+      shader.fragmentShader,
+      '#include <normal_fragment_begin>',
+      `#include <normal_fragment_begin>\n${pavingNormalGlsl()}`,
     );
   };
   material.customProgramCacheKey = (): string => `${GROUND_SNOW_CACHE_KEY}|${PAVING_SLOT}`;
