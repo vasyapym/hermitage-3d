@@ -4,7 +4,7 @@
 import { describe, expect, it } from 'vitest';
 import { INTERIOR_LOOK_GAIN, LIGHT_STATES } from '../src/content/lightmap-look';
 
-const INTERIOR_ROOMS = ['jordan', 'rastrelli-gallery'] as const;
+const INTERIOR_ROOMS = ['jordan', 'rastrelli-gallery', 'st-george'] as const;
 
 describe('LIGHT_STATES', () => {
   it('is exactly day, dusk, nightChandeliers in that order', () => {

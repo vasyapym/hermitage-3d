@@ -86,6 +86,20 @@ export const en = {
   'caption.m2': 'The lantern — the vault and the glazing bars above the gallery.',
   'caption.m3': 'The monarchs — the end wall, the large portraits above the small.',
   'caption.m4': 'The doors are closed; beyond them — St George\u2019s Hall.',
+  // The St George's Hall stops (DECISION-1 STRINGS, sourcing-gated): h0 carries the round-2
+  // rework — the «forty-eight columns» count was a design constant (unsourced), the reworded
+  // clause carries the sourcing rows A/B/C; h1–h4 verified by the same rework.
+  'caption.h0':
+    'St George\u2019s Hall, the Large Throne Room. After the narrow gallery the palace opens: ' +
+    'white marble, double ranks of Corinthian columns, and the throne at the far end of the axis.',
+  'caption.h1':
+    'Corinthian columns carry the balcony; their gilt capitals catch the light of two tiers of windows.',
+  'caption.h2':
+    'Look up, then down: the gilded ornament of the ceiling is repeated in the parquet, cut from sixteen kinds of wood.',
+  'caption.h3':
+    'The throne place: a crimson canopy, the double-headed eagle, and the throne on its stepped dais.',
+  'caption.h4':
+    'Above the throne, Saint George and the dragon in white marble. The route ends here for now.',
   'caption.j0':
     'The stair foot. The gaze climbs on its own — to the windows and the light above the flights.',
   'caption.j1':
@@ -288,6 +302,7 @@ export const en = {
   'data.titleGallery': 'Rastrelli Gallery',
   'data.title1812': 'Military Gallery of 1812 — through the Armorial Hall',
   'data.titleJordan': 'Jordan Staircase',
+  'data.titleStGeorge': 'St George’s Hall',
   'data.titleSquare': 'Palace Square',
   'data.kindCornerRisalit': 'cornerRisalit',
   'data.kindStretch': 'stretch',

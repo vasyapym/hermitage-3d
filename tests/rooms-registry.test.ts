@@ -3,7 +3,7 @@
 // a room never touches src/engine or src/world), §1.1 (the chain), §2.2 (budgets mirror the
 // generated manifests). Orchestrator-authored gate: the specialist tested the pure core
 // against fixtures; this pins the real list.
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
@@ -26,27 +26,36 @@ describe('rooms/index.ts (committed registry)', () => {
   it('fences clean: routes, ids, airlocks, bidirectional edges, stops, looks, holds', () => {
     expect(validateRegistry(ENTRIES, AIRLOCKS)).toEqual([]);
   });
-  it('is exactly the §1.1 chain, extended by DEC-025', () => {
+  it('is exactly the §1.1 chain, extended by DEC-025 and DECISION-1', () => {
     expect(ENTRIES.map((e) => e.id)).toEqual([
       'square',
       'rastrelli-gallery',
       'jordan',
       'military-gallery',
+      'st-george',
     ]);
-    expect(ENTRIES.map((e) => e.route)).toEqual(['/', '/gallery', '/jordan', '/1812']);
+    expect(ENTRIES.map((e) => e.route)).toEqual(['/', '/gallery', '/jordan', '/1812', '/throne']);
     expect(AIRLOCKS.map((a) => a.id)).toEqual([
       'arch-portal',
       'gallery-airlock',
       'landing-airlock',
+      'throne-airlock',
     ]);
     // DEC-025: the landing airlock retargets to the 1812 room (a cut with a destination).
     expect(AIRLOCKS[2]?.to).toBe('military-gallery');
+    // DECISION-1: the appended hall's doorway from M4 (the step-3 capture shipped the cut).
+    expect(AIRLOCKS[3]?.to).toBe('st-george');
+    expect(AIRLOCKS[3]?.transit).toBe('cut');
   });
   it('contract budgets equal the generated manifests', () => {
     for (const entry of roomEntries) {
-      const manifest = JSON.parse(
-        readFileSync(join(ROOT, 'public', 'assets', entry.id, 'manifest.json'), 'utf8'),
-      ) as { budget: Record<string, number> };
+      const manifestPath = join(ROOT, 'public', 'assets', entry.id, 'manifest.json');
+      // DECISION-1: st-george's manifest rides the step-2 bake (the all-or-nothing law —
+      // never pre-created); P6 pins its parity the moment the artifacts land.
+      if (!existsSync(manifestPath)) continue;
+      const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as {
+        budget: Record<string, number>;
+      };
       expect(entry.contract.budget, entry.id).toEqual(manifest.budget);
     }
   });

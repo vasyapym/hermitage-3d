@@ -3160,13 +3160,15 @@ canvas.addEventListener('pointercancel', endLook);
 canvas.addEventListener('lostpointercapture', endLook);
 // The rail graph is the linear chain of §1.1, so a boundary intent past an end stop IS the
 // keyboard's airlock: forward from the square is the gallery, backward from it is the square;
-// forward from the landing is the retargeted 1812 room (DEC-025), and M4 — the route's far
-// end, the doors — is inert (the 1812 box's airlock side is at M0, the room's entry stop).
+// forward from the landing is the retargeted 1812 room (DEC-025), and forward from M4 — the
+// doors — crosses the appended hall's doorway (DECISION-1: the throne-airlock, the walk's new
+// far end).
 const RAIL_CHAIN: readonly NodeHandle[] = [
   'square',
   'rastrelli-gallery',
   'jordan',
   'military-gallery',
+  'st-george',
 ];
 // Mobile-B §5: the menu-ownership union over the LIVE hosts' symbols — the index dialog's
 // open flag, the season listbox's open state (the season-menu module's own state law is

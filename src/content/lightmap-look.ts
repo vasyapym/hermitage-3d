@@ -47,6 +47,12 @@ export const INTERIOR_LOOK_GAIN: Readonly<Record<RoomId, Readonly<Record<LightSt
   // per texel and every inter-state ratio (incl. the dusk compose's 1/3 candelabra) holds.
   // eff = wp × gain = 1.5 × 1.725 / 0.15 × 3.45 / 0.3 × 2.3 = 2.5875 / 0.5175 / 0.69.
   'military-gallery': { day: 1.725, dusk: 3.45, nightChandeliers: 2.3 },
+
+  // DECISION-1 (the appended hall): PROVISIONAL until the step-2 bake lands — the manifest's
+  // white points are the encode law, and this row is re-derived from lm-percentile alongside
+  // them (the r17c law, the bake-logs pattern). Uniform 2 is the rastrelli shape: one gain,
+  // the lamp field equal across the three states. Unreachable until the manifest exists.
+  'st-george': { day: 2, dusk: 2, nightChandeliers: 2 },
 };
 
 export type InteriorEmissiveMaterial = 'pane' | 'sconce_glow' | 'chandelier_glow';
