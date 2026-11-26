@@ -152,6 +152,15 @@ the vault texts (26/30/32/37-REPLY), and the pinned probe logs.
    ingesting agent adds the done bake's dead set to the bake log in the ingest commit. The
    memory's absence or tampering = the strict fail-closed fallback. The teeth stay: a lit
    cell going dark is the NEW darkness at its own bake, never the advisory.
+9. THE SMOKE TEST BEFORE THE BOX (owner, 2026-11-26; the bake18/19 precedent — two box
+   cycles spent on a mystery the local harness already held the answer to: the seeded
+   memory sat in the tree while the check read a key the log writer had dropped). A change
+   to a gate, a log writer or the wiring between them carries its LOCAL synthetic smoke
+   test BEFORE any box filing, and the smoke test's result rides the commit message: the
+   happy pass, the tampered fail (the teeth), and the round-trip (write → read → every
+   foreign key survives). A box run proves only what the local harness cannot — the box's
+   environment, the real bake, the timing — never the logic; a RED whose cause the local
+   harness can reproduce is filed with the reproduction attached, not discovered on the box.
 
 **Brief boilerplate (copy blocks, compose fresh only the task-specific parts).**
 - ROLE line (the engineering-peer frame; OWNER AMENDMENT 2026-11-03 — the fresh-session law
