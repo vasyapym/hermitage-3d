@@ -255,6 +255,15 @@ describe('P10 — the lane’s diff-scope fence (retires at the merge)', () => {
     /^rooms\/1812\/room\.ts$/,
   ];
   it('every changed or added path is inside the lane’s allowlist', () => {
+    const head = execFileSync('git', ['rev-parse', '--abbrev-ref', 'HEAD'], {
+      cwd: ROOT,
+      encoding: 'utf8',
+    }).trim();
+    if (head === 'main') {
+      // retired: the merge happened, the integrating authority owns the tree (the fence's
+      // own law) — the lane's cumulative diff is main's history now.
+      return;
+    }
     const paths = execFileSync('git', ['diff', '--name-only', 'd38cec0'], {
       cwd: ROOT,
       encoding: 'utf8',

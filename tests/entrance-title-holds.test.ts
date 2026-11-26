@@ -11,6 +11,7 @@ describe('shipped title-card holds', () => {
       ['arch-portal', 800],
       ['gallery-airlock', 800],
       ['landing-airlock', 800],
+      ['throne-airlock', 800],
     ]);
   });
 });
