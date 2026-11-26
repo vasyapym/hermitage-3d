@@ -30,3 +30,7 @@ Deferred NOT waived: the smoke walk rows' verdict = CI at the merge PR (the reco
 ## Sources
 
 docs/briefs/ROUNDS.md · row rg-walk-tune · commits b2f007c (the marking) + 7208438 (the integration)
+
+- The ledger reservation row (moved from docs/budget-ledger.md 2026-11-26, the records decision step 6):
+
+| **rg-walk-tune — RELEASED** | the Rastrelli Gallery's Forward-walk camera re-choreography (B9b the look leads LOOK_LEAD 0.8 · G0b → GALLERY_MOUTH, the pan split 22/61 · Gjb/G1b reinstated, 7.5/5.5 m/s): measured JS 285,892 (+263 of the declared ≤ +400) · RU 7,474 (+114 of ≤ +150) — +185 gz over the proposed operating ceiling 285,707 → the OWNER PLATE line (the movement-ux precedent ≈ +129 covered) | MERGED 2026-11-17 (the wave's slot 3/4) — SPENT and RELEASED; no DEC owned (the B9b law lives in design-walkthrough-ux §8 + the rail header); the FULL gate + the CI verdict + the smoke walk rows' CI timing ride the last-merging session |

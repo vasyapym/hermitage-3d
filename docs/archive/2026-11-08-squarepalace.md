@@ -256,3 +256,7 @@ The census at 742bb3d: scene stops S0 [−24,1.7,230] / Sh [−12,1.7,177] / S1 
 docs/briefs/ROUNDS.md · round 9 · line 9 (3914 B) @ ff2a85ed19b41c2bda750dc1dd229e6409201daf
 docs/STATE.md · bullet «2026-11-09 · MERGED square-palace» · lines 401-446 @ ff2a85ed19b41c2bda750dc1dd229e6409201daf
 docs/STATE.md · bullet «2026-11-08 · PARALLEL square-palace OPENED» · lines 447-459 @ ff2a85ed19b41c2bda750dc1dd229e6409201daf
+
+- The ledger reservation row (moved from docs/budget-ledger.md 2026-11-26, the records decision step 6):
+
+| square-palace — RELEASED | «The winter square» DEC-041 snow-legibility: walked-path lane (core ±2.5 m / edge ±7 m), sky gain K = 1.5, caption «колонна позади»; declared ≤ +700 gz | MERGED 2026-11-09 — JS 284,110 (+69), RU 7,339, DEC-043; full gate deferred NOT waived — spent, released |

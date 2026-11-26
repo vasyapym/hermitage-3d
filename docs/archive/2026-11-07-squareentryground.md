@@ -205,3 +205,7 @@ None at the pin. The class-I winter-lane fact fed the square-palace round (own a
 docs/briefs/ROUNDS.md · round 11 · line 11 (6368 B) @ ff2a85ed19b41c2bda750dc1dd229e6409201daf
 docs/STATE.md · bullet «2026-11-08 · MERGED square-entry-ground» · line 10 @ ff2a85ed19b41c2bda750dc1dd229e6409201daf
 docs/STATE.md · bullet «2026-11-07 · PARALLEL square-entry-ground OPENED» · line 11 @ ff2a85ed19b41c2bda750dc1dd229e6409201daf
+
+- The ledger reservation row (moved from docs/budget-ledger.md 2026-11-26, the records decision step 6):
+
+| square-entry-ground — RELEASED | mobile boot view part-captures the Column (witness ≥ 0.8657, yaw-only δ ≤ 12°); ground «as in a vacuum» round (plane 600→2000); declared +2,000 gz | MERGED 2026-11-08 — JS 284,041 (+1,527), RU 7,332, DEC-040/DEC-041; full gate deferred NOT waived — spent, released |

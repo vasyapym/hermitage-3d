@@ -139,3 +139,7 @@ tools/square-kit/census.mjs · the chain + the census (M2) · whole
 src/procedural/square-kit-load.ts · the mount (M3) · whole
 tools/square-kit/build_square_kit.py · the bpy content (C1) · whole
 tests/e2e/golden.spec.ts-snapshots/golden-s0b-dec-noon-golden-darwin.png · the acceptance frame
+
+- The ledger reservation row (moved from docs/budget-ledger.md 2026-11-26, the records decision step 6):
+
+| **square-gap — RELEASED** | the Palace Square gap round (the owner's parallel arrangement): the find relay → the picked gap's implementation. Declared request: JS ≤ +2,500 gz (the machinery wiring rides the parked SQUARE_JS_WIRING_ALLOW 2,048 B if the pick is machinery) · RU ≤ +400 · exterior payload 0 if non-content, else the parked DEC-045 KIT allowance (≤ 1,500,000) · basis 0 · draws/tris inside the whole-frame lines and the parked SQUARE_DRAW_CAP 56 / SQUARE_TRI_CAP 75,000 when machinery | MERGED 2026-11-19 (the wave's slot 1/4) — SPENT and RELEASED; measured: JS +1,543 (287,527; of ≤ 2,048) · RU +0 · the KIT row 81,539/1,500,000 · DEC-049; the FULL gate rides the LAST merging session (deferred NOT waived) |

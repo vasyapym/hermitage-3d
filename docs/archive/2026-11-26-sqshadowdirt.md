@@ -104,3 +104,7 @@ the creative; the orchestrator gathers evidence, prices nothing, integrates the 
   candidates, not guarantees — the spring oblique fields + the autumn contacts decide; any factor
   change returns to the creative.
 - The metric restates' calibration against a reference build (the sq-arch-day carry-over).
+
+- The ledger reservation row (moved from docs/budget-ledger.md 2026-11-26, the records decision step 6):
+
+| **sq-shadow-dirt** · LANDED | 2026-11-26 | the shadow-fix rows: JS ≤ +1,000 gz declared (R1 ≈ 0.5 K, R4 ≈ 20 B, R6 ≈ 0.15 K; draws/tris +0 — R2's mapSize is shadow-pass fill/memory; R5 deferred before any spend) | JS 291,800 (+147) · draws/tris ±0 (the census 75–86 / 111,834–115,630) · RU +0 · payloads ±0 · the goldens: jordan J4 day re-baselined (the DEC) | MERGED main direct d88a141 — spent; the acceptance gate + square-kit e2e = the office box, the ingest pending |

@@ -64,3 +64,7 @@ From rg-f4's STATE bullet (2026-11-15 MERGED): another lane's 26-hour-old vite p
 docs/briefs/ROUNDS.md · row «square-palace-2» (round 112) · line 112
 docs/decisions.md · DEC-045 · lines 92-93
 docs/STATE.md · square-palace-2 MERGED TO MAIN bullet · line 16
+
+- The ledger reservation row (moved from docs/budget-ledger.md 2026-11-26, the records decision step 6):
+
+| **square-palace-2** | certification round: declared JS +0 gz · RU +0 · exterior 0 · draws +0 · tris +0 (docs/tests/snapshots only, no src/ change); detector pin t = 0.1. Parked DEC-ready numbers kept (not in archives as far as the brief shows): SQUARE_DRAW_CAP 56 / SQUARE_TRI_CAP 75,000; KIT allow 6 meshes / 18,000 tris / 1,500,000 payload / TEX_VRAM 8,388,608; SQUARE_JS_WIRING_ALLOW 2,048 B (ceiling 285,707 → 287,755 proposed); HQ_CORNICE_M 20.5; AL-SQ-01…05 | MERGED 2026-11-15 — SPENT and RELEASED; DEC-045 assigned; dec-noon golden re-baseline + full-battery verdict ride the wave finale (deferred NOT waived); machinery's DEC-ready rows stay parked for its own merge |
