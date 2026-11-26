@@ -52,6 +52,19 @@ function fixtureFormEnv() {
 }
 const FIXTURE_FORM = fixtureFormEnv();
 
+// The slice-2b wall articulation driver row: the same strict env law as
+// FIXTURE_FORM. Unset/'none' keeps the committed roster byte-identical (the r15
+// law); 'slice_2b' gates the wall_order kit's rows — jordan.py builds them
+// export-only (the gallery's exported-never-baked law), so the bpy and gltf steps
+// must agree on the env or the gate joins fail loud.
+function wallArticulationEnv() {
+  const raw = process.env.WALL_ARTICULATION ?? '';
+  if (raw === '' || raw === 'none') return 'none';
+  if (raw === 'slice_2b') return 'slice_2b';
+  return fail(`WALL_ARTICULATION ${JSON.stringify(raw)} is not 'none' or 'slice_2b'`);
+}
+const WALL_ARTICULATION = wallArticulationEnv();
+
 export const ROOM = {
   id: ROOM_ID,
   title: 'Jordan Staircase',
@@ -101,6 +114,9 @@ export const EXPECTED_INSTANCES = {
   ...(FIXTURE_FORM === 'slice_e' ? { chandelier_arm: 36, chandelier_bead: 300 } : {}),
   sconce: 10,
   cornice: 1,
+  // The slice-2b wall order: ONE in-place mesh (the panels + the rings), export-only
+  // (the bpy/gltf steps must agree on the env — the strict validation above).
+  ...(WALL_ARTICULATION === 'slice_2b' ? { wall_order: 1 } : {}),
   // The bands fix (2026-11-16): one template datablock per wall / per tier so bake.py's
   // centroid representative runs inside each group (the old single-datablock rows
   // pilaster 16 / pilaster_base 16 / window_frame 12 are gone with the split).
@@ -149,7 +165,13 @@ export const MATERIAL_SLOTS = {
     FIXTURE_FORM === 'slice_e'
       ? ['gilt', 'sconce_glow', 'crystal']
       : ['plaster_warm', 'sconce_glow'],
-  cornice: ['plaster_warm'],
+  // The slice-2b cornice row: L7's fascia reassignment adds the gilt slot on the
+  // primary branch (the built branch rides summary.declared.wallArticulation; the
+  // bead fallback would have kept the single committed slot).
+  cornice: WALL_ARTICULATION === 'slice_2b' ? ['plaster_warm', 'gilt'] : ['plaster_warm'],
+  // The slice-2b wall order: the kit's two slots (the export-only dress, prim 0
+  // plaster_warm the bands, prim 1 gilt the fillets/cartouches/drops/rings).
+  ...(WALL_ARTICULATION === 'slice_2b' ? { wall_order: ['plaster_warm', 'gilt'] } : {}),
   pilaster_n0: ['plaster_warm', 'gilt'],
   pilaster_n1: ['plaster_warm', 'gilt'],
   pilaster_n2: ['plaster_warm', 'gilt'],
@@ -454,6 +476,28 @@ export function optimise({ roomId, stage, out }) {
   }
   if (summary.declared?.giltMetallic !== METALLIC_MATERIALS.gilt) {
     fail('declared gilt metallic drifted from module');
+  }
+  if (WALL_ARTICULATION === 'slice_2b') {
+    const wa = summary.declared?.wallArticulation;
+    if (wa?.form !== 'slice_2b') {
+      fail("slice_2b build without the summary's wallArticulation row");
+    }
+    if (wa.cornice !== 'fascia' || wa.corniceFasciaFaces !== 16) {
+      fail(
+        `wallArticulation cornice ${JSON.stringify(wa.cornice)} / ${JSON.stringify(wa.corniceFasciaFaces)} — the gate pins the L7 fascia primary at its 16 enumerated faces`,
+      );
+    }
+    const panels = wa.panels ?? {};
+    if (
+      panels.built !== 12 ||
+      panels.shrunk?.length !== 0 ||
+      panels.omitted?.length !== 2 ||
+      wa.rings !== 12
+    ) {
+      fail(
+        `wallArticulation roster drifted: ${JSON.stringify({ panels, rings: wa.rings })} — the gate pins the built 12/2/12 row`,
+      );
+    }
   }
   const textures = encodeTextures(stage, texOut);
   const finalGlb = transformChain(stage);

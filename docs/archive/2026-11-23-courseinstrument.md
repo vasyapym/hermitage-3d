@@ -39,3 +39,7 @@ instrument edit). Rejected: A record-only (per-room ask unmet), C a generated nu
 `pnpm validate` GREEN (typecheck · biome · vitest · build · budget). records-check: the round's own rows within caps (728 B ≤ 1,000; the STATE additions fit the 10,240 B Live-state cap) but the check FAILS overall — 8 pre-existing items byte-identical on the pristine HEAD b328f47 (parked in docs/parking-lot.md; CI runs it WARNING-waived). No DEC (no budget law changed — the feel-tune
 precedent); the ledger's JS committed cell re-measured to 288,158 with the −2,451 remaining
 against the proposed ceiling.
+
+- The ledger reservation row (moved from docs/budget-ledger.md 2026-11-26, the records decision step 6):
+
+| **course-instrument — RELEASED** | the orientation round (brief 34, the DECISION-34 record, owner-adopted Option B): ROADMAP › Principles «Course» standing-preferences sub-block · tools/budget.mjs per-chunk rows + the rooms/ru/other group line (a stdout diagnostic — no per-room cap, no ledger column) · vite.config.ts chunkFileNames names room chunks `room_<folder>-[hash].js` (the attribution seam; folders read from rooms/, a new room needs no instrument edit) | LANDED on main 2026-11-23 (direct, solo-lane, targeted gates; the FULL gate = pnpm validate): JS +37 gz (288,121 → 288,158 — the naming's specifier cost) · RU ±0 · payload ±0 · the first per-chunk print: rooms 1812 2876 · jordan 733 · rastrelli-gallery 737 · ru 7427 · other 276385 |

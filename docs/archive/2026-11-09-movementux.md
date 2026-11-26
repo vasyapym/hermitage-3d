@@ -50,3 +50,7 @@ The docs/STATE.md PARALLEL bullet and the docs/budget-ledger.md reservation row 
 ## Sources
 
 docs/briefs/ROUNDS.md · round 7 «movement-ux» · line 7 (2094 B) @ ff2a85ed19b41c2bda750dc1dd229e6409201daf
+
+- The ledger reservation row (moved from docs/budget-ledger.md 2026-11-26, the records decision step 6):
+
+| movement-ux — RELEASED | ONE arrows mechanism: wheel travel removed, one continuous press/hold walk (WALK_CRUISE/ACCEL/BRAKE/LEASE/HOLD 1500/420/700/600/300, REDUCED_DWELL_MS 600), pair visible on desktop | MERGED 2026-11-09/10 — union JS 285,170, RU 7,339 — spent, released |

@@ -117,3 +117,7 @@ None in this batch's excerpts.
 docs/briefs/ROUNDS.md · row 11 · line 11 @ de58d5206909e308e33a089bd0227bbbc85a2278
 docs/STATE.md · MERGED bullet · line 138 @ de58d5206909e308e33a089bd0227bbbc85a2278
 docs/STATE.md · OPEN bullet · line 139 @ de58d5206909e308e33a089bd0227bbbc85a2278
+
+- The ledger reservation row (moved from docs/budget-ledger.md 2026-11-26, the records decision step 6):
+
+| movement-ux (the ci-hardening + stops follow-up) — RELEASED | CI pacing hardening (tests-only) + stops mini-round (+1–2 walk stops per scene, Palace Square and Rastrelli Gallery); declared JS ≤ +450 gz · RU ≤ +250 | MERGED 2026-11-13 — spent, released; measured JS 285,332 (+162), RU 7,386 (+47); full e2e/golden gate + CI verdict ride the last merging session (deferred NOT waived) |

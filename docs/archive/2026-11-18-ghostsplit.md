@@ -31,3 +31,7 @@ The reservation row lives in docs/budget-ledger.md (top of «Open reservations»
   absorbed by the 0.1 threshold) — no re-baselines; the DEC-ready row retired without a
   number.
 - The verdict: PASS (the recorded classes only; zero unexpected failures).
+
+- The ledger reservation row (moved from docs/budget-ledger.md 2026-11-26, the records decision step 6):
+
+| **jordan-ghost-split — RELEASED** | the per-pier lm split of pilaster_n (the night halo class, the owner-ratified F1 pattern): the 3-state re-bake + the lm re-encode; declared JS ±0 · RU +0 · basis/exterior 0; the cells 3,374 ≤ warn 3,400 — the TIGHT CAP: if the measured cells overflow 3,400 the lane STOPS and reports (the cap is not the lane's to raise) · measured: the cells 3,474 (the warn 3,400→3,500, the owner's call — the atlas repack cost, the hard max 4,096 untouched); the payload 1,543,170/7,000,000 (the budget dir total 1,548,343; the lm 1,247,292 · tex 40,472 · probe 6,362); the glb 249,044 B (the draws 38 ≤ 60) · DEC-ready: the jordan golden flips (J4 day/dusk/night; J3 likely holds — the east cells' content unchanged, the layout renumbered only) — the DEC number from the integrating authority at the merge, NO self re-baseline | MERGED 2026-11-18 (ff 6dc6f1b) — SPENT and RELEASED; the FULL gate rode the merge (the verdict PASS); the DEC-ready flips did not materialize — the row retired without a number |

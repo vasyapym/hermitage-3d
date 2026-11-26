@@ -26,26 +26,44 @@ Phase 3 ships room three, the Military Gallery of 1812 (route `#/1812`), and wit
 
 ## 2. Set design
 
+The set design splits into the envelope/route subcontract (2.1), the composition subcontract (2.2) and the hanging-order subcontract (2.3).
+
+## 2.1 Room envelope and route
+
+
+## 2.1 Room envelope and route
 2.1 The real hall (sourced unless marked): a top-lit, barrel-vaulted memorial gallery designed by Carlo Rossi (built June–November 1826, opened 25 December 1826), rebuilt by Stasov after the 1837 fire "exactly as it had been", lengthened then by almost six metres with choirs (хоры — an обходная галерея) added above the cornice. It sits between the Armorial Hall (north) and St George's Hall (south), in the middle of the palace's main block, a few steps from the Grand Church; long axis north–south; entered from the north end; five rows of bust-length portraits per long wall; three skylight lanterns in the vault; large equestrian portraits of Alexander I (Kruger), Friedrich Wilhelm III (Kruger) and Franz I (Kraft) added in the 1830s. Visual reference for the decoration: E. P. Hau's 1862 watercolour of the gallery (crimson walls, white coffered vault, gilt everywhere, the floor's checker-diamond parquet, the torchère candelabra, the monarch portal with flanking doors) — to join ATTRIBUTIONS at the license round; both wiki sources carry it.
 
 2.2 Placement (declared at true coordinates; parametric pending the photo check). The committed location plan (en/ru.wiki "1812Gallerylocation.jpg", own read) shows the gallery as a narrow north–south strip continuing the stair-hall tract southward, with the palace church ("a few steps away", sourced) between, and St George's Hall as the big east–west hall along its east side — the declared placement follows that read. Declared bounds: x from 82.0 to 90.5 (width 8.5 m; inside the committed stair hall's x band, directly south of it), z from −40.0 to +15.0 (length 55.0 m; Stasov's lengthened hall (verify)), floor y equal to the committed jordan landing floor height (continuity across the cut), vault springing at floor+6.5, crown at floor+8.5, lantern ridges at floor+9.6 — all below the committed cornice. Portal box: north door, centred on x=86.25, z=−40, a 2×2×3 m box; the jordan portal box does not move (golden protection, §9). Open verify for the R1 photo check: whether the north door reads from the staircase's own tract or from the Armorial side (the sourced tour order says the Armorial) — either answer moves bounds, portal boxes and lantern z's only; no law changes.
 
 2.3 Compression declared. The real walk from the staircase through the state rooms (Field Marshals', Petrovsky, Armorial [sourced tour order]) and the halls along the gallery's east side (St George's Hall) are not built; they exist as the card note and the closed doors. Register row: "the state-room walk compressed to one cut; neighbours implied by the card note and the closed east doors."
 
+
+## 2.2 Bay/skylight composition
 2.4 Materials palette (six, stock materials only — the last custom slot is not spent): PLASTER off-white matte (vault, pilaster shafts, soffits, the choirs' console band) · **CRIMSON** — the saturated crimson-pink of the long walls below the cornice band [sourced: Hau's 1862 watercolour of the gallery; Stasov's decoration — this corrects the relay's off-white-wall draft toward the sourced look] · GILT (frames, capitals, mouldings, door trim, the torchère candelabra — the shared gold MeshStandardMaterial with committed constants) · PARQUET oak tile (floor; the sourced pattern is a bold checker-diamond of large light/dark squares with figured borders [sourced: Hau 1862] — not herringbone; reuse the committed parquet tile if one exists, else one new 512² ETC1S tile) · PANE dark glass (lantern glazing, baked opaque per DEC-018 with the per-state sky colour baked in) · CANVAS (the portrait atlas on MeshStandardMaterial with map + lightMap). Every surface takes the blended lightmap through the adopted technique-A patch (ADR-0014).
 
 2.5 Hero meshes (three, the DEC-005 cap): H1 the frame kit (merged frames + canvases per wall; the camera gets within 2.2 m at M1) · H2 the skylight lantern (one modelled lantern with glazing bars, placed three times and merged [sourced: three lanterns; the watercolour shows the lantern strips along the vault crown]) · H3 the monarch portal on the south end wall: the large equestrian gilt frame with a sculptured pediment (trophies/laurel), a simple geometric drapery suggestion and the carpet step, flanked by TWO dark double doors [sourced: Hau 1862 — the end wall reads exactly so; Kruger painted the Alexander I and Friedrich Wilhelm III canvases, Kraft the Franz I] (verify the sizes against the watercolour proportions before R1; H3's law is parametric). The St George's doors sit in the EAST wall, in the bay nearest the monarch end [sourced: the location plan shows St George's Hall along the gallery's east side] (verify the bay/door count against photographs). Everything else is procedural kit: shell, vault coffers, pilasters, doors, candelabra, benches, skirting.
 
 2.6 Inventory. Floor: parquet, the bold checker-diamond pattern [sourced: Hau 1862]; red museum benches along the walls (simple boxes, declared add — visible at the floor in every view). Doors: one double door north (entry), the monarch portal's two flanking dark double doors on the end wall [sourced: Hau], the closed St George's doors in the east wall (verify count/bay), four blind doors in the long walls at bay piers (declared). Dressings: paired Corinthian pilasters with gilt capitals at each pier plus engaged light-stone columns at the wider piers [sourced: Hau — the large light columns flanking the bays], a continuous gilt cornice band at the vault springing, and the gilt torchère candelabra standing against the piers (twelve per wall plus the end-wall pair [sourced: Hau — floor candelabra, not wall sconces]). The white console row at the cornice (the choirs' corbels) rides as a simplified band. Declared omissions recorded for the license register: the Stasov choirs above the cornice, the vault's grisaille trophy programme (coffers stay, medallions omitted), the four Palace Grenadiers portraits and the two Hess battle paintings (Soviet-era additions).
 
+
+## 2.3 Portrait hanging order and sightlines
 2.7 Portrait-wall layout law (declared, verify; parametric so the integration pass re-fits constants without touching code): rows five [sourced: ru.wiki hanging scheme; confirmed visually in Hau 1862]; per long wall eleven bays of five rows × three columns = 165 portraits, block pitch 5.0 m along z, piers between bays carry the pilasters/candelabra; the two remaining portraits flank the north door at row 2 height; total 2×165+2 = 332. The pitch arithmetic closes: eleven bays at 5.0 pitch span ~52 m of the 55 m wall. Photo-check re-fit (Hau 1862, integration): COLUMN_PITCH (centre-to-centre) ~1.5 m — edge-to-edge gaps ~1.0 m inside a bay, bay strips ~1.4 m — the relay's 0.62 draft was a gap/pitch conflation; ROW_PITCH ~0.70 m confirmed, bottom row centre ~1.6 m, top row centre ~4.4 m. Frame outer 0.49×0.57 m around a 0.35×0.43 m canvas [sourced canvas size; bar 0.07 m each side]; the oversized monarch/ally canvases are the standard canvas scaled five times (1.75×2.15 m, §3.4) with 0.12 m bars (declared). End composition: the south end wall carries the three monarch canvases — the portal (Alexander I, Kruger) centred under the pediment, the two allies (Friedrich Wilhelm III, Franz I) flanking it [sourced: ru.wiki "в торце галереи" for Alexander; the modern arrangement reads the same; Hau's flanking dark recesses are the two door panels or the allies in shadow — (verify) at the R1 photo check]; the two doors lead south to the gallery's southern neighbour hall. The allies hang at the declared ±2.05 m offsets, monarch canvas centre height 3.6 m (verify).
 
 2.8 Only the union of rail frusta plus margin is modelled (DEC-005): the vault's far quarter-spans beyond the stops' pitch limits drop coffering; the backs of H3 and the door reveals are single quads.
 
 ## 3. Set construction
 
+The construction splits into the shell/assembly subcontract (3.1), the frame-kit subcontract (3.2) and the atlas subcontract (3.3).
+
+## 3.1 Shell and bay assembly
+
+
+## 3.1 Shell and bay assembly
 3.1 Kit list. K1 shell (walls, floor, end walls) — procedural boxes with a baked UV2 chart · K2 vault — extruded segmental profile with coffer grid, UV2 charted per span (coffers only; the grisaille programme is a declared omission) · K3 lantern (H2) — one authored low-poly glazed lantern, ~10×3 m footprint, pitched glazing, placed three times at the declared z's (verify spacing symmetric about mid) · K4 doors — one authored double-door panel reused six times, open/closed variants by rotation only · K5 pilaster + capital + cornice band + engaged column — one authored pier module instanced along both walls then merged · K6 torchère candelabra — gilt, floor-standing, ~2.4 m, low poly, merged · K7 the frame kit (H1): frame profile + canvas quad, generated, plus the allies' two oversized frames · K8 the monarch portal (H3): one authored large frame + pediment + drapery suggestion + carpet step.
 
+
+## 3.2 Frame kit and instancing
 3.2 The frame kit is generated, not committed. One module, `tools/gallery/layout.mjs`, holds the layout law as named constants and emits, deterministically, a committed `tools/gallery/layout.json` (the law's single serialized form; regenerating it byte-identically is the CI gate). The same law is implemented a second time for the browser as `rooms/1812/layout.ts` (typed, in-bundle) — a Vitest test pins the two implementations to byte-equal JSON, so bake-time and run-time geometry are identical by construction with the pin enforced in CI (assets as code, DEC-006). The bpy builder reads the committed JSON and never re-derives the law. Runtime builds one BufferGeometry per long wall (frames + canvases as two material groups) and one for the north-door pair; the end-wall group lives with H3. Rejected: a committed GLB of 335 frames — payload for data the law already states; rejected: InstancedMesh with a per-instance UV offset attribute — it needs onBeforeCompile and would spend the last custom material slot (the only one left after DEC-009 and ADR-0014).
 
 3.3 Frame geometry. Four mitred bars, each a bevelled box of sixteen triangles → 64 triangles per frame, two per canvas; 335 frames ≈ 22 k triangles, ≈ 0.7 k for canvases. The gilt bars take the shared GILT material and lightmap UVs from a per-frame UV2 rectangle in the frame-kit lightmap chart; canvases take CANVAS with UV1 = atlas slot rectangle and UV2 = their own strip in the same chart. Draw calls: west wall 2, east wall 2, north pair 1, end-wall group 2 — seven draws for every portrait in the room.
@@ -58,6 +76,8 @@ Phase 3 ships room three, the Military Gallery of 1812 (route `#/1812`), and wit
 > the canvas light was never inverted. The atlas stays painted upright; the hang flip is a
 > verified live read (the M1 rows and the M3 monarchs hung heads-down before the fix).
 
+
+## 3.3 Portrait atlas and binding
 3.4 Portrait atlas. One KTX2 ETC1S texture 2048×2048 (power of two, mipmapped, through the existing KTX2 loader; nothing added to the basis decoder row — the tight budget line is untouched). Slot 96×120 px (aspect 0.80 against the canvas 0.81), grid 21×17 = 357 slots, enumerated row-major (slot 0 = top-left). Allocation: the three monarch super-blocks sit at the grid's top-left, rows 0–1, columns 0–5 (block b at columns 2b, 2b+1 — the slot set {0,1,2,3,4,5,21,22,23,24,25,26}; the relay's "slots 0–11" assumed square-tiling that a 21-wide grid does not give — amended pre-code at integration); one slot (356) is the neutral "missing" slot; the ROSTER law: the 332 standard frames (330 wall portraits + the flanking pair, in canonical frame order) take the first 332 free slots in row-major enumeration, skipping the super-block cells and the missing slot (so the roster runs 6…20, 27…41, 42…343 — contiguous in enumeration order, which is what the generator's keyed painting consumes). Canvas UVs inset 3 px inside the slot; a 2 px dark gutter is painted into every slot edge; far-mip bleeding is accepted because stand-ins are painterly, and v2 inherits the same inset law. The monarch canvases are the standard canvas scaled ×5 (1.75×2.15 m, aspect 0.814 against the block's 0.80 — a declared 1.7 % stretch that the generator authors for). Slot-keyed consumers (the generator, the chart order) see the roster's enumeration order, which is the contract between atlas and geometry; SLOT(i) in the drawing law = the roster's i-th free slot.
 
 3.5 Stand-in generator law (build-time script, the only producer of the atlas). For slot i: h = hash32(SALT_1812, i) using the committed deterministic hash (Math.random is forbidden). From h's bit fields: silhouette class ∈ {frontal, three-quarter-left, three-quarter-right}; shoulder width ∈ three named widths; head offset ±3 px; uniform colour from PALETTE_UNIFORM (six entries: infantry green, guards dark green, cuirassier white, hussar dark blue, artillery black, general's dark green with red); facing colour from PALETTE_FACING (four); epaulettes on/off; background from three dark umbers with ±8 % value from a second hash; face tone from four; two octaves of hash-based value noise as brush texture; a soft vignette. Monarch blocks use a fixed equestrian-suggestion field (horse mass, rider, sky) with hashed tone only. The rasteriser is pure JS writing RGBA (no node-canvas: platform anti-aliasing differences would break byte-identity), then the committed PNG→KTX2 ETC1S step under the DEC-016 toolchain pins (single-threaded toktx; byte-identity is the r15/r17 precedent). Output is byte-identical on rerun; CI hashes it.
@@ -67,6 +87,10 @@ Phase 3 ships room three, the Military Gallery of 1812 (route `#/1812`), and wit
 3.7 Lightmap charts. Architecture (K1–K6, K8) shares one 2k² chart; the frame kit (K7, both walls and the door pair) gets its own 1k² chart generated by the layout module — ordered by slot, as deterministic as the geometry.
 
 ## 4. Light
+
+The light law splits into the skylight rig and apertures, the authored bake inputs, the runtime blend and the acceptance witnesses below.
+
+## 4.1 Skylight rig and apertures
 
 4.1 Daylight sources are the three lantern openings only [sourced: three lanterns; top-lit hall]; no side windows exist, so the bake has no wall-level daylight and the room reads as a top-lit vault with a bright floor and dim lower rows — the look that makes the gilt rows legible.
 
@@ -80,6 +104,10 @@ Phase 3 ships room three, the Military Gallery of 1812 (route `#/1812`), and wit
 
 4.6 The R4 rig (the specialist's ruling, adopted 2026-10-25; residuals open):
 
+
+## 4.1 Skylight rig and apertures
+
+## 4.2 Authored lightmap states and bake inputs
 - **The candle emission is BUILDER content**: `MG_candle` carries Emission
   `CANDLE_EMISSION_RGB` at strength 40.0. The relay's draft revised Block 2's
   colour to the true linearisation of 2700 K — sRGB (255, 169, 87) linearised =
@@ -128,6 +156,8 @@ Phase 3 ships room three, the Military Gallery of 1812 (route `#/1812`), and wit
   gains ×1.15 in every state — 1.725 / 3.45 / 2.3 → eff 2.5875 / 0.5175 / 0.69**
   (the white points stay the encode ranges; the pixel means re-derived at the
   re-record).
+
+## 4.3 Runtime blend and exposure
 - **The probe**: the dusk process, `PROBE_POINT_1812` = (86.25, 11.7, −12.5) — the
   room midpoint at eye height, panes swapped, fixtures restored to FULL for the
   probe render only; committed `PROBE_RES` / `PROBE_WHITE_POINT` / `PROBE_SAMPLES`.
@@ -172,6 +202,8 @@ Phase 3 ships room three, the Military Gallery of 1812 (route `#/1812`), and wit
   untouched: the runtime samples the same rect for every face; the collapse only
   chooses which faces ink it). The preview's EXTEND margin scales with the
   quartered res (pad // 4, min 1 px).
+
+## 4.4 Lighting witnesses and acceptance
 - **The texture budget**: `textureBytesMax` 1,000,000 → 1,200,000 (the owner's
   ruling): the cap was a pre-light plan estimate; the lit room measures
   1,131,373 B of ktx2 (the jordan-class sharp-light content: 219-264 K per 2048²

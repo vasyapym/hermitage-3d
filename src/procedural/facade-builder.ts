@@ -6,6 +6,7 @@
 // heads land on the design row table (3.00 / 9.20 / 15.50 / 19.50 m) — the
 // draft stacked an internal sill ledge and band inside the envelope instead.
 import * as THREE from 'three';
+import { SUN_DEPTH_MATERIAL } from '../world/shadow-depth';
 import { SNOW_ALBEDO_LINEAR } from '../world/snow-season';
 import type { PartId, Placement, SolvedFacade } from './facade-solver';
 import { KIT, PART_IDS } from './facade-solver';
@@ -305,10 +306,14 @@ function cornerBunch(id: PartId): THREE.BufferGeometry {
   return merge(pieces);
 }
 
+/** The portal ring's band thickness (portalArch): the ground-arch's dark reads against the
+ * same curve, so the thickness is one value here. */
+const PORTAL_RING_T = 0.5;
+
 function portalArch(id: PartId): THREE.BufferGeometry {
   const { sx, sy, sz } = envelope(id);
   const R = sx / 2;
-  const t = 0.5;
+  const t = PORTAL_RING_T;
   const spring = sy - R;
   return merge([
     arcBand(R, R, t, spring, 0, 180, 12, sz * 0.85, WHITE),
@@ -318,16 +323,34 @@ function portalArch(id: PartId): THREE.BufferGeometry {
   ]);
 }
 
+/** The portal's arch read (the owner's IMG_0022 sighting, the sq-facade round's «Owed»): the
+ * oval rings stand on ARCH-TOPPED dark recesses, not rectangular slabs. The cap rides the
+ * portal-arch ring's own curve — 0.05 outside its inner edge, the reveal class the throat's
+ * collar reads (front-on the band's face covers the cap edge; obliquely the dark reveal reads
+ * between ring and dark) — and the lintel is gone: the arch IS the top, the wall reads in the
+ * spandrels as it does beside the ring. One cross-part read: both parts share archBaseY, so
+ * the ring's spring height in its own local coords is the dark's spring height here. The cap
+ * keeps the ring's 12-segment resolution; the plaque stays inside the part's 96-tri ceiling
+ * (64 + the two piers = 88). */
 function groundArch(id: PartId): THREE.BufferGeometry {
   const { sx, sy, sz } = envelope(id);
   const slabW = Math.min(4.9, sx - 0.5);
-  const slabH = Math.min(9.4, sy - 0.25);
   const fw = (sx - slabW) / 2;
+  const ring = envelope('portal-arch');
+  const ringR = ring.sx / 2;
+  const spring = ring.sy - ringR;
+  const capR = ringR - PORTAL_RING_T + 0.05;
+  const cap: Pt[] = [];
+  for (let i = 0; i <= 12; i++) {
+    const a = (Math.PI * i) / 12;
+    cap.push([capR * Math.cos(a), spring + capR * Math.sin(a)]);
+  }
+  const hw = slabW / 2;
+  const outline: readonly Pt[] = [[-hw, 0], [hw, 0], [hw, spring], ...cap, [-hw, spring]];
   return merge([
-    box(slabW, slabH, Math.min(0.1, sz), 0, 0, 0, DARK),
+    slab(outline, Math.min(0.1, sz), DARK),
     box(fw, sy, sz, -(slabW + fw) / 2, 0, 0, WHITE),
     box(fw, sy, sz, (slabW + fw) / 2, 0, 0, WHITE),
-    box(slabW, sy - slabH, sz, 0, slabH, 0, WHITE),
   ]);
 }
 
@@ -851,6 +874,9 @@ export function buildFacade(solved: SolvedFacade): FacadeBuild {
     // The ONE castShadow law lives on the PartMeta row (the projection reads
     // it too): the socle course hugs the wall base and casts nothing (§C4).
     mesh.castShadow = KIT[partId].castShadow;
+    // sq-shadow-dirt R1: the slope-scaled caster depth material goes ONLY where the law
+    // casts — the socle's opt-out receives neither the material nor the shadow pass.
+    if (mesh.castShadow) mesh.customDepthMaterial = SUN_DEPTH_MATERIAL;
     mesh.receiveShadow = true;
     meshes.push(mesh);
     group.add(mesh);

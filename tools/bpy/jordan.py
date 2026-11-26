@@ -1384,6 +1384,14 @@ _jordan_fixtures_spec = _importlib_util.spec_from_file_location(
 jordan_fixtures = _importlib_util.module_from_spec(_jordan_fixtures_spec)
 _jordan_fixtures_spec.loader.exec_module(jordan_fixtures)
 
+# The slice-2b wall articulation module (the white-and-gold wall order): the same
+# module law as jordan_fixtures — it never imports this file; the namespace dict and
+# the shell builder instance arrive through its hook row below.
+_jordan_walls_spec = _importlib_util.spec_from_file_location(
+    'jordan_walls', os.path.join(os.path.dirname(os.path.abspath(__file__)), 'jordan_walls.py'))
+jordan_walls = _importlib_util.module_from_spec(_jordan_walls_spec)
+_jordan_walls_spec.loader.exec_module(jordan_walls)
+
 # The review HIGH-3: the form env is validated STRICTLY at the load — empty/unset is
 # 'placeholder', 'slice_e' is 'slice_e', anything else fails loud here (a typo such as
 # 'slice-e' must never silently select the committed placeholder path).
@@ -1396,6 +1404,18 @@ else:
     raise RuntimeError(f'jordan: FIXTURE_FORM {_FIXTURE_FORM_ENV!r} is not '
                        "('placeholder' | 'slice_e')")
 
+# The slice-2b hook's env (the same strict law): empty/unset is 'none' (the committed
+# bare walls, every byte unchanged — the r15 law), 'slice_2b' builds the wall_order
+# kit, anything else fails loud at the load.
+_WALL_ARTICULATION_ENV = os.environ.get('WALL_ARTICULATION', '')
+if _WALL_ARTICULATION_ENV in ('', 'none'):
+    WALL_ARTICULATION = 'none'
+elif _WALL_ARTICULATION_ENV == 'slice_2b':
+    WALL_ARTICULATION = 'slice_2b'
+else:
+    raise RuntimeError(f'jordan: WALL_ARTICULATION {_WALL_ARTICULATION_ENV!r} is not '
+                       "('none' | 'slice_2b')")
+
 
 def build_fixtures(kit, form):
     """The runner's fixture rows through the fixture module (the module law: it never
@@ -1404,6 +1424,24 @@ def build_fixtures(kit, form):
     'slice_e'; the committed two rows (the placeholder chandelier + the placeholder
     sconce) otherwise — the byte-identical path."""
     return jordan_fixtures.fixture_rows(kit, form)
+
+
+def cornice_rows():
+    """The cornice roster row: the committed one everywhere except the slice-2b
+    export path, which swaps the builder for the L7-fascia wrapper and adds the gilt
+    slot (the fascia faces keep their own cells; only the slot index moves)."""
+    if WALL_ARTICULATION == 'slice_2b' and not BAKE:
+        return [('cornice', build_cornice_articulated, ['plaster_warm', 'gilt'])]
+    return [('cornice', build_cornice, ['plaster_warm'])]
+
+
+def build_cornice_articulated(b):
+    """The slice-2b cornice row's builder: the committed build_cornice plus L7's
+    fascia reassignment (jordan_walls.cornice_fascia enumerates the ring's four
+    runs' lower-step fascia faces by construction order, cross-checks the geometric
+    filters and moves their slot to gilt; topology, UV1 and cells untouched)."""
+    build_cornice(b)
+    jordan_walls.cornice_fascia(globals(), b)
 
 
 def wall_point(axis, plane, u, y, d):
@@ -1561,6 +1599,10 @@ def realize(b, material_names, first_cell):
     if FIXTURE_FORM == 'slice_e' and b.name in ('sconce', 'chandelier', 'chandelier_arm',
                                                 'chandelier_bead'):
         return jordan_fixtures.realize_fixture(b, material_names, first_cell)
+    if WALL_ARTICULATION == 'slice_2b' and b.name == 'wall_order':
+        # The slice-2b law (L6): the dress's UV1 is the adopted host mapping computed
+        # at build time; it allocates no cells, so first_cell is never consumed.
+        return jordan_walls.realize_wall_order(b, material_names)
     return _committed_realize(b, material_names, first_cell)
 
 
@@ -1609,6 +1651,9 @@ def stage_dir():
 def main():
     global LM_PART2_FIRST_CELL
     stage = stage_dir()
+    # finding 13: this invocation's report — the previous build's wallArticulation row
+    # dies here (the emission below gates on the row THIS build sets, export-only).
+    jordan_walls.reset_report()
     tex_dir = stage / 'tex'
     tex_dir.mkdir(parents=True, exist_ok=True)
     bpy.ops.wm.read_factory_settings(use_empty=True)
@@ -1649,7 +1694,13 @@ def main():
         # the committed placeholder chandelier row on the placeholder path (byte
         # identical), the archetype assembly (stem / arm / bead) on the slice_e path.
         *build_fixtures(globals(), FIXTURE_FORM),
-        ('cornice', build_cornice, ['plaster_warm']),
+        # The slice-2b hook (the ONE additive call, after the fixtures hook): the
+        # wall_order kit joins the roster EXPORT-ONLY — under BAKE (bake.py's scene)
+        # the row is absent, so the bake scene (and all three plates) stay the
+        # committed ones byte-for-byte by construction (the gallery's
+        # exported-never-baked guard, rastrelli-gallery.py build_room).
+        *(jordan_walls.wall_order_rows(globals(), WALL_ARTICULATION, shell) if not BAKE else []),
+        *cornice_rows(),
         # The bands fix (2026-11-16): one template datablock PER WALL (pilaster,
         # pilaster_base: north/south/east by placement) and PER TIER (window_frame:
         # lower/upper) — bake.py's centroid representative then runs inside each group
@@ -1682,12 +1733,17 @@ def main():
         if name == 'stairs':
             LM_PART2_FIRST_CELL = cells
         first_cell = cells
-        cells += len(b.faces)
+        # The slice-2b law (L6): wall_order is exported-never-baked — it allocates NO
+        # lightmap cells (its UV1 is the adopted host mapping), so the counter and
+        # the ownership map skip it and the cell totals stay the committed ones.
+        cells += 0 if (WALL_ARTICULATION == 'slice_2b' and name == 'wall_order') else len(b.faces)
         if cells > LM_CELLS['max']:
             raise RuntimeError(f'lm cells {cells} exceed LM_CAPACITY ({LM_CAPACITY}); overflow mesh: {name}')
         prims = realize(b, mats, first_cell)
         meshes[name] = {'triangles': b.triangles(), 'instances': 1, 'materials': mats,
                         'lmFirstCell': first_cell, 'faces': len(b.faces)}
+        if name == 'wall_order':
+            meshes[name]['lmFirstCell'] = None  # L6: borrowed light — no cells of its own
         primitives[name] = prims
         draws += prims
         if name == 'pane':
@@ -1905,6 +1961,11 @@ def main():
     # path never adds the key (the byte-identical law).
     if FIXTURE_FORM == 'slice_e':
         summary['declared']['chandelierFixtures'] = jordan_fixtures.declared_rows()
+    # The slice-2b row: the built truth beside the committed declared rows (the
+    # fixtures-precedent pattern; the 'none' path never adds the key — the
+    # byte-identity law). jordan.mjs's gate reads the cornice branch from it.
+    if jordan_walls.WALL_ORDER_REPORT is not None:
+        summary['declared']['wallArticulation'] = jordan_walls.WALL_ORDER_REPORT
     (stage / 'summary.json').write_text(json.dumps(summary, sort_keys=True, indent=2, allow_nan=False) + '\n', encoding='utf8')
     print('ZIMNY_SUMMARY ' + json.dumps(summary, sort_keys=True, separators=(',', ':'), allow_nan=False))
 

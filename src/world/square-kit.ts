@@ -6,11 +6,12 @@
  * bind keys widen by the three pane slots (dark/dim/bright-pane, mirroring
  * night-facade's PANE_LEVELS) and the generated lit-map law (hqPaneLevelTable) feeds
  * the bpy content; Python holds data, never a law (the vitest twin pin enforces it).
+ * sq-arch-day B5: KIT_PORTAL_BOX becomes explicit (±2.75 × 10.0) — it clears the
+ * middle arch's concentric family out to the kit ring's outer edge.
  */
 
 import { levelOf, type PaneLevel } from './night-facade';
 import type { Bounds, RoomBudget, RoomManifest, Vec3 } from './registry';
-import { THROAT_VOID } from './throat';
 
 export type KitAllow = Readonly<{
   meshes: number;
@@ -67,9 +68,15 @@ export const KIT_RAIL_SEGMENT = {
   end: [0, 0, 124],
 } satisfies Readonly<{ start: Vec3; end: Vec3 }>;
 
+/**
+ * sq-arch-day B5 (the Q10 pick): the portal exclusion is now EXPLICIT — it clears the middle
+ * arch's concentric family (THROAT_VOID: halfWidth = radius 2.45, crown 9.70) out to the kit
+ * ring's outer edge: xHalf 2.75 = the ring's outer r (the void→ring-outer margin 0.30), yTop
+ * 10.0 above the crown. The old derivation from THROAT_VOID is retired with the arch.
+ */
 export const KIT_PORTAL_BOX = {
-  xHalf: THROAT_VOID.halfWidth,
-  yTop: THROAT_VOID.topY,
+  xHalf: 2.75,
+  yTop: 10.0,
   zSouth: 93.5,
 } satisfies Readonly<{ xHalf: number; yTop: number; zSouth: number }>;
 

@@ -4,13 +4,17 @@
  * Two meshes in one group the host adds INTO the palace group (the indoor flip hides it the
  * frame a room mounts; the boot fade reaches it through setThroatOpacity):
  * - `lit`: vault, walls, floor and the mouth collar — Lambert + vertex albedo (src/world/throat.ts),
- *   lit by the square's sun and sky so the mouth follows the hour; receives the piers' shadows.
+ *   lit by the square's sun and sky so the mouth follows the hour; receives the piers' shadows,
+ *   and since sq-arch-day B1a it also CASTS (the B1a(3) honour list — the vault face joins).
  * - `lamp`: the last run of vault and floor plus the far wall — unlit vertex radiance. The slab
  *   is constant light; E(h) is the eye: a faint warm spot at noon, the arch's glow at night.
  * Both are DoubleSide: the massing void encloses them so no back face is ever exposed, and the
  * winding cannot silently blank a capture-only validation. Zero textures, zero custom slots.
- * openGroundArch(): the kit's middle ground-arch instance (the dark slab that fills the opening
- * today) is collapsed to a zero matrix AFTER the build — the solver/kit law is untouched.
+ * sq-arch-day B5: the mouth collar is the ARCH outline (throatVoidOutline) minus the vault
+ * profile — the 0.10 ring concentric with the void; the massing head in main.ts builds its ONE
+ * Shape from the same law. openGroundArch(): the kit's middle ground-arch instance (the dark
+ * slab that fills the opening today) is collapsed to a zero matrix AFTER the build — the
+ * solver/kit law is untouched.
  */
 import * as THREE from 'three';
 import type { Pt, Rgb } from '../world/throat';
@@ -24,8 +28,8 @@ import {
   skyLitAlbedo,
   THROAT,
   THROAT_TRIANGLE_CEILING,
-  THROAT_VOID,
   throatProfile,
+  throatVoidOutline,
 } from '../world/throat';
 import type { FacadeBuild } from './facade-builder';
 import { countTriangles } from './facade-builder';
@@ -119,14 +123,20 @@ function endWall(a: Acc, profile: readonly Pt[], c: Rgb): void {
   const base = profileRow(a, profile, THROAT.depthM, c);
   for (let i = 1; i < profile.length - 1; i++) a.idx.push(base, base + i + 1, base + i);
 }
-/** The mouth collar: the void rectangle minus the vault profile — the dark reveal. */
+/**
+ * The mouth collar (sq-arch-day B5): the arch outline minus the vault profile — the 0.10 ring
+ * concentric with the void; the same earcut Shape pattern the rectangular void used, with the
+ * outline walked forward and the vault profile reversed behind it.
+ */
 function collar(a: Acc, profile: readonly Pt[]): void {
-  const { halfWidth: vw, topY: vt } = THROAT_VOID;
+  const outline = throatVoidOutline();
+  const first = at(outline, 0);
   const shape = new THREE.Shape();
-  shape.moveTo(-vw, 0);
-  shape.lineTo(-vw, vt);
-  shape.lineTo(vw, vt);
-  shape.lineTo(vw, 0);
+  shape.moveTo(first[0], first[1]);
+  for (let i = 1; i < outline.length; i++) {
+    const p = at(outline, i);
+    shape.lineTo(p[0], p[1]);
+  }
   for (let i = profile.length - 1; i >= 0; i--) shape.lineTo(at(profile, i)[0], at(profile, i)[1]);
   const g = new THREE.ShapeGeometry(shape);
   const p = g.getAttribute('position');
@@ -197,6 +207,9 @@ export function buildThroat(): ThroatBuild {
   const lit = new THREE.Mesh(toGeometry(litAcc), litMaterial);
   lit.name = 'ThroatLit';
   lit.receiveShadow = true;
+  // sq-arch-day B1a(3): the vault face joins the castShadow/receiveShadow honour list — the
+  // sun reaching into the mouth shades the passage physically now, on top of the B5b knots.
+  lit.castShadow = true;
   const lamp = new THREE.Mesh(toGeometry(lampAcc), lampMaterial);
   lamp.name = 'ThroatLamp';
   const triangles = countTriangles(lit.geometry) + countTriangles(lamp.geometry);

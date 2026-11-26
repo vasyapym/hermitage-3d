@@ -60,6 +60,10 @@ surpluses remain unspendable.
 
 ## 1. The budget read-back
 
+The read-back splits into three subcontracts below: the snapshot counting basis (1.1), the shared JS/RU balances (1.2) and the per-room payload read (1.3).
+
+## 1.1 Snapshot identity and counting basis
+
 *All byte figures below are decimal bytes in their respective accounting classes. These are
 remaining balances against the supplied snapshot, before in-flight work.*
 
@@ -70,6 +74,8 @@ remaining balances against the supplied snapshot, before in-flight work.*
 | Military Gallery of 1812 | 991,300 — 24.8% | 592,882 — 22.4% | 2 draws remaining: 17 of 19 | Draw-constrained, not payload-exhausted |
 | Palace Square | 4,000,000 — 100% | No separate cap supplied | No triangle/draw ceiling supplied | Unused asset allocation, incomplete runtime envelope |
 
+
+## 1.2 Shared JS/RU read-back
 **JavaScript is operationally almost spent.** The hard fence leaves 64,526 B (350,000 − 281,474
 — the refreshed number, §0.2), but the standing ceiling class leaves only approximately **4,233
 B**. One conventional +3,000 B round would leave approximately **1,233 B** before other
@@ -95,6 +101,8 @@ not a stated cap or a spending balance. Establish whether it is build input, emi
 bundled code before attributing delivery cost; source changes must regenerate it, while
 unchanged inputs must remain byte-identical.
 
+
+## 1.3 Room and shared-asset payload read-back
 **Rastrelli should retain its reserve.** Its low payload utilization is not evidence that the
 pale gallery needs another detail program. The remaining texture and payload capacity can
 support a bounded, evidence-led correction without an obvious byte-cap problem. First measure
@@ -139,6 +147,10 @@ overrun, or an excessive mobile transition peak.
 
 ## 2. The preferred approach going forward
 
+The preference splits into three subcontracts: the room-local assets-first construction (2.1), the runtime/shared-JS exceptions (2.2) and the owner choices (2.3).
+
+## 2.1 Room-local assets-first construction
+
 **The next product is a finished four-stop work, not a larger inventory.** The route, threshold
 grammar, authored stops, seasonal sky, bilingual surface, and device program already constitute
 a substantial public piece. The project is ready to stop treating added architectural detail as
@@ -172,6 +184,8 @@ light-contract, and manifest changes need one integration owner each. Rebase dep
 against the landed asset snapshot and reconcile its reservations before merge; do not assemble
 the final budget by adding independently measured branch totals.
 
+
+## 2.2 Runtime behavior and shared-JS exceptions
 **Name the gate duty before the stack begins.** For an explicitly agreed bounded stack, the last
 merging session owns the full existing gate on a quiet machine, with competing bakes and GPU
 work stopped. Earlier rounds must say that final gating is pending, not imply a pass. If the
@@ -207,6 +221,8 @@ improve access, but does not make the spatial viewing limitation disappear. Chan
 stops, or B9 remains an owner decision. Present that conflict explicitly rather than hiding it
 in an accessibility patch or asking for repeated phone swipes as the solution.
 
+
+## 2.3 Owner choices and departures from the preference
 **Revisit devices at two deliberate points.** Use targeted device checks during any light or
 loader change that alters decode, allocation, or readiness behavior; then perform one coherent
 acceptance pass after the accepted stack. Cover the relevant tiers, portrait/landscape use,
@@ -235,6 +251,10 @@ establish whether a renderer change addresses an actual constraint.
 
 ## 3. Future-round shape
 
+The shape splits into three subcontracts: the planning and reservation duty (3.1), the parallel-lane declarations and DEC-ready parking (3.2) and the integration/release duties (3.3).
+
+## 3.1 Planning and reservation before first spend
+
 **One round should resolve one decision or one coupled implementation.** A room light program
 may legitimately include three bakes, encoding, materials, and manifests because those artifacts
 form one contract. A loading round may include lifecycle and cancellation because they share one
@@ -251,6 +271,8 @@ room-open anecdote. Missing triangle inventories, transition peaks, or source ph
 be named as missing — not replaced by reassuring aggregate headroom. Do not run a universal audit
 every round; obtain the measurements that could change that round's choice.
 
+
+## 3.2 Parallel-lane declarations and DEC-ready parking
 **Keep one authoritative reservation ledger.** Charge shared JS and shared assets once,
 distinguish committed use from reserved deltas, and release reservations when a candidate is
 abandoned. Update room balances after merge rather than presenting the pre-branch table as
@@ -267,6 +289,8 @@ time to a specialist and salvage-integrate the result rather than pasting it. Th
 can solicit distinct judgments, but it needs a bounded question and a synthesis decision — not a
 permanent consensus loop that repeatedly reopens settled work.
 
+
+## 3.3 Integration, DEC assignment and release/abandonment
 **Freeze the interfaces that make parallel work possible.** Route and camera laws,
 threshold/copy commitments, room-manifest structure, shared light encode/decode semantics, and
 the selected decoder family should not drift through incidental cleanup. A necessary change to

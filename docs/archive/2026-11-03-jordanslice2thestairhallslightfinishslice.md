@@ -170,3 +170,7 @@ n/r — no segment about this round in other rounds' records is present in this 
 docs/briefs/ROUNDS.md · row «jordan-slice-2 the stair hall's light/finish slice» (round 19) · line 19, 10966 B @ ff2a85ed19b41c2bda750dc1dd229e6409201daf
 docs/STATE.md · the jordan-slice-2 window bullet (head 2026-11-03) · lines 164-345 @ ff2a85ed19b41c2bda750dc1dd229e6409201daf
 docs/decisions.md · no DEC owned by this round (none cited)
+
+- The ledger reservation row (moved from docs/budget-ledger.md 2026-11-26, the records decision step 6):
+
+| jordan-slice-2 — RELEASED | stair hall light program (percentile encode, lamp bake rig, pane emission, noise textures, shell subdivision): JS +244 gz, ru +0, payload 1,028,681 → 1,237,543, tris 20,898 → 21,872, unique 5,262 → 6,236, decode-cells 2,798 → 3,250 | MERGED 2026-11-05 — spent, released |

@@ -64,3 +64,11 @@ From rg-f4's STATE bullet (2026-11-15 MERGED): another lane's 26-hour-old vite p
 docs/briefs/ROUNDS.md · row «square-palace-2» (round 112) · line 112
 docs/decisions.md · DEC-045 · lines 92-93
 docs/STATE.md · square-palace-2 MERGED TO MAIN bullet · line 16
+
+- The ledger reservation row (moved from docs/budget-ledger.md 2026-11-26, the records decision step 6):
+
+| **square-palace-2** | certification round: declared JS +0 gz · RU +0 · exterior 0 · draws +0 · tris +0 (docs/tests/snapshots only, no src/ change); detector pin t = 0.1. Parked DEC-ready numbers kept (not in archives as far as the brief shows): SQUARE_DRAW_CAP 56 / SQUARE_TRI_CAP 75,000; KIT allow 6 meshes / 18,000 tris / 1,500,000 payload / TEX_VRAM 8,388,608; SQUARE_JS_WIRING_ALLOW 2,048 B (ceiling 285,707 → 287,755 proposed); HQ_CORNICE_M 20.5; AL-SQ-01…05 | MERGED 2026-11-15 — SPENT and RELEASED; DEC-045 assigned; dec-noon golden re-baseline + full-battery verdict ride the wave finale (deferred NOT waived); machinery's DEC-ready rows stay parked for its own merge |
+
+### ROADMAP before compaction (moved 2026-11-26)
+
+- the column stylobate (steps under the pedestal; sourcing: step count/height — CLARIFIED: `COLUMN_PLINTH` already models «the sourced three rows, plain boxes» (world/column.ts:29); the hunt must mean a BROADER stepped platform, not the plinth's rows), the Column's candelabra (SPLIT from the lantern row by the find: the 1876 Rachau decorative lamps at the column — Monferran's own design, «канделябр с медными фонарями и газовым освещением» (ru.wiki); the S0b accent — the SW corner sits ≈ 8.6° right of the axis in the monument's own frame, the NW corner ≈ 29° left; Sh never sees them — the NW corner bearing ≈ 142° is BEHIND the close-pass gaze; count/height UNSOURCED — NULL re-confirmed 2026-11-15 across ru.wiki ×2 + Commons captions; the form rides two dated photo references: the 1896 photochrom + the 1897–98 postcard; the 1930s removal rides the fence-melt sentence, the candelabra's simultaneity INFERRED), the square's 1977 corner lanterns (far, low — the four corner recreations; form/height NULL re-confirmed across ru.wiki/walkspb/СПб-Энциклопедия-2006/pastvu)
