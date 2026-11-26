@@ -25,6 +25,7 @@
     "asset:basis": "node tools/asset.mjs basis",
     "kit:square": "node tools/square-kit/census.mjs && pnpm exec vitest run tests/square-kit.test.ts",
     "asset:gallery-layout": "node tools/gallery/layout.mjs",
+    "asset:st-george-law": "node tools/st-george/emit.mjs",
     "asset": "node tools/asset.mjs all",
     "gallery:transcribe": "node tools/gallery/import.mjs transcribe",
     "gallery:fetch": "node tools/gallery/import.mjs fetch",
