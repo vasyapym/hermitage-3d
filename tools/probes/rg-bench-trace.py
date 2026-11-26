@@ -25,7 +25,7 @@ ap.add_argument('--exr')
 opts = ap.parse_args(argv)
 stage = opts.stage.rstrip('/\\') + '/'
 glb = opts.glb or stage + 'rastrelli-gallery.raw.glb'
-exr = opts.exr or stage + 'rastrelli-gallery.day.paint.exr'
+exr = opts.exr or stage + 'bake-day/lm/day.exr'
 targets = [int(v) for v in opts.indices.split(',')]
 
 lm = json.load(open(stage + 'summary.json', encoding='utf-8'))['lm']
