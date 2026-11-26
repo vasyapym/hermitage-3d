@@ -30,6 +30,8 @@
 # (the 1024 shell and the 2048 final sample one layout).
 #
 # Writes:  <stage>/st-george.glb (export runs; NOT under ZIMNY_BAKE=1)
+#          <stage>/tex/ornament-gilt.png + tex/ornament-parquet.png (the record's
+#          step-4 plates, copied verbatim; export runs only)
 #          <stage>/lm/cells.json (bake runs only, or ZIMNY_LM_LAYOUT_OUT)
 #          one `ZIMNY_SUMMARY <json sorted-keys>` line (export runs only) —
 #          tools/asset.mjs extracts it into <stage>/summary.json.
@@ -49,6 +51,7 @@ import bpy
 import json
 import math
 import os
+import shutil
 import sys
 
 BAKE = os.environ.get('ZIMNY_BAKE') == '1'
@@ -279,10 +282,24 @@ def patch_projections(vertices, normal):
     return dus, dvs
 
 
-# ---- materials (DECISION-1 step 2: the STEP-2 NEUTRAL look) ----------------------
+# ---- materials (DECISION-1 steps 2 and 4) -----------------------------------------
 # One material per slot, named the slot id VERBATIM (the bake registration
-# matches these names). Plain Principled BSDF, no texture nodes, fixed base
-# colours and roughness/metallic constants — schematic and calm, no randomness.
+# matches these names). Plain Principled BSDF; fixed base colours and
+# roughness/metallic constants. The record's step-4 line wires the two
+# ornament slots to the rastered plates as base-colour textures (jordan.py's
+# plafond/neva pattern): the plate PNG lands in the stage's tex/ for the gltf
+# step, and the MIRROR sampler exports glTF MIRRORED_REPEAT.
+#
+# THE MIRROR LAW (the record: the drawing is ONE QUADRANT mirrored): the SVG
+# draws one quadrant of the 45.04 x 10.20 m ornament field; the plate faces'
+# albedo UV layer ('uv') maps the face's own metres to [0, 2] on both axes and
+# the ornament textures carry the MIRRORED_REPEAT sampler, so the drawing
+# mirrors 2x2 over the field. The 'lm' layer keeps the chart mapping untouched.
+# The plates are plain sRGB albedo — NO mean-linear normalization (unlike the
+# plafond's bake plate, jordan.py::_plafond_art_pixels; the bounce pin does not
+# apply to a step-4 albedo plate).
+
+import shutil
 
 MATERIAL_ROWS = (
     # slot id, base colour (linear), roughness, metallic, emission, strength
@@ -301,6 +318,47 @@ MATERIAL_ROWS = (
     ('throne-gilt', (0.620, 0.460, 0.170), 0.35, 1.0, None, 0.0),
     ('relief', (0.800, 0.790, 0.760), 0.50, 0.0, None, 0.0),
 )
+
+
+# The record's step-4 plates: the ornament slots reference the rastered plates
+# (tools/bpy/plate-raster.mjs <palette> → tools/bpy/st-george-ornament-<palette>.png,
+# copied verbatim into <stage>/tex/ as tex/<slot>.png for tools/gltf/st-george.mjs's
+# stageTextures/encodeTextures). Missing plate = a loud refusal, never a silent colour
+# slot: the plates ARE the step-4 look.
+ORNAMENT_PLATES = {
+    'ornament-gilt': 'gilt',
+    'ornament-parquet': 'parquet',
+}
+PLATE_SPAN = 2.0    # the albedo UV spans [0, 2] on both axes (the mirror law)
+PLATE_SLOTS = frozenset(ORNAMENT_PLATES)
+
+
+def _plate_image(slot):
+    """The rastered plate, loaded sRGB and stored-sRGB byte-faithful (no Blender
+    reprocessing): the glTF exporter embeds the PNG bytes verbatim."""
+    src = os.path.join(SCRIPT_DIR, 'st-george-ornament-%s.png' % ORNAMENT_PLATES[slot])
+    if not os.path.exists(src):
+        refuse('the ornament plate is missing at %s — run '
+               'node tools/bpy/plate-raster.mjs %s' % (src, ORNAMENT_PLATES[slot]))
+    img = bpy.data.images.load(src, check_existing=False)
+    img.name = slot
+    img.colorspace_settings.name = 'sRGB'
+    return img
+
+
+def _wire_plate(mat, image):
+    """The jordan.py plafond pattern (ShaderNodeTexImage -> Base Color over the 'uv'
+    layer) with the record's mirror law in the sampler: Blender 4.2's MIRROR extension
+    exports glTF MIRRORED_REPEAT (33648) on both axes."""
+    nt = mat.node_tree
+    tex = nt.nodes.new('ShaderNodeTexImage')
+    tex.image = image
+    tex.interpolation = 'Linear'
+    tex.extension = 'MIRROR'
+    uvn = nt.nodes.new('ShaderNodeUVMap')
+    uvn.uv_map = 'uv'
+    nt.links.new(uvn.outputs['UV'], tex.inputs['Vector'])
+    nt.links.new(tex.outputs['Color'], nt.nodes['Principled BSDF'].inputs['Base Color'])
 
 
 def make_materials():
@@ -322,6 +380,8 @@ def make_materials():
             bsdf.inputs['Emission Color'].default_value = \
                 (emission[0], emission[1], emission[2], 1.0)
             bsdf.inputs['Emission Strength'].default_value = strength
+        if name in ORNAMENT_PLATES:
+            _wire_plate(mat, _plate_image(name))
         made[name] = mat
     return made
 
@@ -353,10 +413,23 @@ def _layers(bm):
     return bm.loops.layers.uv.new('uv'), bm.loops.layers.uv.new(UV_LIGHTMAP)
 
 
-def _bind(bm, poly, patch, sts):
-    """Record a polygon's (s, t) metres per loop against its chart patch."""
-    PENDING.setdefault(id(bm), []).append((poly, patch, tuple(sts)))
+def _bind(bm, poly, patch, sts, plate_sts=None):
+    """Record a polygon's (s, t) metres per loop against its chart patch — plus the
+    plate-face albedo UVs when the polygon rides an ornament plate slot (the mirror
+    law; None keeps 'uv' on the chart mapping)."""
+    PENDING.setdefault(id(bm), []).append(
+        (poly, patch, tuple(sts), None if plate_sts is None else tuple(plate_sts)))
     return poly
+
+
+def _plate_uv(st, w_m, h_m):
+    """One (s, t) metre pair -> the plate's albedo UV: the face's own metres scaled to
+    [0, PLATE_SPAN] on both axes. The mirrored tiling is invariant under the projection
+    frame's direction, so no axis orientation is special-cased."""
+    s_m, t_m = st
+    u = 0.0 if w_m <= 0.0 else (s_m / w_m) * PLATE_SPAN
+    v = 0.0 if h_m <= 0.0 else (t_m / h_m) * PLATE_SPAN
+    return (u, v)
 
 
 def _finish(obj, bm):
@@ -373,14 +446,19 @@ def _finish_all():
         if len(bound) != len(bm.faces):
             refuse('%s: %d of %d polygons carry no lightmap patch'
                    % (obj.name, len(bm.faces) - len(bound), len(bm.faces)))
-        for poly, patch, sts in bound:
+        for poly, patch, sts, plate_sts in bound:
             if len(sts) != len(poly.loops):
                 refuse('%s: %d (s, t) pairs for a %d-loop polygon on %s'
                        % (obj.name, len(sts), len(poly.loops), patch.name))
-            for loop, (s_m, t_m) in zip(poly.loops, sts):
+            if plate_sts is not None and len(plate_sts) != len(poly.loops):
+                refuse('%s: %d plate UVs for a %d-loop polygon on %s'
+                       % (obj.name, len(plate_sts), len(poly.loops), patch.name))
+            for loop, (s_m, t_m), plate_uv in zip(poly.loops, sts, plate_sts or ()):
                 value = patch.uv(s_m, t_m)
-                loop[uv].uv = value
                 loop[lm].uv = value
+                # The mirror law: a plate face's albedo UV carries the [0, 2] mapping;
+                # every other face (and the lm layer always) keeps the chart mapping.
+                loop[uv].uv = plate_uv if plate_sts is not None else value
         for poly in bm.faces:
             poly.smooth = False       # flat shading; the faces are planar
         bmesh.ops.triangulate(bm, faces=bm.faces[:])
@@ -444,6 +522,10 @@ def build_face(bm, face, account, build_geometry):
     if not build_geometry:
         return
     sts = [(du - du_min, dv - dv_min) for du, dv in zip(dus, dvs)]
+    # The mirror law: the two ornament slots' faces are the plate faces — their albedo
+    # UVs map the face's own metres to [0, PLATE_SPAN] on both axes (one face per slot,
+    # the full 45.04 x 10.20 m field, so the face mapping IS the field mapping).
+    plate = SLOT_IDS[slot] in PLATE_SLOTS
     if kind == 'bilinear-grid':
         if len(vertices) != 4:
             refuse('law face %s is a %d-vertex bilinear-grid (a grid needs four corners)'
@@ -458,6 +540,8 @@ def build_face(bm, face, account, build_geometry):
                   for j in range(v_count + 1)] for i in range(u_count + 1)]
         gridst = [[_bilinear2(sts, i / u_count, j / v_count)
                    for j in range(v_count + 1)] for i in range(u_count + 1)]
+        gridplate = [[_plate_uv(st, w_m, h_m) for st in row] for row in gridst] \
+            if plate else None
         bverts = [[bm.verts.new(to_b(p)) for p in row] for row in grid3]
         first = None
         for i in range(u_count):
@@ -465,7 +549,10 @@ def build_face(bm, face, account, build_geometry):
                 poly = bm.faces.new((bverts[i][j], bverts[i + 1][j],
                                      bverts[i + 1][j + 1], bverts[i][j + 1]))
                 _bind(bm, poly, patch, (gridst[i][j], gridst[i + 1][j],
-                                        gridst[i + 1][j + 1], gridst[i][j + 1]))
+                                        gridst[i + 1][j + 1], gridst[i][j + 1]),
+                      None if gridplate is None else
+                      (gridplate[i][j], gridplate[i + 1][j],
+                       gridplate[i + 1][j + 1], gridplate[i][j + 1]))
                 if first is None:
                     first = poly
         account['quads'] += u_count * v_count
@@ -475,7 +562,10 @@ def build_face(bm, face, account, build_geometry):
         first = None
         for k in range(1, len(vertices) - 1):
             poly = bm.faces.new((bverts[0], bverts[k], bverts[k + 1]))
-            _bind(bm, poly, patch, (sts[0], sts[k], sts[k + 1]))
+            _bind(bm, poly, patch, (sts[0], sts[k], sts[k + 1]),
+                  None if not plate else (_plate_uv(sts[0], w_m, h_m),
+                                          _plate_uv(sts[k], w_m, h_m),
+                                          _plate_uv(sts[k + 1], w_m, h_m)))
             if first is None:
                 first = poly
         account['fan'] += built
@@ -682,6 +772,16 @@ def reset_scene():
     return collection
 
 
+def stage_plates(stage):
+    """Copy the rastered plates into the stage's tex/ dir verbatim — the exact names
+    tools/gltf/st-george.mjs's stageTextures/encodeTextures consume (tex/<slot>.png)."""
+    tex_dir = os.path.join(stage, 'tex')
+    os.makedirs(tex_dir, exist_ok=True)
+    for slot, palette in ORNAMENT_PLATES.items():
+        src = os.path.join(SCRIPT_DIR, 'st-george-ornament-%s.png' % palette)
+        shutil.copyfile(src, os.path.join(tex_dir, slot + '.png'))
+
+
 def main():
     declared_room = room_arg()
     if declared_room is not None and declared_room != ROOM_ID:
@@ -722,6 +822,7 @@ def main():
         write_lm_layout(stage)
         return
 
+    stage_plates(stage)
     export_glb(os.path.join(stage, ROOM_ID + '.glb'))
     sys.stdout.write('ZIMNY_SUMMARY %s\n' % json.dumps(
         build_summary(), sort_keys=True, separators=(',', ':'), allow_nan=False))

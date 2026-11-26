@@ -207,13 +207,16 @@ describe('P8 — the cold entry, the arriving airlock, the seed stop, the «За
 });
 
 describe('P10 — the lane’s diff-scope fence (retires at the merge)', () => {
-  // The step-3 fence: nothing under src/engine/; rooms/jordan/, rooms/rastrelli-gallery/,
-  // their assets, and the 1812 module and assets byte-identical; registry.ts widened on the
-  // union lines only. The census misses the record's FILES list named: src/world/prefetch.ts
-  // ROOM_IDS (noteManifest throws on the hall's manifest — the load path), src/main.ts
-  // RAIL_CHAIN (the walk's boundary chain — M4 was inert without it), and the typecheck-
-  // mandatory INTERIOR_LOOK_GAIN row (Record<RoomId, …>). All three are one-line widenings
-  // of "the list's data"; the protected rooms stay byte-identical either way.
+  // The lane fence (the record's P10): nothing under src/engine/; rooms/jordan/,
+  // rooms/rastrelli-gallery/, their assets, and the 1812 module and assets byte-identical;
+  // registry.ts widened on the union lines only. The census misses the record's FILES list
+  // named: src/world/prefetch.ts ROOM_IDS (noteManifest throws on the hall's manifest — the
+  // load path), src/main.ts RAIL_CHAIN (the walk's boundary chain — M4 was inert without it),
+  // and the typecheck-mandatory INTERIOR_LOOK_GAIN row (Record<RoomId, …>). All three are
+  // one-line widenings of "the list's data" (DECISION-1, amendment 10); the protected rooms
+  // stay byte-identical either way. The diff base is the LANE's start commit (d38cec0, the
+  // branch point) — cumulative over every landed step plus the working tree, so the fence
+  // holds at review time AND at the merge, where a working-tree status pin would be empty.
   const ALLOWED = [
     /^src\/world\/registry\.ts$/,
     /^src\/world\/prefetch\.ts$/,
@@ -224,9 +227,22 @@ describe('P10 — the lane’s diff-scope fence (retires at the merge)', () => {
     /^rooms\/1812\/contract\.ts$/,
     /^rooms\/st-george\//,
     /^tests\/st-george-wiring\.test\.ts$/,
+    /^tests\/st-george-law\.test\.ts$/,
     /^tests\/rooms-registry\.test\.ts$/,
     /^tests\/room-index\.test\.ts$/,
     /^tests\/lightmap-look\.test\.ts$/,
+    // the asset chain's own lane files (the record's FILES block + amendment 7's rows)
+    /^tools\/st-george\//,
+    /^tools\/bpy\/st-george/,
+    /^tools\/bpy\/plate-raster\.mjs$/,
+    /^tools\/bpy\/bake\.py$/,
+    /^tools\/bake\.mjs$/,
+    /^tools\/gltf\/st-george\.mjs$/,
+    /^public\/assets\/st-george\//,
+    /^\.gitignore$/,
+    /^biome\.json$/,
+    /^package\.json$/,
+    /^docs\/STATE\.md$/,
   ];
   const FORBIDDEN = [
     /^src\/engine\//,
@@ -238,14 +254,20 @@ describe('P10 — the lane’s diff-scope fence (retires at the merge)', () => {
     /^rooms\/1812\/room\.ts$/,
   ];
   it('every changed or added path is inside the lane’s allowlist', () => {
-    const status = execFileSync('git', ['status', '--porcelain'], {
+    const paths = execFileSync('git', ['diff', '--name-only', 'd38cec0'], {
       cwd: ROOT,
       encoding: 'utf8',
-    });
-    const paths = status
+    })
       .split('\n')
-      .filter((line) => line.length > 3)
-      .map((line) => line.slice(3).trim().replace(/^"|"$/g, ''));
+      .filter((line) => line.length > 0)
+      .concat(
+        execFileSync('git', ['ls-files', '--others', '--exclude-standard'], {
+          cwd: ROOT,
+          encoding: 'utf8',
+        })
+          .split('\n')
+          .filter((line) => line.length > 0),
+      );
     expect(paths.length, 'the lane has changes to pin').toBeGreaterThan(0);
     for (const p of paths) {
       expect(
@@ -259,10 +281,14 @@ describe('P10 — the lane’s diff-scope fence (retires at the merge)', () => {
     }
   });
   it('registry.ts’s diff touches only the union lines', () => {
-    const diff = execFileSync('git', ['diff', 'HEAD', '--', 'src/world/registry.ts'], {
-      cwd: ROOT,
-      encoding: 'utf8',
-    });
+    const diff = execFileSync(
+      'git',
+      ['diff', 'd38cec0', '--', 'src/world/registry.ts'],
+      {
+        cwd: ROOT,
+        encoding: 'utf8',
+      },
+    );
     const changed = diff
       .split('\n')
       .filter(
