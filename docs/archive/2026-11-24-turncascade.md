@@ -91,3 +91,5 @@ owner's voice), the south-wall mirrors (runtime reflection — the engine fence)
 - The FULL gate (e2e + the darwin goldens + the DEC numbers) stays with the LAST merging
   session (deferred NOT waived). The jordan scene goldens flip by design (the north wall is
   in every stop's frame) — the DEC-ready rows for the darwin battery.
+
+ARCHIVE-APPEND 2026-11-26 — Trap 1, retired 2026-10-28, moved from STATE 2026-11-26 (the Transport traps list): the MASKED-marker protocol. The transport masked verbatim numbers exactly once — the single incident that wrote this list — so the marker protocol (`MASKED-IN-BRIEF: keep the <name> value`) is no longer used in briefs. Numbers still belong in orchestrator-owned files where convenient, as ordinary content.

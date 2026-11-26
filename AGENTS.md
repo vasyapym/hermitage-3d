@@ -2,7 +2,8 @@
 
 **Zimny** — a stylized 3D recreation of the Winter Palace (Hermitage, Saint Petersburg) for the web. Every phase ends at a public URL. Work is done by AI agents under the owner's direction: write for agents — checklists over vibes, tests over "should work".
 
-Read order before touching anything: `README.md` → `ROADMAP.md` → `docs/charter.md` → `docs/decisions.md` → `docs/architecture.md`.
+Read order before touching anything: `README.md` → `ROADMAP.md` → `docs/charter.md` → `docs/decisions.md` → `docs/architecture.md` → `docs/STATE.md`.
+Then by moment: `docs/relay.md` before composing a brief · `docs/ops.md` before a gate run or a merge.
 
 **Standing situation to read (any task, any room; the owner's directive).** Before answering
 or planning, read `docs/STATE.md`'s **Standing protocol → “Standing situation — the
@@ -19,8 +20,7 @@ agent wedges (thought-loop; queued messages unread): discover the API —
 the harness marks the session cancelled. A cancelled session is NOT revived by queued
 messages — treat as terminal: snapshot the working tree, continue on a fresh agent; the
 work state lives on disk (snapshots + probe logs). Never pkill the shared daemon (it kills
-every session incl. the orchestrator's own). Mirror entry: `docs/STATE.md`, transport
-trap 0.
+every session incl. the orchestrator's own).
 
 
 
@@ -34,4 +34,4 @@ trap 0.
 6. **Licensing.** No photography of real interiors as textures; every source cited in `ATTRIBUTIONS.md`; every artistic deviation recorded in `docs/artistic-license.md` in the phase it appears.
 7. **Git hygiene.** Stage only files you authored; never commit `.DS_Store`, build junk or `probes/` scratch.
 8. **Core stays core.** Adding a room never touches `src/engine/` or `src/world/`; if it feels like it must, stop and raise the question instead of hacking through.
-9. **Content is assets-first; the square's kit is the door.** New scene content (geometry, materials, lightmap content, textures) rides the room's own budgets (payload / texture / tris / draws / decode-cells), not the shared JS line — zero JS for content by default; new runtime behavior is the only JS spender and declares its delta against the shared envelope (the DEC-045 pattern; details: `docs/STATE.md` → Standing protocol → «Standing construction path»). New Palace Square elements ship through the exterior kit (`public/assets/square/` — DEC-045 + DEC-049; `pnpm kit:square`, the manifest law in `src/world/square-kit.ts`); procedural/JS content is the exception and carries a justification row in the round record.
+9. **Content is assets-first; the square's kit is the door.** New scene content (geometry, materials, lightmap content, textures) rides the room's own budgets (payload / texture / tris / draws / decode-cells), not the shared JS line — zero JS for content by default; new runtime behavior is the only JS spender and declares its delta against the shared envelope (the DEC-045 pattern; details: `docs/relay.md` → «Standing construction path»). New Palace Square elements ship through the exterior kit (`public/assets/square/` — DEC-045 + DEC-049; `pnpm kit:square`, the manifest law in `src/world/square-kit.ts`); procedural/JS content is the exception and carries a justification row in the round record.

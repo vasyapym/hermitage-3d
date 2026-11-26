@@ -12,7 +12,7 @@ Lifetime cap: **≤ 7 rooms, ever** (charter — [docs/charter.md](docs/charter.
 4. The least machinery a senior reviewer would still respect.
 
 **Course — standing preferences (owner, 2026-11-23; suggestions to explore, not contracts; measured by `pnpm build && pnpm budget`; the numbers live only in docs/budget-ledger.md):**
-- JS lands flat or negative. A candidate round's default is shared-JS delta ≤ 0; a positive delta declares its plate in the ledger (the existing OWNER PLATE line). Content never spends JS — AGENTS.md rule 9 / STATE «Standing construction path» (not restated here). `pnpm budget` prints the per-chunk split (rooms · ru · other): the slimming target is the row the print names, never a guess.
+- JS lands flat or negative. A candidate round's default is shared-JS delta ≤ 0; a positive delta declares its plate in the ledger (the existing OWNER PLATE line). Content never spends JS — AGENTS.md rule 9 / docs/relay.md «Standing construction path» (not restated here). `pnpm budget` prints the per-chunk split (rooms · ru · other): the slimming target is the row the print names, never a guess.
 - Painted content as authored SVG → deterministic raster → KTX2 plate on the room's own texture line. Precedent: tools/bpy/plafond-art.svg + tools/bpy/plafond-raster.mjs (the Jordan plafond). The rasterizer generalises at the second plate, not before.
 - Where the rest lives: features — the v2 menu below · deferred — docs/parking-lot.md · costs — docs/budget-ledger.md · state — docs/STATE.md · the plan's successor — the parked vision round (parking-lot).
 
