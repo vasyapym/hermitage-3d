@@ -6,9 +6,9 @@ Start with AGENTS.md and this file only. Live state holds open work; Recent is a
 
 ### Now
 
-Tree: main @ records-decision · 2026-11-26
-Wave: turn-cascade landed first (ff 36d9d15), sq-shadow-dirt second (61f497a); third slot pending. The last merging session owns the FULL e2e and Darwin golden battery, CI verdict, due DEC numbers and re-baselines; deferred, not waived.
-Lanes: rg-next (branch `rastrelli-next`, merge in progress — the FULL gate pending; ledger open-row: **rg-next**).
+Tree: main @ rg-next-merge · 2026-11-26
+Wave: turn-cascade, sq-shadow-dirt and rg-next all landed; the rg-next battery ran on the office box 2026-11-26 (e2e 87/0, the budgets on the merged tree). The darwin goldens stay parked.
+Lanes: <!-- none open; the template: at integration insert the actual name, branch, phase and matching docs/budget-ledger.md open-row key. -->
 
 Owed:
 - Jordan J1 spire read — closes when: the owner judges the J1 frame; the caption fallback stays parked → docs/parking-lot.md
@@ -24,7 +24,7 @@ Owed:
 - Office speckle gate — CLOSED 2026-11-26: the two-build gate ran on the reference Mac — autumn/dec-noon PASS, spring not-measurable (the negative baseline excess), summer marginal (32.5 % of the excess retained vs ≤ 30 % — the honest attached shadows contaminate the field metric, the mask-reuse caveat; the eye's display verdict stands) → docs/archive/2026-11-26-sqshadowdirt.md
 - Office square-kit e2e — CLOSED 2026-11-26: 8/8 on the reference Mac (33 s), including both box-failing tests — the box's fails were the machine-stall class of the win64/SwiftShader backend → docs/archive/2026-11-26-sqshadowdirt.md
 
-Recent: 2026-11-24 → docs/briefs/ROUNDS.md (row: turn-cascade) · 2026-11-26 → docs/briefs/ROUNDS.md (row: sq-shadow-dirt) · 2026-11-23 → docs/briefs/ROUNDS.md (row: rg-f6)
+Recent: 2026-11-26 → docs/briefs/ROUNDS.md (row: rg-next) · 2026-11-26 → docs/briefs/ROUNDS.md (row: sq-shadow-dirt) · 2026-11-24 → docs/briefs/ROUNDS.md (row: turn-cascade)
 
 ## Standing protocol
 
