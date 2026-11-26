@@ -6,9 +6,9 @@ Start with AGENTS.md and this file only. Live state holds open work; Recent is a
 
 ### Now
 
-Tree: main @ rg-next-merge · 2026-11-26
-Wave: turn-cascade, sq-shadow-dirt and rg-next all landed; the rg-next battery ran on the office box 2026-11-26 (e2e 87/0, the budgets on the merged tree). The darwin goldens stay parked.
-Lanes: rg-improve · branch rg-improve · PARALLEL (merge + the FULL gate at the owner's signal — deferred not waived) · phase: integrated, the review pass open · ledger: the rastrelli-gallery rows + the JS shared line (D1, +40 gz)
+Tree: main @ rg-improve · 2026-11-26
+Wave: turn-cascade, sq-shadow-dirt, rg-next and rg-improve all landed; the rg-next battery ran on the office box 2026-11-26 (e2e 87/0, the budgets on the merged tree); rg-improve merged first of three (the gallery improvement round: the hour on the faces via per-state emissive gating, the laid-stone floor, the limewash — no bake, the plates byte-held; JS +40 gz, the owner's D1). The darwin goldens stay parked.
+Lanes: <!-- none open; the template: at integration insert the actual name, branch, phase and matching docs/budget-ledger.md open-row key. -->
 
 Owed:
 - Jordan J1 spire read — closes when: the owner judges the J1 frame; the caption fallback stays parked → docs/parking-lot.md
@@ -20,6 +20,7 @@ Owed:
 - Mac reference switch — closes when: the owner-accepted Neva, plafond and GLB re-baselines have an assigned DEC → docs/archive/2026-11-24-turncascade.md
 - Jordan cell ownership (finding 06) — closes when: the chain emits and verifies each mesh's first-cell row in the manifest → docs/archive/2026-11-24-turncascade.md
 - R5 arch tunnels — closes when: the successor prices and rules on openings/returns with only the middle arch open, gate 30 m back and resident throat retained → docs/archive/2026-11-26-sqshadowdirt.md
+- rg-improve capture battery + the golden re-baselines — closes when: the owner's sitting judges the frames on the merged build → docs/archive/2026-11-26-rgimprove.md
 - F8 iPhone tier — closes when: the successor creative rules on t0 mapSize from the owner's t0/1024 observation, distinguishing relief smear from acne → docs/archive/2026-11-26-sqshadowdirt.md
 - Office speckle gate — CLOSED 2026-11-26: the two-build gate ran on the reference Mac — autumn/dec-noon PASS, spring not-measurable (the negative baseline excess), summer marginal (32.5 % of the excess retained vs ≤ 30 % — the honest attached shadows contaminate the field metric, the mask-reuse caveat; the eye's display verdict stands) → docs/archive/2026-11-26-sqshadowdirt.md
 - Office square-kit e2e — CLOSED 2026-11-26: 8/8 on the reference Mac (33 s), including both box-failing tests — the box's fails were the machine-stall class of the win64/SwiftShader backend → docs/archive/2026-11-26-sqshadowdirt.md
