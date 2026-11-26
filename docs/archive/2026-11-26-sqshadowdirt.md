@@ -116,3 +116,18 @@ the creative; the orchestrator gathers evidence, prices nothing, integrates the 
 ### ROUNDS row before compaction (moved 2026-11-26)
 
 The owner's complaint: the facade's shadows in summer/autumn/spring read as dirt (worst in summer; winter clean). The creative's row-set (brief 1) + the confirmation plates (i)/(ii) CONFIRMED, (iii) the magnitude contradicted → the review pass astra-6.2 pre-integration 6/10 (11 findings; the owner waived the creative ruling round-trip) → the integration R1–R4+R6, R5 deferred.
+
+## The acceptance gate at the close (the local two-build run, 2026-11-26)
+
+The office-box attempts: two filings failed at launch (the box's hermitage-3d clone never existed — the declarations' «First clone pending»; then the agent2 dir stale on the box), the layout probe found the runner's home (agent-runner; the box woke at 11:15), the third filing bounced on the instrument's own outdir law (a bare-root outdir refused — the output must sit under probes/), the fourth filed correctly (probes/sqdirt-gate-3-*) but rode behind the rastrelli bakes while its e2e leg ran 7/8 twice with DIFFERENT boot-timing failures ((b) the boot hold, then (a) the late-bind ready) — the machine-stall class of the win64/SwiftShader backend. The owner moved the gate to the reference Mac and withdrew the box job (the queue stays clear for the bakes).
+
+The local two-build run (observed; T1, buffer 1280×720, DPR 1; ε = 0.000 everywhere — the fresh pages deterministic):
+
+- the BASELINE (2b3860b) legs: summer S(B) 0.920 / S(O) 0.582 (the excess 0.338) · spring S(B) 10.278 / S(O) 11.900 (the excess negative) · autumn S(B) 0.331 / S(O) 0.074 (the excess 0.257) · dec-noon S(B) 0.027;
+- the CANDIDATE (9022e67) legs: summer S(C) 0.692 · spring S(C) 11.849 · autumn S(C) 0.049 · dec-noon S(C) 0.021.
+
+The composition per the reviewer's rule: **autumn PASS** (S(C) 0.049 below the clean level 0.074 — the excess removed) · **dec-noon PASS** (no rise: 0.021 ≤ 0.027) · **spring NOT MEASURABLE** per the contract (the baseline excess is negative — the metric cannot see a spring excess at 17:05; the murky clouds live outside this band's reach) · **summer MARGINAL FAIL** — retained 32.5 % of the excess vs the allowed 30 % (0.692 vs the cutoff 0.6834, an overshoot of 0.009), where the retained part includes the honest attached shadows R3 introduced (the field metric cannot separate them from the acne — the reviewer's own caveat) and the two-build split broke the contract's mask reuse (the baseline mask 791 px vs the candidate's 481 px).
+
+The disposition: the numbers recorded as-is; no row reverts on a 0.009 overshoot that the metric's own blindness explains — the display verdict stays with the owner's eye, which passed at the close-up («it looks good»). The creative's tuning rule (polygonOffsetFactor +0.2) remains available to the successor.
+
+The e2e square-kit on the reference Mac: 8/8 (33 s) — including both box-failing tests ((a) the late-bind ready, (b) the boot hold): the box's failures were the machine-stall class, not the code. The instrument deviation: for the baseline phase the gate script was copied into the 2b3860b checkout as an untracked file (it exists only on main) and removed before checkout main — the tree ended clean.

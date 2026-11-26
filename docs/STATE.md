@@ -21,8 +21,8 @@ Owed:
 - Jordan cell ownership (finding 06) — closes when: the chain emits and verifies each mesh's first-cell row in the manifest → docs/archive/2026-11-24-turncascade.md
 - R5 arch tunnels — closes when: the successor prices and rules on openings/returns with only the middle arch open, gate 30 m back and resident throat retained → docs/archive/2026-11-26-sqshadowdirt.md
 - F8 iPhone tier — closes when: the successor creative rules on t0 mapSize from the owner's t0/1024 observation, distinguishing relief smear from acne → docs/archive/2026-11-26-sqshadowdirt.md
-- Office speckle gate — closes when: the watcher ingests the two-build excess-field-speckle measurements and verdict → docs/archive/2026-11-26-sqshadowdirt.md
-- Office square-kit e2e — closes when: the watcher ingests the sq-shadow-dirt suite result → docs/archive/2026-11-26-sqshadowdirt.md
+- Office speckle gate — CLOSED 2026-11-26: the two-build gate ran on the reference Mac — autumn/dec-noon PASS, spring not-measurable (the negative baseline excess), summer marginal (32.5 % of the excess retained vs ≤ 30 % — the honest attached shadows contaminate the field metric, the mask-reuse caveat; the eye's display verdict stands) → docs/archive/2026-11-26-sqshadowdirt.md
+- Office square-kit e2e — CLOSED 2026-11-26: 8/8 on the reference Mac (33 s), including both box-failing tests — the box's fails were the machine-stall class of the win64/SwiftShader backend → docs/archive/2026-11-26-sqshadowdirt.md
 
 Recent: 2026-11-24 → docs/briefs/ROUNDS.md (row: turn-cascade) · 2026-11-26 → docs/briefs/ROUNDS.md (row: sq-shadow-dirt) · 2026-11-23 → docs/briefs/ROUNDS.md (row: rg-f6)
 
