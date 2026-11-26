@@ -6,9 +6,9 @@ Start with AGENTS.md and this file only. Live state holds open work; Recent is a
 
 ### Now
 
-Tree: main @ rg-improve · 2026-11-26
-Wave: turn-cascade, sq-shadow-dirt, rg-next and rg-improve all landed; the rg-next battery ran on the office box 2026-11-26 (e2e 87/0, the budgets on the merged tree); rg-improve merged first of three (the gallery improvement round: the hour on the faces via per-state emissive gating, the laid-stone floor, the limewash — no bake, the plates byte-held; JS +40 gz, the owner's D1). The darwin goldens stay parked.
-Lanes: <!-- none open; the template: at integration insert the actual name, branch, phase and matching docs/budget-ledger.md open-row key. -->
+Tree: main @ st-george-merge · 2026-11-27
+Wave: turn-cascade, sq-shadow-dirt, rg-next and rg-improve all landed; the rg-next battery ran on the office box 2026-11-26 (e2e 87/0, the budgets on the merged tree); rg-improve merged first of three (the gallery improvement round: the hour on the faces via per-state emissive gating, the laid-stone floor, the limewash — no bake, the plates byte-held; JS +40 gz, the owner's D1); st-george merged second of three (room 4 of 7, the full gate by the last merging session). The darwin goldens stay parked.
+Lanes: st-george · room 4 of 7, St George's Hall — MERGED (second of three); steps 0–4 + the bakes landed (the law byte-pinned, the shell glb 27,334 tris, the ornament plates mirrored-by-UV, the wiring P9 +1,642 B gz / +324 B RU, the bakes + the manifest — amendment 11: the day rig is the pane emission, the law seals the apertures; P12 the overlap peak 74,155,863 B, the 1812 releases cleanly) · remaining: step 5 the heroes + 2048² (the chandelier count + Ruling 4 are the owner's), step 6 the goldens + records (the owner's sitting); the e2e battery verifies at the office/box (SwiftShader on this Mac) · DECISION-1: the vault session 03-1_projects/hermitage-3d-2026-11-26-new-room.
 
 Owed:
 - Jordan J1 spire read — closes when: the owner judges the J1 frame; the caption fallback stays parked → docs/parking-lot.md

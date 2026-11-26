@@ -8,12 +8,14 @@
  * the R-UX1 ~300 ms cinema cut-to-black window dismissed the title in ≈ 0.2 s, and the
  * former 600 ms cuts joined the same window; design-walkthrough-ux.md §4).
  * Verified against the rail at r18: the keyboard walk observed every airlock firing through
- * its portal box, forward and backward.
+ * its portal box, forward and backward. The three id unions in registry.ts are the list's
+ * data and widen with the line (DECISION-1 FILES).
  */
 import type { AirlockDef, RegistryEntry } from '../src/world/registry';
 import { contract as militaryContract } from './1812/contract';
 import { contract as jordanContract } from './jordan/contract';
 import { contract as galleryContract } from './rastrelli-gallery/contract';
+import { contract as georgeContract } from './st-george/contract';
 
 export const AIRLOCKS: readonly AirlockDef[] = [
   {
@@ -49,6 +51,22 @@ export const AIRLOCKS: readonly AirlockDef[] = [
     transit: 'cut',
     holdMs: 800,
   },
+  {
+    // DECISION-1 AIRLOCK (the appended hall): the 2 × 2 × 3 m convention on both ends — the
+    // departure box encloses M4 (88.5, 11.65, 13.0; the committed door stop), the arrival box
+    // encloses H0 (93.5, 11.65, 14.5). The step-3 M4-departure capture (the record's gate)
+    // shipped the fallback: the doorway glide reads as walking INTO the gallery's end wall —
+    // the doors are committed closed decor (P10 keeps the 1812 shell byte-identical; they
+    // never open on screen), so the transit is a cut — one word of data, nothing is skipped.
+    // The capture frames live in the vault (round-3/m4-departure.png).
+    id: 'throne-airlock',
+    from: 'military-gallery',
+    to: 'st-george',
+    portalFrom: { min: [87.5, 10, 12], max: [89.5, 13, 14] },
+    portalTo: { min: [92.5, 10, 13.5], max: [94.5, 13, 15.5] },
+    transit: 'cut',
+    holdMs: 800,
+  },
 ];
 
 export const ENTRIES: readonly RegistryEntry[] = [
@@ -78,5 +96,12 @@ export const ENTRIES: readonly RegistryEntry[] = [
     route: '/1812',
     contract: militaryContract,
     thunk: () => import('./1812/room').then((m) => m.room),
+  },
+  {
+    kind: 'room',
+    id: 'st-george',
+    route: '/throne',
+    contract: georgeContract,
+    thunk: () => import('./st-george/room').then((m) => m.room),
   },
 ];

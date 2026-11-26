@@ -9,6 +9,8 @@
       "!tools/bake-logs",
       "!tools/gallery/layout.json",
       "!tools/gallery/atlas.lock.json",
+      "!tools/st-george/law.json",
+      "!tools/st-george/census.json",
       "!tests/fixtures"
     ]
   },

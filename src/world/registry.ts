@@ -18,13 +18,18 @@ import type { RoomLedger } from '../engine/ledger';
 import type { CaptionKey, Key } from '../i18n/keys';
 
 export type { RoomLedger } from '../engine/ledger';
-export type RoomId = 'rastrelli-gallery' | 'jordan' | 'military-gallery';
+export type RoomId = 'rastrelli-gallery' | 'jordan' | 'military-gallery' | 'st-george';
 export type NodeHandle = RoomId | 'square';
 // 'index-square-cut' is the host-owned square jump's cut (design-gallery §6.4): the square
 // is resident and no committed edge enters it, so the host constructs that def at the call
 // site — it is never an AIRLOCKS entry (the graph stays the linear chain).
-export type AirlockId = 'arch-portal' | 'gallery-airlock' | 'landing-airlock' | 'index-square-cut';
-export type RouteKey = '/gallery' | '/jordan' | '/1812';
+export type AirlockId =
+  | 'arch-portal'
+  | 'gallery-airlock'
+  | 'landing-airlock'
+  | 'throne-airlock'
+  | 'index-square-cut';
+export type RouteKey = '/gallery' | '/jordan' | '/1812' | '/throne';
 export type Vec3 = readonly [number, number, number];
 export type Bounds = Readonly<{ min: Vec3; max: Vec3 }>;
 export type StateId = 'day' | 'dusk' | 'nightChandeliers';

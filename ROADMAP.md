@@ -4,6 +4,8 @@ Phases are defined by exit criteria, not dates. A phase that stalls is **split, 
 
 Lifetime cap: **≤ 7 rooms, ever** (charter — [docs/charter.md](docs/charter.md)).
 
+Rooms: 4 of 7 in progress — St George's Hall (lane `st-george`, PARALLEL; the DEC-ready row lands at the integrating merge).
+
 ## Principles
 
 1. The room is the unit of planning, budgeting and shipping.

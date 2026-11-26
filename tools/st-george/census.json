@@ -1,0 +1,595 @@
+{
+  "caps": {
+    "draws": 24,
+    "payloadBytes": 4000000,
+    "textureBytes": 2400000,
+    "triangles": 70000
+  },
+  "deferred": [
+    "Chandelier count and instances remain unsourced and absent.",
+    "Actual compressed bytes and decoded costs require later asset gates.",
+    "Atlas packability and all bake/encoder failure classes require later gates.",
+    "Relief rider requires the deferred figure ruling.",
+    "The 8.5 mm canopy-drape returns sit at the chart min-px floor: a specific minimum-island check for the step-2 packer."
+  ],
+  "drawRule": "merge exported patches by material slot; no per-instance draws",
+  "lightmap": {
+    "canvasM": 122.9342390332921,
+    "exportedArea": 4501.3476481058,
+    "finalAtlasSize": 2048,
+    "patchCount": 1043,
+    "shellAtlasSize": 1024,
+    "shellScale": 0.5,
+    "texelsPerMetreFinal": 16.659313272727676,
+    "texelsPerMetreShell": 8.329656636363838,
+    "totalPatchArea": 5761.422427371627
+  },
+  "maximumCapFraction": 0.85,
+  "rows": [
+    {
+      "bakeOnlyFaces": 1,
+      "count": 4,
+      "exportedFaces": 3,
+      "flags": {
+        "UNSOURCED": false,
+        "bands": "pending-three-state-bake",
+        "deadCells": "pending-atlas-pack",
+        "encoderParity": "pending-encoder",
+        "ghostSplit": "pending-three-state-bake",
+        "junctionRelief": "pending-three-state-bake",
+        "paneOrientation": "not-applicable",
+        "winding": "checked-from-ordered-vertices"
+      },
+      "id": "walls",
+      "lightmap": {
+        "islandClass": "one planar patch; packed by later bake stage",
+        "texelsPerMetreFinal": 16.659313272727676,
+        "texelsPerMetreShell": 8.329656636363838
+      },
+      "materialSlots": [
+        0
+      ],
+      "placedCount": 4,
+      "triangles": {
+        "bakeOnly": 2,
+        "basis": "no instancing credit; explicit patch tessellation",
+        "drawn": 6,
+        "unique": 6
+      },
+      "visibility": "mixed"
+    },
+    {
+      "bakeOnlyFaces": 0,
+      "count": 1,
+      "exportedFaces": 1,
+      "flags": {
+        "UNSOURCED": false,
+        "bands": "pending-three-state-bake",
+        "deadCells": "pending-atlas-pack",
+        "encoderParity": "pending-encoder",
+        "ghostSplit": "pending-three-state-bake",
+        "junctionRelief": "pending-three-state-bake",
+        "paneOrientation": "not-applicable",
+        "winding": "checked-from-ordered-vertices"
+      },
+      "id": "floor",
+      "lightmap": {
+        "islandClass": "one planar patch; packed by later bake stage",
+        "texelsPerMetreFinal": 16.659313272727676,
+        "texelsPerMetreShell": 8.329656636363838
+      },
+      "materialSlots": [
+        6
+      ],
+      "placedCount": 1,
+      "triangles": {
+        "bakeOnly": 0,
+        "basis": "no instancing credit; explicit patch tessellation",
+        "drawn": 2,
+        "unique": 2
+      },
+      "visibility": "exported"
+    },
+    {
+      "bakeOnlyFaces": 0,
+      "count": 1,
+      "exportedFaces": 1,
+      "flags": {
+        "UNSOURCED": false,
+        "bands": "pending-three-state-bake",
+        "deadCells": "pending-atlas-pack",
+        "encoderParity": "pending-encoder",
+        "ghostSplit": "pending-three-state-bake",
+        "junctionRelief": "pending-three-state-bake",
+        "paneOrientation": "not-applicable",
+        "winding": "checked-from-ordered-vertices"
+      },
+      "id": "ceiling",
+      "lightmap": {
+        "islandClass": "one planar patch; packed by later bake stage",
+        "texelsPerMetreFinal": 16.659313272727676,
+        "texelsPerMetreShell": 8.329656636363838
+      },
+      "materialSlots": [
+        7
+      ],
+      "placedCount": 1,
+      "triangles": {
+        "bakeOnly": 0,
+        "basis": "no instancing credit; explicit patch tessellation",
+        "drawn": 2,
+        "unique": 2
+      },
+      "visibility": "exported"
+    },
+    {
+      "bakeOnlyFaces": 180,
+      "count": 48,
+      "exportedFaces": 108,
+      "flags": {
+        "UNSOURCED": false,
+        "bands": "pending-three-state-bake",
+        "deadCells": "pending-atlas-pack",
+        "encoderParity": "pending-encoder",
+        "ghostSplit": "pending-three-state-bake",
+        "junctionRelief": "pending-three-state-bake",
+        "paneOrientation": "not-applicable",
+        "winding": "checked-from-ordered-vertices"
+      },
+      "id": "column-bases",
+      "lightmap": {
+        "islandClass": "one planar patch; packed by later bake stage",
+        "texelsPerMetreFinal": 16.659313272727676,
+        "texelsPerMetreShell": 8.329656636363838
+      },
+      "materialSlots": [
+        1
+      ],
+      "placedCount": 48,
+      "triangles": {
+        "bakeOnly": 360,
+        "basis": "no instancing credit; explicit patch tessellation",
+        "drawn": 216,
+        "unique": 216
+      },
+      "visibility": "mixed"
+    },
+    {
+      "bakeOnlyFaces": 340,
+      "count": 48,
+      "exportedFaces": 140,
+      "flags": {
+        "UNSOURCED": false,
+        "bands": "pending-three-state-bake",
+        "deadCells": "pending-atlas-pack",
+        "encoderParity": "pending-encoder",
+        "ghostSplit": "pending-three-state-bake",
+        "junctionRelief": "pending-three-state-bake",
+        "paneOrientation": "not-applicable",
+        "winding": "checked-from-ordered-vertices"
+      },
+      "id": "column-shafts",
+      "lightmap": {
+        "islandClass": "one planar patch; packed by later bake stage",
+        "texelsPerMetreFinal": 16.659313272727676,
+        "texelsPerMetreShell": 8.329656636363838
+      },
+      "materialSlots": [
+        1
+      ],
+      "placedCount": 48,
+      "triangles": {
+        "bakeOnly": 47424,
+        "basis": "no instancing credit; explicit patch tessellation",
+        "drawn": 26880,
+        "unique": 26880
+      },
+      "visibility": "mixed"
+    },
+    {
+      "bakeOnlyFaces": 90,
+      "count": 24,
+      "exportedFaces": 54,
+      "flags": {
+        "UNSOURCED": false,
+        "bands": "pending-three-state-bake",
+        "deadCells": "pending-atlas-pack",
+        "encoderParity": "pending-encoder",
+        "ghostSplit": "pending-three-state-bake",
+        "junctionRelief": "pending-three-state-bake",
+        "paneOrientation": "not-applicable",
+        "winding": "checked-from-ordered-vertices"
+      },
+      "id": "column-capitals",
+      "lightmap": {
+        "islandClass": "one planar patch; packed by later bake stage",
+        "texelsPerMetreFinal": 16.659313272727676,
+        "texelsPerMetreShell": 8.329656636363838
+      },
+      "materialSlots": [
+        2
+      ],
+      "placedCount": 24,
+      "triangles": {
+        "bakeOnly": 180,
+        "basis": "no instancing credit; explicit patch tessellation",
+        "drawn": 108,
+        "unique": 108
+      },
+      "visibility": "mixed"
+    },
+    {
+      "bakeOnlyFaces": 16,
+      "count": 48,
+      "exportedFaces": 32,
+      "flags": {
+        "UNSOURCED": false,
+        "bands": "pending-three-state-bake",
+        "deadCells": "pending-atlas-pack",
+        "encoderParity": "pending-encoder",
+        "ghostSplit": "pending-three-state-bake",
+        "junctionRelief": "pending-three-state-bake",
+        "paneOrientation": "inward-plan-normals; pending-glb-check",
+        "winding": "checked-from-ordered-vertices"
+      },
+      "id": "windows",
+      "lightmap": {
+        "islandClass": "one planar patch; packed by later bake stage",
+        "texelsPerMetreFinal": 16.659313272727676,
+        "texelsPerMetreShell": 8.329656636363838
+      },
+      "materialSlots": [
+        3
+      ],
+      "placedCount": 48,
+      "triangles": {
+        "bakeOnly": 32,
+        "basis": "no instancing credit; explicit patch tessellation",
+        "drawn": 64,
+        "unique": 64
+      },
+      "visibility": "mixed"
+    },
+    {
+      "bakeOnlyFaces": 8,
+      "count": 2,
+      "exportedFaces": 4,
+      "flags": {
+        "UNSOURCED": false,
+        "bands": "pending-three-state-bake",
+        "deadCells": "pending-atlas-pack",
+        "encoderParity": "pending-encoder",
+        "ghostSplit": "pending-three-state-bake",
+        "junctionRelief": "pending-three-state-bake",
+        "paneOrientation": "not-applicable",
+        "winding": "checked-from-ordered-vertices"
+      },
+      "id": "balconies",
+      "lightmap": {
+        "islandClass": "one planar patch; packed by later bake stage",
+        "texelsPerMetreFinal": 16.659313272727676,
+        "texelsPerMetreShell": 8.329656636363838
+      },
+      "materialSlots": [
+        4
+      ],
+      "placedCount": 2,
+      "triangles": {
+        "bakeOnly": 16,
+        "basis": "no instancing credit; explicit patch tessellation",
+        "drawn": 8,
+        "unique": 8
+      },
+      "visibility": "mixed"
+    },
+    {
+      "bakeOnlyFaces": 8,
+      "count": 2,
+      "exportedFaces": 4,
+      "flags": {
+        "UNSOURCED": false,
+        "bands": "pending-three-state-bake",
+        "deadCells": "pending-atlas-pack",
+        "encoderParity": "pending-encoder",
+        "ghostSplit": "pending-three-state-bake",
+        "junctionRelief": "pending-three-state-bake",
+        "paneOrientation": "not-applicable",
+        "winding": "checked-from-ordered-vertices"
+      },
+      "id": "balcony-rails",
+      "lightmap": {
+        "islandClass": "one planar patch; packed by later bake stage",
+        "texelsPerMetreFinal": 16.659313272727676,
+        "texelsPerMetreShell": 8.329656636363838
+      },
+      "materialSlots": [
+        5
+      ],
+      "placedCount": 2,
+      "triangles": {
+        "bakeOnly": 16,
+        "basis": "no instancing credit; explicit patch tessellation",
+        "drawn": 8,
+        "unique": 8
+      },
+      "visibility": "mixed"
+    },
+    {
+      "bakeOnlyFaces": 12,
+      "count": 3,
+      "exportedFaces": 6,
+      "flags": {
+        "UNSOURCED": false,
+        "bands": "pending-three-state-bake",
+        "deadCells": "pending-atlas-pack",
+        "encoderParity": "pending-encoder",
+        "ghostSplit": "pending-three-state-bake",
+        "junctionRelief": "pending-three-state-bake",
+        "paneOrientation": "not-applicable",
+        "winding": "checked-from-ordered-vertices"
+      },
+      "id": "throne-dais",
+      "lightmap": {
+        "islandClass": "one planar patch; packed by later bake stage",
+        "texelsPerMetreFinal": 16.659313272727676,
+        "texelsPerMetreShell": 8.329656636363838
+      },
+      "materialSlots": [
+        10
+      ],
+      "placedCount": 3,
+      "triangles": {
+        "bakeOnly": 24,
+        "basis": "no instancing credit; explicit patch tessellation",
+        "drawn": 12,
+        "unique": 12
+      },
+      "visibility": "mixed"
+    },
+    {
+      "bakeOnlyFaces": 9,
+      "count": 2,
+      "exportedFaces": 3,
+      "flags": {
+        "UNSOURCED": false,
+        "bands": "pending-three-state-bake",
+        "deadCells": "pending-atlas-pack",
+        "encoderParity": "pending-encoder",
+        "ghostSplit": "pending-three-state-bake",
+        "junctionRelief": "pending-three-state-bake",
+        "paneOrientation": "not-applicable",
+        "winding": "checked-from-ordered-vertices"
+      },
+      "id": "throne-seat",
+      "lightmap": {
+        "islandClass": "one planar patch; packed by later bake stage",
+        "texelsPerMetreFinal": 16.659313272727676,
+        "texelsPerMetreShell": 8.329656636363838
+      },
+      "materialSlots": [
+        12
+      ],
+      "placedCount": 2,
+      "triangles": {
+        "bakeOnly": 18,
+        "basis": "no instancing credit; explicit patch tessellation",
+        "drawn": 6,
+        "unique": 6
+      },
+      "visibility": "mixed"
+    },
+    {
+      "bakeOnlyFaces": 12,
+      "count": 4,
+      "exportedFaces": 7,
+      "flags": {
+        "UNSOURCED": false,
+        "bands": "pending-three-state-bake",
+        "deadCells": "pending-atlas-pack",
+        "encoderParity": "pending-encoder",
+        "ghostSplit": "pending-three-state-bake",
+        "junctionRelief": "pending-three-state-bake",
+        "paneOrientation": "not-applicable",
+        "winding": "checked-from-ordered-vertices"
+      },
+      "id": "canopy",
+      "lightmap": {
+        "islandClass": "one planar patch; packed by later bake stage",
+        "texelsPerMetreFinal": 16.659313272727676,
+        "texelsPerMetreShell": 8.329656636363838
+      },
+      "materialSlots": [
+        11,
+        12
+      ],
+      "placedCount": 4,
+      "triangles": {
+        "bakeOnly": 24,
+        "basis": "no instancing credit; explicit patch tessellation",
+        "drawn": 14,
+        "unique": 14
+      },
+      "visibility": "mixed"
+    },
+    {
+      "bakeOnlyFaces": 0,
+      "count": 1,
+      "exportedFaces": 1,
+      "flags": {
+        "UNSOURCED": false,
+        "bands": "pending-three-state-bake",
+        "deadCells": "pending-atlas-pack",
+        "encoderParity": "pending-encoder",
+        "ghostSplit": "pending-three-state-bake",
+        "junctionRelief": "pending-three-state-bake",
+        "paneOrientation": "not-applicable",
+        "winding": "checked-from-ordered-vertices"
+      },
+      "id": "eagle-plate",
+      "lightmap": {
+        "islandClass": "one planar patch; packed by later bake stage",
+        "texelsPerMetreFinal": 16.659313272727676,
+        "texelsPerMetreShell": 8.329656636363838
+      },
+      "materialSlots": [
+        12
+      ],
+      "placedCount": 1,
+      "triangles": {
+        "bakeOnly": 0,
+        "basis": "no instancing credit; explicit patch tessellation",
+        "drawn": 2,
+        "unique": 2
+      },
+      "visibility": "exported"
+    },
+    {
+      "bakeOnlyFaces": 0,
+      "count": 1,
+      "exportedFaces": 1,
+      "flags": {
+        "UNSOURCED": false,
+        "bands": "pending-three-state-bake",
+        "deadCells": "pending-atlas-pack",
+        "encoderParity": "pending-encoder",
+        "ghostSplit": "pending-three-state-bake",
+        "junctionRelief": "pending-three-state-bake",
+        "paneOrientation": "not-applicable",
+        "winding": "checked-from-ordered-vertices"
+      },
+      "id": "relief-plate",
+      "lightmap": {
+        "islandClass": "one planar patch; packed by later bake stage",
+        "texelsPerMetreFinal": 16.659313272727676,
+        "texelsPerMetreShell": 8.329656636363838
+      },
+      "materialSlots": [
+        13
+      ],
+      "placedCount": 1,
+      "triangles": {
+        "bakeOnly": 0,
+        "basis": "no instancing credit; explicit patch tessellation",
+        "drawn": 2,
+        "unique": 2
+      },
+      "visibility": "exported"
+    },
+    {
+      "bakeOnlyFaces": 0,
+      "count": 1,
+      "exportedFaces": 1,
+      "flags": {
+        "UNSOURCED": false,
+        "bands": "pending-three-state-bake",
+        "deadCells": "pending-atlas-pack",
+        "encoderParity": "pending-encoder",
+        "ghostSplit": "pending-three-state-bake",
+        "junctionRelief": "pending-three-state-bake",
+        "paneOrientation": "not-applicable",
+        "winding": "checked-from-ordered-vertices"
+      },
+      "id": "ceiling-ornament",
+      "lightmap": {
+        "islandClass": "one planar patch; packed by later bake stage",
+        "texelsPerMetreFinal": 16.659313272727676,
+        "texelsPerMetreShell": 8.329656636363838
+      },
+      "materialSlots": [
+        8
+      ],
+      "placedCount": 1,
+      "triangles": {
+        "bakeOnly": 0,
+        "basis": "no instancing credit; explicit patch tessellation",
+        "drawn": 2,
+        "unique": 2
+      },
+      "visibility": "exported"
+    },
+    {
+      "bakeOnlyFaces": 0,
+      "count": 1,
+      "exportedFaces": 1,
+      "flags": {
+        "UNSOURCED": false,
+        "bands": "pending-three-state-bake",
+        "deadCells": "pending-atlas-pack",
+        "encoderParity": "pending-encoder",
+        "ghostSplit": "pending-three-state-bake",
+        "junctionRelief": "pending-three-state-bake",
+        "paneOrientation": "not-applicable",
+        "winding": "checked-from-ordered-vertices"
+      },
+      "id": "parquet-ornament",
+      "lightmap": {
+        "islandClass": "one planar patch; packed by later bake stage",
+        "texelsPerMetreFinal": 16.659313272727676,
+        "texelsPerMetreShell": 8.329656636363838
+      },
+      "materialSlots": [
+        9
+      ],
+      "placedCount": 1,
+      "triangles": {
+        "bakeOnly": 0,
+        "basis": "no instancing credit; explicit patch tessellation",
+        "drawn": 2,
+        "unique": 2
+      },
+      "visibility": "exported"
+    },
+    {
+      "bakeOnlyFaces": 0,
+      "count": null,
+      "exportedFaces": 0,
+      "flags": {
+        "UNSOURCED": true,
+        "bands": "pending-three-state-bake",
+        "deadCells": "pending-atlas-pack",
+        "encoderParity": "pending-encoder",
+        "ghostSplit": "pending-three-state-bake",
+        "junctionRelief": "pending-three-state-bake",
+        "paneOrientation": "not-applicable",
+        "winding": "checked-from-ordered-vertices"
+      },
+      "id": "chandeliers",
+      "lightmap": {
+        "islandClass": "one planar patch; packed by later bake stage",
+        "texelsPerMetreFinal": 0,
+        "texelsPerMetreShell": 0
+      },
+      "materialSlots": [],
+      "placedCount": 0,
+      "triangles": {
+        "bakeOnly": 0,
+        "basis": "no instancing credit; explicit patch tessellation",
+        "drawn": 0,
+        "unique": 0
+      },
+      "visibility": "bake-only"
+    }
+  ],
+  "schema": "st-george-census-1",
+  "source": "BUDGET",
+  "status": "plan estimates, not measured GLB/KTX2 or decoded resource costs",
+  "subcaps": {
+    "lightmaps": 1500000,
+    "plates": 550000,
+    "probe": 8000,
+    "source": "BUDGET"
+  },
+  "textureReservations": {
+    "lightmaps": 1260000,
+    "plates": 450000,
+    "probe": 6800
+  },
+  "totals": {
+    "bakeOnlyTriangles": 48096,
+    "draws": 14,
+    "payloadBytes": 2438352,
+    "textureBytes": 1716800,
+    "triangles": 27334,
+    "uniqueTriangles": 27334
+  }
+}

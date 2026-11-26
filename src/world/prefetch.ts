@@ -38,6 +38,7 @@ const ROOM_IDS = [
   'rastrelli-gallery',
   'jordan',
   'military-gallery',
+  'st-george',
 ] as const satisfies readonly RoomId[];
 
 const isRoomId = (handle: NodeHandle): handle is RoomId =>

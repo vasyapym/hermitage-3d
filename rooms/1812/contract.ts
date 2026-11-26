@@ -103,7 +103,11 @@ export const contract: RoomContract = {
   // Baked in R4 (three states, the kit/arch resolution split, white points); the module reads
   // the MANIFEST's all-or-nothing row and mounts dark until then — honest, never fake-lit.
   lighting: { states: ['day', 'dusk', 'nightChandeliers'], blend: 'lightmapBlend' },
-  neighbors: [{ to: 'jordan', airlock: 'landing-airlock' }],
+  neighbors: [
+    { to: 'jordan', airlock: 'landing-airlock' },
+    // DECISION-1 (the appended hall): the east end's doorway — the throne-airlock's other end.
+    { to: 'st-george', airlock: 'throne-airlock' },
+  ],
   budget: {
     trianglesMax: 60_000,
     drawsMax: 19,

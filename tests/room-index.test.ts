@@ -6,7 +6,7 @@ import { indexLabel, indexRows, nextIndex } from '../src/ui/room-index';
 describe('indexRows', () => {
   it('lists the square and every built room in route order (the registry is the index)', () => {
     const rows = indexRows(ENTRIES, null);
-    expect(rows.map((r) => r.route)).toEqual(['/', '/gallery', '/jordan', '/1812']);
+    expect(rows.map((r) => r.route)).toEqual(['/', '/gallery', '/jordan', '/1812', '/throne']);
   });
 
   it('marks exactly the active node current', () => {

@@ -29,7 +29,11 @@ that decides whether a next round's declared allowance fits. The project-course 
 
 | line | cap | operating ceiling | committed (main @ records-decision · 2026-11-26) | committed (branch `rg-improve`, merged 2026-11-26) | remaining to the operating ceiling |
 |---|---|---|---|---|---|
-| JS gzip (all chunks) | 350,000 | 285,707 — proposed explicit ceiling, owner ratification pending (design-project-course §1); the rg-walk-tune merge lands +185 OVER it — the OWNER PLATE line (the hard CI cap holds with 61,842 spare) | 289,447 @ main, the socle re-tune, 2026-11-23 (the union merge 289,411 → +36, the derived lower-tier stretch law) | **291,653 measured at the round's close, 2026-11-25** (the P1 review batch + the DEC-054 pick-set; +2,134 over main's 289,519; RU +0) — **MERGED at the wave's slot 2/3 (the merge e72c442)**; the rg-next merge a470f06 re-measured the merged tree: 291,807 (the office box's battery, e2e 87/0) | **291,847 @ branch rg-improve, PARALLEL 2026-11-26** (+40 gz — the D2 emissive dial rows, the owner's D1 approved; RU +0) | −6,140 to the ceiling; the CAP holds 58,153 spare |
+<<<<<<< HEAD
+| JS gzip (all chunks) | 350,000 | 285,707 — proposed explicit ceiling, owner ratification pending (design-project-course §1); the rg-walk-tune merge lands +185 OVER it — the OWNER PLATE line (the hard CI cap holds with 61,842 spare) | 289,447 @ main, the socle re-tune, 2026-11-23 (the union merge 289,411 → +36, the derived lower-tier stretch law) | **291,653 measured at the round's close, 2026-11-25** (the P1 review batch + the DEC-054 pick-set; +2,134 over main's 289,519; RU +0) — **MERGED at the wave's slot 2/3 (the merge e72c442)**; the rg-next merge a470f06 re-measured the merged tree: 291,807 (the office box's battery, e2e 87/0); the rg-improve merge d80feee re-measured: 291,847 (+40 gz — the D2 emissive dial rows, the owner's D1) | **293,483 @ the merged main, the st-george merge, 2026-11-27** (+1,636 gz — the wiring's P9 +1,642 measured on the lane base; RU +324 = 7,933) | −7,776 to the proposed ceiling (OVER — the OWNER PLATE line stands: the hard CI cap holds 56,517 spare) |
+=======
+| JS gzip (all chunks) | 350,000 | 285,707 — proposed explicit ceiling, owner ratification pending (design-project-course §1); the rg-walk-tune merge lands +185 OVER it — the OWNER PLATE line (the hard CI cap holds with 61,842 spare) | 289,447 @ main, the socle re-tune, 2026-11-23 (the union merge 289,411 → +36, the derived lower-tier stretch law) | **291,653 measured at the round's close, 2026-11-25** (the P1 review batch + the DEC-054 pick-set; +2,134 over main's 289,519; RU +0) — **MERGED at the wave's slot 2/3 (the merge e72c442)**; the rg-next merge a470f06 re-measured the merged tree: 291,807 (the office box's battery, e2e 87/0) | −6,100 (the st-george lane's correction: the cell had read −3,740 against the stale 289,447) |
+>>>>>>> st-george
 | RU strings (lazy chunk) | 12,000 | — | 7,546 @ main, the sq-facade union merge, 2026-11-23 (the jordan-next captions +97 → the sq-facade formula chips +19; the dressings law's declared RU +0 held — the +19 is the notes page's own re-wording) | +0 measured (no strings touched) | 4,454 |
 | basis transcoder | 600,000 | — | 584,862 @ main, square-env2 merge 2026-11-05 | none | 15,138 — effectively closed |
 | exterior (square payload) | 4,000,000 | — | 0 @ main, square-env2 merge 2026-11-05 | none | full |
@@ -50,6 +54,7 @@ that decides whether a next round's declared allowance fits. The project-course 
 
 | branch / candidate | what it reserves | status |
 |---|---|---|
+| st-george | JS ≤ +2,048 B gz, wiring only (contract data, the room chunk, EN strings) — OWNER PLATE, the line reads 291,807 against 285,707 · RU ≤ +900 B of 4,454 · transcoder +0 · exterior +0 | open |
 
 
 **Update log:** Update log: cut — history lives in the round archives (docs/archive/*.md); newest entry 2026-11-15 square-palace-2 merge.
