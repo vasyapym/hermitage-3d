@@ -104,9 +104,14 @@ describe('B1b — the sun level and temperature', () => {
     const main = readFileSync('src/main.ts', 'utf8');
     // The review's P1 (the night identity): applyEpoch lerps the white legacy sun toward
     // SUN_COLOR by E(h) — at day = 0 the light is the pre-round white bit for bit.
+    // sq-fix-improve R2: the warm endpoint keys on elevation — the scratch is SUN_WARM
+    // lerped toward SUN_LOW by 1 − lowSunMix(h) before the same day blend.
     return (
-      main.includes('sun.color.setRGB(1, 1, 1).lerp(SUN_WARM, day);') &&
       main.includes('const SUN_WARM = new THREE.Color().setRGB(...SUN_COLOR);') &&
+      main.includes(
+        'sunWarmScratch.copy(SUN_WARM).lerp(SUN_LOW, 1 - lowSunMix(elevationDegOf(sample)));',
+      ) &&
+      main.includes('sun.color.setRGB(1, 1, 1).lerp(sunWarmScratch, day);') &&
       main.includes("import { SUN_COLOR, TIME } from './content/sky-time';")
     );
   }

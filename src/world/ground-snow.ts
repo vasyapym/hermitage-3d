@@ -5,8 +5,9 @@
  * trample floor drops to 0.1 — the tests and the GLSL twins follow the same constants.
  *
  * sq-arch-day B3 (the Q7/Q8 picks + the deltas' shared-noise path): the winter snow gains
- * the DRIFT octave (the albedo's [DRIFT_MIN, 1] modulation — DRIFT_MIN 0.50, the display-domain
- * restatement) and the june ground gains its day class — the macro octave (the winter drift's
+ * the DRIFT octave (the albedo's [DRIFT_MIN, 1] modulation — DRIFT_MIN 0.75 since
+ * sq-fix-improve R3 halved the snow-mode albedo mottle) and the june ground gains its day
+ * class — the macro octave (the winter drift's
  * shared value-noise path sampled at (6 m, ±6 %)), the cobble detail's 60→12 m distance fade,
  * and the DEC-041/043 lane's day law (the delta × LANE_DAY_CONTRAST 0.5 with a 0.35 m feather).
  * EVERY day term blends by E(h) and is the IDENTITY at E = 0 — the night/dusk/white-night
@@ -79,9 +80,12 @@ export const GROUND_BOUNCE_LINEAR: LinearRgb = [0.5, 0.52, 0.56];
 
 // --- sq-arch-day B3: the drift octave, the june macro octave, the day lane law ---------------
 
-/** The winter drift floor (the Q8 pick, the display-domain restatement): the snow albedo's
- * modulation floor — band ≈ 177–204 sRGB on the AgX shoulder, r3 ≈ 0.93. */
-export const GROUND_DRIFT_MIN = 0.5;
+/** The winter drift floor (the display-domain constant): the snow albedo's modulation floor.
+ * sq-fix-improve R3 (the DEC-056 proposal): the snow-mode albedo mottle is HALVED — the
+ * modulation swing (1 − DRIFT_MIN) 0.50 → 0.25 — so the drift does not make the plane busy
+ * beside the slot's new normal tilt; the octave law (the sum-to-1 amps, n2 ∈ [0, 1]) is
+ * unchanged, and the band reads ≈ 190–204 sRGB on the AgX shoulder. */
+export const GROUND_DRIFT_MIN = 0.75;
 /** The drift's two octaves: n2 = a.amp·value(p/a.scaleM) + b.amp·value(p/b.scaleM) — 3–8 m
  * drifts plus scatter; the amps sum to 1 so n2 ∈ [0, 1] and the factor ∈ [DRIFT_MIN, 1]. */
 export const GROUND_DRIFT_OCTAVES = {

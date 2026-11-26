@@ -2,7 +2,7 @@
 // sun-direction vectors the shader consumes. Pure; no three.js objects.
 
 import { PALETTE } from '../content/sky-time';
-import { mixRgb, RAD, smootherstep } from './easing';
+import { clamp01, mixRgb, RAD, smootherstep } from './easing';
 import { exposureForElevation } from './exposure';
 import type { LightmapWeights } from './lightmap-weights';
 import { lightmapWeights, sunLightIntensity } from './lightmap-weights';
@@ -28,6 +28,16 @@ export type SkySample = Readonly<{
   sunDirection: Vec3;
   horizonSunDirection: Vec3;
 }>;
+
+// sq-fix-improve R2 (the low-sun warm key — creative's DEC-056 proposal): the sun's warm
+// endpoint keys on elevation. Physically the sun whitens with height and golds below the
+// ramp: h 6.6° → 0.12, 16° → 0.75, ≥ 25° exactly 1 (spring/summer bit-identical by
+// construction), ≤ 0° exactly 0. The consumer (main.ts) lerps SUN_WARM toward SUN_LOW by
+// 1 − lowSunMix(h) before the day blend; this module stays pure (three-free, DOM-free).
+export const SUN_LOW_RGB = [1.12, 0.72, 0.4] as const; // linear ≈ 3200 K, Y ≈ 0.78 of neutral
+export const SUN_LOW_RAMP_DEG = 25;
+export const lowSunMix = (elevationDeg: number): number =>
+  smootherstep(clamp01(elevationDeg / SUN_LOW_RAMP_DEG));
 
 export function atmosphereForElevation(elevationDeg: number): Atmosphere {
   if (!Number.isFinite(elevationDeg)) throw new RangeError('elevation must be finite');

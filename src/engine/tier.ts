@@ -24,6 +24,10 @@ export type QualityTier = Readonly<{
   bufferPixelsCap: number;
   /** Edge length of the square shadow map for the single sun light. */
   shadowMapSize: number;
+  /** Receiver lookup offset along the surface normal (three.js LightShadow.normalBias). */
+  readonly shadowNormalBias: number;
+  /** PCF sampling-kernel radius in shadow-map texels (three.js LightShadow.radius). */
+  readonly shadowRadius: number;
   /** Phase 1 renders exactly one shadow pass; 0 is reserved for a future shadowless floor. */
   shadowPasses: 0 | 1;
   /** Phase 1 has no post stack (bloom is Phase 2 machinery); T2's "full post" is reserved. */
@@ -40,7 +44,11 @@ export const TIERS: Readonly<Record<QualityTierId, QualityTier>> = Object.freeze
     // sq-shadow-dirt R2/F8: the owner's iPhone settles t0 — the creative's row mandates its
     // 2048 (the relief shadows at 25 cm/texel smeared into dirt-looking collars on the phone;
     // the reference-Mac acceptance run carried the numbers).
+    // iPhone-11 device-backend ruling (sq-fix-improve R1): shadowNormalBias 0.1 / shadowRadius
+    // 0.5 on t0 only; t1/t2 carry 0.05/1 to keep the Mac bit-identical.
     shadowMapSize: 2048,
+    shadowNormalBias: 0.1,
+    shadowRadius: 0.5,
     shadowPasses: 1,
     postEnabled: false,
     description:
@@ -58,6 +66,8 @@ export const TIERS: Readonly<Record<QualityTierId, QualityTier>> = Object.freeze
     // §11 16.7 ms goal gates this row (the acceptance battery measures; revert to 1024 on
     // failure).
     shadowMapSize: 2048,
+    shadowNormalBias: 0.05,
+    shadowRadius: 1,
     shadowPasses: 1,
     postEnabled: false,
     description:
@@ -72,6 +82,8 @@ export const TIERS: Readonly<Record<QualityTierId, QualityTier>> = Object.freeze
     bufferPixelsCap: 4194304,
     // sq-shadow-dirt R2: the row above t1 carries 4096 (67 MB depth texture, higher tiers only).
     shadowMapSize: 4096,
+    shadowNormalBias: 0.05,
+    shadowRadius: 1,
     shadowPasses: 1,
     postEnabled: false,
     description:

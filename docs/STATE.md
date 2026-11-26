@@ -6,9 +6,9 @@ Start with AGENTS.md and this file only. Live state holds open work; Recent is a
 
 ### Now
 
-Tree: main @ st-george-merge · 2026-11-27
-Wave: turn-cascade, sq-shadow-dirt, rg-next and rg-improve all landed; the rg-next battery ran on the office box 2026-11-26 (e2e 87/0, the budgets on the merged tree); rg-improve merged first of three (the gallery improvement round: the hour on the faces via per-state emissive gating, the laid-stone floor, the limewash — no bake, the plates byte-held; JS +40 gz, the owner's D1); st-george merged second of three (room 4 of 7, the full gate by the last merging session). The darwin goldens stay parked.
-Lanes: st-george · room 4 of 7, St George's Hall — MERGED (second of three); steps 0–4 + the bakes landed (the law byte-pinned, the shell glb 27,334 tris, the ornament plates mirrored-by-UV, the wiring P9 +1,642 B gz / +324 B RU, the bakes + the manifest — amendment 11: the day rig is the pane emission, the law seals the apertures; P12 the overlap peak 74,155,863 B, the 1812 releases cleanly) · remaining: step 5 the heroes + 2048² (the chandelier count + Ruling 4 are the owner's), step 6 the goldens + records (the owner's sitting); the e2e battery verifies at the office/box (SwiftShader on this Mac) · DECISION-1: the vault session 03-1_projects/hermitage-3d-2026-11-26-new-room.
+Tree: main @ sq-fix-improve-merge · 2026-11-27
+Wave: turn-cascade, sq-shadow-dirt, rg-next, rg-improve, st-george and sq-fix-improve all landed (sq-fix-improve merged per ticket; the FULL gate rides this merge per the last-merge law); the rg-next battery ran on the office box 2026-11-26 (e2e 87/0); rg-improve first of three (the hour on the faces, the laid-stone floor, the limewash; JS +40 gz, the owner's D1); st-george second of three (room 4 of 7, the full gate by the last merging session). The darwin goldens stay parked.
+Lanes: <!-- none open; the template: at integration insert the actual name, branch, phase and matching docs/budget-ledger.md open-row key. -->
 
 Owed:
 - Jordan J1 spire read — closes when: the owner judges the J1 frame; the caption fallback stays parked → docs/parking-lot.md
@@ -21,11 +21,12 @@ Owed:
 - Jordan cell ownership (finding 06) — closes when: the chain emits and verifies each mesh's first-cell row in the manifest → docs/archive/2026-11-24-turncascade.md
 - R5 arch tunnels — closes when: the successor prices and rules on openings/returns with only the middle arch open, gate 30 m back and resident throat retained → docs/archive/2026-11-26-sqshadowdirt.md
 - rg-improve capture battery + the golden re-baselines — closes when: the owner's sitting judges the frames on the merged build → docs/archive/2026-11-26-rgimprove.md
-- F8 iPhone tier — closes when: the successor creative rules on t0 mapSize from the owner's t0/1024 observation, distinguishing relief smear from acne → docs/archive/2026-11-26-sqshadowdirt.md
-- Office speckle gate — CLOSED 2026-11-26: the two-build gate ran on the reference Mac — autumn/dec-noon PASS, spring not-measurable (the negative baseline excess), summer marginal (32.5 % of the excess retained vs ≤ 30 % — the honest attached shadows contaminate the field metric, the mask-reuse caveat; the eye's display verdict stands) → docs/archive/2026-11-26-sqshadowdirt.md
-- Office square-kit e2e — CLOSED 2026-11-26: 8/8 on the reference Mac (33 s), including both box-failing tests — the box's fails were the machine-stall class of the win64/SwiftShader backend → docs/archive/2026-11-26-sqshadowdirt.md
+- F8 iPhone tier — closes when: the owner judges the t0 device sitting (the 0.1/0.5 rows live; the mapSize ruling held 2048) → docs/archive/2026-11-26-sqfiximprove.md
+- The sq-fix-improve sitting — closes when: the owner judges the blade/lane (S0→Sh, Mac + iPhone pinned t0) and the seasonal low-sun look → docs/archive/2026-11-26-sqfiximprove.md
+- Office speckle gate — CLOSED 2026-11-26 (the two-build gate on the reference Mac; the eye's display verdict stands) → docs/archive/2026-11-26-sqshadowdirt.md
+- Office square-kit e2e — CLOSED 2026-11-26 (8/8 on the reference Mac; the box's fails were the machine-stall class) → docs/archive/2026-11-26-sqshadowdirt.md
 
-Recent: 2026-11-26 → docs/briefs/ROUNDS.md (row: rg-next) · 2026-11-26 → docs/briefs/ROUNDS.md (row: sq-shadow-dirt) · 2026-11-24 → docs/briefs/ROUNDS.md (row: turn-cascade)
+Recent: 2026-11-27 → docs/briefs/ROUNDS.md (row: sq-fix-improve) · 2026-11-27 → docs/briefs/ROUNDS.md (row: st-george, merge 99b8dd4) · 2026-11-26 → docs/briefs/ROUNDS.md (row: rg-improve, merge d80feee)
 
 ## Standing protocol
 

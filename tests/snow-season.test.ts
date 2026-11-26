@@ -212,22 +212,23 @@ describe('sq-arch-day B3 — the winter drift rides the season law', () => {
   // The drift modulation is snow-season only: it lives inside the ground's existing uSnow
   // mix (the DEC-035 slot), so the season weight gates it with no new path. These pins are
   // the drift law's own constants (tests/ground-snow.test.ts pins the TS noise field).
-  it('the modulation law: snowAlbedo × (0.50 + 0.50·n2), the shared noise octaves', () => {
-    expect(GROUND_DRIFT_MIN).toBe(0.5);
+  it('the modulation law: snowAlbedo × (0.75 + 0.25·n2), the shared noise octaves', () => {
+    // sq-fix-improve R3: the snow-mode albedo mottle halved (the swing 0.50 → 0.25).
+    expect(GROUND_DRIFT_MIN).toBe(0.75);
     expect(GROUND_DRIFT_OCTAVES.a).toEqual({ scaleM: 5.5, amp: 0.8 });
     expect(GROUND_DRIFT_OCTAVES.b).toEqual({ scaleM: 1.2, amp: 0.2 });
     expect(GROUND_MACRO_OCTAVE).toEqual({ scaleM: 6, amp: 0.06 });
-    expect(driftFactor(0)).toBe(0.5);
+    expect(driftFactor(0)).toBe(0.75);
     expect(driftFactor(1)).toBe(1);
     // The june macro octave IS the winter drift's shared noise path, sampled at (6 m, ±6 %).
     expect(gsNoise(6 / 6, 190 / 6)).toBeCloseTo(gsNoise(1, 190 / 6), 15);
   });
 
-  it('the modulation band over a 200 m sample stays within [0.50, 1.0]', () => {
+  it('the modulation band over a 200 m sample stays within [0.75, 1.0]', () => {
     for (let x = -100; x <= 100; x += 13) {
       for (let z = 100; z <= 300; z += 17) {
         const factor = driftFactor(driftNoise(x + 0.11, z + 0.07));
-        expect(factor).toBeGreaterThanOrEqual(0.5 - 1e-12);
+        expect(factor).toBeGreaterThanOrEqual(0.75 - 1e-12);
         expect(factor).toBeLessThanOrEqual(1);
       }
     }

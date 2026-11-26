@@ -311,7 +311,9 @@ async function captureLeg(browser, base, instant, leg) {
     ) {
       throw new Error('#scene does not fill the viewport exactly (the DPR crop trap)');
     }
-    await page.waitForTimeout(300);
+    // The capture law (the fleet's settled class): the massing fade is 600 ms and the look
+    // captures wait for opacity 1 — a settled wait after ready, not a bare 300 ms beat.
+    await page.waitForTimeout(1500);
     const rig = await page.evaluate(READ_RIG);
     if (!rig.hook) throw new Error('the __sqShadowDebug rig is missing (sqdebug=1 did not land)');
     let postMutate = null;
@@ -324,7 +326,9 @@ async function captureLeg(browser, base, instant, leg) {
       }
     }
     await page.addStyleTag({ content: HIDE_OVERLAYS_CSS });
-    await page.waitForTimeout(300);
+    // The capture law (the fleet's settled class): the massing fade is 600 ms and the look
+    // captures wait for opacity 1 — a settled wait before the plate, not a bare 300 ms beat.
+    await page.waitForTimeout(1500);
     await page.screenshot({
       path: join(OUT, file),
       clip: { x: 0, y: 0, width: VIEWPORT.width, height: VIEWPORT.height },

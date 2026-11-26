@@ -367,11 +367,13 @@ describe('GLSL / TS agreement', () => {
 });
 
 describe('sq-arch-day B3 — the winter drift (the Q8 pick)', () => {
-  it('modulates the snow albedo over [DRIFT_MIN, 1] — DRIFT_MIN 0.50 at the 5.5 m octave', () => {
-    expect(GROUND_DRIFT_MIN).toBe(0.5);
+  it('modulates the snow albedo over [DRIFT_MIN, 1] — DRIFT_MIN 0.75 at the 5.5 m octave', () => {
+    // sq-fix-improve R3: the snow-mode albedo mottle halved — the swing (1 − DRIFT_MIN)
+    // 0.50 → 0.25; the octaves' law is unchanged.
+    expect(GROUND_DRIFT_MIN).toBe(0.75);
     expect(GROUND_DRIFT_OCTAVES.a).toEqual({ scaleM: 5.5, amp: 0.8 });
     expect(GROUND_DRIFT_OCTAVES.b).toEqual({ scaleM: 1.2, amp: 0.2 });
-    expect(driftFactor(0)).toBe(0.5);
+    expect(driftFactor(0)).toBe(0.75);
     expect(driftFactor(1)).toBe(1);
   });
 
@@ -388,8 +390,8 @@ describe('sq-arch-day B3 — the winter drift (the Q8 pick)', () => {
       }
     }
     expect(max - min).toBeGreaterThan(0.1); // the band is not flat
-    // The albedo factor over the same sample: [0.50, 1.0].
-    expect(driftFactor(min)).toBeGreaterThanOrEqual(0.5 - 1e-12);
+    // The albedo factor over the same sample: [0.75, 1.0] (sq-fix-improve R3's halved mottle).
+    expect(driftFactor(min)).toBeGreaterThanOrEqual(0.75 - 1e-12);
     expect(driftFactor(max)).toBeLessThanOrEqual(1);
   });
 
@@ -414,7 +416,7 @@ describe('sq-arch-day B3 — the winter drift (the Q8 pick)', () => {
     for (let day = 0; day <= 1; day += 0.125) {
       const f = driftLaneDay(x, z, day);
       expect(f).toBeLessThanOrEqual(1);
-      expect(f).toBeGreaterThanOrEqual(0.5 - 1e-12);
+      expect(f).toBeGreaterThanOrEqual(0.75 - 1e-12);
     }
   });
 
@@ -497,6 +499,7 @@ describe('patchGroundSnowSlot', () => {
     '#include <common>',
     'void main() {',
     '#include <color_fragment>',
+    '#include <normal_fragment_begin>',
     '}',
   ].join('\n');
 
@@ -516,8 +519,10 @@ describe('patchGroundSnowSlot', () => {
     // Brief 19 §B.2 (W4c): the paving slot composes INSIDE the snow hook, so the key compounds —
     // patched and unpatched materials still never share a cache entry.
     // sq-arch-day B3: the snow slot is @3 (the drift + macro + day-lane body); @4 adds the
-    // review's P1 off-lane drift gate; the paving @2.
-    expect(material.customProgramCacheKey?.()).toBe('Ground/snow-slot@4|Ground/paving-slot@2');
+    // review's P1 off-lane drift gate; the paving @2. sq-fix-improve R3: the snow slot is @5
+    // (the snow normal tilt splice), the paving @3. The review fix: the snow slot is @6 (the
+    // tilt's calibration + the uSnow = 0 exact-identity select), the paving @4.
+    expect(material.customProgramCacheKey?.()).toBe('Ground/snow-slot@6|Ground/paving-slot@4');
   });
 
   it('throws when an anchor is missing', () => {
