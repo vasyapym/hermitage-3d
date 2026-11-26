@@ -37,8 +37,10 @@ export const TIERS: Readonly<Record<QualityTierId, QualityTier>> = Object.freeze
     label: 'T0 · low',
     dprCap: 1,
     bufferPixelsCap: 786432,
-    // sq-shadow-dirt R2: the rows below t1 stay 1024 — R1 kills their acne either way.
-    shadowMapSize: 1024,
+    // sq-shadow-dirt R2/F8: the owner's iPhone settles t0 — the creative's row mandates its
+    // 2048 (the relief shadows at 25 cm/texel smeared into dirt-looking collars on the phone;
+    // the reference-Mac acceptance run carried the numbers).
+    shadowMapSize: 2048,
     shadowPasses: 1,
     postEnabled: false,
     description:

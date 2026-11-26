@@ -55,8 +55,8 @@ describe('B1a — the renderer shadow enable (the main.ts law scan)', () => {
     expect(main).not.toContain('sun.shadow.normalBias = 0.25');
     expect(SUN_SHADOW_FIT.left).toBe(-130);
     expect(SUN_SHADOW_FIT.right).toBe(130);
-    // sq-shadow-dirt R2: t1 carries 2048, the row above it 4096; the rows below stay 1024.
-    expect(TIERS.t0.shadowMapSize).toBe(1024);
+    // sq-shadow-dirt R2/F8: the owner's iPhone settles t0 — its row carries 2048 like the rest.
+    expect(TIERS.t0.shadowMapSize).toBe(2048);
     expect(TIERS.t1.shadowMapSize).toBe(2048);
     expect(TIERS.t2.shadowMapSize).toBe(4096);
   });
