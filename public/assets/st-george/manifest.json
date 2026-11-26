@@ -1,0 +1,167 @@
+{
+  "id": "st-george",
+  "files": [
+    {
+      "path": "lm/day.ktx2",
+      "bytes": 3880,
+      "sha256": "9b5b527d8353085114ab20b95828def4d2478fac8f7b5834073a72b2b995e82d",
+      "kind": "ktx2"
+    },
+    {
+      "path": "lm/dusk.ktx2",
+      "bytes": 3963,
+      "sha256": "a3ee9587f84479061cb26382a5a30bc5fe23977c88373f293b7ac6f9ff79be1d",
+      "kind": "ktx2"
+    },
+    {
+      "path": "lm/night.ktx2",
+      "bytes": 3924,
+      "sha256": "54bbaf8c589bd88299c76786fbffedd121cf1f0c2e9e3cf229d47f304ccb74bc",
+      "kind": "ktx2"
+    },
+    {
+      "path": "probe/dusk.ktx2",
+      "bytes": 8907,
+      "sha256": "59c12d5309592084178f84f7d107cc16030bc5919695e4c1ff87a15c7df5b9e7",
+      "kind": "ktx2"
+    },
+    {
+      "path": "st-george.glb",
+      "bytes": 151176,
+      "sha256": "4bb14bc949783397716c7f236e36aff030d8c55b1b26b671461cc67242433f05",
+      "kind": "glb"
+    },
+    {
+      "path": "tex/ornament-gilt.ktx2",
+      "bytes": 65090,
+      "sha256": "65b8ddfe9073570fb36a2e28f59bbf5973a98635264c9c86eee231be1f5f3aa0",
+      "kind": "ktx2"
+    },
+    {
+      "path": "tex/ornament-parquet.ktx2",
+      "bytes": 66383,
+      "sha256": "7188b3bad4aafcbbc3b12ec803f964d78cd417ddcf87c9a96de28804a02a9927",
+      "kind": "ktx2"
+    }
+  ],
+  "geometry": {
+    "meshes": [
+      {
+        "name": "wall-marble",
+        "instances": 1,
+        "primitives": 1,
+        "triangles": 6
+      },
+      {
+        "name": "column-marble",
+        "instances": 1,
+        "primitives": 1,
+        "triangles": 27096
+      },
+      {
+        "name": "capital-gilt",
+        "instances": 1,
+        "primitives": 1,
+        "triangles": 108
+      },
+      {
+        "name": "window-light",
+        "instances": 1,
+        "primitives": 1,
+        "triangles": 64
+      },
+      {
+        "name": "balcony-stone",
+        "instances": 1,
+        "primitives": 1,
+        "triangles": 8
+      },
+      {
+        "name": "balcony-gilt",
+        "instances": 1,
+        "primitives": 1,
+        "triangles": 8
+      },
+      {
+        "name": "parquet",
+        "instances": 1,
+        "primitives": 1,
+        "triangles": 2
+      },
+      {
+        "name": "ceiling",
+        "instances": 1,
+        "primitives": 1,
+        "triangles": 2
+      },
+      {
+        "name": "ornament-gilt",
+        "instances": 1,
+        "primitives": 1,
+        "triangles": 2
+      },
+      {
+        "name": "ornament-parquet",
+        "instances": 1,
+        "primitives": 1,
+        "triangles": 2
+      },
+      {
+        "name": "throne-stone",
+        "instances": 1,
+        "primitives": 1,
+        "triangles": 12
+      },
+      {
+        "name": "throne-cloth",
+        "instances": 1,
+        "primitives": 1,
+        "triangles": 10
+      },
+      {
+        "name": "throne-gilt",
+        "instances": 1,
+        "primitives": 1,
+        "triangles": 12
+      },
+      {
+        "name": "relief",
+        "instances": 1,
+        "primitives": 1,
+        "triangles": 2
+      }
+    ],
+    "trianglesUnique": 27334,
+    "trianglesDrawn": 27334,
+    "extensionsRequired": [
+      "EXT_meshopt_compression",
+      "KHR_mesh_quantization",
+      "KHR_texture_basisu"
+    ]
+  },
+  "lightmaps": {
+    "states": [
+      "day",
+      "dusk",
+      "nightChandeliers"
+    ],
+    "res": 1024,
+    "intensity": {
+      "day": 1.5,
+      "dusk": 0.25,
+      "nightChandeliers": 0.1
+    }
+  },
+  "budget": {
+    "trianglesMax": 70000,
+    "drawsMax": 24,
+    "textureBytesMax": 2400000,
+    "payloadBytesMax": 4000000
+  },
+  "toolchain": {
+    "blender": "4.2.23 LTS",
+    "toktx": "4.4.2",
+    "gltfTransformCli": "4.5.1",
+    "three": "0.186.1"
+  }
+}

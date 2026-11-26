@@ -233,6 +233,7 @@ describe('P10 — the lane’s diff-scope fence (retires at the merge)', () => {
     /^tests\/lightmap-look\.test\.ts$/,
     // the asset chain's own lane files (the record's FILES block + amendment 7's rows)
     /^tools\/st-george\//,
+    /^tools\/bake-logs\/st-george/,
     /^tools\/bpy\/st-george/,
     /^tools\/bpy\/plate-raster\.mjs$/,
     /^tools\/bpy\/bake\.py$/,

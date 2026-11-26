@@ -48,10 +48,11 @@ export const INTERIOR_LOOK_GAIN: Readonly<Record<RoomId, Readonly<Record<LightSt
   // eff = wp × gain = 1.5 × 1.725 / 0.15 × 3.45 / 0.3 × 2.3 = 2.5875 / 0.5175 / 0.69.
   'military-gallery': { day: 1.725, dusk: 3.45, nightChandeliers: 2.3 },
 
-  // DECISION-1 (the appended hall): PROVISIONAL until the step-2 bake lands — the manifest's
-  // white points are the encode law, and this row is re-derived from lm-percentile alongside
-  // them (the r17c law, the bake-logs pattern). Uniform 2 is the rastrelli shape: one gain,
-  // the lamp field equal across the three states. Unreachable until the manifest exists.
+  // DECISION-1 (the appended hall): the bake landed (the manifest's white points day 1.5 /
+  // dusk 0.25 / night 0.1 confirmed — the lightmapsRow agreement gate holds) and the pane
+  // field is EQUAL across the three states (the state brightness rides the bake's
+  // PANE_BAKE_EMISSION strengths, not the gain), so the rastrelli shape holds: one gain,
+  // eff = wp × gain = 3.0 / 0.5 / 0.2. The owner's light knob at the golden sitting.
   'st-george': { day: 2, dusk: 2, nightChandeliers: 2 },
 };
 

@@ -1,0 +1,129 @@
+{
+  "room": "st-george",
+  "states": {
+    "day": {
+      "blender": "Blender 4.2.23 LTS",
+      "charts": [
+        {
+          "clippedFraction": 0,
+          "emitters": 1,
+          "exrSha256": "5d96c22ab1b1114a72b8cd9e74f7a6bf164300253ed393d20e941fb204f32861",
+          "name": "arch",
+          "objects": 13,
+          "pad": 2,
+          "peak": 1.4056,
+          "res": 1024,
+          "targets": 13
+        }
+      ],
+      "clippedFraction": 0,
+      "command": "node tools/bake.mjs st-george day",
+      "denoiser": "OPENIMAGEDENOISE",
+      "duskFixtures": null,
+      "margin": 2,
+      "peak": 1.4056,
+      "probe": null,
+      "res": 1024,
+      "samples": 128,
+      "seconds": 14,
+      "state": "day",
+      "whitePoint": 1.5,
+      "artifacts": [
+        {
+          "rel": "lm/day.ktx2",
+          "bytes": 3880,
+          "sha256": "9b5b527d8353085114ab20b95828def4d2478fac8f7b5834073a72b2b995e82d"
+        }
+      ]
+    },
+    "dusk": {
+      "blender": "Blender 4.2.23 LTS",
+      "charts": [
+        {
+          "clippedFraction": 0,
+          "emitters": 1,
+          "exrSha256": "dc988f251fba301e2cf19c8256e46ab8067c3bb8e737f68eeabb53f647094852",
+          "name": "arch",
+          "objects": 13,
+          "pad": 2,
+          "peak": 0.2279,
+          "res": 1024,
+          "targets": 13
+        }
+      ],
+      "clippedFraction": 0,
+      "command": "node tools/bake.mjs st-george dusk",
+      "denoiser": "OPENIMAGEDENOISE",
+      "duskFixtures": false,
+      "margin": 2,
+      "peak": 0.2279,
+      "probe": {
+        "clippedFraction": 0.0039,
+        "peak": 1.1303,
+        "point": [
+          114.5,
+          11.65,
+          14.5
+        ],
+        "res": [
+          512,
+          256
+        ],
+        "samples": 256,
+        "whitePoint": 1
+      },
+      "res": 1024,
+      "samples": 128,
+      "seconds": 90.8,
+      "state": "dusk",
+      "whitePoint": 0.25,
+      "artifacts": [
+        {
+          "rel": "lm/dusk.ktx2",
+          "bytes": 3963,
+          "sha256": "a3ee9587f84479061cb26382a5a30bc5fe23977c88373f293b7ac6f9ff79be1d"
+        },
+        {
+          "rel": "probe/dusk.ktx2",
+          "bytes": 8907,
+          "sha256": "59c12d5309592084178f84f7d107cc16030bc5919695e4c1ff87a15c7df5b9e7"
+        }
+      ]
+    },
+    "nightChandeliers": {
+      "blender": "Blender 4.2.23 LTS",
+      "charts": [
+        {
+          "clippedFraction": 0,
+          "emitters": 1,
+          "exrSha256": "b5c0527ce4f3774c8c15501517ea69db82f39bbdfb73af11286562f33ef1e36d",
+          "name": "arch",
+          "objects": 13,
+          "pad": 2,
+          "peak": 0.1,
+          "res": 1024,
+          "targets": 13
+        }
+      ],
+      "clippedFraction": 0,
+      "command": "node tools/bake.mjs st-george nightChandeliers",
+      "denoiser": "OPENIMAGEDENOISE",
+      "duskFixtures": null,
+      "margin": 2,
+      "peak": 0.1,
+      "probe": null,
+      "res": 1024,
+      "samples": 128,
+      "seconds": 18.1,
+      "state": "nightChandeliers",
+      "whitePoint": 0.1,
+      "artifacts": [
+        {
+          "rel": "lm/night.ktx2",
+          "bytes": 3924,
+          "sha256": "54bbaf8c589bd88299c76786fbffedd121cf1f0c2e9e3cf229d47f304ccb74bc"
+        }
+      ]
+    }
+  }
+}

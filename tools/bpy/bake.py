@@ -306,7 +306,22 @@ EMITTER_EXCLUSION = {'military-gallery': True, 'rastrelli-gallery': True, 'st-ge
 # the capture (restore law untouched). day/dusk None = skip: the swap rebuilds the pane
 # tree WITHOUT an Emission node (no bake vehicle; the swap + world carry the window
 # light); night carries the real pane term as rgb + strength.
+# st-george: the swap is SKIPPED (the row below) — the law's wall grid seals every window
+# aperture 2.4 cm behind its pane (the seal probe's ray sequence: balcony-stone ×2 ->
+# window-light -> wall-marble @ 0.024 m -> sky), so swapped glass transmits nothing and
+# the sun/world rows stay inert registration data. The design's own words: 'the emissive
+# window panes are the hall's daylight source' — the hall keeps the authored pane emitters
+# in every state and carries the state brightness here. The aperture cut rides a future
+# round (DECISION-1, amendment 11); the values are the owner's re-tune data at the sitting.
+PANE_SWAP_DAY_DUSK = {'st-george': False}
 PANE_BAKE_EMISSION = {
+    'st-george': {
+        'day': ((0.880, 0.830, 0.700), 15.0),
+        'dusk': ((0.880, 0.830, 0.700), 2.5),
+        # nightChandeliers: None — the authored pane emission (strength 1.0) IS the night
+        # state; the authored tree stands unswapped at night, the override skips.
+        'nightChandeliers': None,
+    },
     'jordan': {
         'day': None,
         'dusk': None,
@@ -1862,19 +1877,24 @@ def main():
     # Order law: the pane swap REBUILDS the pane materials' node trees — every capture of
     # pre-swap nodes would leave dead RNA for the probe's restore to touch (a headless abort
     # with no traceback). Capture AFTER the swap, BEFORE the fixtures are zeroed.
-    swapped = swap_panes_to_glass(materials, room) if state != 'nightChandeliers' else []
+    swapped = (swap_panes_to_glass(materials, room)
+               if state != 'nightChandeliers' and PANE_SWAP_DAY_DUSK.get(room, True) else [])
     rig_saved = capture_fixtures(materials)
     # D1 order law: the state tables apply AFTER the capture (the dusk probe still
     # restores the same captured nodes) and BEFORE the rig and the sun. The emission
     # tables carry their own skip laws (day/dusk pane = None); a fixture-table room
     # replaces the blanket fixtures-off law; the committed day law keeps running for
     # rooms without a fixture table (the siblings stay byte-identical).
-    apply_pane_bake_emission(materials, room, state)
+    # D1 order amendment (st-george, DECISION-1 amendment 11): the pane table is an
+    # ABSOLUTE override — it lands AFTER the fixtures-off zeroing, or the blanket law
+    # clobbers the pane emission and the day bakes black (the jordan rows skip day/dusk
+    # and the night runs no fixtures-off, so the other table rooms' outcomes unchanged).
     fixtures_off = state == 'day' or (state == 'dusk' and not DUSK_FIXTURES[room])
     if room in FIXTURE_BAKE_STRENGTH:
         apply_fixture_bake_strength(materials, room, state)
     elif fixtures_off:
         set_fixtures_off(materials)
+    apply_pane_bake_emission(materials, room, state)
     # RIG_STATE_SCALE: the lamp rig exists only where the state's scale is > 0
     # (jordan day bakes with no rig — its light is the sun).
     rig = None
