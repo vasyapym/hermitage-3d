@@ -2541,6 +2541,7 @@ def declared_lm_sets(builder):
         for i in sorted(set(covered) | set(dim)):
             tally[roster[i][3]] = tally.get(roster[i][3], 0) + 1
         dump_path = os.environ.get('RGF2_DUMP_DIR', '.').rstrip('/') + '/rgf2-dim-debug.json'
+        os.makedirs(os.path.dirname(dump_path) or '.', exist_ok=True)
         with open(dump_path, 'w', encoding='utf-8') as fh:
             json.dump({'coveredCells': sorted(set(covered)), 'dimCells': sorted(set(dim)),
                        'tally': tally, 'rosterFaces': len(roster)}, fh, indent=1)
