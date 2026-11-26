@@ -107,11 +107,17 @@ function lmLayoutProvenance() {
   if (typeof lm.layoutHash !== 'string' || lm.layoutHash === '') return null;
   for (const state of LM_LAYOUT_STATES) {
     const sidecar = join(paths.stage, `bake-summary.${state}.json`);
-    if (!existsSync(sidecar)) fail(`manifest: layout identity: ${sidecar} missing — run the ${state} bake at this commit`);
+    if (!existsSync(sidecar))
+      fail(`manifest: layout identity: ${sidecar} missing — run the ${state} bake at this commit`);
     const row = JSON.parse(readFileSync(sidecar, 'utf8')).lmLayout ?? {};
-    if (row.layoutHash !== lm.layoutHash) fail(`manifest: layout identity: export hash ${lm.layoutHash} vs ${state} bake ${row.layoutHash}`);
+    if (row.layoutHash !== lm.layoutHash)
+      fail(
+        `manifest: layout identity: export hash ${lm.layoutHash} vs ${state} bake ${row.layoutHash}`,
+      );
   }
-  console.log(`manifest: layout identity ok ${LM_LAYOUT_STATES.length} state(s) hash=${lm.layoutHash.slice(0, 16)}`);
+  console.log(
+    `manifest: layout identity ok ${LM_LAYOUT_STATES.length} state(s) hash=${lm.layoutHash.slice(0, 16)}`,
+  );
   return { layoutHash: lm.layoutHash };
 }
 

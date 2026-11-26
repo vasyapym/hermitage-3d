@@ -345,7 +345,7 @@ function writeLog(room, log) {
   // THE MEMORY LAW (trap 8): the bake log carries the OTHER writers' keys (the reencode's
   // postEncode rows, the gate's deadCells memory) — this rewrite owns ONLY the room and
   // the states blocks; every other key survives the round-trip untouched.
-  let preserved = {};
+  const preserved = {};
   try {
     const previous = JSON.parse(readFileSync(json, 'utf8'));
     for (const [key, value] of Object.entries(previous)) {
