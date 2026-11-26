@@ -36,7 +36,7 @@ On macOS: `cd ~/Documents/hermitage-3d && /usr/bin/git pull --ff-only origin mai
 
 - Start: AGENTS.md + docs/STATE.md. README.md on first checkout, setup or public-entry change.
 - Plan: ROADMAP.md for scope; docs/charter.md before accepting scope or behavior. Read docs/budget-ledger.md before planning; reserve before the first shared-line commit. Read the applicable DEC, design § and docs/architecture.md boundary; read the whole architecture only for cross-system wiring.
-- Compose a brief or take a reply: docs/relay.md.
+- Compose a brief or take a reply: docs/relay.md; the transport traps: docs/traps.md.
 - File a job: read the agent-jobs filing instructions; the two-build case is in docs/archive/2026-11-26-sqshadowdirt.md.
 - Gate, merge or close: docs/ops.md and docs/budget-ledger.md.
 - Past round: docs/briefs/ROUNDS.md by lane → its archive; docs/decisions.md by DEC or subject.
