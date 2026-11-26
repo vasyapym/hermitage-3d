@@ -208,6 +208,47 @@ def check(argv):
             f'stripRowPx (got {strip_row!r}) — regenerate the bpy stage'
         )
     strip_px = int(strip_row or 0)
+    # The declared dim classes (brief 7's law artifact rgnext-7): the builder's lm block
+    # names the roster indices whose cells may read dead (the covered-by-family and
+    # dim-by-enclosure sets). Required when the gate is required — absent/malformed fails
+    # closed exactly like the stripRowPx law above; the optional branch treats them as
+    # empty (no caller today).
+    covered_cells = lm.get('coveredCells')
+    dim_cells = lm.get('dimCells')
+    declared_ok = (
+        isinstance(covered_cells, list) and isinstance(dim_cells, list)
+        and all(isinstance(i, int) and not isinstance(i, bool) for i in covered_cells)
+        and all(isinstance(i, int) and not isinstance(i, bool) for i in dim_cells)
+    )
+    if required and not declared_ok:
+        raise SystemExit(
+            "check: required dead-cell gate: the summary's lm block lacks valid "
+            'coveredCells/dimCells (the declared dim classes, got '
+            f'{covered_cells!r} / {dim_cells!r}) — regenerate the bpy stage'
+        )
+    declared = set()
+    if declared_ok:
+        # (reply 9) the malformed-input promise: beyond the types, the sets must be
+        # in-range roster indices, sorted-unique, and disjoint before they union - a
+        # duplicate or overlapping index would silently skip a cell twice.
+        for name, ids in (('coveredCells', covered_cells), ('dimCells', dim_cells)):
+            if any(i < 0 or i >= len(cells) for i in ids):
+                raise SystemExit(
+                    f"check: the summary's lm block {name} holds an index outside the "
+                    f'{len(cells)}-cell roster — regenerate the bpy stage'
+                )
+            if ids != sorted(set(ids)):
+                raise SystemExit(
+                    f"check: the summary's lm block {name} is not sorted-unique — "
+                    'regenerate the bpy stage'
+                )
+        both = sorted(set(covered_cells) & set(dim_cells))
+        if both:
+            raise SystemExit(
+                "check: the summary's lm block coveredCells and dimCells overlap at "
+                f'{both[:8]} — regenerate the bpy stage'
+            )
+        declared = set(covered_cells) | set(dim_cells)
     # The layout-identity gate (rastrelli-next round 4): every bake state's layout is proven
     # equal to this summary's lm BEFORE a single sample is read - the compose mixes three
     # states' plates, and a plate baked on another layout is not this atlas.
@@ -256,6 +297,7 @@ def check(argv):
     dead = []
     owned = 0
     excluded = 0
+    excluded_declared = 0
     for index, row in enumerate(cells):
         if not isinstance(row, dict) or not isinstance(row.get('rect'), list) or len(row['rect']) != 4:
             raise SystemExit(
@@ -272,6 +314,9 @@ def check(argv):
         if y + h <= strip_px:
             excluded += 1
             continue  # its whole y-range lies in the reserved strip
+        if index in declared:
+            excluded_declared += 1
+            continue  # the declared dim classes (brief 7's law rgnext-7): skipped like the strip
         owned += 1
         r0 = height - (y + h)
         top = 1 if h > 2 else 0
@@ -293,6 +338,10 @@ def check(argv):
             'regenerate the bpy stage'
         )
     if dead:
+        print(
+            f'reencode_paint: declared sets: coveredCells={len(covered_cells or [])} '
+            f'dimCells={len(dim_cells or [])} (the declared cells stay skipped in the count)'
+        )
         for index, element, rect, mean, cell_threshold in dead:
             print(
                 'reencode_paint: dead cell '
@@ -306,11 +355,12 @@ def check(argv):
         )
     print(
         f'reencode_paint: check ok — 0 of {owned} owned cells below {max_pct:g}% of P99 '
-        f'{atlas_p99:.4f} (threshold {threshold:.6f}); {excluded} strip cells excluded'
+        f'{atlas_p99:.4f} (threshold {threshold:.6f}); {excluded} strip cells excluded; '
+        f'{excluded_declared} declared cells excluded'
     )
     print(
         f'reencode_paint: postEncode atlasP99={atlas_p99:.6f} threshold={threshold:.6f} '
-        f'cells={len(cells)} owned={owned} dead=0'
+        f'cells={len(cells)} owned={owned} dead=0 declaredExcluded={excluded_declared}'
     )
 
 

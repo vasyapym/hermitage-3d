@@ -728,6 +728,13 @@ COVERED_OFFSET_DP = 3   # the offset key quantum (offset noise ~2e-5 m at 87.5 m
 COVERED_NM = 1.6e-4     # the merge pass's per-component normal identity bound
 COVERED_DM = 1.6e-3     # ... and the offset identity bound
 COVERED_BAND_M = 3e-5   # the touch band in metres (the derivation above; frozen in the ledger)
+# brief 7's law artifact (rgnext-7) — the declared dim classes' NEW vocabulary (law §0):
+PROUD_MAX = 0.12        # the occluder stack's proud cap = 2 x 0.06 (the dado datum's proud,
+#   the deepest applied-family front; the panel band is 0.03) — caps the stack so the
+#   airlock box faces (metres off any host) and non-applied bodies never count
+SHELL_MIN = 3           # a profile run's shell = bottom + front + top faces; an end face
+#   must be framed by at least that many abutting faces (a chamfered profile with more
+#   still satisfies the >=)
 
 
 def _canonical_plane(f):
@@ -2005,6 +2012,12 @@ def finish(name, builder, materials, mode='shelf'):
              'element': _entry[3]}
             for idx, (_entry, _uv) in enumerate(faces_uv)
         ]
+        # brief 7's law artifact (rgnext-7): the two declared dim classes ride BESIDE the
+        # cells, OUTSIDE the identity canon — lm_layout_hash hashes pxPerM/stripRowPx/
+        # faces/cells only, so the hash cannot move; the check skips these indices exactly
+        # as it skips the strip. Direct reads: build_room always sets them (fail-loud).
+        block['coveredCells'] = list(builder.lm_covered_cells)
+        block['dimCells'] = list(builder.lm_dim_cells)
         block['layoutHash'] = lm_layout_hash(block)
         # the layout-identity law's witness: BOTH chains print it (the job greps four lines,
         # one hash); the strip mode keeps no cells and prints nothing
@@ -2361,6 +2374,168 @@ def gate_f5_sconces(scene, family_boxes):
     return offenders
 
 
+# ---- the declared dim classes: brief 7's law artifact (rgnext-7) -----------------------------
+# The sitting brief 6-rgnext.md · the ruling B both classes (2026-11-26). Computed in the
+# builder after build_wall_families, BEFORE finish() frees the bmesh (the snapshot law,
+# source H): every roster face takes its host chart (t along t_dir, y up, d proud) and the
+# two predicates pick the cells the bake is allowed to read dead — the builder declares
+# them beside lm.cells and the check skips them exactly as it skips the strip. Occluders
+# are FAMILY_ELEMENTS ONLY (law §5): the colliders never — their host footprints are holes.
+def declared_lm_sets(builder):
+    """Law rgnext-7's two declared dim classes. Returns (covered_cells, dim_cells) —
+    sorted unique roster indices over the SAME roster finish() packs (non-None faces).
+
+    Predicate A (covered-by-family): a non-family face parallel to its host's skin is
+    covered iff an applied-family face on the same host, parallel to the host normal,
+    stands at proud PROUD_MIN..PROUD_MAX above it (below PROUD_MIN = COVERED_DM the
+    parallel planes are ONE plane — gate_covered's domain, never ours) and its projected
+    (t, y) polygon contains the subject's centroid strictly inside at the touch band
+    (a centre ON a family edge is half lit and bakes, so not covered — the existing
+    strict-interior-at-band test _inside_band).
+
+    Predicate B (dim-by-enclosure): a non-family face perpendicular to its host
+    (n = ±t_dir, one common t within the band) is the back wall of a hollow profile shell
+    iff >= SHELL_MIN abutting family faces touch its plane from its normal side (their
+    t-extent ends where the face sits: solid-on-solid abutment, no cap) and their union
+    (y, d) AABB encloses the face's own at the touch band.
+
+    A and B are exclusive by construction (parallel vs perpendicular normal) and the
+    belt below fails loud on any element that leaves the declared classes."""
+    NORM_DP, OFF_DP, BAND = COVERED_NORM_DP, COVERED_OFFSET_DP, COVERED_BAND_M
+    PROUD_MIN = COVERED_DM
+    hosts = (WALL_S, WALL_N, WALL_E, FLOOR, PWALL_W, PWALL_E, PWALL_N)
+    host_normals = [H.normal() for H in hosts]
+
+    def chart(H, p):
+        """The host's chart (t, y, d) for a world point (t along t_dir, y up, d proud)."""
+        if H.axis == 'z':
+            return (p[0], p[1], H.sign * (p[2] - H.offset))
+        if H.axis == 'x':
+            return (p[2], p[1], H.sign * (p[0] - H.offset))
+        return (p[0], p[2], H.sign * (p[1] - H.offset))
+
+    roster = [entry for entry in builder.roster if entry[0] is not None]
+    # the law's per-face inputs, one pass: the rounded WORLD unit normal (bmesh stores the
+    # blender-space one; to_w is the rotation back) and the world centroid
+    normals, centroids = [], []
+    for f, _kind, _uid, _element in roster:
+        n = to_w(f.normal)
+        length = math.sqrt(n[0] * n[0] + n[1] * n[1] + n[2] * n[2])
+        normals.append((round(n[0] / length, NORM_DP), round(n[1] / length, NORM_DP),
+                        round(n[2] / length, NORM_DP)))
+        centroids.append(face_centroid_w(f))
+
+    # law §1, host assignment: a face attaches to a host iff its normal equals the host's
+    # into-air normal (same sign) or is perpendicular to it; among candidates the nearest
+    # |d_F| wins (d_F = the proud of the centroid, rounded OFF_DP); ties -> first in
+    # source-B order (the strict < keeps the earlier host)
+    face_host, face_d = [], []
+    for idx in range(len(roster)):
+        n, c = normals[idx], centroids[idx]
+        best_hi, best_abs, best_d = None, None, None
+        for hi, (H, hn) in enumerate(zip(hosts, host_normals)):
+            dot = n[0] * hn[0] + n[1] * hn[1] + n[2] * hn[2]
+            if dot != 0.0 and n != hn:
+                continue
+            d = round(chart(H, c)[2], OFF_DP)
+            if best_abs is None or abs(d) < best_abs:
+                best_hi, best_abs, best_d = hi, abs(d), d
+        face_host.append(best_hi)
+        face_d.append(best_d)
+
+    # the per-host stacks: occluders (family faces PARALLEL to the host normal — the
+    # coplanar machinery's quantised normal key with the offset left free) and the shell
+    # candidates (EVERY family face attached to the host — B reads their t-extents and
+    # (y, d) AABBs regardless of their own normal)
+    occluders = [[] for _ in hosts]   # (d_G, (t, y) polygon, (t, y) bbox) in roster order
+    shells = [[] for _ in hosts]      # (t0, t1, (y_lo, y_hi, d_lo, d_hi)) in roster order
+    for idx, (f, _kind, _uid, element) in enumerate(roster):
+        hi = face_host[idx]
+        if hi is None or element not in FAMILY_ELEMENTS:
+            continue
+        H = hosts[hi]
+        verts_ch = [chart(H, to_w(v.co)) for v in f.verts]
+        ts = [p[0] for p in verts_ch]
+        ys = [p[1] for p in verts_ch]
+        ds = [p[2] for p in verts_ch]
+        shells[hi].append((min(ts), max(ts), (min(ys), max(ys), min(ds), max(ds))))
+        if normals[idx] == host_normals[hi]:
+            occluders[hi].append((face_d[idx], [(p[0], p[1]) for p in verts_ch],
+                                  (min(ts), max(ts), min(ys), max(ys))))
+
+    # predicate A, subjects in roster order; occluders per host in roster order
+    covered = []
+    for idx, (_f, _kind, _uid, element) in enumerate(roster):
+        if element in FAMILY_ELEMENTS:
+            continue
+        hi = face_host[idx]
+        if hi is None or normals[idx] != host_normals[hi]:
+            continue
+        tc, yc = chart(hosts[hi], centroids[idx])[:2]
+        for d_g, poly, bbox in occluders[hi]:
+            if not PROUD_MIN <= d_g - face_d[idx] <= PROUD_MAX:
+                continue
+            if not (bbox[0] <= tc <= bbox[1] and bbox[2] <= yc <= bbox[3]):
+                continue   # exact cull: inside-by-BAND implies inside the projected bbox
+            if _inside_band((tc, yc), poly, BAND):
+                covered.append(idx)
+                break
+
+    # predicate B, subjects in roster order
+    dim = []
+    for idx, (f, _kind, _uid, element) in enumerate(roster):
+        if element in FAMILY_ELEMENTS:
+            continue
+        if element != 'niche':
+            continue  # (reply 9) dim-by-enclosure is the ruling's NICHE class; the broad
+            # subject sweep caught the lit doorcard via the floor host's chart - the wrong
+            # subject for the ruling, not what the class describes
+        hi = face_host[idx]
+        if hi is None:
+            continue
+        H = hosts[hi]
+        td = t_dir(H, 1)
+        n = normals[idx]
+        if n != td and n != (-td[0], -td[1], -td[2]):
+            continue
+        verts_ch = [chart(H, to_w(v.co)) for v in f.verts]
+        ts = [p[0] for p in verts_ch]
+        if max(ts) - min(ts) > BAND:
+            continue   # not one common t — not a subject
+        t_f = (min(ts) + max(ts)) / 2.0
+        # the abutting set S: family faces whose t-extent touches F's plane from F's
+        # normal side (n_F = -t: the run ENDS at t_F; n_F = +t: it STARTS at t_F)
+        from_pos = n == td
+        s_ys, s_ds = [], []
+        for t0, t1, (y_lo, y_hi, d_lo, d_hi) in shells[hi]:
+            gap = abs(t0 - t_f) if from_pos else abs(t1 - t_f)
+            if gap <= BAND:
+                s_ys += [y_lo, y_hi]
+                s_ds += [d_lo, d_hi]
+        if len(s_ys) // 2 < SHELL_MIN:
+            continue
+        ys_ch = [p[1] for p in verts_ch]
+        ds_ch = [p[2] for p in verts_ch]
+        if (min(s_ys) - BAND <= min(ys_ch) and max(ys_ch) <= max(s_ys) + BAND
+                and min(s_ds) - BAND <= min(ds_ch) and max(ds_ch) <= max(s_ds) + BAND):
+            dim.append(idx)
+
+    # the belt (fail-loud; the reply-9 scopes): covered holds the field faces of the long
+    # AND the end walls (the doorcase panels' fronts lawfully shadow the end-wall field),
+    # dim holds the niche faces only (the ruling's own words), and the classes never
+    # overlap (parallel vs perpendicular by construction)
+    wrong = [i for i in covered if roster[i][3] not in ('wall.field', 'wall.e')]
+    if wrong:
+        fail('declared coveredCells hold non-field faces: ' + str(wrong[:8]))
+    wrong = [i for i in dim if roster[i][3] != 'niche']
+    if wrong:
+        fail('declared dimCells hold non-niche faces: ' + str(wrong[:8]))
+    both = sorted(set(covered) & set(dim))
+    if both:
+        fail('coveredCells and dimCells overlap: ' + str(both[:8]))
+    return sorted(set(covered)), sorted(set(dim))
+
+
 def build_room(b):
     """The deterministic build order (the roster = the schedule's index)."""
     build_long_wall(b, WALL_S)
@@ -2375,6 +2550,13 @@ def build_room(b):
     # premise ended with the borrowed class.
     build_airlock_set(b)
     build_wall_families(b)
+    # brief 7's law artifact (rgnext-7): the declared dim classes are computed HERE — the
+    # roster is complete (build_wall_families is the last emitter) and the bmesh faces are
+    # live. The snapshot law (source H) demands the faces before finish() frees the bmesh;
+    # finish() assembles the lm block before its own bm.free(), so this earlier site
+    # satisfies it and stores the sets on the builder for finish() to publish.
+    b.bm.normal_update()   # the law reads face normals — bmesh computes them lazily
+    b.lm_covered_cells, b.lm_dim_cells = declared_lm_sets(b)
 
 
 COVERED_DUMP_PATH = '/private/var/folders/8x/yls1cw1d6s3fmbrxhqg0y17w0000gp/T/opencode/rg-verify/rgf2-covered-debug.json'
