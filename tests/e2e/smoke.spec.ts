@@ -1,3 +1,5 @@
+// The e2e battery is unverifiable on this Mac (SwiftShader) — the pins verify at the
+// office/box battery.
 import { test as base, expect, type Locator, type Page } from '@playwright/test';
 
 // Budgets are CI-enforced contracts (docs/architecture.md, Tiers/budget table):
@@ -296,17 +298,19 @@ test('arrow walk: the prompt click and a fresh ArrowRight at a settled end enter
 // between configurations — the round-17 measurement trap).
 test('keyboard walk: every stop reachable, reduced-motion cuts', async ({ page }) => {
   test.slow(); // same data-bound dwell per transit, on top of the instant reduced-motion cuts
-  // The R3 walk crosses TWO extra airlocks (the 1812 cut and its reverse) and walks 44
-  // landings (17 forward + 5 across the 1812 gallery + 22 backward; the 2026-11-16
+  // The R3 walk crosses FOUR extra airlocks (the 1812 cut, the throne cut, and their
+  // reverses) and walks 54 landings (17 forward + 5 across the 1812 gallery + 5 across the
+  // hall + 27 backward; the 2026-11-16
   // re-choreography reinstated the gallery's axis rests — the 2026-11-17 walk re-tune
   // retires G1b, one leg fewer in each direction — and the reduced-motion cut law lands on
   // every stop, soft or hard). Every
   // room entry is a full mount behind the card. MEASURED at 44 calls (the six-stop
   // gallery) on the CI-representative SwiftShader env: 6.0–8.3 min wall ⇒ the 900-s
-  // budget's ratio ≈ 1.8–2.4; the walk is back at the measured count now, the
-  // headroom covers it (the Sol review: the historical stall measurement is not a
-  // current guarantee).
-  test.setTimeout(900_000); // 44 walkTo calls — one leg fewer each way than the 46-call shape the budget was sized against — × (the dwell-drain wait + the pressability poll + one coherent landing read) + boot + four transits; the ≈×1.8–2.4 headroom over the measured 6.0–8.3 m (SwiftShader) still covers it
+  // budget's ratio ≈ 1.8–2.4; at the walk's 54 calls the same per-leg arithmetic reads
+  // ≈ 7.4–10.2 min wall ⇒ ratio ≈ 1.5–2.0, the headroom still covers it — the number
+  // verifies at the office/box battery (the Sol review: the historical stall measurement is
+  // not a current guarantee).
+  test.setTimeout(900_000); // 54 walkTo calls — the hall's five legs each way on top of the 44-call shape the 6.0–8.3 m measurement covered — × (the dwell-drain wait + the pressability poll + one coherent landing read) + boot + every airlock crossed both ways; the ≈×1.5–2.0 headroom over the same per-leg arithmetic (SwiftShader) still covers it, the number verifies at the office/box battery
   await page.emulateMedia({ reducedMotion: 'reduce' });
   const hud = await bootDeterministic(page, `${AT}&det=1&hud=1&lang=en`);
   // One accepted press per landing. The keydown handler drops any press while the arrival is
@@ -359,6 +363,13 @@ test('keyboard walk: every stop reachable, reduced-motion cuts', async ({ page }
     M2: 'The lantern — the vault and the glazing bars above the gallery.',
     M3: 'The monarchs — the end wall, the large portraits above the small.',
     M4: 'The doors are closed; beyond them — St George’s Hall.',
+    // DECISION-1: the five hall landings join the walk — the EN corpus verbatim (h0 carries
+    // the sourced h0 reword, the strings step).
+    H0: 'St George’s Hall, the Large Throne Room. After the narrow gallery the palace opens: white marble, double ranks of Corinthian columns, and the throne at the far end of the axis.',
+    H1: 'Corinthian columns carry the balcony; their gilt capitals catch the light of two tiers of windows.',
+    H2: 'Look up, then down: the gilded ornament of the ceiling is repeated in the parquet, cut from sixteen kinds of wood.',
+    H3: 'The throne place: a crimson canopy, the double-headed eagle, and the throne on its stepped dais.',
+    H4: 'Above the throne, Saint George and the dragon in white marble. The route ends here for now.',
   };
   // A leg spans the data-bound load + mount behind the card (seconds on a starved page; the
   // backward entries re-mount, since the exit disposes the room left), the card's hold, one
@@ -499,28 +510,37 @@ test('keyboard walk: every stop reachable, reduced-motion cuts', async ({ page }
   );
   // DEC-025: the landing's far end is no longer inert — the same forward press crosses the
   // retargeted airlock into the 1812 room (a cut: the card, then the M0 seed), and the walk
-  // lands M0–M4 the same way it landed the phase-2 stops.
-  for (const stop of ['M0', 'M1', 'M2', 'M3', 'M4']) {
+  // lands M0–M4 the same way it landed the phase-2 stops. DECISION-1: M4's own departure is
+  // wired the same way — the forward press crosses the throne-airlock into the hall
+  // (transit: 'cut', holdMs 800: the card, then the H0 seed; the hall rides the route
+  // #/throne), and the walk lands H0–H4 the same way it landed the 1812 stops.
+  for (const stop of ['M0', 'M1', 'M2', 'M3', 'M4', 'H0', 'H1', 'H2', 'H3', 'H4']) {
     await walkTo(stop);
   }
-  // The route's end (M4, the closed doors) is the new inert end: a press past it, made in
-  // the ready state the M4 landing poll proved (no fresh pre-press read — the same
-  // redundant-double-read rule as the legs' presses), changes nothing. The room's only
-  // airlock side sits at M0, the entry stop (§1.1's chain end). After the re-check window,
+  // The route's end (H4, the dais foot) is the new inert end: a press past it, made in
+  // the ready state the H4 landing poll proved (no fresh pre-press read — the same
+  // redundant-double-read rule as the legs' presses), changes nothing. The hall's only
+  // airlock side sits at H0, the entry stop (§1.1's chain end). After the re-check window,
   // one coherent sample shows the stop, the room and an idle hold: no transit opened.
   await page.keyboard.press('ArrowRight');
   await page.waitForTimeout(2000);
-  expect(await sampleHud(), 'inert end: the press past M4 opened nothing').toEqual({
-    stop: 'M4',
+  expect(await sampleHud(), 'inert end: the press past H4 opened nothing').toEqual({
+    stop: 'H4',
     holdMs: IDLE_HOLD,
-    room: 'military-gallery',
+    room: 'st-george',
     moving: 'false', // the motion bit: nothing walks after a press that admitted nothing
-    u: 1, // M4 is the gallery's last of five stops: its exact stop parameter
+    u: 1, // H4 is the hall's last of five stops: its exact stop parameter
   });
-  // Backward: the whole way home through both airlocks — M0's backward push is the landing
+  // Backward: the whole way home through the airlocks — H0's backward push is the throne-
+  // airlock's reverse (the cut back to the 1812 room), M0's backward push is the landing
   // airlock's reverse (the cut back to jordan), and the backward entries seed the far stop
-  // (J4, then G2, then S1) so the direction of travel is preserved (§6.1 seed law).
+  // (M4, then J4, then G2, then S1) so the direction of travel is preserved (§6.1 seed law).
   for (const stop of [
+    'H3',
+    'H2',
+    'H1',
+    'H0',
+    'M4',
     'M3',
     'M2',
     'M1',
