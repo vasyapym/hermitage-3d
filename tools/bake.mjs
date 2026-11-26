@@ -341,11 +341,23 @@ function renderLog(room, log) {
 
 function writeLog(room, log) {
   ensureDir(LOG_DIR);
-  const ordered = { room, states: {} };
+  const { json, md } = logPaths(room);
+  // THE MEMORY LAW (trap 8): the bake log carries the OTHER writers' keys (the reencode's
+  // postEncode rows, the gate's deadCells memory) — this rewrite owns ONLY the room and
+  // the states blocks; every other key survives the round-trip untouched.
+  let preserved = {};
+  try {
+    const previous = JSON.parse(readFileSync(json, 'utf8'));
+    for (const [key, value] of Object.entries(previous)) {
+      if (key !== 'room' && key !== 'states') preserved[key] = value;
+    }
+  } catch {
+    // no previous log (the first bake) — nothing to preserve
+  }
+  const ordered = { room, states: {}, ...preserved };
   for (const state of STATES) {
     if (log.states[state]) ordered.states[state] = log.states[state];
   }
-  const { json, md } = logPaths(room);
   writeFileSync(json, `${JSON.stringify(ordered, null, 2)}\n`);
   writeFileSync(md, renderLog(room, ordered));
   console.log(`wrote ${path.relative(ROOT, md)}`);
