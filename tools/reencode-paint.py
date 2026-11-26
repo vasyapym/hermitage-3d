@@ -257,12 +257,17 @@ def check(argv):
     # absence = the strict law: every dead cell counts as new (fail-closed fallback).
     room = doc.get('room') or 'rastrelli-gallery'
     memory_set = None
+    memory_path = f'tools/bake-logs/{room}.json'
     try:
-        with open(f'tools/bake-logs/{room}.json', encoding='utf-8') as handle:
+        with open(memory_path, encoding='utf-8') as handle:
             memory_set = json.load(handle).get('postEncode', {}).get('deadCells')
-    except (OSError, ValueError):
-        memory_set = None
+    except (OSError, ValueError) as exc:
+        print(f'reencode_paint: the memory read failed ({type(exc).__name__}: {exc})')
     memory_set = set(memory_set) if isinstance(memory_set, list) else None
+    print(
+        f'reencode_paint: the memory: path={memory_path} '
+        f'present={memory_set is not None} cells={len(memory_set or ())}'
+    )
     # The layout-identity gate (rastrelli-next round 4): every bake state's layout is proven
     # equal to this summary's lm BEFORE a single sample is read - the compose mixes three
     # states' plates, and a plate baked on another layout is not this atlas.

@@ -54,6 +54,7 @@ dir "%STAGE%"
 dir /s "%STAGE%" > "%ART%\stage-dir.txt"
 copy /Y "%STAGE%\*.json" "%ART%\" >nul
 copy /Y "%STAGE%\*.png" "%ART%\" >nul
+copy /Y "%~1\tools\bake-logs\rastrelli-gallery.json" "%ART%\bake-log.json" >nul 2>&1
 rem the bench referral's trace (reply 9 (a); trap 7: measured, not inferred): the graze
 rem slivers' UV2 islands vs their rects + the paint EXR's island/rect means - runs on BOTH
 rem paths (the stage + the paint EXR exist right here); its exit never flips the verdict.
