@@ -97,3 +97,37 @@ ARCHIVE-APPEND 2026-11-26 — Trap 1, retired 2026-10-28, moved from STATE 2026-
 - The ledger reservation row (moved from docs/budget-ledger.md 2026-11-26, the records decision step 6):
 
 | **jordan-turn2** | the Jordan Staircase's turn-redistribution + room-survey lane (PARALLEL, worktree branch jordan-turn2 off origin/main 77d5849; the merge + the FULL gate ride the owner's signal): Task 1 the owner's redistribution ask — the J1/J1b gazes pre-turn ~13% toward the chandelier's crown (FLIGHT1_TURN/FLIGHT2_TURN; the swings 10.2/47.4/45.7; the test rows) · Task 2 the room survey → the creative's pick (brief 1) = slice 2b «the white-and-gold wall order» — ONE wall_order mesh (12 panels + 12 porthole rings, 2 prims, +4,296 tris) + the cornice's gilt fascia (16 faces, +1 draw), EXPORTED-NEVER-BAKED (the rg-f6 declared-host adoption; cells ±0; NO re-bake) · declared allowance: shared JS ±16 gz (measured +8 → 289,527/350,000) · RU ±0 · room payload ≤ +2,000,000 (measured dir +105,304 → 1,777,597; budget row 1,783,733) · texture ±0 besides the 3-row Mac re-baseline (neva +9 / plafond −60 / glb −84 — the owner-accepted reference switch) · tris +4,296 of 380,000 · draws +3 (47/60) · cells ±0 | MERGED at the wave's FIRST merging session (the ff to main 36d9d15) — SPENT and RELEASED; the FULL gate + the DEC assignments ride the LAST merging session (deferred NOT waived) |
+
+### ROUNDS row before compaction (moved 2026-11-26)
+
+| **turn-cascade** · MERGED (the wave's FIRST merging session of three — the ff to main 36d9d15; the FULL gate + the DEC-ready goldens + the due re-baselines ride the LAST merging session — deferred NOT waived) | 2026-11-24 | The owner's two tasks: Task 1 — the first two Forward clicks turn ~13% more right+up so the FOURTH stop's (J2) rotation shrinks (the turn-preview law extended down the climb); Task 2 — the room survey → the creative's own pick (brief 1, the objective dossier + the ranked lacks) = **slice 2b «the white-and-gold wall order»**, the exported-never-baked panel kit (the rg-f6 declared-host adoption: no cells, no re-bake). | J1 FLIGHT1_TURN [70.4, 8.1, −83.5] (13% mezz→crown) · J1b FLIGHT2_TURN [76.4, 10.4, −82.6] (23→36% sconce→crown) · the swings 4.0/47.9/52.8° → 10.2/47.4/45.7° · slice 2b: wall_order (12 panels + 12 rings + the gilt fascia; 2 prims; +4,296 tris → 36,178 drawn, 47/60 draws, cells 3,372 ±0) · the 3-row Mac re-baseline (neva +9/plafond −60/glb −84; the owner-accepted reference switch; the plafond-art input restored) · the review astra-6.2 7/10: 14 fixed / 1 deferred · validate GREEN ×2 (tsc 0 · biome · vitest 1,254 · JS 289,527 ±0-ish of ±16 · payload dir 1,777,597 / row 1,783,733) | branch jordan-turn2 (0e406d8…36d9d15) · briefs 1–2 · merge = the ff · → docs/archive/2026-11-24-turncascade.md |
+
+## The records decision (DECISION-3, 2026-11-26) — the records cutover
+
+The owner's ask: «state.md - 28.4 KB; declarations.master.md - 18.9 KB. do you think they are
+bloated? … i think this eats agents' context windows.» The investigation (the census: the start
+bill ~48.5 KB ≈ 12–13K tokens; the STATE growth 7 → 261 → 9.8 → 29 KB with two manual rescues)
+→ the decision brief 3 → the creative's option B ADOPTED: «STATE.md holds open items only, the
+standing protocol is read at the moment it applies, every fact has one home, and the caps are
+checked by the existing records-check as a blocking gate.»
+
+- The stage-2 texts (the creative's five artifacts) placed: STATE.md rewritten whole (open items
+  only, Tree without numbers, Wave/Lanes/Owed/Recent, the read map, the Record law — 5,914 B);
+  ROADMAP.md compacted by disposition (7,534 ≤ 8,000; the displaced narrative → the owning
+  archives per the design's map); the DEC-055 entry bounded (the predecessor → the sqshadowdirt
+  archive under DEC-055 evidence); the 4+1 over-cap ROUNDS rows rewritten (the predecessors →
+  their archives); the 16 design-H2 promotions executed per the named split points.
+- The records-check converted to BLOCKING (tools/records-check.mjs: the caps, the semantic
+  boundaries, the pointer resolution, the lossless proofs, fail-for-real) and wired into
+  `pnpm validate`. Green on the integrated tree.
+- The declarations split (the orchestrate repo, commit ad34834): core/machines/projects/briefs/
+  jobs per the adopted layout; the master → the redirect stub; the derived local copy abolished
+  (backed up). The contamination fixed (the master's header was the derived copy's).
+- The Owed dispositions: the 2b wall-articulation item DELETED (discharged by this lane); the
+  doorway residual and the rg-parked items stay in parking-lot/the rgaudit archive; the square's
+  ranked census stays as ROADMAP evidence.
+- The start bill: AGENTS 4.5 + STATE 5.9 = ~10.4 KB ≤ the 15,000 cap; the plan bill +charter/
+  roadmap/ledger ≈ +24 KB; the declarations packet ≈ +16 KB (the combined cap 31,000 — certified
+  at the cutover, the orchestrator's validation enforces it).
+- Deferred: the cell-ownership instrument (the finding 06). The FULL gate rides the LAST merging
+  session (deferred NOT waived).

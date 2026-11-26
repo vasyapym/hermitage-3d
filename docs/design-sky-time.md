@@ -395,7 +395,9 @@ Room phases consume these weights unchanged. Their texture/material technique is
 
 ## 9. URL, clock, and scrub semantics
 
-### URL boundary
+The section promotes its subcontracts to the adjacent H2 sections below (the numbering follows the body's own anchors).
+
+## URL boundary
 
 Time parameters live in the existing fragment query, for example the `at` and `det` keys in `#/?at=&cam=&q=&det=1`. They are not duplicated in the document’s top-level query string.
 
@@ -415,7 +417,8 @@ For a bounded fragment:
 - `nowMs` itself must satisfy the epoch precondition. A misconfigured host clock outside the supported interval is an integration error, not permission to invent a current date.
 - The host preserves `cam`, `q`, the route, and other bounded valid parameters on time writes. This module neither defines nor modifies their semantics.
 
-### Live and fixed time
+
+## Live and fixed time
 
 Capture `Date.now()` once before creating the first sample. Use that same snapshot for the initial sky and arrival time label; do not independently read the clock for each.
 
@@ -423,7 +426,8 @@ In ordinary live mode, sample the current wall clock at most once per second and
 
 A valid `at` is fixed until another explicit time action. It does not start running from the specified timestamp. All displayed scene time comes from the same active epoch. Normal arrival therefore shows the real current Petersburg time. An explicit `at` intentionally overrides both sky and displayed time; never label an overridden time as “now”.
 
-### Deterministic mode
+
+## Deterministic mode
 
 With `det=1`:
 
@@ -437,7 +441,8 @@ With `det=1`:
 
 Reproducible captures across visits require an explicit absolute `at` and the same camera, quality, and viewport.
 
-### Scrub transaction
+
+## Scrub transaction
 
 The hairline control becomes available after arrival settles, not during the three beats. Use a focusable native range input with an accessible label and an absolute Petersburg date/time in `aria-valuetext`; no additional permanent panel is needed.
 
@@ -460,7 +465,8 @@ Clamp the requested offset to ±1,440 minutes before multiplication, round the r
 - Cancel, pointercancel, or focus loss restores the pre-gesture mode. A restored live mode samples current now, not the old anchor.
 - An external URL navigation cancels the gesture and takes precedence. Hiding the document also cancels an incomplete gesture.
 
-### The season transaction (R11; design-season-chooser.md §3, DEC-034)
+
+## The season transaction (R11; design-season-chooser.md §3, DEC-034)
 
 - The season listbox in the clock row is a view of the committed time state: live reads «now», fixed reads the local meteorological season of the instant. It is re-derived after every commit and on every hashchange re-parse; it is never written during scrub preview, and it lives outside this module's parser — the URL carries only the resulting canonical `at=`.
 - Choosing a season commits `seasonInstant(...)` — the season's anchor day in the scene instant's local civil year at the scene instant's local time of day — through the same transaction as the scrub: enter fixed time (det preserved), apply locally, one `history.replaceState` writing canonical `at=` with unrelated keys preserved, no history entry, no preview phase. Choosing «now» is the return-to-now law verbatim.

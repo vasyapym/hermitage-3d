@@ -17,7 +17,7 @@
     "e2e": "playwright test",
     "budget": "node tools/budget.mjs",
     "fonts": "node tools/fonts/subset.mjs",
-    "validate": "pnpm typecheck && pnpm lint && pnpm test && pnpm build && pnpm budget",
+    "validate": "pnpm typecheck && pnpm lint && pnpm test && pnpm build && pnpm budget && node tools/records-check.mjs",
     "asset:bpy": "node tools/asset.mjs bpy",
     "asset:gltf": "node tools/asset.mjs gltf",
     "asset:bake": "node tools/asset.mjs bake",

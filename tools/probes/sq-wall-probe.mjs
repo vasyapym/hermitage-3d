@@ -36,7 +36,6 @@ for (const file of files) {
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     console.error(`unreadable png, skipping: ${file} (${message.split('\n')[0]})`);
-    continue;
   }
 }
 const regionParam = (process.env.SQ_REGION ?? '').trim();

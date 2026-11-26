@@ -57,7 +57,9 @@ Deep link to a room: fetch its manifest first, then everything; the reviewed roo
 
 ## 2. Set design — the room contract instantiated
 
-### 2.1 Contract fields
+The section promotes its subcontracts to the adjacent H2 sections below (the numbering follows the body's own anchors).
+
+## 2.1 Contract fields
 
 Reproduced and verified verbatim against architecture.md (orchestrator, 2026-10-17):
 `id`/`title`/caption per stop (doubles as the accessible description) · `bounds` at true coordinates in the shell · `assets` manifest (glTF + KTX2 + lightmap states, content-hashed) · `rail` spline, stops, look limits · `lighting.states` + blend function · `neighbors` with airlock portals · `budget` (triangles, draw calls, bytes, texture memory).
@@ -76,7 +78,8 @@ interface RoomContract {
 
 Coordinate frame (exists): metres; +X east, +Z south (Palace Square), −Z north (Neva), +Y up. Shell: halfWidth 105, halfDepth 87.5, wing depth 24, cornice Y 22, roof band → ~24. Interiors must fit Y 0…22.
 
-### 2.2 Per-room values
+
+## 2.2 Per-room values
 
 All values declared, marked `[measure r15/r17]` where bpy or the bake decides.
 
@@ -99,13 +102,15 @@ All values declared, marked `[measure r15/r17]` where bpy or the bake decides.
 Orientation note (derived; **plan check closed r19** — the direction is attested verbatim by two independent sources: saint-petersburg.com, «The rooms of the Neva Enfilade, which runs west from the Jordan Staircase» (hermitage-museum state rooms page), and the hermitagemuseum.org 1917 virtual-visit order (Jordan Gallery on the ground floor → Small Dining-Room); both place the staircase at the **east end of the north wing's Neva front**, so the windows face **north onto the Neva/Palace-Embankment**): the sourced "two tiers of windows on the Neva" plus the enfilade order Jordan Staircase → Forehall → Nicholas Hall → Concert Hall → Malachite Room → Small Dining-Room, which *runs west away from* the staircase. Earlier planning notes said "west", which the enfilade derivation contradicts — resolved in the derivation's favour. A measured plan (РГИА ф. 485 / Albertina) would still settle exact proportions; the r15 bpy build followed this derived orientation and no source contradicts it. Where the window tiers face, the two-tiers fact is sourced (en.wiki, citing Budberg 1969 p. 198; hermitagemuseum.org).
 The arch passage itself (X −4…+4, Z +63.5…+87.5, the 24 m wing depth) is part of the gallery room's model: a vault the visitor walks through before turning east. Derived from the massing (wing depth 24); declared walkable volume.
 
-### 2.3 Windows, the dome and the arch plane
+
+## 2.3 Windows, the dome and the arch plane
 
 - **Windows in jordan:** opaque baked panes (the sky colour per state is baked into the pane texture). Avoids see-through to the dome (whose brightness follows E(h), not the bake), avoids card-model leaks, saves draws. Flip to see-through only if the owner wants real sun movement in the panes (then the dome renders through window stencils — +1 draw, exposure mismatch to solve). Q9 in §12.
 - **The shell is a card model:** the massing has no arch hole today. Default: the arch-portal is a doorway transit whose first metre is inside the card (the vault mesh begins at the facade plane and the fade-to-dark completes before the camera crosses the card plane); r16 may alternatively cut an arch opening in the card — owner's call (Q7). Interiors sit at true coordinates inside the envelope; nothing exterior is drawn while a room is active, so there is no collision to resolve, only the one plane at the arch.
 - **R-UX1 (2026-10-22): the hold choreography shipped as the threshold beat** — the camera keeps moving through the light-fade (the drain rides `renderer.toneMappingExposure`, not an overlay), the FSM gained depart → card → arrive, and the transit became a threshold for every airlock. This section's fade-to-dark-in-place is superseded by [design-walkthrough-ux.md §4](design-walkthrough-ux.md).
 
-### 2.4 The airlock — definition
+
+## 2.4 The airlock — definition
 
 Default: an airlock is a **neighbor-edge seam, not a room**. It owns no assets, has no route key, and cannot be a camera destination; it is a choreography + lifecycle object.
 

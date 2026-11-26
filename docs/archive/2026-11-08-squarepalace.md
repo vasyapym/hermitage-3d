@@ -260,3 +260,7 @@ docs/STATE.md · bullet «2026-11-08 · PARALLEL square-palace OPENED» · lines
 - The ledger reservation row (moved from docs/budget-ledger.md 2026-11-26, the records decision step 6):
 
 | square-palace — RELEASED | «The winter square» DEC-041 snow-legibility: walked-path lane (core ±2.5 m / edge ±7 m), sky gain K = 1.5, caption «колонна позади»; declared ≤ +700 gz | MERGED 2026-11-09 — JS 284,110 (+69), RU 7,339, DEC-043; full gate deferred NOT waived — spent, released |
+
+### ROADMAP before compaction (moved 2026-11-26)
+
+- [ ] **The Cut** — pull out of any room and the shell slices open like a dollhouse; interiors sit at true coordinates (a standing constraint since Phase 2), so this composes with Petersburg Time.

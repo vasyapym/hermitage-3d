@@ -1,5 +1,7 @@
 # The budget ledger — one authoritative table of committed and reserved costs
 
+main @ records-decision · 2026-11-26 — the snapshot this table is measured against (mirrors STATE's Tree label).
+
 **What this file is:** the single place where the project's byte/triangle/draw BALANCES are kept
 honest across parallel sessions. `tools/budget.mjs` measures the COMMITTED tree at build; STATE
 bullets and DEC rows carry history. This file carries the CURRENT truth: committed costs per
@@ -25,7 +27,7 @@ that decides whether a next round's declared allowance fits. The project-course 
 
 ## Shared lines
 
-| line | cap | operating ceiling | committed (main @ the square-env2 merge, 2026-11-05) | committed (branch `sq-arch-day`) | remaining to the operating ceiling |
+| line | cap | operating ceiling | committed (main @ records-decision · 2026-11-26) | committed (branch `sq-arch-day`) | remaining to the operating ceiling |
 |---|---|---|---|---|---|
 | JS gzip (all chunks) | 350,000 | 285,707 — proposed explicit ceiling, owner ratification pending (design-project-course §1); the rg-walk-tune merge lands +185 OVER it — the OWNER PLATE line (the hard CI cap holds with 61,842 spare) | 289,447 @ main, the socle re-tune, 2026-11-23 (the union merge 289,411 → +36, the derived lower-tier stretch law) | **291,653 measured at the round's close, 2026-11-25** (the P1 review batch + the DEC-054 pick-set; +2,134 over main's 289,519; RU +0) — **MERGED at the wave's slot 2/3 (the merge e72c442)**; the merged-tree re-measure (the expected ≈ 291,661 = the turn-cascade's +8 + the round) rides the LAST merging session's battery | −3,740 |
 | RU strings (lazy chunk) | 12,000 | — | 7,546 @ main, the sq-facade union merge, 2026-11-23 (the jordan-next captions +97 → the sq-facade formula chips +19; the dressings law's declared RU +0 held — the +19 is the notes page's own re-wording) | +0 measured (no strings touched) | 4,454 |

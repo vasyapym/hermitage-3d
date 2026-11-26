@@ -136,6 +136,10 @@ probe.
 
 ## §4 Touch rail surface — amendment R17-B (rewritten by R18-ux verdict 1 + D6; placement and face re-ruled by R19-ux A; the slot re-ruled by R19-ux A.1; the face re-glyphed and the slot certified the lowest clean line by R20-ux; the face set in medium 27 px and the pair shifted inward by the viewport-share inset (TOUCH_RAIL_SHIFT_PCT) by R21-ux)
 
+
+
+### §4.1 Rail actions and hit surface
+
 «Add one separate navigation group, `#touch-rail`, with native Back and Forward buttons.
 AMENDED by the movement-ux ruling (2026-11-08/09): the pair is VISIBLE and clickable at
 EVERY pointer type and width — the coarse/narrow visibility law (coarse pointer OR width
@@ -169,8 +173,11 @@ block minimum is 41 px by the owner's decision (from 44). The hit area is the bu
 itself; 41 is taken knowing the 44 px touch-target convention and stays well above WCAG
 2.5.8's 24 px floor. The box's bottom edge remains pinned to the slot line, so the shorter
 box frees its 3 px above the arrows and the glyph centre sits 1.5 px lower; the slot law
-(R19-ux A.1 / R20-ux) is not re-opened.
-Measure layout only on layout changes, not in
+(R19-ux A.1 / R20-ux) is not re-opened.»
+
+### §4.2 Slot and viewport-share placement
+
+«Measure layout only on layout changes, not in
 the render loop. Insufficient space is a failed layout gate, not permission to hide
 essential navigation. Insufficient space means either the box on its slot runs into the
 ceiling, or the two buttons stand closer than TOUCH_RAIL_GAP_PX; both cases warn, neither
@@ -189,28 +196,15 @@ area grows inward and keeps its share below the glyph (the thumb lands at or bel
 point). R21-ux: each box's outer edge sits TOUCH_RAIL_SHIFT_PCT (7 %) of the viewport width
 inside the chrome inset — `max(inset, safe-area) + 7 %` on each side — because a one-handed
 thumb rests inside the screen edge, not on it, and a viewport share keeps the pair's placement
-the same at the 320 floor and at 844 landscape. No boxes, background panel, progress text or
+the same at the 320 floor and at 844 landscape.»
+
+### §4.3 Visible face and glyph
+
+«No boxes, background panel, progress text or
 revived caption. Reserve the group's geometry while busy. These new 44-px targets do not
 resolve or
 retune the parked global 24-px accessibility item. Do not move existing chrome or add
-`viewport-fit=cover` to accommodate this addition.»
-
-Without `viewport-fit=cover` the `env()` insets resolve to 0, so in practice each box edge sits
-at 24 px + 7 % of the viewport width (≈ 49 px at 360, ≈ 46 px at 320, ≈ 83 px at 844); the
-`max()` stays in for law symmetry, and the shift is added outside it so a notch still pushes
-the pair further in.
-R19-ux A.1 note: the band, not the current label, is the slot. The corner stack is
-bottom-anchored and content-sized and the door label is empty at entry stops (R-UX2), so a
-slot read off the stack's top goes stale the moment a far-end label wraps — the R19-ux A
-interception. Three reserved lines cover the longest label at the 320-px floor; a shorter
-label (two lines at 360, one in landscape) leaves the difference empty above it, and the
-entry title surfaces one gap above the label's current box — at or below the pair's line.
-R20-ux note: the slot is the LOWEST clean line; directly below it sit the stack gap and
-then the highest member at its reserve, so the pair is never offset below the slot.
-Lowering the box by D px puts that member (D − gap) px into it, and with a reserve-filling
-door label D = gap + half the box is the R19-ux A defect. The pair stands lower only
-through a smaller honest reserve: fewer real door-label lines at the narrowest layout,
-measured, then re-cut in TOUCH_RAIL_PROMPT_LINES.
+`viewport-fit=cover` to accommodate this addition.»## §4 Touch rail surface — amendment R17-B (rewritten by R18-ux verdict 1 + D6; placement and face re-ruled by R19-ux A; the slot re-ruled by R19-ux A.1; the face re-glyphed and the slot certified the lowest clean line by R20-ux; the face set in medium 27 px and the pair shifted inward by the viewport-share inset (TOUCH_RAIL_SHIFT_PCT) by R21-ux)
 
 ## §5 Travel and pointer laws
 
@@ -566,7 +560,9 @@ ALL SIX §16 CALLS ADOPTED as recommended, with one resolution recorded:
 
 ## §18 Mobile-C capture and export protocol
 
-### §18.1 Scope, boundaries and declared constants
+The section promotes its subcontracts to the adjacent H2 sections below (the child numbering follows the body's own anchors).
+
+## §18.1 Scope, boundaries and declared constants
 
 This amendment specifies an instrument and an evidence protocol, not a measured result. §9’s
 numerical proposals, the interpretation of “never”, and §10’s pending owner decisions remain
@@ -603,7 +599,8 @@ standing ceiling is 285,707 B total JS gzip (the §0.1-8 baseline 274,707 + the 
 no planned increase. These are verification requirements, not measurements performed by this
 amendment.
 
-### §18.2 Scenario and planned-result model
+
+## §18.2 Scenario and planned-result model
 
 - Before measurement, export an immutable plan derived from the actual committed room/stop/airlock
   inventory. Do not invent room names, airlock endpoints, epoch-selector parameters or route paths
@@ -647,7 +644,8 @@ amendment.
   same-condition retry may supply missing evidence, but every invalid/lost attempt remains visible
   and accounted for. An unexplained stall is not an invalidation excuse.
 
-### §18.3 Explicit control and bounded acquisition
+
+## §18.3 Explicit control and bounded acquisition
 
 The command surface is `globalThis.__H3D_MOBILE_C__`, present only in the opt-in build. Its
 operations are `loadPlan`, `begin`, `abort`, `endVisit`, `prepareExport`, `exportPrepared`, and
@@ -669,7 +667,8 @@ execute the disconnected protocol under the current no-UI law: its capture/expor
 **pending**, not silently replaced by a diagnostic panel. No CSP or browser security setting is
 weakened to make commands work.
 
-### §18.4 Caps and retention lifecycle
+
+## §18.4 Caps and retention lifecycle
 
 `MOBILE_CAPTURE_MAX_FRAMES` bounds raw rAF-interval rows **per bounded frame attempt**, including an
 interruption probe. It does not bound a scenario’s three repeats collectively. Navigation probes
@@ -696,7 +695,8 @@ registration: reconcile it as lost, or pending while recovery remains possible. 
 parts or registrations prevent completeness. Neither a later retry nor an index regeneration removes
 a valid measured exceedance.
 
-### §18.5 Observation and assessment semantics
+
+## §18.5 Observation and assessment semantics
 
 Frame admission establishes a foreground rAF baseline. The terminal sample is the first foreground
 rAF at or after baseline plus `MOBILE_FRAME_WINDOW_MS`; retain its entire interval, including
@@ -721,7 +721,8 @@ observed window, not rolling-display averages. Preserve the existing ledger unit
 byte conversion or accounting is unresolved, its gate stays pending. Numerical assessment, protocol
 qualification and owner ratification remain separate; this amendment closes no exit gate.
 
-### §18.6 Command exits and explicit file transport
+
+## §18.6 Command exits and explicit file transport
 
 All replies carry command ID, lifecycle state and `ok`, `pending` or `error`, with a reason.
 `loadPlan` validates and freezes the actual-inventory plan; replacement is forbidden while an
@@ -756,7 +757,8 @@ file. That string and the command-surface token are independently forbidden in o
 assets. Malformed commands, illegal state transitions and inconsistent IDs fail without advancing
 the plan.
 
-### §18.7 Native traces and first-exterior evidence
+
+## §18.7 Native traces and first-exterior evidence
 
 Assign every native trace a stable `traceId` and retain its actual basename, byte length, SHA-256,
 device/scope/attempt association, clock domain and exact event/time locator. Reports reference
@@ -782,7 +784,8 @@ even when qualification is unresolved; do not convert missing evidence into a pa
 uncertainty, pass requires the complete uncertainty interval within `MOBILE_FIRST_EXTERIOR_MS`;
 overlap with the threshold is unknown, not rounded down.
 
-### §18.8 Requirements for the mechanical round
+
+## §18.8 Requirements for the mechanical round
 
 The ordinary build must produce zero fixed-string matches for `__H3D_MOBILE_C__` and
 `h3d-mobile-c/v1` across **all emitted assets**, including emitted maps and diagnostic chunks; its
@@ -794,7 +797,8 @@ round-map accounting: Mobile-C’s standing ceiling is **285,707 B**, additional
 round-map and overall ceilings; RU has no planned increase. These are requirements, not results
 reported here.
 
-### §18.9 `MobileCReportV1` data contract
+
+## §18.9 `MobileCReportV1` data contract
 
 All fields below are required; use `not-applicable` only for genuine structural inapplicability,
 `unknown` for unavailable/unestablished facts, and `pending` for outstanding evidence or decisions
@@ -867,6 +871,11 @@ devices: readonly { id: MobileCId; label: string; physicalPhone: true }[]; scope
 MobileCScope[]; inventory: MobileCInventory; itineraries: readonly MobileCItinerary[]; scenarios:
 readonly MobileCScenario[]; slots: readonly MobileCSlot[]; limits: MobileCLimits; evidence: readonly
 MobileCEvidence[] }>;
+```
+
+## §18.9b `MobileCReportV1` data contract — the device profile, thermal and event types
+
+```typescript
 export type MobileCDisplay = { cssViewportPx: MobileCSize; nativeDpr: MobileCField<number>;
 reportedDevicePixelRatio: number; coarsePointer: boolean; orientation: MobileCField<"portrait" |
 "landscape">; nominalRefreshHz: MobileCField<number>; adaptiveRefresh: MobileCField<boolean>;
@@ -921,6 +930,11 @@ actualEndMs: MobileCField<number>; initialRoomId: MobileCId; initialStopId: Mobi
 readonly MobileCRawInterval[]; rawCompleteness: "complete" | "prefix" | "missing"; statistics:
 MobileCField<MobileCStatistics>; thirds: readonly MobileCThirdResult[]; observedStopIds: readonly
 MobileCId[]; intervalFloor: MobileCDecision };
+```
+
+## §18.9c `MobileCReportV1` data contract — the graphics, ledger, transit and navigation types
+
+```typescript
 export type MobileCGraphicsState = { atMs: number; drawingBufferPx: MobileCSize; msaaSamples:
 MobileCField<number>; shadowMapPx: MobileCField<MobileCSize>; rendererMemory: MobileCField<{
 geometries: number; textures: number }> };
@@ -977,6 +991,11 @@ export type MobileCFirstExterior = { navigationType: MobileCField<"navigate" | "
 MobileCField<MobileCStamp>; elapsedMs: MobileCField<number>; elapsedUncertaintyMs:
 MobileCField<number>; network: MobileCNetwork; presentation: MobileCPresentation; coldness:
 MobileCCache; measuredTarget: MobileCDecision; qualification: MobileCDecision };
+```
+
+## §18.9d `MobileCReportV1` data contract — the overflow, attempt and visit types
+
+```typescript
 export type MobileCInvalidation = { reason: "visibility-interruption" | "aborted" | "ended-early" |
 "frame-overflow" | "record-overflow" | "byte-overflow" | "clock-discontinuity" | "context-loss" |
 "protocol-incomplete"; at: MobileCField<MobileCStamp>; details: string; evidenceIds: readonly
@@ -1025,6 +1044,11 @@ MobileCDecision; exitGate: MobileCDecision };
 export type MobileCPayload = { kind: "plan"; plan: MobileCPlanV1 } | { kind: "visit"; planFile:
 MobileCFileRef; visit: MobileCVisit } | { kind: "index"; planFile: MobileCFileRef; index:
 MobileCIndex };
+```
+
+## §18.9e `MobileCReportV1` data contract — the receipts, operations and the report root
+
+```typescript
 export type MobileCReportV1 = { format: "h3d-mobile-c/v1"; artifactId: MobileCId; planId: MobileCId;
 createdAtUtc: string; producer: MobileCBuild; payload: MobileCPayload };
 export type MobileCPrepared = { artifactId: MobileCId; kind: "plan" | "visit" | "index";
@@ -1069,7 +1093,9 @@ remain unchanged evidence.
 
 ## §19 Device runbook
 
-### Phase A — One-time device, build and control preparation
+The section promotes its subcontracts to the adjacent H2 sections below (the child numbering follows the body's own anchors).
+
+## Phase A — One-time device, build and control preparation
 
 1. **Resolve device adoption before freezing a certifying plan.** Record the Android phone’s actual
    model, variant, SoC/GPU and RAM from device information plus corroborating manufacturer/tool
@@ -1117,7 +1143,8 @@ identified build, successful rehearsal replies and native-selected-file verifica
 blocked controls, absent trace tracks or a save handoff without a verification receipt; none
 qualifies capture readiness.
 
-### Phase B — Author, deliver and verify the frozen plan
+
+## Phase B — Author, deliver and verify the frozen plan
 
 7. **Authorship decision:** a repository-side generator produces one deterministic UTF-8 JSON file
    containing the `MobileCPlanV1` VALUE, derived from the committed room/stop/airlock inventory. The
@@ -1148,7 +1175,8 @@ receipt, and exact `planFile` binding.
 **Failure looks like:** parsing edited JSON, exporting without selecting the saved file, a payload
 mismatch, or unresolved inventory coverage; measurement remains blocked.
 
-### Phase C — Open each device scope and evidence ledger
+
+## Phase C — Open each device scope and evidence ledger
 
 11. Work through all 12 scopes: two adopted phones × `clean-profile-auto`/`explicit-q=t0` × the
     three pinned epochs. Use the existing epoch mechanism; record the actual URL and resulting
@@ -1181,7 +1209,8 @@ and usable clock relations.
 **Failure looks like:** missing attempt identities, unexplained profile provenance, unsupported
 telemetry labelled zero, or timestamps aligned by guesswork; affected gates remain pending/unknown.
 
-### Phase D — Execute the frozen slot walk
+
+## Phase D — Execute the frozen slot walk
 
 16. Follow the predeclared ordering that preserves cold destinations. Reset into a separately
     documented cold visit where required; touring through a destination first cannot later be called
@@ -1238,7 +1267,8 @@ directions of every inventory airlock.
 **Failure looks like:** missing thirds/stops, warmed “cold” destinations, a valid-looking
 interruption probe, absent post-soak binding, or pooled statistics replacing an individual result.
 
-### Phase E — Reconcile, seal, save and archive each visit
+
+## Phase E — Reconcile, seal, save and archive each visit
 
 25. Let completed bounded attempts terminate normally. Use `abort` only to stop an active
     acquisition: it returns an invalid terminal result and preserves the accepted prefix. Never use
@@ -1277,7 +1307,9 @@ evidence.
 
 ## §20 Native-device certificate template
 
-### Source and completion rules
+The section promotes its subcontracts to the adjacent H2 sections below (the child numbering follows the body's own anchors).
+
+## Source and completion rules
 
 - All blanks below are unfilled `MobileCField<T>` values, or `MobileCDecision` blanks where labelled
   decision. Use `known(value, evidenceIds)`, `unknown(reason, requiredEvidence)`, `pending(reason,
@@ -1296,7 +1328,8 @@ evidence.
   exported index. The certificate may then transcribe its exported decision and evidence references;
   it cannot independently turn an external claim green.
 
-### Eligibility and riders — display above every result page
+
+## Eligibility and riders — display above every result page
 
 - **Overall certificate decision: ___** ← `I⟦owner certificate decision and applicable riders⟧`; no
   unconditional green while an applicable rider is unresolved. A passing measurement row is not a
@@ -1316,7 +1349,8 @@ evidence.
 - Governing law: **«never mark pending gates met».** Also: “No physical low-end phone means «floor
   pending», not an emulation-based pass.”
 
-### Identity and §10 device record — repeat for each device/scope/visit
+
+## Identity and §10 device record — repeat for each device/scope/visit
 
 - Report identity/version: ___ ← identified plan/visit/index `R⟦artifactId⟧`, `R⟦format⟧`; plan
   identity: ___ ← `R⟦planId⟧`.
@@ -1353,7 +1387,8 @@ evidence.
 - Native trace identity/domain/locator/clock uncertainty: ___ ← `I⟦trace registration and clock
   relation⟧`, associated `V⟦trace references⟧`.
 
-### Required floor rows — instantiate from the exported plan, never summarize away rows
+
+## Required floor rows — instantiate from the exported plan, never summarize away rows
 
 “Every required window must pass; aggregate medians cannot conceal a slow room or transit.”
 
@@ -1405,7 +1440,8 @@ evidence.
   respective `I⟦archive reconciliation and completeness⟧` members. Missing evidence blocks
   completion, not merely a footnote.
 
-### Phase-4 exit — conjunction, not a score
+
+## Phase-4 exit — conjunction, not a score
 
 - Native mobile certificate across both adopted devices/all 12 scopes: ___ ← `I⟦mobile certificate
   decision⟧`, with every required floor and eligibility source above.

@@ -220,17 +220,17 @@ are untouched; an arrive never reads the tangent.
 
 ## 5. The corridor's light (reply §2.4, adopted)
 
-- Art rule: **a museum's lamps are ON by day.** The three states differ by the
-  daylight spill at the arch mouth and the east door, not by the lamps — the
-  declared «differ little» intent; the shipped day bytes are the divergence.
-- **Fast path first**: at the ENCODE, composite day = daylight bake + lamp bake × k
+The law promotes its clauses to the adjacent H2 sections below (the numbering follows the body's own bold clauses).
+
+## 5.1 Fast path first
   (byte-deterministic re-encode from the surviving EXRs via tools/reencode.mjs; no
   re-bake); then re-tune per-state white points so the G1 mean luminance across
   states stays within ~1.5× of each other and the brightest state is ≤ ~⅓ of the
   stair mid-flight mean (the compression→release beat survives). Look gains lift
   the floor/pilaster reading without clipping the sconces. Guard: inspect the vault
   for banding at the new white points before accepting.
-- **Slow path** only if the composite cannot bring the pilaster rhythm and the vault
+
+## 5.2 Slow path
   line to legibility at G1: re-bake with higher lamp power and daylight portals at
   the arch mouth + east door (logged, slow).
 - G0's arrival black is fixed jointly by §8 (G0 gazes down the passage at the lit
@@ -238,7 +238,8 @@ are untouched; an arrive never reads the tangent.
 - Touches: the G1 day golden re-baselines (recorded). Owner disposition D5.
 - Open authoring fact: what the east door shows when faced (whether a lit slab must
   be baked there for G2's new gaze) — closed by capture at implementation.
-- **R-UX4 LANDED (2026-10-23, this round's integration notes; D5 executed as the fast
+
+## 5.3 **R-UX4 LANDED (2026-10-23, this round's integration notes; D5 executed as t
   path):** the three states re-designed by the creative relay to "one lamp field with three
   different mouths" — day = night + day rigs composed linearly at scale 1
   (tools/lm_compose.py + tools/lm-recipes.mjs, the dispatch rides tools/reencode.mjs), all
@@ -260,7 +261,8 @@ are untouched; an arrive never reads the tangent.
   still frames the passage's east wall band at G0 and looks back west at G2 — the G0 arrival
   and the east door's faced view remain R-UX5's authored gazes (?cam= is a rail-u parameter
   and cannot face the door).
-- **RG-D1 (2026-11-01, the details program's iteration 1 — the lamps' light; PARALLEL: integrated
+
+## 5.4 **RG-D1 (2026-11-01, the details program's iteration 1 — the lamps' light; P
   on branch `rg-d1-light` while another session's round was in flight — the full e2e/golden
   suite and the captures run at merge).** The owner's verdict «too dark, especially in autumn
   and winter; evenings and nights are pitch dark; there should be more light» is the owner call
@@ -299,7 +301,8 @@ are untouched; an arrive never reads the tangent.
   alongside the merge-time pre-change capture at the det night time (expect ≈ 12/255 —
   designed darkness, not a decode failure).
 
-- **RG-E1 (2026-11-02, the details program's second lane — the pale gallery / "Eleven Bays"; PARALLEL: integrated on branch `rg-e1-room`, MERGED to main as the parallel stack's slot 1/4 — the full e2e/golden suite, the captures and the three G1 re-baselines run at the stack finale, the RG-D1 convention).** The owner's verdict: the room «looks very raw / like a draft». The relay (the zero-steering facts dossier `projects v8/8-hermitage-3d-rastrelli-room-inventory.md`; the room's whole light chain + builder carried byte-verbatim) returned a ranked assessment adopted as the round: (1) ATLAS INTEGRITY — the four datablocks' per-face equal-cell grids all span 0..1 and bake into ONE image; (2) the PALETTE — one dark chocolate plaster (0.38/0.29/0.22) on wall/vault/pilaster AND sconce-iron reads as wood; (3) the missing BAY articulation between "shell + pilasters" and a finished interior; (4) the door's light contradicting the contract's own "one locked dolly onto the door's light"; (5) the fixture slot (iron in plaster albedo; the glow clipped to white lozenges).
+
+## 5.5 RG-E1 (2026-11-02, the details program's second lane — the pale gallery / "E
   **THE FORENSIC PASS (offline, before integration — mechanism PROVEN):** in a one-image bake across datablocks Blender 4.2 rasterizes per-pixel STRICT last-writer-wins (4,553/4,553 conflict pixels to the later writer, pure value copy, byte-deterministic reruns; clear-once, not per object), and the write order is the builder's creation order (shell → portal → pilaster → **sconce**) — NOT `bake_targets`'s name sort. The z=70 wall faces 28–31 (x 24.4→40.08, atlas row-1 cols 8–11) were ~88 % overwritten by the last sconce representative's dim back-plate/arm cells (≤ 0.45/255) — the near-black courtyard wall run mechanically explained; the shell face census: 387 faces (floor 22, walls 11+11, vault 80, tympana 16, end 3, cornice 80, skirting 40, passage 134). Along the way: the committed night atlas demonstrably descends from an EARLIER staged EXR (band ≈ 104× off the declared compose scale) — the re-encode's EXR-sha gate was VACUOUS for rooms whose bake-log JSON lacked `charts` rows; now FAIL-LOUD (`assertStagedExr`), the rastrelli/jordan logs carry their rows, and the fresh encode's provenance is sha-verified live on all three states.
   **THE LANDED ROUND (one builder + one bake pass):** palette — `plaster_pale` (0.74, 0.70, 0.62; isotropic mottle ≤ 0.035 declared, grid max 0.0359 measured, no diagonal term), `stucco_grey` (0.60, 0.58, 0.54), `stone_flags` retuned to 1 m flags (0.56/0.54/0.50, mortar 0.34/0.32/0.29), flat `iron_dark` (0.07, 0.065, 0.06, roughness 0.55) — the sconce-slot-bug fixed; `plaster_dark` retired end-to-end (the glb carries 3 images). Atlas law — pilasters/ribs/niches/doorcase/lunette merged into the shell datablock (1,213 lm faces), area-weighted shelf packing at PX_PER_M 18 (20/19 did not fit; occupancy 0.7817, overlapFaces 0, minCellPx 6), the sconce template in a reserved v ≥ 0.875 strip (19 faces, 5×5), summary.json's `lm` block published; vault + passage-arch soffits on cylindrical UV (the wood-grain streak gone). Bays — 11 transverse ribs (RIB_X = PILASTER_X, crown 3.48 under the 3.6 vault, RIB_CLEARANCE_M 0.12), 22 blind niches (width 1.8, sill 0.9, peak 2.5, recess 0.22; backs in plaster_pale = the constants-level pane slot, shipped BLIND — evidence pending), the east doorcase + lunette r 0.75 with a `stairlight` back quad whose cells are PAINTED per PUBLISHED state at the re-encode (after compose: day 0.55/0.58/0.62, dusk 0.45/0.32/0.17, night 0.60/0.42/0.22; the values live twice — bake.py PANE_PAINT as the declared record, reencode-paint.py as the machine source — kept in sync by law); sconces relocated 6/wall onto the odd pilasters' shaft planes + 2 at the passage mouth facing west (14 total, SCONCE_Y 2.0). EMITTER_EXCLUSION gains 'rastrelli-gallery': True (the re-adjudication: the glow is runtime material emission; the shade renders its warm colour — this re-bake is the recorded shape change).
   **THE RETUNE:** k = 4 by the reproducible LOOK-RATIO (the k=8 G1-night still measured 0.3505 vs the ratified baseline 0.1528 → 8/2.3 → 3.5 → 4; wp held 0.8, gains 2/2/2). FLAGGED (honest): the round's 0.30–0.34 atlas-mean intent is unreachable at k ≤ 8 under any estimator consistent with the tree (the anchor's 0.3221 ≠ the old atlas's decoded full mean 0.5043 — the band's original estimator is not reproducible from the repo); published pre-ETC1S means at k=4: night 0.1752 (clip 0.56 %), dusk 0.1992, day 0.2883 (clip 3.79 %). The night still at k=4 reads 0.2991 (≈76/255) — marginally above the old 40–70/255 band; k 3–3.5 is the ~7-minute re-encode dial if the owner's fix is lower.
@@ -338,62 +341,10 @@ are untouched; an arrive never reads the tangent.
   not helpers.
 
 ## 8. The movement law — authored subjects, corner stops, feet on treads
-(reply §2.6, adopted; the stop re-authoring is one pass, capture-framed)
 
-Verdict: the rail stays; free roam stays rejected; the two defect laws are fixed
-inside the promise.
+The law promotes its clauses to the adjacent H2 sections below (the numbering follows the body's own bold clauses).
 
-Movement-law amendment (the movement-ux ruling, 2026-11-08/09): the movement is ONE WALK —
-a signed motion along the rail at a declared cruise pace, alive while INTENT is alive,
-braking to the next stop in its heading when intent ends. Presses assert intent and never
-pick destinations; the wheel's travel (and its sustained-scroll boundary pass) is retired.
-- Inputs (ONE funnel): `walkPress`/`walkRelease`. Keys: keydown = press (an OS repeat is a
-  refill), keyup/window-blurness/hidden = release. Both pairs — desktop AND mobile, one
-  law — bind pointerdown/up + keyboard activation, with the click kept as the assistive
-  fallback (suppressed once per activation). Admission: settled ∧ transit-free ∧
-  gesture-free ∧ menu-free — the old no-glide gate is GONE (a press is admitted mid-walk:
-  it extends the run). The pair is VISIBLE and clickable at every pointer type and width.
-- Intent: WALK_LEASE_MS 600 (refilled by every press; taps ≤ 600 ms apart never brake),
-  WALK_HOLD_MS 300 (a hold's release ends intent NOW). Idempotency: repeated presses never
-  multiply the pace (|Δk|/Δt ≤ 1/WALK_CRUISE_MS holds every frame); every stop is passed
-  in order, exactly once per pass.
-- Pacing: WALK_CRUISE_MS 1500 ms per stop gap at cruise; WALK_ACCEL_MS 420 (0.14 gap — a
-  single tap from rest ≈ 2060 ms total, −13 % vs the 2380 ms leg; 10 % of the gap at
-  ≈ 360 ms); WALK_BRAKE_MS 700 (T = 2r/v when intent dies early). The walk rests at the
-  NEXT stop in heading, never beyond; non-hard stops are passed THROUGH at cruise — the
-  pace never dips mid-walk.
-- Hard knots: rail ends and corner stops are never passed; a corner with live intent
-  re-departs atomically (speed touches zero; D3's runs unchanged). A reversal brakes to a
-  mid-segment turnaround, flips the heading THERE (the look re-anchors at the turnaround,
-  not at the press), and departs toward the stop just left; it may rest mid-segment when
-  its intent dies first.
-- Boundary (DEC-031 amended): a door fires from a SETTLED end's fresh press edge (a hold
-  never opens a door) via the same chain, or the prompt's click; the lean pulses at
-  LEAN_MAX_M per press edge.
-- Reduced motion: a fresh press edge cuts to the next stop under REDUCED_DWELL_MS 600 (a
-  press during the dwell is dropped, repeats are ignored; the boundary is checked before
-  the dwell — a door press opens even inside it).
-- The B9 gaze law below is position-only (the walk re-times u, not the look);
-  pass-through stops are met on their committed framings and the arrival poses stay exact
-  (the golden fence holds by construction). B9b (2026-11-16, the rg-walk-tune round; phasing
-  superseded by B9c) reshaped the ONE weight into a LEAD (the arc completed at 80 % and the
-  body braked under a landed look). B9c (2026-11-17, the rg-move lane; keeps B9's arc) is
-  the lead's mirror: one weight, w = smoothstep(max(0, 1 − (1 − wd)/LOOK_LAG)), LOOK_LAG
-  0.8 — the look HOLDS the anchor's aim (the departure framing, or the look in force —
-  B10) across the first 1 − LOOK_LAG of the segment (10 % at the declared dial) — the body starts first — and plays its whole
-  arc across the last 80 %, landing on the author's frame exactly at the stop; the
-  gaze-turn rate is zero on both sides of every nonlocked stop (no kink), never above
-  1.875 × the segment's average per unit of rail. Position-only: the rotation rests WITH
-  the body, never after it; a rotation that settles after the body is a clock law (B9d),
-  costed and deferred to the owner's second play. Still no clock and no RailState field.
-  Capture safety is by absence: there is NO post-arrival settle, so a capture taken AFTER
-  ARRIVAL reads the committed rest pose; a capture taken MID-SEGMENT reads an intermediate
-  pose, as the position law intends (the roomReady hold + the 300 ms margin stay the
-  harness's explicit arrival prerequisite).
-  A locked dolly keeps its held-point
-  parallax (the locked branch bypasses the angular blend; a transverse eye motion still
-  rotates the gaze direction) — the gallery's axis-aligned corridor dollies carry none.
-- **Gaze law (B9, supersedes R19-ux C's departure turn)**: authored SUBJECTS and the
+## 8.1 Gaze law (B9, supersedes R19-ux C's departure turn)
   subjectless next/back fallback remain unchanged; stop poses remain bit-identical. Between
   two stops the base gaze travels the arc between their two committed framings and nothing
   else: the source aim is frozen at the departure eye (or at the look in force at a
@@ -421,35 +372,32 @@ pick destinations; the wheel's travel (and its sustained-scroll boundary pass) i
   spline. Measured (derived at the R19-ux 2380-ms leg; the pacing is superseded by the walk law, the gaze law shape kept): a step's pan peaks at mid-glide at
   1.875 × arc ÷ duration — G0→Gj and Back Gj→G0, 83.0° → 65.4°/s (286°/s at
   SCROLL_GLIDE_MS); Back Gj→G0's pitch rises linearly from 0° to its 3.06° settle.
-- **Corner stops (R18-ux D3)**: a stop may be flagged `corner`. The position spline is
+
+## 8.2 Corner stops (R18-ux D3)
   evaluated per RUN — the stop list split after each corner stop — so a corner knot
   inherits no tangent from across the turn. Each run uses the committed spline and end
   rule unchanged; a rail with no corner flag is one run and samples bit-identically to
   before. A walk never crosses a corner stop: it brakes into the knot and, with live intent,
   re-departs at once (a hard knot; the movement-ux amendment).
-- **Corner stops**: the path turns only at stops. Corridor: the junction stop (§7).
+
+## 8.3 Corner stops
   Stairs: a stop on the REAL mezzanine turn — near (67.5, 6.7, −81.7) between the
   flights [declared] — the switchback becomes two right-angle turns on the mezzanine
   land/edge, which centripetal CR rounds like a person turning.
-- **Feet on treads**: every stair stop's y = the flight_datum/flank at its (x,z)
+
+## 8.4 Feet on treads
   + 1.7 (the build script's `flight_datum()` is the source of truth);
   flight-1 stops sit on the west band (x 66..67.6), flight-2 stops on the north
   band (z −84.4..−82.8); the landing survey stop sits on the slab (x ≥ 80).
-- Committed authored set, retained by R19-ux C and B9: J0/J1 → MEZZ_LIGHT (locked climb);
-  J1b → FLIGHT2_SCONCE; J2 → FLIGHT2_TOP; J2b → the SAME FLIGHT2_TOP (D-J2b, owner
-  2026-11-02: press 4 locks onto J2's framing — the old upper-window glance into the north
-  wall retired); J3/J4 → EAST_PORTAL
-  (locked approach). Local presses from J0 land at J1, J1b, J2, J2b, J3, J4. The sconce
-  and window are intentional subjects, not random samples. Corridor (re-authored
-  2026-11-16): G0 → JUNCTION (the vault leads the entry frame); G0b → GALLERY_MOUTH (the
-  head pre-turns toward the light before the corner); Gj/Gjb/G1/G1b/G2 → EAST_DOOR (one
-  locked dolly onto the door's light; Gjb/G1b are the 2026-11-16 axis rests for the pace);
-  GALLERY_MOUTH stays recorded as Gj's approach on the committed ray
-  and, under B9, no longer steers the Forward glide.
+
+
+## 8.5.1 Look limits (B9): the gaze's distance weight blends departure rows (or
 - Look limits (B9): the gaze's distance weight blends departure rows (or the rows at a
   reversal) into destination rows over the whole remaining segment. Limits are manual offsets around the
   base gaze. Existing offsets are re-clamped, never silently reset; zero-offset stop poses
   and the stop inventory remain unchanged.
+
+## 8.5.2 Departure absorbs the look (B10, the 2026-11-16 owner report — the dra
 - Departure absorbs the look (B10, the 2026-11-16 owner report — the drag+Forward feel item;
   amends B9's anchor clause and the re-clamp sentence above): at every anchor the press path
   creates — a press from rest (at a stop or mid-segment) and a reversal's turnaround — the
@@ -474,15 +422,21 @@ pick destinations; the wheel's travel (and its sustained-scroll boundary pass) i
   pin the fence, the no-jump, the absorption, the turnaround, the cut, the dolly and the
   sign. The owner's-eye probes: S0 drag +30 → a ≈ 15° glide onto the pedestal; S0 drag −30 →
   a ≈ 77° glide that turns MORE than today's 48° but lands on the frame — the eye rules.
+
+## 8.5.3 Reduced motion (R18-ux, verdict 2; amended movement-ux): a fresh press
 - Reduced motion (R18-ux, verdict 2; amended movement-ux): a fresh press edge cuts to the next
   stop under REDUCED_DWELL_MS 600 (a press during the dwell is dropped, repeats are ignored; the
   boundary is checked before the dwell); a cut lands on the
   destination's committed pose. There is no departure turn.
+
+## 8.5.4 Speed laws (movement-ux, superseding R19-ux B): ONE walk pacing — WALK
 - Speed laws (movement-ux, superseding R19-ux B): ONE walk pacing — WALK_CRUISE_MS 1500 ms per
   stop gap at cruise, WALK_ACCEL_MS 420, WALK_BRAKE_MS 700 (T = 2r/v when intent dies early),
   WALK_LEASE_MS 600 / WALK_HOLD_MS 300, REDUCED_DWELL_MS 600. The scroll family is retired
   with the wheel; the touch no-glide admission is retired with it (one admission law); the
   threshold-beat timing is unchanged.
+
+## 8.5.5 Touches: the committed gaze law (owner D6), the Stop type gains an opt
 - Touches: the committed gaze law (owner D6), the Stop type gains an optional
   authored-gaze field (src/world/registry.ts — a type extension; DEC-013
   unaffected), stop counts (new stop ids + captions in both languages — the RU
@@ -490,9 +444,13 @@ pick destinations; the wheel's travel (and its sustained-scroll boundary pass) i
   keep bit-identical poses where the authored target equals the old implicit one
   (parameter shifts at stops keep poses exact), re-baseline only where
   re-composed (S1, G0, G1-day, J0 + any newly composed views).
+
+## 8.5.6 D8 (AMENDED, movement-ux): the wheel's continuous travel is retired WI
 - D8 (AMENDED, movement-ux): the wheel's continuous travel is retired WITH the wheel; the
   walk IS the one continuous idiom — a cruise runs through every non-hard stop, the arrows
   (keys + the pair) are the only movement affordance, and control stays part of the visit.
+
+## 8.5.7 The military gallery of 1812 stop table (R18-ux D5; positions in the c
 - The military gallery of 1812 stop table (R18-ux D5; positions in the committed
   frame; EYE 11.65):
 
@@ -533,144 +491,3 @@ pick destinations; the wheel's travel (and its sustained-scroll boundary pass) i
   normal.
 
 ## 9. Felt-experience acceptance criteria (the reviewer script; reply §4 verbatim)
-
-Reviewer-script amendment (movement-ux): the wheel verbs below (the roll/flick lines)
-read as the walk verbs — a hold or a tap stream — with the same felt targets; the lean's
-readout is the fixed press-edge pulse; the invitation's affordances are the arrows, the pair
-and the prompt.
-- **Invitation:** a first-time visitor at S0 who reads the hint and scrolls arrives
-  at the gate; the door label appears as the camera settles and names the room;
-  clicking it enters. No frame shows the label while the camera moves or during a
-  threshold. At any entry stop after arrival, the first settled frame shows the
-  caption only; a backward push shows "Back out"; forward scroll walks in silently.
-  A calm two-finger roll visibly leans the camera and enters within ~0.7 s; a hard
-  flick leans and springs back, never entering. Reduced motion: no lean, enter
-  still fires.
-- **Approach:** the S1 day capture shows the gate as a whole (arch, flanking
-  columns, entablature) with the arch reading as a receding vault with light at its
-  far end; ≤ 15% of the frame below luminance 10/255 (today ~40%), the darkest band
-  INSIDE the arch.
-- **Threshold:** from click to the first lit frame on a warm cache, the camera is
-  in motion except the black card; nothing frozen; no chrome besides the title
-  card. The card shows the room title + entry caption; never a spinner/bar. A cold
-  cache holds the card longer, title readable. Warm-cache card ≤ 0.5 s on the
-  reference device; cold deep-link first frame not worse than recorded. Reduced
-  motion: two cuts, title readable. det stop captures unchanged where the pose is
-  unchanged. The hash updates at the first lit frame of the destination.
-- **Corridor light:** at G1 day: pilaster rhythm and vault line readable; ≤ 60% of
-  pixels below luminance 10/255 (today ≈ total); sconces remain the brightest
-  thing; day/dusk/night G1 means within ~1.5×; night never brighter than day.
-  Arrival at G0: a vault leading to a lit junction; «dark; the square behind» is
-  true-dark, not black.
-- **Stair arrival:** the first lit frame shows the first flight rising toward a lit
-  window wall; no single wall > ~30% of the frame; the vestibule behind the camera.
-- **Movement:** G0→G2 never passes through geometry; J0→J4: the default gaze never
-  swings > ~90° in one glide; the window light stays in frame from J0 through the
-  climb; the eye stays 1.7 ± 0.3 m over the tread/landing under it at every frame;
-  the path turns only on the mezzanine/land corners. Free look still returns
-  bit-identical poses when never dragged (golden fence).
-
-> Executed headed on the reference device in R-UX6 (2026-10-24; devlog #0004); the
-> execution record is §9.1.
-
-### 9.1 Execution record (R-UX6 device pass, 2026-10-24)
-
-Headed Chromium 156, det noon, T1 1280×720, mains; the per-phase split read from the new
-`zimny: transit` console lines (the perfLog instrument, absent from normal builds); medians
-of 3 runs unless stated.
-
-| Clause | Method | Measured | Verdict |
-|---|---|---|---|
-| Invitation · the hint + scroll arrive at the gate; the label settles in; click enters | observed + the begin line | the label click fires the transit (begin lines at every click) | pass |
-| Invitation · no label during motion or a threshold | observed across 2+ transits | — | pass |
-| Invitation · entry stop: caption only; «Back out» on a backward push; silent walk-in | observed (the smoke's contract, live) | — | pass |
-| Invitation · a calm roll leans and enters ~0.7 s; a flick never enters | observed + begin line | the healthy wheel-through's begin `lean` **0.325 m** at fire | pass |
-| Invitation · reduced motion: no lean, enter fires | the cut transit | begin `lean` 0.000 m; card 284 ms, total 317 ms | pass |
-| Approach · S1 day ≤ 15% below lum 10/255, the darkest band inside the arch | probe (Rec. 709 luma) | **13.20%** (was ~40% at R-UX3's ruling; 0.77% recorded there pre-R-UX5) · mean 63.92/255 · darkest band #8 of 10 (the floor band before the arch mouth), 39.37/255 | pass |
-| Threshold · warm card | the transit split | card **800 ms nominal** on every card (the 2026-11-01 reading-fix; the previous rows: card **283–316 ms** / 300 nominal, at-begin 284 on the resident, data +117–151 ms on the HTTP-cached rooms — historical under the 300 ms law) | remeasure |
-| Threshold · the camera in motion except the black card; nothing frozen | the split's max @phase + long tasks | max @depart ≤ 18.9 ms, @arrive ≤ 18.9 ms (1–2 vsync frames); long tasks in the glides: **0** | pass |
-| Threshold · the card = title + caption, never a spinner | observed (the S-A cold card, 317–717 ms) | — | pass |
-| Threshold · cold deep-link first frame not worse than recorded | the split's `lit t` | gallery **736 / 947 / 1180 ms** (median 947), jordan **939 / 1014 / 1053** (median 1014) unthrottled; @10 Mbps + 40 ms: **1844** (gallery) / **2539** (jordan) — r19's row read 1,713–1,867 unthrottled and 1,869/2,860 @10 Mbps under the 1,500 ms hold law (today 300) | pass |
-| Threshold · reduced motion: two cuts, title readable | the cut transit | depart skipped · arrive skipped; card **800 ms nominal** (the 2026-11-01 reading-fix; the previous row: card 284.1/300 — historical under the 300 ms law) | remeasure |
-| Threshold · det stop captures unchanged | goldens | 26/26 | pass |
-| Threshold · the hash updates at the first lit frame | observed | the write lands on the EXIT frame: the same frame under 'cut'; ≈ +900 ms after `lit t` under 'doorway' — the §9 wording vs the R-UX1 completion law: an owner wording call (open item) | recorded |
-| Corridor light · G1 day ≤ 60% below 10/255; sconces the brightest | probe + the R-UX4 fence | **32.03%** (mean 19.47/255); sconces-remain-brightest 100% ×3 states (the R-UX4 unit fence) | pass |
-| Corridor light · the three G1 means within ~1.5×; night ≤ day | probe | day 19.47 · dusk 11.89 · night 10.90 → **1.79×** day/night (R-UX4's record read 1.70× — the same residual under a different luma reader); night ≤ day per texel ✓ | recorded (owner call) |
-| Corridor light · G0: a vault to a lit junction; «dark; the square behind» true-dark, not black | probe + observed | mean **24.19/255**, 7.99% below 10/255; the bands 19.5–28.7 — the junction reads lit, the back is true-dark | pass |
-| Stair arrival · the first lit frame shows the flight rising to the window wall; no single wall > ~30%; the vestibule behind | observed (the J0 arrival frame) | the push-in composes the flight to the window wall (devlog hero candidate) | pass |
-| Movement · G0→G2 never passes through geometry | observed (the stop captures + a wheel walk) | — | pass |
-| Movement · J0→J4: swing ≤ ~90°, eye 1.7 ± 0.3, turns only at corners | tests/stops.test.ts | the eye fence over 256 samples/segment, the ≤ 90° swing fence, the walkable-rect fence — green | pass |
-| Movement · the window light stays in frame J0→J4 | the complete r-ux5 shots | the seven jordan stops × day captured 7/7 | pass |
-| Movement · free look bit-identical when never dragged | goldens | 26/26 | pass |
-
-The per-phase split matrix (the medians of 3 runs; T1, det noon): warm room-to-room
-depart 683–700/700 · card 283–316/300 · arrive 900–917/900 · total ≈ **1,917 ms**; the
-cold `null→room` entry (depart skipped): card = the data wait (gallery 484–817, jordan
-650–717 unthrottled; 1,283/2,050 @10 Mbps), arrive 917–950, total 1,233–1,784 (2,234/3,000
-@10 Mbps); the post-swap frame (the first draw with the new resources) **15.6–66 ms** warm,
-**33–66 ms** cold; the resident's own entry reads `data at-begin`. The settle cadence at
-the eleven stops: **16.5–16.8 ms** everywhere (the vsync floor), draws 5–124 (≤ 250), tris
-5,102–11,046 (≤ 1,000,000), zero post-settle long tasks. The paused-pass quirk (R-UX2's
-parked item): reproduced — the pass's budget persists across the pause, so a single nudge
-after a 1.0/0.5/2.0 s pause FIRES the door with the lean **0.008 / 0.057 / 0.000 m**
-(the healthy wheel-through: 0.325 m) — the numbers recorded for the owner's re-tune call.
-
-## 10. Dispositions (RULING — owner, 2026-10-22: **all eight defaults accepted**)
-
-- **D1 — Chrome copy:** door label «Enter/Back out · <room title>» replacing the
-  DEC-031 prompt copy + the hint verb fix. RULED yes.
-- **D2 — The throat's far light:** warm lamp glow. Rec: warm (foreshadows the
-  corridor's lamps; light-is-the-feature). Default: warm.
-- **D3 — The title card:** room title on the black threshold for human transits,
-  min dwell 800 ms (the 2026-11-01 owner reading-fix over the R-UX1 ~300 ms; §4).
-  Rec: yes (the only indication that is also a museum object: a
-  room label). Default: yes.
-- **D4 — Prefetch:** neighbour fetch + staggered transcode at arrival-settle
-  (bytes ahead of need; ≈ 10 MB RAM worst case). Rec: yes — the budget law calls
-  >2 s a failure to fix; this is the fix. Default: yes.
-- **D5 — Corridor day light:** (a) composite day/dusk at the encode + white points
-  first; (b) re-bake with lamp power + daylight portals; (c) accept the cave.
-  Rec: (a), escalate to (b) only if the pilaster rhythm stays unreadable. Default: (a).
-- **D6 — Camera gaze law + stop sets:** authored per-stop subjects with world-space
-  target interpolation; corridor junction stop; real mezzanine turn stop;
-  feet-on-treads heights; J0 at the flight's foot; on-rails + free look kept, free
-  roam still rejected. Rec: yes, as one authoring pass with captures. Default: yes.
-- **D7 — S1 re-composition:** move back to frame the gate pavilion (its golden
-  re-baselines). Rec: yes. Default: yes.
-- **D8 — Wheel travel** (AMENDED, movement-ux 2026-11-08/09): the wheel itself is retired
-  (ONE mechanism — the arrows); the *continuous-idiom* ruling survives as the WALK (cruise
-  through non-hard stops). Default: keep-the-idiom, retire-the-wheel.
-
-## 11. How each touch re-baselines the gates
-
-- Goldens: the deliberate re-compositions (S1, G0-arrival class, G1-day, J0 and any
-  newly composed views) re-baseline once, recorded; everything else
-  pixel-stable. The room goldens seeded by stop id stay bit-identical where the
-  stop pose is unchanged (parameterisation at stops is id-exact).
-- e2e: the r18 stop walk extends to the new stop ids; any test pinning ?cam=
-  numbers or stop INDICES (not ids) audits list at implementation.
-- Unit fences: the purity gate (rail/look/door-lean/edge-prompt stay pure; wheel-edge retired with the wheel); the
-  new throat + beat machinery live on the host/three-free law modules it needs.
-- Budgets: throat = a few hundred triangles (declared ≤ ~500), zero textures, zero
-  custom slots; the beat/glides add no per-frame allocations; the RU chunk counts
-  the two new/diffing captions + two title renders against its 12,000 ceiling.
-- det/transit FSM: the beats drive through the FSM deltaMs; the reduced-motion cuts
-  ride the existing cut law.
-
-## 12. Implementation plan (split never widen; post-disposition)
-
-- **R-UX1 — the threshold beat + prefetch** (world/airlock phases depart/card/arrive
-  + exposure law + prefetch chain + DEC-017 rewrite; the pause becomes motion).
-- **R-UX2 — the door label + hint copy + wheel-pass lean** (DEC-031 amendment; i18n
-  keys; the lean law pure + host wiring).
-- **R-UX3 — the throat + S1 re-composition** (procedural throat on the square,
-  authored S1 gaze; golden re-baseline S1).
-- **R-UX4 — the corridor light** (encode composite + white points/gains or the slow
-  bake by D5; goldens G1; banding inspection).
-- **R-UX5 — the stop authoring pass** (gaze field + authored subjects + corner
-  stops + feet-on-treads + J0/vestibule; capture-framed; goldens + e2e updated).
-- **R-UX6 — close-out** (DEVICE PASS: per-phase transit timing split logged via
-  perfLog — the last open NEED; devlog; STATE/ROUNDS sync; the acceptance script of
-  §9 executed headed on the reference device) — landed 2026-10-24, devlog #0004.
-- Forbidden in all: the §8 weight law, the URL grammar, tier semantics, budgets
-  (fixed by art/tier only), Blender-in-CI, the basis row.

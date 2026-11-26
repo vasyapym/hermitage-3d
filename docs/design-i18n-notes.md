@@ -172,10 +172,9 @@ No dark mode (the scene is daylight), no motion.
 
 ## 4. Text inventory (EN → RU) — the full set of the real strings
 
-Legend: `N` = a runtime number; `{n}` = the template token (R5); paths/identifiers/source tags
-stay Latin. The HUD is excluded (EN-only, E3). A4/A9 keep the ADOPTED variants. C12/C13's
-semantics are verified against the committed data (see §7).
+The inventory splits by consuming surface below; each key, EN, RU and usage note rides one unchanged row. The legend above applies to every table.
 
+## 4.1 Title, clock and time controls
 ### A. Chrome (index.html + notes.html)
 | EN | RU |
 |---|---|
@@ -196,6 +195,8 @@ semantics are verified against the committed data (see §7).
 | Open question (the callout label) | Открытый вопрос |
 | Sources and documents (the links heading) | Источники и документы |
 
+
+## 4.2 Tour controls, room index and language selection
 ### B. Stop captions (lowercase kept; announced as `<stop id> · <caption>`)
 | EN | RU |
 |---|---|
@@ -210,6 +211,9 @@ semantics are verified against the committed data (see §7).
 | the gallery above | галерея наверху |
 | arrival; the portal (landing airlock) | прибытие; портал (шлюз на лестничной площадке) |
 
+
+## 4.3 Notes and other public copy (the /notes strings, part 1)
+## 4.3 Notes and other public copy
 ### C. /notes content
 | EN | RU |
 |---|---|
@@ -260,6 +264,8 @@ semantics are verified against the committed data (see §7).
 | Windows | Окна |
 | Portal void cells | Пустые ячейки портала |
 | Column shafts | Стволы колонн |
+
+## 4.3b Notes and other public copy (the /notes strings, continued)
 | Crease callout (static part) | Ломаная линия: в спецификации стоит N м (источник — wiki-en, «principal facade», со ссылкой на Budberg, Great Palaces: The Winter Palace, 1969; русскоязычная традиция читает ту же кромку как 210 м); решатель выводит N м из основной линии и принятых выносов ризалитов. Две длины из источников, скорее всего, измеряют одну и ту же уличную кромку в разных конвенциях источников, а не линию плана против ломаной; принятый ритм осей (7 + 20 + 8 + 20 + 7) и расчётная величина не имеют оцифрованного подтверждения (поиск по литературе закрыт 2026-10-17). Разрешить вопрос могут только обмерные чертежи — РГИА ф. 485, скан из Альбертины или Пилявский через НЭБ, — поэтому до тех пор это предупреждение остаётся в силе, а спецификация и реестр художественных допущений («Приближения размеров») будут исправлены, если документы разойдутся. |
 | Solver: <warning message> (the dynamic tail) | Решатель: <сообщение предупреждения> |
 | derived crease length N m differs from declared N m (the solver's warning) | расчётная длина ломаной N м отличается от принятой N м |
@@ -283,6 +289,9 @@ semantics are verified against the committed data (see §7).
 | Other frame draw calls | Прочие вызовы отрисовки за кадр |
 | Massing triangles | Треугольники массинга |
 | Sky triangles | Треугольники неба |
+
+## 4.3c Notes and other public copy (the /notes strings, the facade census and the register)
+
 | Sibling facades — not shipped in Phase 1 | Соседние фасады — не входят в Фазу 1 |
 | North, west and east reuse the kit later. Their axis counts are declared only (artistic-license register, "Facade axis counts"), kept so the plan arithmetic closes in tests; main-line lengths are the shell numbers above. | Северный, западный и восточный фасады позже переиспользуют тот же набор деталей. Их числа осей только приняты (реестр художественных допущений, «Число осей фасадов») и хранятся затем, чтобы в тестах сходилась арифметика плана; длины основных линий — это числа каре, приведённые выше. |
 | Facade · Sections — kind · declared axes · Declared axes · Character | Фасад · Секции — тип · принятые оси · Принятые оси · Характер |
@@ -309,6 +318,8 @@ semantics are verified against the committed data (see §7).
 | unregistered: <id> | не зарегистрировано: <id> |
 | displayed number <id> has no provenance register entry | у отображаемого числа <id> нет записи в реестре происхождения |
 
+
+## 4.4 Data strings and runtime formatting
 ### D. Data strings rendered as text — the display-map decision
 - Section kinds: cornerRisalit → угловой ризалит · stretch → прясло (alt. «участок стены» — the owner picks) · centralPortal → центральный портал. The tokens stay in the data and the DOM (`data-kind`), the map renders.
 - Arrangement tokens: bunch-at-corners → пучки на углах · pair-at-portals → пары у порталов · pair-piers-between-window-groups → пары на простенках между группами окон.
@@ -316,6 +327,8 @@ semantics are verified against the committed data (see §7).
 - Wall colour note: бледно-зелёные стены, белые ордер и обрамления — решение владельца по палитре (decisions.md).
 - Facade characters (the full sentences): Фасад на Дворцовую площадь: три ризалита, трёхарочный проезд (wiki-ru, visit-petersburg). · Сплошная колоннада к Неве (visit-petersburg). · Композиция загородного дворца со стороны Адмиралтейства (visit-petersburg). · Массивные крылья вокруг служебного двора (visit-petersburg). The owner's short-label proposal: парадный · речной · усадебный (west — the sourced word) · дворовый — wait, the specialist's catch: BOTH «служебный» and «дворовый» map the east; the west gets «усадебный» (the sourced «усадебная композиция»). Adopted: парадный · речной · усадебный · служебный (east = the service court).
 
+
+## 4.5 Runtime-formatted strings
 ### E. Runtime-formatted strings
 - The clock line: HH:MM + the RU genitive month via `Intl.DateTimeFormat('ru-RU', {day:'numeric', month:'long', year:'numeric'})` → «19 октября 2026 г.» — SUPERSEDES the fragment's §1.4 ISO decision (the «twelve-word table» objection dies with Intl; no hand month table). ISO stays the fallback.
 - The scrub's aria-valuetext: the ru-RU formatter feeds `<date> <time> (UTC+03:00)`; «(МСК, UTC+3)» is the owner's optional call.

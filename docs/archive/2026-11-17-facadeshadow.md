@@ -76,3 +76,7 @@ ARCHIVE-APPEND 2026-11-26 — the merge record's facts from the retired STATE bu
 - The ledger reservation row (moved from docs/budget-ledger.md 2026-11-26, the records decision step 6):
 
 | **facade-shadow — RELEASED** | the night facade's dark per-slot patches: the mechanism bisected to the dark-level pane cards' near-black albedo on the hemisphere's warm-lit wall band (the four-config probe; drop-the-stamp a visual no-op — the same dark niches behind); the fix DARK_PANE_TONE [0.37,0.36,0.35] (the wall dressing ×0.5, neutral — the hue from the light); the day byte-identical (the lattice hides at wNight 0) | MERGED 2026-11-17 (0e387be) — SPENT and RELEASED; measured on the merged tree JS +23 (286,021; the composition drift +6 over the lane's +17) · RU +0; the declared d-S0-dec-night flip measured HELD (the confirm 37/37); the FULL battery = this merge's; DEC-048 |
+
+### ROUNDS row tail before compaction (moved 2026-11-26)
+
+DEC-048 · the fix: DARK_PANE_TONE [0.37, 0.36, 0.35] (the wall dressing × 0.5, the neutral albedo — the hue from the light); the card/wall ratio ≈ 0.71 · the day byte-identical (the lattice hides at wNight 0) · the goldens: d-S0-dec-night flips (the declared one; re-baselined at the integration) · JS +17 measured · validate GREEN
