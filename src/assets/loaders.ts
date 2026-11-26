@@ -90,7 +90,9 @@ export function createLoaders(
 ): Loaders {
   MeshoptDecoder.useWorkers(1);
   const ktx2 = new KTX2Loader()
-    .setTranscoderPath('/basis/')
+    // import.meta.env.BASE_URL: '/' locally and in the e2e; '/hermitage-3d/' in the Pages
+    // build (the deploy workflow's --base override) — the transcoder path follows the mount.
+    .setTranscoderPath(`${import.meta.env.BASE_URL}basis/`)
     .setWorkerLimit(1)
     .detectSupport(renderer);
   const gltf = new GLTFLoader().setMeshoptDecoder(MeshoptDecoder).setKTX2Loader(ktx2);
