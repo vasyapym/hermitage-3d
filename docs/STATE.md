@@ -143,6 +143,15 @@ the vault texts (26/30/32/37-REPLY), and the pinned probe logs.
    structure predictions are ADVISORY until the local validation runs; the local validation
    (the layout hash against the last bake's + the subset law) runs BEFORE any box filing —
    a RED-on-N verdict is filed with its N named, never discovered on the box.
+8. THE MEMORY LAW (owner, 2026-11-26; the rgnext-7 round's six graze slivers — three box
+   cycles spent measuring what the records already held). The dead-cell gate gets MEMORY:
+   the check reads the LAST INGESTED bake's dead set from the committed bake log
+   (tools/bake-logs/<room>.json, postEncode.<day-state>.deadCells); the STABLE darkness
+   (dead in the memory too) = the advisory class — printed, never gating; the NEW darkness
+   = fails exactly as before. The memory is written ONLY at ingest (the acceptance): the
+   ingesting agent adds the done bake's dead set to the bake log in the ingest commit. The
+   memory's absence or tampering = the strict fail-closed fallback. The teeth stay: a lit
+   cell going dark is the NEW darkness at its own bake, never the advisory.
 
 **Brief boilerplate (copy blocks, compose fresh only the task-specific parts).**
 - ROLE line (the engineering-peer frame; OWNER AMENDMENT 2026-11-03 — the fresh-session law

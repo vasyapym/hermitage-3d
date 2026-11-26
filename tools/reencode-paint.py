@@ -180,7 +180,8 @@ def check(argv):
         )
     png_path, summary_path = positional
     with open(summary_path, 'r', encoding='utf-8') as handle:
-        lm = json.load(handle).get('lm') or {}
+        doc = json.load(handle)
+    lm = doc.get('lm') or {}
     cells = lm.get('cells')
     if not isinstance(cells, list):
         if required:
@@ -249,6 +250,19 @@ def check(argv):
                 f'{both[:8]} — regenerate the bpy stage'
             )
         declared = set(covered_cells) | set(dim_cells)
+    # (the correction, 2026-11-26; the Standing protocol's trap 8 — THE MEMORY LAW) the
+    # gate's memory: the LAST INGESTED bake's dead set, recorded in the committed bake log
+    # at ingest time. The STABLE darkness (dead in the memory too) is the advisory class —
+    # printed, never gating; the NEW darkness fails exactly as before. The memory's
+    # absence = the strict law: every dead cell counts as new (fail-closed fallback).
+    room = doc.get('room') or 'rastrelli-gallery'
+    memory_set = None
+    try:
+        with open(f'tools/bake-logs/{room}.json', encoding='utf-8') as handle:
+            memory_set = json.load(handle).get('postEncode', {}).get('deadCells')
+    except (OSError, ValueError):
+        memory_set = None
+    memory_set = set(memory_set) if isinstance(memory_set, list) else None
     # The layout-identity gate (rastrelli-next round 4): every bake state's layout is proven
     # equal to this summary's lm BEFORE a single sample is read - the compose mixes three
     # states' plates, and a plate baked on another layout is not this atlas.
@@ -342,16 +356,28 @@ def check(argv):
             f'reencode_paint: declared sets: coveredCells={len(covered_cells or [])} '
             f'dimCells={len(dim_cells or [])} (the declared cells stay skipped in the count)'
         )
-        for index, element, rect, mean, cell_threshold in dead:
+        new_dead = dead if memory_set is None else [row for row in dead if row[0] not in memory_set]
+        stable = dead if memory_set is None else [row for row in dead if row[0] in memory_set]
+        if stable:
             print(
-                'reencode_paint: dead cell '
-                + json.dumps(
-                    [index, element, rect, round(mean, 6), round(cell_threshold, 6)]
-                )
+                'reencode_paint: the advisory dead (stable since the last ingested bake, '
+                f'not gating): {json.dumps([row[0] for row in stable])}'
             )
-        raise SystemExit(
-            f'reencode_paint: {len(dead)} of {owned} owned cells read below '
-            f'{max_pct:g}% of the atlas P99'
+        if new_dead:
+            for index, element, rect, mean, cell_threshold in new_dead:
+                print(
+                    'reencode_paint: dead cell '
+                    + json.dumps(
+                        [index, element, rect, round(mean, 6), round(cell_threshold, 6)]
+                    )
+                )
+            raise SystemExit(
+                f'reencode_paint: {len(new_dead)} NEW of {owned} owned cells read below '
+                f'{max_pct:g}% of the atlas P99'
+            )
+        print(
+            f'reencode_paint: all {len(dead)} dead cells are STABLE since the last ingested '
+            'bake (the advisory class, trap 8) — the gate passes with findings'
         )
     print(
         f'reencode_paint: check ok — 0 of {owned} owned cells below {max_pct:g}% of P99 '
