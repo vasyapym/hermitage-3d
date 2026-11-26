@@ -49,7 +49,7 @@ export const INTERIOR_LOOK_GAIN: Readonly<Record<RoomId, Readonly<Record<LightSt
   'military-gallery': { day: 1.725, dusk: 3.45, nightChandeliers: 2.3 },
 };
 
-export type InteriorEmissiveMaterial = 'pane' | 'sconce_glow' | 'chandelier_glow';
+export type InteriorEmissiveMaterial = 'pane' | 'sconce_glow' | 'chandelier_glow' | 'stairlight';
 
 export type InteriorEmissiveStateScale = Readonly<Record<LightState, number>>;
 
@@ -59,9 +59,11 @@ export type InteriorEmissiveRoomScale = Readonly<
 
 /**
  * Missing room/material means no write, not a default multiplier.
- * The Jordan-only applyWeights consumer must retain each material's original
- * authored strength and multiply it by the same frame's weighted state scale.
- * Never multiply last frame's emissiveIntensity or mutate another room's material.
+ * The applyWeights consumer resolves rows generically by roomId (blend-gl's
+ * captureEmissiveScale) — jordan is the current row, not a hard-wire. It retains each
+ * material's original authored strength and multiplies it by the same frame's weighted
+ * state scale. Never multiply last frame's emissiveIntensity or mutate another room's
+ * material.
  */
 export const INTERIOR_EMISSIVE_SCALE: Readonly<Partial<Record<RoomId, InteriorEmissiveRoomScale>>> =
   {
@@ -77,5 +79,20 @@ export const INTERIOR_EMISSIVE_SCALE: Readonly<Partial<Record<RoomId, InteriorEm
       pane: { day: 0.35, dusk: 0.15, nightChandeliers: 0.01 },
       sconce_glow: { day: 0, dusk: 0.5, nightChandeliers: 1 },
       chandelier_glow: { day: 0, dusk: 0.5, nightChandeliers: 1 },
+    },
+
+    'rastrelli-gallery': {
+      // D2 («the hour on the glass» + the door card): the export glb's pane and stairlight
+      // materials carry authored emission (emissiveFactor, strength 1.0 - the glTF default,
+      // no KHR_materials_emissive_strength), and this row is the per-state dial over that
+      // base. The pane: day 1.4 keeps the daylight read, dusk 0.3 holds the hour legible,
+      // night 0 is the night byte-hold (the dark-glass read goes to the lightmaps).
+      // The sconce_glow: dusk sits near the night hold (the strip's lamps carry the dusk
+      // read), day 0.6 leaves the daylight to the rig. The stairlight (the door card's
+      // warm term): dark by day, and dusk/night lift it to the approved 0.30/0.40 - the
+      // card reads after the hour turns, never in daylight.
+      pane: { day: 1.4, dusk: 0.3, nightChandeliers: 0 },
+      sconce_glow: { day: 0.6, dusk: 0.85, nightChandeliers: 1 },
+      stairlight: { day: 0, dusk: 0.3, nightChandeliers: 0.4 },
     },
   };

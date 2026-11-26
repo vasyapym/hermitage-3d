@@ -84,6 +84,12 @@ def fail(message):
 # ---- textures (tileable 512^2 albedos, procedural, sRGB-encoded values) ---------------------
 TEX_RES = 512
 UV_TILE_M = 2.0     # one tile covers 2 m x 2 m ('uv' layer, box/cyl projection, world metres)
+# (D3 «the floor as laid stone») the floor family's tile: 'floor.flags' + 'airlock.floor'
+# divide their albedo UV by the 4 m tile (four flag courses; the flag keeps its 1.0 m pitch).
+# Every other face keeps UV_TILE_M; the lm layer is cell-relative and does not move - the
+# layout hash and the bake plates hold byte-identical.
+FLOOR_UV_TILE_M = 4.0
+FLOOR_TILE_ELEMENTS = ('floor.flags', 'airlock.floor')
 LM_RES = 1536   # (RG-F2) the owner's ratified CELL-stop resolution (2026-11-08):
 #   1024 -> 1536 after the Sol-9 STOP row; the px/m law >= 14 UNCHANGED (the
 #   metric is atlas-independent); the pack law untouched
@@ -95,9 +101,10 @@ LM_PX_PER_M = 20        # shelf law: start here, step down by 1 until the pack f
 LM_PX_PER_M_MIN = 14    # ... but never below this (gate CELL); cut T3/T2 before touching it
 LM_CELL_MIN_PX = 6
 LM_CELL_MAX_PX = 480
-FLAGS_PER_TILE = 2      # 1.0 m flags, 12 px/m on the 2 m tile - unchanged
+FLAGS_PER_TILE = 4      # (D3) 4 flag courses on the floor's 4 m tile (FLOOR_UV_TILE_M): the
+#   flag keeps its 1.0 m pitch and the joint keeps ~3.1 cm (MORTAR_PX/FLAG_PX = 4/128)
 FLAG_PX = TEX_RES // FLAGS_PER_TILE
-MORTAR_PX = 8
+MORTAR_PX = 4
 STONE_RGB = (0.56, 0.54, 0.50)
 MORTAR_RGB = (0.34, 0.32, 0.29)
 PLASTER_PALE_RGB = (0.72, 0.67, 0.58)   # the limewash field (verdict 2.3)
@@ -203,6 +210,17 @@ SCONCE_GLOW_RGB = (1.0, 0.72, 0.42)
 SCONCE_SEGS = 16
 SCONCE_FACES = 5 + 5 + SCONCE_SEGS + 1        # back plate + arm (5 faces each) + shade + cap = 27
 LM_SCONCE_GRID = math.ceil(math.sqrt(SCONCE_FACES))    # 6: the strip's equal-cell grid
+
+# ---- D2: the flat slots' export emission («the hour on the glass» + the door card) ----------
+# (RGB, strength) tuples carried ONLY on the export chain (`if not BAKE` at the flat_material
+# call sites): the pane's glass holds the hour (a cool card), the door card's stairlight term
+# glows warm. Bake mode stays non-emissive — bake.py injects the pane/stairlight terms
+# post-scan by material name, so the base material there must behave exactly as committed.
+# The strength is exactly 1.0 = the glTF DEFAULT: the exporter omits
+# KHR_materials_emissive_strength (the jordan precedent) and the per-state dial rides the
+# runtime look rows (src/content/lightmap-look.ts) over the authored strength.
+PANE_EXPORT_EMISSION = ((0.82, 0.86, 0.92), 1.0)
+STAIRLIGHT_EXPORT_EMISSION = ((1.0, 0.80, 0.58), 1.0)
 
 # ---- wall niches, blind arches: 22 (11 per wall, one per bay) -------------------------------
 NICHE_WIDTH = 1.80
@@ -928,43 +946,81 @@ def fine_grain(x, y):
 
 
 def plaster_pale_px(x, y):
-    broad = (math.cos(TAU * 4 * x / TEX_RES) + math.cos(TAU * 4 * y / TEX_RES)
-             + math.cos(TAU * (3 * x + 3 * y) / TEX_RES)) / 3
-    delta = 0.025 * fine_grain(x, y) + 0.012 * broad
+    # (D3 «limewash that breathes») two octaves, AXIS PAIRS only - the recorded lesson bans
+    # the diagonal (k,k) term and its 45-degree streak. Low octave ±0.04 at 3 cycles/tile
+    # (period 0.67 m ≈ the declared 0.7 m), fine ±0.015 at 40 cycles (5 cm). Integer cycles
+    # keep the tile seamless and the declared mean exact.
+    low = (math.cos(TAU * 3 * x / TEX_RES + 0.9) + math.cos(TAU * 3 * y / TEX_RES + 2.1)) / 2
+    fine = (math.cos(TAU * 40 * x / TEX_RES + 1.7) + math.cos(TAU * 40 * y / TEX_RES + 0.4)) / 2
+    delta = 0.040 * low + 0.015 * fine
     return tuple(c + delta for c in PLASTER_PALE_RGB)
 
 
 def stucco_grey_px(x, y):
-    return tuple(c + 0.010 * fine_grain(x, y) for c in STUCCO_GREY_RGB)
+    # (D3) the fine tooth ≈ 2 cm: fine_grain's integer modes, amplitude 0.010 -> 0.012.
+    return tuple(c + 0.012 * fine_grain(x, y) for c in STUCCO_GREY_RGB)
 
 
 def stone_band_px(x, y):
-    delta = 0.02 * (2 * hash_unit(x, y, 0xB41D) - 1)
+    # (D3) horizontal bedding: ≈ 8 cm vertical period (25 cycles/tile) + a quarter-amplitude
+    # harmonic for the strata read; ±0.03 total swing, integer cycles, mean held exactly.
+    delta = 0.03 * (0.75 * math.cos(TAU * 25 * y / TEX_RES)
+                    + 0.25 * math.cos(TAU * 50 * y / TEX_RES + 0.9))
     return tuple(c + delta for c in STONE_BAND_RGB)
+
+
+# ---- (D3) the floor's per-flag deterministic variation ---------------------------------------
+# Fixed tables + hashes, NO randomness. The value table is EXACT zero-mean over the tile's
+# 16 flags (one entry per flag), the warmth rides R-B zero-mean, and the grain is
+# flag-local two-octave isotropic with integer cycles (continuous across flags, phases from
+# hash_unit). The joint's 1 px shadow (x0.9 on the band's outermost px) is the only mean
+# mover, so the stone field carries the exact mortar-compensation lift below and the
+# area-weighted TILE mean lands on STONE_RGB - asserted by gate_tex_means, published in
+# summary.json under tex.means.
+FLAG_VALUE_TABLE = (0.042, 0.018, -0.026, 0.008, -0.040, 0.031, -0.012, 0.024,
+                    -0.033, 0.045, -0.006, -0.021, 0.015, -0.045, 0.010, -0.010)
+FLAG_WARMTH_TABLE = (0.010, -0.004, 0.006, -0.009, 0.003, -0.010, 0.008, -0.002,
+                     0.005, -0.007, 0.009, -0.006, 0.001, -0.003, 0.007, -0.008)
+if abs(sum(FLAG_VALUE_TABLE)) > 1e-12 or abs(sum(FLAG_WARMTH_TABLE)) > 1e-12:
+    fail('the flag tables must be exact zero-mean over the tile\'s 16 flags (the mean law)')
+_MORTAR_U_FRAC = MORTAR_PX / FLAG_PX
+_MORTAR_AREA_FRAC = 1.0 - (1.0 - _MORTAR_U_FRAC) ** 2
+_STONE_AREA_FRAC = 1.0 - _MORTAR_AREA_FRAC
+# the joint's shadowed px: the outermost 1 px on EACH side of the band; a mortar px is
+# shadowed when its u or v pixel index sits at either band edge (P = 1 - ((n-2)/n)^2)
+_MORTAR_MEAN_RGB = tuple(
+    c * (1.0 - 0.1 * (1.0 - ((MORTAR_PX - 2) / MORTAR_PX) ** 2)) for c in MORTAR_RGB
+)
+# the stone field's lift so s*(STONE+lift) + a*MORTAR_MEAN == STONE exactly
+FLAG_MEAN_LIFT = tuple(
+    (_MORTAR_AREA_FRAC / _STONE_AREA_FRAC) * (s - m)
+    for s, m in zip(STONE_RGB, _MORTAR_MEAN_RGB)
+)
 
 
 def stone_flags_px(x, y):
     fy = y / FLAG_PX
     row = int(fy)
-    fx = x / FLAG_PX + (0.5 if row % 2 else 0.0)
-    col = int(fx)
-    u, v = fx - col, fy - row
-    mortar = MORTAR_PX / FLAG_PX
-
-    def phase(k, p):
-        return TAU * k * p / TEX_RES
-
-    grain = 0.03 * math.sin(phase(5, x)) * math.cos(phase(7, y))
-    grain += 0.02 * math.sin(phase(3, x + y))
-    if u < mortar or v < mortar:
-        return tuple(c * (1.0 + grain) for c in MORTAR_RGB)
-    ci, ri = col % 2, row % 2
-    shade = 0.82 + 0.07 * math.sin(2.3 * ci + 1.7 * ri)
-    shade += 0.05 * math.cos(0.9 * ci - 2.6 * ri)
-    edge = min(u - mortar, v - mortar, 1 - u, 1 - v) / (1 - mortar)
-    wear = 0.86 + 0.14 * min(1.0, edge * 8.0)
-    delta = 0.05 * (2 * hash_unit(col % FLAGS_PER_TILE, row % FLAGS_PER_TILE, 0xF1A6) - 1)
-    return tuple(c * shade * wear * (1 + grain) + delta for c in STONE_RGB)
+    bond = 0.5 if row % 2 else 0.0
+    col = int(math.floor(x / FLAG_PX - bond))   # the JOINT-ALIGNED flag column: a bonded
+    u = x / FLAG_PX - bond - col                # flag crosses the tile seam unsplit
+    v = fy - row
+    if u < _MORTAR_U_FRAC or v < _MORTAR_U_FRAC:
+        shadow = (u * FLAG_PX < 1.0 or u * FLAG_PX >= MORTAR_PX - 1.0
+                  or v * FLAG_PX < 1.0 or v * FLAG_PX >= MORTAR_PX - 1.0)
+        k = 0.9 if shadow else 1.0
+        return tuple(c * k for c in MORTAR_RGB)
+    fi = (row % FLAGS_PER_TILE) * FLAGS_PER_TILE + (col % FLAGS_PER_TILE)
+    p1, p2 = (TAU * hash_unit(fi, k, 0xF1A6) for k in (1, 2))
+    p3, p4 = (TAU * hash_unit(fi, k, 0x61D) for k in (3, 4))
+    grain = 0.008 * (math.cos(TAU * 9 * u + p1) + math.cos(TAU * 9 * v + p2)) / 2
+    grain += 0.004 * (math.cos(TAU * 23 * u + p3) + math.cos(TAU * 23 * v + p4)) / 2
+    val = FLAG_VALUE_TABLE[fi]
+    warm = FLAG_WARMTH_TABLE[fi]
+    base = (STONE_RGB[0] + FLAG_MEAN_LIFT[0] + val + warm + grain,
+            STONE_RGB[1] + FLAG_MEAN_LIFT[1] + val + grain,
+            STONE_RGB[2] + FLAG_MEAN_LIFT[2] + val - warm + grain)
+    return base
 
 
 PAINTERS = {
@@ -973,20 +1029,43 @@ PAINTERS = {
 }
 
 
+TEX_MEANS_DECLARED = {
+    'stone_flags': STONE_RGB, 'plaster_pale': PLASTER_PALE_RGB,
+    'stucco_grey': STUCCO_GREY_RGB, 'stone_band': STONE_BAND_RGB,
+}
+TEX_MEAN_TOL = 0.005   # (D3) the area-weighted tile mean keeps its declared base colour
+
+
+def gate_tex_means(means):
+    """(D3) every procedural tile keeps its declared mean: the area-weighted px mean over the
+    tile must sit within TEX_MEAN_TOL of the declared RGB - fail loud, publish the measured
+    means in summary.json under tex.means."""
+    for name, declared in TEX_MEANS_DECLARED.items():
+        mean = means[name]
+        if any(abs(mean[i] - declared[i]) > TEX_MEAN_TOL for i in range(3)):
+            fail(f'texture {name} mean {tuple(round(c, 4) for c in mean)} drifts beyond '
+                 f'{TEX_MEAN_TOL} from the declared {declared}')
+
+
 def write_texture(name, painter, tex_dir):
     image = bpy.data.images.new(name, TEX_RES, TEX_RES, alpha=False)
     pixels = [1.0] * (TEX_RES * TEX_RES * 4)
+    sums = [0.0, 0.0, 0.0]
     for y in range(TEX_RES):
         for x in range(TEX_RES):
             rgb = painter(x, y)
             index = 4 * (y * TEX_RES + x)
-            pixels[index:index + 3] = [max(0.0, min(1.0, c)) for c in rgb]
+            clamped = [max(0.0, min(1.0, c)) for c in rgb]
+            pixels[index:index + 3] = clamped
+            for i in range(3):
+                sums[i] += clamped[i]
     image.pixels.foreach_set(pixels)
     path = os.path.join(tex_dir, f'{name}.png')
     image.filepath_raw = path
     image.file_format = 'PNG'
     image.save()
-    return image, path
+    mean = tuple(s / (TEX_RES * TEX_RES) for s in sums)
+    return image, path, mean
 
 
 def material(name, image):
@@ -1010,7 +1089,9 @@ def flat_material(name, rgb, roughness, emission=None):
     The declared bake-painted slots ship NON-emissive (strength 0.0) and their separate
     bake-only terms are supplied by bake.py by material name: 'stairlight' via the
     STAGE_SPILL row (RG-F2, verdict 2.2), 'pane' via the parallel STAGE_SPILL_PARTS rows
-    applied post-scan (RG-F3 - the builder-header record's flat-material sentence)."""
+    applied post-scan (RG-F3 - the builder-header record's flat-material sentence).
+    D2: that non-emissive shape is the BAKE chain's - the export chain sets the
+    pane/stairlight emission at the call sites below (`if not BAKE`)."""
     mat = bpy.data.materials.new(name)
     mat.use_nodes = True
     bsdf = mat.node_tree.nodes['Principled BSDF']
@@ -1885,7 +1966,7 @@ def lm_layout_hash(block):
 
 def finish(name, builder, materials, mode='shelf'):
     """Two UV layers: 'uv' (albedo: box projection, or the tagged cylindrical arc mapping,
-    always world metres / UV_TILE_M) and 'lm' (the atlas cells).
+    world metres / UV_TILE_M - the floor family / FLOOR_UV_TILE_M) and 'lm' (the atlas cells).
 
     mode='shelf': per-face cells on the deterministic row shelf — cell size
     clamp(round(extent_m * px), 6, 480) px with the 2 px pad inside the footprint, raised
@@ -1984,7 +2065,11 @@ def finish(name, builder, materials, mode='shelf'):
             for loop, (pu, pv) in zip(f.loops, uv):
                 fu = (pu - u0) / du
                 fv = (pv - v0) / dv
-                loop[uv_lay].uv = (pu / UV_TILE_M, pv / UV_TILE_M)
+                # (D3) the floor family's laid-stone tile: the flags' albedo UV divides by
+                # the 4 m FLOOR_UV_TILE_M, every other face keeps UV_TILE_M. The lm layer is
+                # cell-relative and does not move (the layout hash holds byte-identical).
+                tile = FLOOR_UV_TILE_M if _el in FLOOR_TILE_ELEMENTS else UV_TILE_M
+                loop[uv_lay].uv = (pu / tile, pv / tile)
                 loop[lm_lay].uv = (
                     (x + pad_px + fu * w_in) / LM_RES,
                     1.0 - (y + pad_px + fv * h_in) / LM_RES,
@@ -2935,16 +3020,32 @@ def main():
         family_boxes = [(_face_aabb(entry[0]), entry[3]) for entry in b.roster
                         if entry[3] in FAMILY_ELEMENTS]
 
-    img_stone, png_stone = write_texture('stone_flags', stone_flags_px, tex_dir)
-    img_pale, png_pale = write_texture('plaster_pale', plaster_pale_px, tex_dir)
-    img_stucco, png_stucco = write_texture('stucco_grey', stucco_grey_px, tex_dir)
-    img_band, png_band = write_texture('stone_band', stone_band_px, tex_dir)
+    img_stone, png_stone, mean_stone = write_texture('stone_flags', stone_flags_px, tex_dir)
+    img_pale, png_pale, mean_pale = write_texture('plaster_pale', plaster_pale_px, tex_dir)
+    img_stucco, png_stucco, mean_stucco = write_texture('stucco_grey', stucco_grey_px, tex_dir)
+    img_band, png_band, mean_band = write_texture('stone_band', stone_band_px, tex_dir)
+    # (D3) the declared-mean law: fail loud on drift, publish the measured means.
+    tex_means = {'stone_flags': mean_stone, 'plaster_pale': mean_pale,
+                 'stucco_grey': mean_stucco, 'stone_band': mean_band}
+    gate_tex_means(tex_means)
     mat_stone = material('stone_flags', img_stone)
     mat_pale = material('plaster_pale', img_pale)
     mat_stucco = material('stucco_grey', img_stucco)
     mat_band = material('stone_band', img_band)
     mat_stair = flat_material('stairlight', (1.0, 1.0, 1.0), 1.0)
     mat_pane = flat_material('pane', (1.0, 1.0, 1.0), 1.0)   # (RG-F3) flat white, roughness 1.0
+    if not BAKE:
+        # D2: the export chain carries the flat slots' emission directly (the pane's cool
+        # glass, the door card's warm stairlight term) - strength exactly 1.0, so the glTF
+        # exporter omits KHR_materials_emissive_strength (the glTF default; the jordan
+        # precedent). The bake chain must NOT do this: bake.py injects the pane/stairlight
+        # terms post-scan by name, so the base material there stays non-emissive.
+        pane_bsdf = mat_pane.node_tree.nodes['Principled BSDF']
+        pane_bsdf.inputs['Emission Color'].default_value = (*PANE_EXPORT_EMISSION[0], 1.0)
+        pane_bsdf.inputs['Emission Strength'].default_value = PANE_EXPORT_EMISSION[1]
+        stair_bsdf = mat_stair.node_tree.nodes['Principled BSDF']
+        stair_bsdf.inputs['Emission Color'].default_value = (*STAIRLIGHT_EXPORT_EMISSION[0], 1.0)
+        stair_bsdf.inputs['Emission Strength'].default_value = STAIRLIGHT_EXPORT_EMISSION[1]
     mat_iron = flat_material('iron_dark', IRON_RGB, IRON_ROUGHNESS)
     mat_glow = flat_material('sconce_glow', GLOW_TINT_RGB, 0.92, emission=SCONCE_GLOW_RGB)
     # RG-F5: the fillet-shade device (flat, no texture row). The layout-identity law: the
@@ -3024,6 +3125,8 @@ def main():
         'glb': glb_path,
         'textures': {'stone_flags': png_stone, 'plaster_pale': png_pale,
                      'stucco_grey': png_stucco, 'stone_band': png_band},
+        # (D3) the declared-mean law's published witness: the measured tile means.
+        'tex': {'means': tex_means},
         'meshes': meshes,
         'triangles': sum(m['triangles'] * m['instances'] for m in meshes.values()),
         'trianglesUnique': sum(m['triangles'] for m in meshes.values()),

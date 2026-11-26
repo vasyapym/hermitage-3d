@@ -27,32 +27,32 @@
     },
     {
       "path": "rastrelli-gallery.glb",
-      "bytes": 294632,
-      "sha256": "f8ea77dcb2c1b5ae57107cb017c1bbbda8d55fc313313c4bd14148f03f13c1a2",
+      "bytes": 393344,
+      "sha256": "b694b1bdf5915d95c3b2e7314429859bd5dd83cf4f8653c858bbe4f22c1a11ed",
       "kind": "glb"
     },
     {
       "path": "tex/plaster_pale.ktx2",
-      "bytes": 30818,
-      "sha256": "281bcd559cdc1fb9870788e98117c46719ea41f6053efed8fd50efd969905b3a",
+      "bytes": 24923,
+      "sha256": "a9f4ccf7ff198d38a76c7cb8a6557799841d90ad7443cb63ce21afcfe56447c5",
       "kind": "ktx2"
     },
     {
       "path": "tex/stone_band.ktx2",
-      "bytes": 29689,
-      "sha256": "a62ce4f1fbb179f8a5c0c8296304b80bb055876b730551b72ee419c665a3014c",
+      "bytes": 2132,
+      "sha256": "0efcb0890c49ab7a50f9699a0750672a992132a9659bdba0535aee94cbdd1159",
       "kind": "ktx2"
     },
     {
       "path": "tex/stone_flags.ktx2",
-      "bytes": 15459,
-      "sha256": "d397c9746855bdd7a787a504a99a7142ed89d17fd4e73f7b6590a6d6a4caf38b",
+      "bytes": 17217,
+      "sha256": "347ab61e50ef90d3f571d2188e6ca801d91431495ca0e767cba4e967d109bc16",
       "kind": "ktx2"
     },
     {
       "path": "tex/stucco_grey.ktx2",
-      "bytes": 1872,
-      "sha256": "c4804133ef798f66ee505d828b1ae88950be307a64db1c816c89914a49c60cde",
+      "bytes": 2782,
+      "sha256": "4d85faa7f41685ee8ceee7513bbf4e19e3eb835936f801def2c9bd8362ef1a1b",
       "kind": "ktx2"
     }
   ],
@@ -62,7 +62,7 @@
         "name": "shell",
         "instances": 1,
         "primitives": 8,
-        "triangles": 11626
+        "triangles": 16113
       },
       {
         "name": "sconce",
@@ -71,8 +71,8 @@
         "triangles": 66
       }
     ],
-    "trianglesUnique": 11692,
-    "trianglesDrawn": 12550,
+    "trianglesUnique": 16179,
+    "trianglesDrawn": 17037,
     "extensionsRequired": [
       "EXT_meshopt_compression",
       "KHR_mesh_quantization",
@@ -103,5 +103,8 @@
     "toktx": "4.4.2",
     "gltfTransformCli": "4.5.1",
     "three": "0.186.1"
+  },
+  "lm": {
+    "layoutHash": "38df8415ab4c72c2ca9e40e8f41effdb931ed1d246f8e419e2e251108397b406"
   }
 }

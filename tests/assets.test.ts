@@ -150,7 +150,13 @@ describe.each(committedRooms)('public/assets/%s (room contract)', (room) => {
         ? // DEC-045: the square kit's census block replaces the rooms' geometry summary;
           // the nodes coherence is square-kit.test.ts's law (G3/G4/G7).
           ['budget', 'files', 'glbSha256', 'id', 'lightmaps', 'nodes', 'toolchain']
-        : ['budget', 'files', 'geometry', 'id', 'lightmaps', 'toolchain'],
+        : room === 'rastrelli-gallery'
+          ? // the lm row: the layout-identity law's provenance (419974f) — the export chain's
+            // UV2 layout hash published beside the plates it must equal; first exercised by the
+            // D2 re-encode (the previous manifest predated the law). Rooms whose stage summary
+            // carries no layoutHash keep the plain shape.
+            ['budget', 'files', 'geometry', 'id', 'lightmaps', 'lm', 'toolchain']
+          : ['budget', 'files', 'geometry', 'id', 'lightmaps', 'toolchain'],
     );
     // r17a all-or-nothing law: a lightmaps row either names exactly the three §4 states and
     // every named state's ktx2 is on disk, or (canary / not yet baked) the row is empty.

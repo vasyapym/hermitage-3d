@@ -9,8 +9,16 @@
 // tools/common.mjs signatures — geometrySummary(json) whose meshes are an ARRAY, writeGlb(json,
 // bin) returning a Buffer, GLTF_TRANSFORM cmd/args — and its optimise(ctx) matches the driver's
 // call shape ({ roomId, stage, out }). Logic unchanged.
-import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { existsSync, mkdirSync, readFileSync, statSync, unlinkSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { NodeIO } from '@gltf-transform/core';
+import {
+  EXTMeshoptCompression,
+  KHRMeshQuantization,
+  KHRTextureBasisu,
+} from '@gltf-transform/extensions';
+import { MeshoptDecoder } from 'meshoptimizer';
 import {
   ChainError,
   GLTF_TRANSFORM,
@@ -56,12 +64,16 @@ const ATLAS_BYTES_MAX = 400_000;
 const EXPECTED_INSTANCES = { shell: 1, sconce: 14 };
 const GLOW_MATERIAL = 'sconce_glow';
 const GLOW_STRENGTH = 6;
-// RG-F3 Sol-17: the published-material census — exactly 8 published materials (6 shell
-// + 2 sconce), names asserted; the 'pane' material must be present with emissive
-// strength 0 (an absent KHR_materials_emissive_strength row counts as 0 — the flat
-// non-emissive export shape). RG-F5 adds the flat 'stucco_shade' row (the fillet-shade
-// device's 7th shell slot; exported-never-baked, no texture). RG-F6 adds the flat
-// 'stucco_shade_airlock' row (the airlock shade's 8th shell slot; the same law).
+// RG-F3 Sol-17: the published-material census — names asserted; the 'pane' material must be
+// present (originally with emissive strength 0 — the flat non-emissive export shape).
+// RG-F5 adds the flat 'stucco_shade' row (the fillet-shade device's 7th shell slot;
+// exported-never-baked, no texture). RG-F6 adds the flat 'stucco_shade_airlock' row (the
+// airlock shade's 8th shell slot; the same law). D2 turns the two flat slots emissive on
+// the export chain — the pane ('the hour on the glass') and the door card's 'stairlight':
+// each must carry its authored emissiveFactor and NO KHR_materials_emissive_strength (the
+// authored strength is exactly 1.0 = the glTF DEFAULT, which the exporter legitimately
+// omits); the census fails loud on any deviation. The constants publish 10 rows:
+// 8 shell + 2 sconce.
 const EXPECTED_MATERIALS = [
   'iron_dark',
   'pane',
@@ -75,6 +87,12 @@ const EXPECTED_MATERIALS = [
   'stairlight',
 ];
 const PANE_MATERIAL = 'pane';
+const STAIRLIGHT_MATERIAL = 'stairlight';
+// D2: the two flat slots' authored export emission — emissiveFactor carries the RGB, and the
+// authored strength is exactly 1.0, the glTF DEFAULT, so KHR_materials_emissive_strength must
+// be ABSENT (the exporter legitimately omits it; the jordan chips' precedent).
+const PANE_EXPORT_EMISSION = [0.82, 0.86, 0.92];
+const STAIRLIGHT_EXPORT_EMISSION = [1.0, 0.8, 0.58];
 const MATERIALS_SHELL = 8;
 const MATERIALS_SCONCE = 2;
 const TOKTX_ARGS = [
@@ -102,6 +120,26 @@ function addExtension(json, key, name) {
   const list = json[key] ?? [];
   if (!list.includes(name)) list.push(name);
   json[key] = list;
+}
+
+// D2: one flat slot's export emission law — emissiveFactor = the authored RGB (1e-3 float
+// slack, jordan's strength tolerance) and NO KHR_materials_emissive_strength (strength 1.0
+// is the glTF default; any extension row is a deviation).
+function gateFlatEmission(name, material, rgb) {
+  const factor = material.emissiveFactor;
+  if (
+    !Array.isArray(factor) ||
+    factor.length !== 3 ||
+    factor.some((c, i) => Math.abs(c - rgb[i]) > 1e-3)
+  ) {
+    fail(`the census: ${name} emissiveFactor ${JSON.stringify(factor)} !== ${JSON.stringify(rgb)}`);
+  }
+  if (material.extensions?.KHR_materials_emissive_strength !== undefined) {
+    fail(
+      `the census: ${name} must not carry KHR_materials_emissive_strength ` +
+        '(the authored strength is exactly 1.0 — the glTF default)',
+    );
+  }
 }
 
 function encodeTextures(stage, texOut) {
@@ -159,6 +197,76 @@ function rewriteImages(json) {
   addExtension(json, 'extensionsRequired', 'KHR_texture_basisu');
 }
 
+// ---- the UV2 identity belt (D3) ---------------------------------------------------------------
+// Before publishing, the new glb's TEXCOORD_1 data per primitive must decode byte-identical
+// to the committed published glb's (the file at the published path, read BEFORE the
+// overwrite). The floor round moves UV0 ONLY (the albedo tile) — the lm layer, the atlas
+// cells and the layout hash cannot move. Both files carry repackBin's flattened buffer
+// (the bufferViews name the dropped compressed buffer, the ext rows point at buffer 0), a
+// shape @gltf-transform's meshopt preread cannot digest raw; each is normalised the SAME way
+// (bufferView.buffer := 0) before the NodeIO — with the meshopt decoder — reads and decodes
+// the real TEXCOORD_1 accessors. The digests cover count + the full decoded float payload.
+function uv2BeltNormalize(glb) {
+  const { json, bin } = parseGlb(glb);
+  for (const view of json.bufferViews ?? []) view.buffer = 0;
+  return writeGlb(json, bin);
+}
+
+async function uv2Digests(glbPath) {
+  const io = new NodeIO()
+    .registerExtensions([EXTMeshoptCompression, KHRMeshQuantization, KHRTextureBasisu])
+    .registerDependencies({ 'meshopt.decoder': MeshoptDecoder });
+  const doc = await io.read(glbPath);
+  const rows = [];
+  for (const mesh of doc.getRoot().listMeshes()) {
+    const prims = mesh.listPrimitives();
+    for (let i = 0; i < prims.length; i++) {
+      const accessor = prims[i].getAttribute('TEXCOORD_1');
+      if (!accessor) {
+        fail(`${mesh.getName()}#${i}: TEXCOORD_1 missing (the UV2 belt needs both layers)`);
+      }
+      const arr = accessor.getArray();
+      if (!arr) fail(`${mesh.getName()}#${i}: TEXCOORD_1 did not decode`);
+      const digest = createHash('sha256')
+        .update(Buffer.from(arr.buffer, arr.byteOffset, arr.byteLength))
+        .digest('hex');
+      rows.push(`${mesh.getName()}#${i}:${accessor.getCount()}:${digest}`);
+    }
+  }
+  return rows;
+}
+
+async function gateUv2Identity(glb, glbPath, out) {
+  if (!existsSync(glbPath)) {
+    fail(`the UV2 belt cannot run: no committed published glb at ${glbPath}`);
+  }
+  // both temp glbs sit in `out` so the external tex/*.ktx2 references resolve for the reader
+  const committedPath = join(out, '.uv2-belt-committed.glb.tmp');
+  const freshPath = join(out, '.uv2-belt-fresh.glb.tmp');
+  try {
+    writeFileSync(committedPath, uv2BeltNormalize(readFileSync(glbPath)));
+    writeFileSync(freshPath, uv2BeltNormalize(glb));
+    const [committed, fresh] = await Promise.all([
+      uv2Digests(committedPath),
+      uv2Digests(freshPath),
+    ]);
+    if (committed.join('\n') !== fresh.join('\n')) {
+      const detail = committed
+        .map((row, i) => (row === fresh[i] ? null : `${row} -> ${fresh[i]}`))
+        .filter(Boolean)
+        .join('; ');
+      fail(`UV2 drift against the committed published glb (TEXCOORD_1 must hold): ${detail}`);
+    }
+    console.log(
+      `gltf: uv2 identity belt ok ${fresh.length} primitive(s), TEXCOORD_1 byte-identical`,
+    );
+  } finally {
+    for (const path of [committedPath, freshPath]) {
+      if (existsSync(path)) unlinkSync(path);
+    }
+  }
+}
+
 function gateConventions(json) {
   const required = json.extensionsRequired ?? [];
   const used = json.extensionsUsed ?? [];
@@ -195,18 +303,18 @@ function gateMaterialsCensus(json) {
         `= ${MATERIALS_SHELL + MATERIALS_SCONCE} published rows, got ${materials.length}`,
     );
   }
+  // D2: the two flat slots carry their export emission (the hour on the glass + the door
+  // card's stairlight) — the authored emissiveFactor, and no strength extension.
   const pane = materials.find((material) => material.name === PANE_MATERIAL);
   if (!pane) fail(`the census: material ${PANE_MATERIAL} missing`);
-  const paneStrength = pane.extensions?.KHR_materials_emissive_strength?.emissiveStrength ?? 0;
-  if (paneStrength !== 0) {
-    fail(
-      `the census: ${PANE_MATERIAL} emissiveStrength ${paneStrength} !== 0 (the flat ` +
-        'non-emissive export shapes the pane look through the bake-only pane rows)',
-    );
-  }
+  gateFlatEmission(PANE_MATERIAL, pane, PANE_EXPORT_EMISSION);
+  const stairlight = materials.find((material) => material.name === STAIRLIGHT_MATERIAL);
+  if (!stairlight) fail(`the census: material ${STAIRLIGHT_MATERIAL} missing`);
+  gateFlatEmission(STAIRLIGHT_MATERIAL, stairlight, STAIRLIGHT_EXPORT_EMISSION);
   console.log(
     `gltf: material census ${materials.length} (shell ${MATERIALS_SHELL} + sconce ` +
-      `${MATERIALS_SCONCE}); ${PANE_MATERIAL} emissiveStrength 0`,
+      `${MATERIALS_SCONCE}); ${PANE_MATERIAL} emissiveFactor ${PANE_EXPORT_EMISSION} / ` +
+      `${STAIRLIGHT_MATERIAL} emissiveFactor ${STAIRLIGHT_EXPORT_EMISSION}, no strength ext`,
   );
 }
 
@@ -244,7 +352,7 @@ function gateGeometry(json, summary) {
   return byName;
 }
 
-export function optimise({ roomId, stage, out }) {
+export async function optimise({ roomId, stage, out }) {
   // tool availability + pinned versions are checked by tools/asset.mjs stepGltf before this runs.
   const texOut = join(out, 'tex');
   mkdirSync(texOut, { recursive: true });
@@ -271,6 +379,9 @@ export function optimise({ roomId, stage, out }) {
   const bin2 = repackBin(json, bin);
   const glb = writeGlb(json, bin2);
   const glbPath = join(out, `${roomId}.glb`);
+  // the UV2 belt reads the COMMITTED file at the published path BEFORE this write overwrites
+  // it (D3): TEXCOORD_1 must decode byte-identical or nothing publishes.
+  await gateUv2Identity(glb, glbPath, out);
   writeFileSync(glbPath, glb);
   console.log(`gltf: ${glbPath} ${glb.length} B sha256 ${sha256(glb)}`);
   for (const name of TEXTURES) console.log(`gltf: tex/${name}.ktx2 ${textureBytes[name]} B`);

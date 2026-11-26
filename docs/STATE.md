@@ -8,7 +8,7 @@ Start with AGENTS.md and this file only. Live state holds open work; Recent is a
 
 Tree: main @ rg-next-merge · 2026-11-26
 Wave: turn-cascade, sq-shadow-dirt and rg-next all landed; the rg-next battery ran on the office box 2026-11-26 (e2e 87/0, the budgets on the merged tree). The darwin goldens stay parked.
-Lanes: <!-- none open; the template: at integration insert the actual name, branch, phase and matching docs/budget-ledger.md open-row key. -->
+Lanes: rg-improve · branch rg-improve · PARALLEL (merge + the FULL gate at the owner's signal — deferred not waived) · phase: integrated, the review pass open · ledger: the rastrelli-gallery rows + the JS shared line (D1, +40 gz)
 
 Owed:
 - Jordan J1 spire read — closes when: the owner judges the J1 frame; the caption fallback stays parked → docs/parking-lot.md

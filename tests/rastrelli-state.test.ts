@@ -90,12 +90,12 @@ describe('rastrelli-gallery state (RG-F4)', () => {
     expect(paneBlock).not.toContain('0.006');
   });
 
-  it('containment: the glb and the three plate shas pin at the junction-law values', () => {
+  it('containment: the glb pins at the D3 re-encode (the floor round: UV0 tile + repaint, TEXCOORD_1 byte-held by the UV2 belt), the three plate shas hold byte-identical', () => {
     const glb = MANIFEST.files.find((f) => f.path === 'rastrelli-gallery.glb');
     const day = MANIFEST.files.find((f) => f.path === 'lm/day.ktx2');
     const dusk = MANIFEST.files.find((f) => f.path === 'lm/dusk.ktx2');
     const night = MANIFEST.files.find((f) => f.path === 'lm/night.ktx2');
-    expect(glb?.sha256).toBe('f8ea77dcb2c1b5ae57107cb017c1bbbda8d55fc313313c4bd14148f03f13c1a2');
+    expect(glb?.sha256).toBe('b694b1bdf5915d95c3b2e7314429859bd5dd83cf4f8653c858bbe4f22c1a11ed');
     expect(day?.sha256).toBe('21070dfc50ded69a9ec45769e72972a25c9a60b23cd0d822eba44c13e15b86a3');
     expect(dusk?.sha256).toBe('d4eec68c205bd6cde4f47eef67c84ba7963169a4db75ad5da903722f0e6cfe25');
     expect(night?.sha256).toBe('27bb7c1eedd4e9cbb7e90e617da3e1ae00a817b7fa8f11ba5cf43a311b6f55e9');
@@ -107,15 +107,15 @@ describe('rastrelli-gallery state (RG-F4)', () => {
     expect(MANIFEST.lightmaps.intensity).toEqual({ day: 0.8, dusk: 0.8, nightChandeliers: 0.8 });
   });
 
-  it('the room envelopes hold: payload ≤ 2M, textures ≤ 1M, tris 12,550 drawn', () => {
+  it('the room envelopes hold: payload ≤ 2M, textures ≤ 1M, tris 17,037 drawn', () => {
     const sum = MANIFEST.files.reduce((acc, f) => acc + f.bytes, 0);
     const tex = MANIFEST.files
       .filter((f) => f.kind === 'ktx2')
       .reduce((acc, f) => acc + f.bytes, 0);
     expect(sum).toBeLessThanOrEqual(MANIFEST.budget.payloadBytesMax);
     expect(tex).toBeLessThanOrEqual(MANIFEST.budget.textureBytesMax);
-    expect(sum).toBe(1186695); // the RG-F6 manifest (the threshold's +1,870 B; the plates byte-held)
-    expect(tex).toBe(892063);
-    expect(MANIFEST.geometry?.trianglesDrawn).toBe(12550); // the file-level law rides tests/assets.test.ts
+    expect(sum).toBe(1254623); // the D3 re-encode (the glb 393,344 B: the floor's 4 m albedo tile + the procedural repaint; the plates byte-held)
+    expect(tex).toBe(861279);
+    expect(MANIFEST.geometry?.trianglesDrawn).toBe(17037); // the file-level law rides tests/assets.test.ts
   });
 });
