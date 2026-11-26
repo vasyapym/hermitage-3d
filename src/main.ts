@@ -2762,6 +2762,8 @@ const settleTier = (next: QualityTier): void => {
   tier = next;
   tierSettled = true;
   probeActive = false;
+  sun.shadow.normalBias = next.shadowNormalBias;
+  sun.shadow.radius = next.shadowRadius;
   // The shadow map materializes lazily at the next shadow pass; re-arm its size now.
   sun.shadow.mapSize.set(next.shadowMapSize, next.shadowMapSize);
   if (sun.shadow.map !== null) {
