@@ -8,7 +8,7 @@ Start with AGENTS.md and this file only. Live state holds open work; Recent is a
 
 Tree: main @ rg-next-merge · 2026-11-26
 Wave: turn-cascade, sq-shadow-dirt and rg-next all landed; the rg-next battery ran on the office box 2026-11-26 (e2e 87/0, the budgets on the merged tree). The darwin goldens stay parked.
-Lanes: <!-- none open; the template: at integration insert the actual name, branch, phase and matching docs/budget-ledger.md open-row key. -->
+Lanes: st-george · branch st-george (worktree hermitage-3d-st-george) · room 4 of 7, St George's Hall — PARALLEL; merge + the full gate on the owner's notify · ledger key: st-george (open reservations) · DECISION-1: the vault session 03-1_projects/hermitage-3d-2026-11-26-new-room.
 
 Owed:
 - Jordan J1 spire read — closes when: the owner judges the J1 frame; the caption fallback stays parked → docs/parking-lot.md
