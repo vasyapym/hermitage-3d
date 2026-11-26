@@ -35,6 +35,7 @@ const STOPS = [
 const SWEEP_STEP_M = 0.25;
 const eyes = STOPS.slice(0, -1).flatMap((stop, index) => {
   const next = STOPS[index + 1];
+  if (next === undefined) throw new Error('the sweep fixture lost a stop');
   const count = Math.ceil((next.x - stop.x) / SWEEP_STEP_M);
   const rows: Array<{ id: string; x: number; up: number; down: number }> = [];
   for (let i = 0; i <= count; i += 1) {
