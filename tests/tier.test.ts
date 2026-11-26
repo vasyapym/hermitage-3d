@@ -26,7 +26,8 @@ describe('tier registry', () => {
   it('T1 sits exactly on the §11 designated-device numbers and is the default', () => {
     expect(TIERS.t1.dprCap).toBe(1);
     expect(TIERS.t1.bufferPixelsCap).toBe(1048576);
-    expect(TIERS.t1.shadowMapSize).toBe(1024);
+    // sq-shadow-dirt R2: the map leaves the §11 verbatim set — 2048, gated by the 16.7 ms goal.
+    expect(TIERS.t1.shadowMapSize).toBe(2048);
     expect(DEFAULT_TIER_ID).toBe('t1');
   });
   it('T0 tightens and T2 relaxes the §11 limits monotonically', () => {

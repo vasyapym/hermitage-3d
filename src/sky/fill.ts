@@ -17,9 +17,13 @@
  *                             pick: the shade:lit ≈ 1/6 law on a south white at june noon)
  *   fillGroundColor(cur, albedo, day) = per-channel lerp(cur, albedo, day): the committed
  *                             warmGround path at night, 0.5·seasonAlbedo at full day
- *   groundHalfAlbedo(wSnow) = mix(FILL_GROUND_HALF_ASPHALT, FILL_GROUND_HALF_SNOW, wSnow)
- *                             — HALF the ground's own albedo (june asphalt 0x3f3f3f linear
- *                             ≈ 0.0508 → the declared [0.025] triple; DEC-033's snow × 0.5)
+ *   groundHalfAlbedo(wSnow, day) = mix(mix(FILL_GROUND_HALF_ASPHALT,
+ *                             FILL_GROUND_HALF_ASPHALT_DAY, day), FILL_GROUND_HALF_SNOW,
+ *                             wSnow) — HALF the ground's own albedo (june asphalt 0x3f3f3f
+ *                             linear ≈ 0.0508 → the declared [0.025] triple, lifted to the
+ *                             0x4f4f4f half [0.040] by day — sq-shadow-dirt R6, probe-gated;
+ *                             DEC-033's snow × 0.5). The snow-slot mix (the wSnow law and the
+ *                             snow endpoint) is untouched.
  *
  * Pure: no three, no DOM, no clock (the ground-snow precedent; node Vitest).
  */
@@ -37,6 +41,9 @@ export const FILL_ZENITH_GAIN = 0.35;
 export const FILL_DAY_GAIN = 4.5;
 /** Half the june asphalt albedo (0x3f3f3f → linear ≈ 0.0508, halved, rounded as declared). */
 export const FILL_GROUND_HALF_ASPHALT: LinearRgb = [0.025, 0.025, 0.025];
+/** sq-shadow-dirt R6 (probe-gated): the endpoint's day lift — 0.025 → 0.040 at full day,
+ * half of the square's own 0x3f3f3f → 0x4f4f4f albedo law (0x4f4f4f linear ≈ 0.080). */
+export const FILL_GROUND_HALF_ASPHALT_DAY: LinearRgb = [0.04, 0.04, 0.04];
 /** Half the season snow albedo (DEC-033's SNOW_ALBEDO_LINEAR × 0.5): the dec fill ground. */
 export const FILL_GROUND_HALF_SNOW: LinearRgb = [0.41, 0.43, 0.46];
 
@@ -64,12 +71,19 @@ export function fillIntensity(day: number): number {
   return 1 + (FILL_DAY_GAIN - 1) * day;
 }
 
-/** The season ground albedo's half: the june asphalt ↔ the dec snow, blended by wSnow. */
-export function groundHalfAlbedo(wSnow: number): LinearRgb {
+/** The season ground albedo's half: the asphalt endpoint lifts by day (R6, from the
+ * immutable endpoints — never the previous frame's colour), then blends to the dec snow
+ * by wSnow — the snow-slot mix untouched. */
+export function groundHalfAlbedo(wSnow: number, day: number): LinearRgb {
+  const asphalt: LinearRgb = [
+    lerp(FILL_GROUND_HALF_ASPHALT[0], FILL_GROUND_HALF_ASPHALT_DAY[0], day),
+    lerp(FILL_GROUND_HALF_ASPHALT[1], FILL_GROUND_HALF_ASPHALT_DAY[1], day),
+    lerp(FILL_GROUND_HALF_ASPHALT[2], FILL_GROUND_HALF_ASPHALT_DAY[2], day),
+  ];
   return [
-    lerp(FILL_GROUND_HALF_ASPHALT[0], FILL_GROUND_HALF_SNOW[0], wSnow),
-    lerp(FILL_GROUND_HALF_ASPHALT[1], FILL_GROUND_HALF_SNOW[1], wSnow),
-    lerp(FILL_GROUND_HALF_ASPHALT[2], FILL_GROUND_HALF_SNOW[2], wSnow),
+    lerp(asphalt[0], FILL_GROUND_HALF_SNOW[0], wSnow),
+    lerp(asphalt[1], FILL_GROUND_HALF_SNOW[1], wSnow),
+    lerp(asphalt[2], FILL_GROUND_HALF_SNOW[2], wSnow),
   ];
 }
 

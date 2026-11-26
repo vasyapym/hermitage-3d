@@ -6,6 +6,7 @@
 // heads land on the design row table (3.00 / 9.20 / 15.50 / 19.50 m) — the
 // draft stacked an internal sill ledge and band inside the envelope instead.
 import * as THREE from 'three';
+import { SUN_DEPTH_MATERIAL } from '../world/shadow-depth';
 import { SNOW_ALBEDO_LINEAR } from '../world/snow-season';
 import type { PartId, Placement, SolvedFacade } from './facade-solver';
 import { KIT, PART_IDS } from './facade-solver';
@@ -873,6 +874,9 @@ export function buildFacade(solved: SolvedFacade): FacadeBuild {
     // The ONE castShadow law lives on the PartMeta row (the projection reads
     // it too): the socle course hugs the wall base and casts nothing (§C4).
     mesh.castShadow = KIT[partId].castShadow;
+    // sq-shadow-dirt R1: the slope-scaled caster depth material goes ONLY where the law
+    // casts — the socle's opt-out receives neither the material nor the shadow pass.
+    if (mesh.castShadow) mesh.customDepthMaterial = SUN_DEPTH_MATERIAL;
     mesh.receiveShadow = true;
     meshes.push(mesh);
     group.add(mesh);

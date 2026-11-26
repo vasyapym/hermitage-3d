@@ -37,6 +37,7 @@ export const TIERS: Readonly<Record<QualityTierId, QualityTier>> = Object.freeze
     label: 'T0 · low',
     dprCap: 1,
     bufferPixelsCap: 786432,
+    // sq-shadow-dirt R2: the rows below t1 stay 1024 — R1 kills their acne either way.
     shadowMapSize: 1024,
     shadowPasses: 1,
     postEnabled: false,
@@ -51,7 +52,10 @@ export const TIERS: Readonly<Record<QualityTierId, QualityTier>> = Object.freeze
     label: 'T1 · default',
     dprCap: 1,
     bufferPixelsCap: 1048576,
-    shadowMapSize: 1024,
+    // sq-shadow-dirt R2: 2048 (12.7 cm/texel on the fit — the relief's 2-texel floor). The
+    // §11 16.7 ms goal gates this row (the acceptance battery measures; revert to 1024 on
+    // failure).
+    shadowMapSize: 2048,
     shadowPasses: 1,
     postEnabled: false,
     description:
@@ -64,7 +68,8 @@ export const TIERS: Readonly<Record<QualityTierId, QualityTier>> = Object.freeze
     label: 'T2 · discrete GPU',
     dprCap: 2,
     bufferPixelsCap: 4194304,
-    shadowMapSize: 2048,
+    // sq-shadow-dirt R2: the row above t1 carries 4096 (67 MB depth texture, higher tiers only).
+    shadowMapSize: 4096,
     shadowPasses: 1,
     postEnabled: false,
     description:

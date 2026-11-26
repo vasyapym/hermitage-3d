@@ -727,6 +727,14 @@ const groundMaterial = new THREE.MeshLambertMaterial({
   transparent: true,
   opacity: 0,
 });
+// sq-shadow-dirt R6 (probe-gated: lands only if the ground-band ratio probe passes — the
+// battery keeps or reverts this diff): the square's albedo lifts by day, 0x3f3f3f → 0x4f4f4f
+// (granite setts a stop lighter — the shadows on the square read as shapes). The endpoints
+// are immutable (three's own sRGB→linear conversion, bit-identical to the construction
+// colour above); applyEpoch re-derives every frame from them, NEVER the previous frame's
+// colour (F11), so day = 0 is the committed ground bit for bit.
+const GROUND_ALBEDO_NIGHT = new THREE.Color(0x3f3f3f);
+const GROUND_ALBEDO_DAY = new THREE.Color(0x4f4f4f);
 // R12: the ground-snow slot — the one onBeforeCompile on the ground material (design-ground-snow.md §2).
 patchGroundSnowSlot(groundMaterial);
 const ground = new THREE.Mesh(
@@ -789,7 +797,11 @@ sun.shadow.camera.far = SUN_SHADOW_FIT.far;
 // itself (its default is ±5 m) — without this line the shadow map covers a 10 × 10 m patch at
 // the rig centre and no cast shadow ever lands (the sq-arch-day frames' read).
 sun.shadow.camera.updateProjectionMatrix();
-sun.shadow.bias = -0.0001;
+// sq-shadow-dirt R3 (same change-set as R1): with the casters' slope error carried by the
+// depth material's polygon offset, the constant bias covers only the quantisation + the
+// bilinear residual — the honest allowance drops to 0.063 m along the light (was 0.21 m):
+// a piece casts when p·cosθ > 0.063 + 0.05·cosθ, so the dressings cast attached shadows.
+sun.shadow.bias = -0.00003;
 sun.shadow.normalBias = 0.05; // sq-arch-day B1a (the Q11 pick): the dec grazing band's bias
 // DEC-037: the committed ±130 m box re-centred on z = SUN_SHADOW_FIT.centreZ so it reaches the
 // Column. The rig carries the light AND its target: applyEpoch's sun.position stays the rig-local
@@ -889,9 +901,14 @@ const applyEpoch = (nextEpochMs: number): void => {
   // is the pre-round white bit for bit (the colour rides the same E(h) as the intensity;
   // setRGB + lerp mutate in place, no per-frame allocation).
   sun.color.setRGB(1, 1, 1).lerp(SUN_WARM, day);
-  // sq-arch-day B1a(2): the castShadow toggle retired — the shadow's strength fades by E(h)
+  // sq-arch-day B1a(2): the castShadow toggle retired — the shadow's strength rides E(h)
   // (LightShadow.intensity; castShadow stays true, no per-crossing program recompiles).
-  sun.shadow.intensity = day;
+  // sq-shadow-dirt R4 (F10's rationale correction): shadows are binary — the low sun's
+  // weakness already lives in sunLightIntensity, so the strength is exactly 0 at day = 0
+  // and full from day = 0.25 (≈ 3.5° elevation). The old fade's «winter leak» was 9.47 %
+  // at dec noon (intensity 0.9053, E ≈ 0.78) — not 22 %; the full-dark snow shadows below
+  // that crossing are the row's point, not a bug.
+  sun.shadow.intensity = Math.min(1, 4 * day);
   sun.position.set(
     sample.sunDirection[0] * SUN_DISTANCE,
     sample.sunDirection[1] * SUN_DISTANCE,
@@ -919,10 +936,18 @@ const applyEpoch = (nextEpochMs: number): void => {
   FACADE_SURFACE_UNIFORMS.uSnow.value = wSnow;
   GROUND_SNOW_UNIFORMS.uSnow.value = wSnow;
   GROUND_SNOW_UNIFORMS.uDay.value = day; // sq-arch-day B3: the ground's day-class blend
+  // sq-shadow-dirt R6 (probe-gated): the square's albedo rides the same E(h) — the
+  // endpoint-exact per-channel lerp from the immutable endpoints above (day = 0 writes the
+  // committed 0x3f3f3f bit for bit; the snow slot's uSnow mix is untouched).
+  groundMaterial.color.setRGB(
+    GROUND_ALBEDO_NIGHT.r * (1 - day) + GROUND_ALBEDO_DAY.r * day,
+    GROUND_ALBEDO_NIGHT.g * (1 - day) + GROUND_ALBEDO_DAY.g * day,
+    GROUND_ALBEDO_NIGHT.b * (1 - day) + GROUND_ALBEDO_DAY.b * day,
+  );
   hemi.groundColor.setRGB(
     ...fillGroundColor(
       warmGround(snowBounceGround(h, wSnow), WINDOW_WARM_LINEAR, wNight),
-      groundHalfAlbedo(wSnow),
+      groundHalfAlbedo(wSnow, day),
       day,
     ),
   );

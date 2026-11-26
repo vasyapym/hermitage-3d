@@ -13,6 +13,7 @@ import { sampleSky } from '../src/sky/appearance';
 import {
   FILL_DAY_GAIN,
   FILL_GROUND_HALF_ASPHALT,
+  FILL_GROUND_HALF_ASPHALT_DAY,
   FILL_GROUND_HALF_SNOW,
   fillGroundColor,
   fillIntensity,
@@ -47,14 +48,17 @@ describe('B1a — the renderer shadow enable (the main.ts law scan)', () => {
   });
 
   it('keeps the fit, the tier sizes and the bias; the normalBias moves to 0.05', () => {
-    expect(main).toContain('sun.shadow.bias = -0.0001;');
+    // sq-shadow-dirt R3: the receiver bias re-picks to −0.00003 (0.063 m along the light)
+    // once R1's caster-side polygon offset carries the slope error.
+    expect(main).toContain('sun.shadow.bias = -0.00003;');
     expect(main).toContain('sun.shadow.normalBias = 0.05;');
     expect(main).not.toContain('sun.shadow.normalBias = 0.25');
     expect(SUN_SHADOW_FIT.left).toBe(-130);
     expect(SUN_SHADOW_FIT.right).toBe(130);
+    // sq-shadow-dirt R2: t1 carries 2048, the row above it 4096; the rows below stay 1024.
     expect(TIERS.t0.shadowMapSize).toBe(1024);
-    expect(TIERS.t1.shadowMapSize).toBe(1024);
-    expect(TIERS.t2.shadowMapSize).toBe(2048);
+    expect(TIERS.t1.shadowMapSize).toBe(2048);
+    expect(TIERS.t2.shadowMapSize).toBe(4096);
   });
 
   it('the ground receives; the sun and only the sun casts; castShadow never toggles', () => {
@@ -71,8 +75,9 @@ describe('B1a — the renderer shadow enable (the main.ts law scan)', () => {
     // The hemisphere is the only other light and it casts nothing.
     expect(main).toContain('new THREE.HemisphereLight');
     expect(main).not.toContain('hemi.castShadow');
-    // The fade site: the shadow's strength rides E(h) in applyEpoch.
-    expect(main).toContain('sun.shadow.intensity = day;');
+    // The fade site: the shadow's strength rides E(h) in applyEpoch — sq-shadow-dirt R4
+    // saturates it (0 at day = 0, full from day = 0.25).
+    expect(main).toContain('sun.shadow.intensity = Math.min(1, 4 * day);');
   });
 });
 
@@ -164,10 +169,15 @@ describe('B1b — the fill (weights, intensity, ground class)', () => {
   });
 
   it("the ground class: today's warmGround path at night, half the season albedo at day", () => {
+    // sq-shadow-dirt R6 (probe-gated): the asphalt endpoint lifts by day — night keeps the
+    // committed 0.025 bit for bit, full day reaches the 0x4f4f4f half (0.040); the snow
+    // endpoint and the wSnow mix are untouched.
     expect(FILL_GROUND_HALF_ASPHALT).toEqual([0.025, 0.025, 0.025]);
+    expect(FILL_GROUND_HALF_ASPHALT_DAY).toEqual([0.04, 0.04, 0.04]);
     expect(FILL_GROUND_HALF_SNOW).toEqual([0.41, 0.43, 0.46]);
-    expect(groundHalfAlbedo(0)).toEqual(FILL_GROUND_HALF_ASPHALT);
-    expect(groundHalfAlbedo(1)).toEqual(FILL_GROUND_HALF_SNOW);
+    expect(groundHalfAlbedo(0, 0)).toEqual(FILL_GROUND_HALF_ASPHALT);
+    expect(groundHalfAlbedo(0, 1)).toEqual(FILL_GROUND_HALF_ASPHALT_DAY);
+    expect(groundHalfAlbedo(1, 1)).toEqual(FILL_GROUND_HALF_SNOW);
     const night = sampleSky(Date.UTC(2026, 11, 21, 18));
     const wSnow = snowWeight(Date.UTC(2026, 11, 21, 18));
     const wNight = night.lightmaps.nightChandeliers;
@@ -176,7 +186,11 @@ describe('B1b — the fill (weights, intensity, ground class)', () => {
       WINDOW_WARM_LINEAR,
       wNight,
     );
-    const ground = fillGroundColor(today, groundHalfAlbedo(wSnow), night.lightmaps.day);
+    const ground = fillGroundColor(
+      today,
+      groundHalfAlbedo(wSnow, night.lightmaps.day),
+      night.lightmaps.day,
+    );
     expect(ground[0]).toBe(today[0]);
     expect(ground[1]).toBe(today[1]);
     expect(ground[2]).toBe(today[2]);
@@ -191,7 +205,8 @@ describe('B1 derived — the analytic shade:lit on a vertical white', () => {
     const cosH = Math.cos((40 * Math.PI) / 180);
     const fill = fillSkyColor(PALETTE.dayZenith, PALETTE.dayHorizon, 1);
     const fillLum = lum(fill);
-    const groundLum = lum(groundHalfAlbedo(0));
+    // R6's day-lifted asphalt endpoint is the day state this derivation describes.
+    const groundLum = lum(groundHalfAlbedo(0, 1));
     const fillVertical = fillIntensity(1) * 0.5 * (fillLum + groundLum);
     const sunVertical = DAYLIGHT_SUN_INTENSITY_MAX * cosH * lum(SUN_COLOR);
     const ratio = fillVertical / (sunVertical + fillVertical);
