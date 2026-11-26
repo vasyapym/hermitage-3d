@@ -71,7 +71,9 @@ export const GROUND_SNOW_UNIFORMS: GroundSnowUniforms = {
 // @4: the drift gates OFF-lane (the review's P1 ordering — it cannot refill the lane).
 // sq-fix-improve R3 bumps to @5: the paving slot's snow normal tilt splices after
 // #include <normal_fragment_begin> (the snow mode's one physical lever under a frontal sun).
-const GROUND_SNOW_CACHE_KEY = 'Ground/snow-slot@5';
+// The review fix bumps to @6: the tilt's calibration (the gradient divides by
+// SNOW_TILT_GRAD_BOUND) and the uSnow = 0 exact-identity select — the emitted body changed.
+const GROUND_SNOW_CACHE_KEY = 'Ground/snow-slot@6';
 
 const glslFloat = (x: number): string => (Number.isInteger(x) ? `${x}.0` : `${x}`);
 

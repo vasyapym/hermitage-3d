@@ -520,8 +520,9 @@ describe('patchGroundSnowSlot', () => {
     // patched and unpatched materials still never share a cache entry.
     // sq-arch-day B3: the snow slot is @3 (the drift + macro + day-lane body); @4 adds the
     // review's P1 off-lane drift gate; the paving @2. sq-fix-improve R3: the snow slot is @5
-    // (the snow normal tilt splice), the paving @3.
-    expect(material.customProgramCacheKey?.()).toBe('Ground/snow-slot@5|Ground/paving-slot@3');
+    // (the snow normal tilt splice), the paving @3. The review fix: the snow slot is @6 (the
+    // tilt's calibration + the uSnow = 0 exact-identity select), the paving @4.
+    expect(material.customProgramCacheKey?.()).toBe('Ground/snow-slot@6|Ground/paving-slot@4');
   });
 
   it('throws when an anchor is missing', () => {

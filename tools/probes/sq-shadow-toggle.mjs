@@ -105,7 +105,9 @@ try {
   if (sceneBox === null || sceneBox.width !== VIEWPORT.width) {
     fail('#scene does not fill the viewport');
   }
-  await page.waitForTimeout(300);
+  // The capture law (the fleet's settled class): the massing fade is 600 ms and the look
+  // captures wait for opacity 1 — a settled wait after ready, not a bare 300 ms beat.
+  await page.waitForTimeout(1500);
 
   // The rig's readouts through the DEV hook, before anything is toggled.
   const readouts = await page.evaluate(() => {

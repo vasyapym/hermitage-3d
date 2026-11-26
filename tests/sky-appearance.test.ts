@@ -3,7 +3,8 @@
  * sq-fix-improve R2 (the low-sun warm key — creative's DEC-056 proposal): the ruling's five
  * pinned lowSunMix values. The law is pure (src/sky/appearance.ts, three-free); main.ts
  * consumes it as the warm sun endpoint's elevation key. h 6.6° → 0.12, 16° → 0.75, ≥ 25°
- * exactly 1, ≤ 0° exactly 0.
+ * exactly 1, ≤ 0° exactly 0. The review fix (FIX 6): the two ≈ pins carry explicit absolute
+ * errors (± 0.01), not toBeCloseTo digit counts.
  */
 import { describe, expect, it } from 'vitest';
 import { lowSunMix } from '../src/sky/appearance';
@@ -14,11 +15,11 @@ describe('lowSunMix (sq-fix-improve R2 — the five ruled values)', () => {
   });
 
   it('is ≈ 0.12 ± 0.01 at the dec 6.6° sun', () => {
-    expect(lowSunMix(6.6)).toBeCloseTo(0.12, 2);
+    expect(Math.abs(lowSunMix(6.6) - 0.12)).toBeLessThanOrEqual(0.01);
   });
 
   it('is ≈ 0.75 ± 0.01 at 16°', () => {
-    expect(lowSunMix(16)).toBeCloseTo(0.75, 2);
+    expect(Math.abs(lowSunMix(16) - 0.75)).toBeLessThanOrEqual(0.01);
   });
 
   it('is exactly 1 at the 25° ramp top', () => {

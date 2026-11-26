@@ -30,12 +30,22 @@ export const PAVING_SETT_TONE_AMP = 0.18;
 export const PAVING_MOTTLE_M = 3.5;
 export const PAVING_MOTTLE_AMP = 0.1;
 // sq-fix-improve R3 (the snow drift lighting — creative's DEC-056 proposal): the snow mode's
-// normal tilt — a 0.05 rad (≈ 3°) tilt from the ground slot's shared hash-noise gradient at a
+// normal tilt — a 0.05 rad tilt from the ground slot's shared hash-noise gradient at a
 // 4 m period, central differences e = 0.25 m in the twin. The gate is the slot's existing
-// uSnow weight (no new uniform, no draw); src/procedural/ground-paving.ts consumes both
-// constants as GLSL literals.
-export const SNOW_TILT_AMP = 0.05; // rad ≈ 3°
+// uSnow weight (no new uniform, no draw); src/procedural/ground-paving.ts consumes all
+// three constants as GLSL literals.
+// The review fix (the tilt recalibration — the confirmed break): the raw gradient is unbounded
+// by the amplitude, and the dividing bound is the field's actual sup |∇| — the smoothstep-faded
+// bilinear value noise spans [0, 1] over the 4 m cell, so its per-axis max gradient is
+// 1.5 / SNOW_TILT_PERIOD_M per metre, and that per-axis max IS the vector sup (the diagonal hash
+// coupling denies both axes their joint maximum: the free two-axis envelope √2 × 1.5 / period
+// ≈ 0.53033 is unreachable — the measured sweep max 0.368/m sits just under 0.375). The emitted
+// chunk divides the gradient by SNOW_TILT_GRAD_BOUND, so SNOW_TILT_AMP is the exact peak tilt in
+// radians (0.05 rad ≈ 2.86°, the ruled ±3° class); the practical peak on the measured grid
+// ≈ 2.8° (the pre-fix realization was only ≈ 2.0°).
+export const SNOW_TILT_AMP = 0.05; // rad — the exact peak tilt (≈ 2.86°, the ruled ±3° class)
 export const SNOW_TILT_PERIOD_M = 4;
+export const SNOW_TILT_GRAD_BOUND = 0.375; // 1.5 / SNOW_TILT_PERIOD_M — the field's |∇| sup, per metre
 export const PAVING_BAND_PERIOD_M = 20;
 export const PAVING_BAND_WIDTH_M = 0.6;
 export const PAVING_BAND_TONE: Vec3 = [3.6, 3.5, 3.3];

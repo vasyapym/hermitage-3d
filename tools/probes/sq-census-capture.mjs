@@ -283,7 +283,9 @@ try {
       // the shadow-enabled cap re-derivation reads its measured values from here.
       const hudDraws = Number(await page.getAttribute('#hud', 'data-draws'));
       const hudTris = Number(await page.getAttribute('#hud', 'data-tris'));
-      await page.waitForTimeout(300);
+      // The capture law (the fleet's settled class): the massing fade is 600 ms and the look
+      // captures wait for opacity 1 — a settled wait after ready, not a bare 300 ms beat.
+      await page.waitForTimeout(1500);
       if (shotRow.drag !== null) {
         const cx = VIEWPORT.width / 2;
         const cy = VIEWPORT.height / 2;
@@ -295,7 +297,9 @@ try {
         await page.waitForTimeout(800);
       }
       await page.addStyleTag({ content: HIDE_OVERLAYS_CSS });
-      await page.waitForTimeout(300);
+      // The capture law (the fleet's settled class): the massing fade is 600 ms and the look
+      // captures wait for opacity 1 — a settled wait before the plate, not a bare 300 ms beat.
+      await page.waitForTimeout(1500);
       await page.screenshot({
         path: join(OUT, `${shotRow.name}.png`),
         clip: { x: 0, y: 0, width: VIEWPORT.width, height: VIEWPORT.height },
