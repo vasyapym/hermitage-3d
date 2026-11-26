@@ -54,4 +54,8 @@ dir "%STAGE%"
 dir /s "%STAGE%" > "%ART%\stage-dir.txt"
 copy /Y "%STAGE%\*.json" "%ART%\" >nul
 copy /Y "%STAGE%\*.png" "%ART%\" >nul
+rem the bench referral's trace (reply 9 (a); trap 7: measured, not inferred): the graze
+rem slivers' UV2 islands vs their rects + the paint EXR's island/rect means - runs on BOTH
+rem paths (the stage + the paint EXR exist right here); its exit never flips the verdict.
+cmd /c "C:\Users\v.argunov\Desktop\agent2\blender-4.2.23-windows-x64\blender.exe" -b --factory-startup -noaudio -P "%~1\tools\probes\rg-bench-trace.py" -- --stage "%STAGE%" --indices 335,3036,4,883 >> "%ART%\bench-trace.log" 2>&1
 exit /b %RC%
