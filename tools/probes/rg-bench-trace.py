@@ -87,16 +87,18 @@ for idx in targets:
         print(f'RGNEXT_BENCH idx={idx} rect={rect} ISLAND=none — no face maps into this rect')
         continue
     fb, (ix0, ix1, iy0, iy1, cov) = best
+    ix0, ix1, iy0, iy1 = int(ix0), int(ix1), int(iy0), int(iy1)
     r0 = height - (ry + rh)
     rect_px = plane[r0:r0 + rh, rx:rx + rw]
     isl_px = plane[height - iy1:height - iy0, ix0:ix1]  # numpy rows bottom-up
     inner_top, inner_left = (1 if rh > 2 else 0), (1 if rw > 2 else 0)
     checker_px = rect_px[inner_top:rh - inner_top, inner_left:rw - inner_left]
+    p99 = float(np.percentile(plane, 99))
     print(
         f'RGNEXT_BENCH idx={idx} element={cells[idx]["element"]} rect={rect} '
-        f'island_px=[{ix0:.0f},{iy0:.0f} {ix1 - ix0:.0f}x{iy1 - iy0:.0f}] coverage={cov:.4f} '
+        f'island_px=[{ix0},{iy0} {ix1 - ix0}x{iy1 - iy0}] coverage={cov:.4f} '
         f'exr_island_mean={float(isl_px.mean()):.6f} exr_rect_mean={float(rect_px.mean()):.6f} '
         f'checker_inner_mean={float(checker_px.mean()):.6f} '
-        f'-> {"PAD/SAMPLING ARTIFACT" if float(isl_px.mean()) > 0.02 and float(checker_px.mean()) < 0.005 * plane.max() else "FACE ITSELF DARK (or encode)"}'
+        f'-> {"PAD/SAMPLING ARTIFACT" if float(isl_px.mean()) > 0.02 * p99 and float(checker_px.mean()) < 0.005 * p99 else "FACE ITSELF DARK (or encode)"}'
     )
 print('RGNEXT_BENCH done')
