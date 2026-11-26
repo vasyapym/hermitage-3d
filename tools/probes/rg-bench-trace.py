@@ -24,7 +24,7 @@ ap.add_argument('--glb')
 ap.add_argument('--exr')
 opts = ap.parse_args(argv)
 stage = opts.stage.rstrip('/\\') + '/'
-glb = opts.glb or stage + '../../../public/assets/rastrelli-gallery/rastrelli-gallery.glb'
+glb = opts.glb or stage + 'rastrelli-gallery.raw.glb'
 exr = opts.exr or stage + 'rastrelli-gallery.day.paint.exr'
 targets = [int(v) for v in opts.indices.split(',')]
 
@@ -69,13 +69,18 @@ def island_in_rect(fb, rect):
     cov = ((ix1 - ix0) * (iy1 - iy0)) / (rw * rh)
     return (ix0, ix1, iy0, iy1, cov)
 
-img = bpy.data.images.load(exr)
-img.colorspace_settings.name = 'Non-Color'
-width, height = img.size
-import numpy as np
-buf = np.empty(width * height * img.channels, dtype=np.float32)
-img.pixels.foreach_get(buf)
-plane = buf.reshape(height, width, img.channels)[:, :, :3].mean(axis=2)
+img = None
+plane = None
+try:
+    img = bpy.data.images.load(exr)
+    img.colorspace_settings.name = 'Non-Color'
+    import numpy as np
+    width, height = img.size
+    buf = np.empty(width * height * img.channels, dtype=np.float32)
+    img.pixels.foreach_get(buf)
+    plane = buf.reshape(height, width, img.channels)[:, :, :3].mean(axis=2)
+except Exception as exc:
+    print(f'RGNEXT_BENCH: the paint EXR is absent/unreadable ({exc}) — the ISLANDS-ONLY mode')
 
 for idx in targets:
     rect = cells[idx]['rect']
@@ -88,6 +93,13 @@ for idx in targets:
         continue
     fb, (ix0, ix1, iy0, iy1, cov) = best
     ix0, ix1, iy0, iy1 = int(ix0), int(ix1), int(iy0), int(iy1)
+    if plane is None:
+        print(
+            f'RGNEXT_BENCH idx={idx} element={cells[idx]["element"]} rect={rect} '
+            f'island_px=[{ix0},{iy0} {ix1 - ix0}x{iy1 - iy0}] coverage={cov:.4f} '
+            f'-> the ISLANDS-ONLY mode: no paint EXR on this stage'
+        )
+        continue
     r0 = height - (ry + rh)
     rect_px = plane[r0:r0 + rh, rx:rx + rw]
     isl_px = plane[height - iy1:height - iy0, ix0:ix1]  # numpy rows bottom-up
