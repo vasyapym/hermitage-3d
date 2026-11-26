@@ -134,6 +134,15 @@ the vault texts (26/30/32/37-REPLY), and the pinned probe logs.
    captures — only the ZIMNY_SUMMARY line goes up; asset.mjs and reencode.mjs echo; the
    layout-identity proofs live in the stage summary + the bake-summary sidecars + the
    manifest row, not in chain.log).
+7. THE MEASURED BRIEF (owner, 2026-11-26; the rgnext-7 precedent — the sitting's panel/head
+   guess, the reply's 58/44/subsets structure and the hand-off's «expected GREEN» each fell
+   to the local diagnostic; one cause: law claims from inference where the local Blender +
+   the builder could measure). No law/classification brief files without the MEASURED
+   ground truth riding it: the bpy stage's declared sets + the RGF2_DUMP_DIM=1 dump (the
+   sets' measured shape beside the shelf debug) are the brief's fact base; a reply's
+   structure predictions are ADVISORY until the local validation runs; the local validation
+   (the layout hash against the last bake's + the subset law) runs BEFORE any box filing —
+   a RED-on-N verdict is filed with its N named, never discovered on the box.
 
 **Brief boilerplate (copy blocks, compose fresh only the task-specific parts).**
 - ROLE line (the engineering-peer frame; OWNER AMENDMENT 2026-11-03 — the fresh-session law

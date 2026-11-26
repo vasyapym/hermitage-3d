@@ -2533,6 +2533,17 @@ def declared_lm_sets(builder):
     both = sorted(set(covered) & set(dim))
     if both:
         fail('coveredCells and dimCells overlap: ' + str(both[:8]))
+    # (the correction batch, 2026-11-26; standing-protocol trap 7) the ground-truth dump
+    # for the law briefs: RGF2_DUMP_DIM=1 writes the declared sets' MEASURED shape beside
+    # the shelf debug - a brief's fact base is this dump, never inferred structure.
+    if os.environ.get('RGF2_DUMP_DIM'):
+        tally = {}
+        for i in sorted(set(covered) | set(dim)):
+            tally[roster[i][3]] = tally.get(roster[i][3], 0) + 1
+        dump_path = os.environ.get('RGF2_DUMP_DIR', '.').rstrip('/') + '/rgf2-dim-debug.json'
+        with open(dump_path, 'w', encoding='utf-8') as fh:
+            json.dump({'coveredCells': sorted(set(covered)), 'dimCells': sorted(set(dim)),
+                       'tally': tally, 'rosterFaces': len(roster)}, fh, indent=1)
     return sorted(set(covered)), sorted(set(dim))
 
 
