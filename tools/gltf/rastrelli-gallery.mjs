@@ -361,7 +361,6 @@ export async function optimise({ roomId, stage, out }) {
   if (!existsSync(raw)) fail(`missing ${raw}; run the bpy step first`);
   if (!existsSync(summaryPath)) fail(`missing ${summaryPath}; run the bpy step first`);
   const summary = JSON.parse(readFileSync(summaryPath, 'utf8'));
-  const textureBytes = encodeTextures(stage, texOut);
   const finalGlbPath = compress(stage, raw);
   // gltf-transform's GLB writer declares buffer 0 = the whole chunk (fallback regions + the
   // compressed chunks, ext offsets absolute in buffer 0) plus a trailing {fallback:true}
@@ -380,8 +379,11 @@ export async function optimise({ roomId, stage, out }) {
   const glb = writeGlb(json, bin2);
   const glbPath = join(out, `${roomId}.glb`);
   // the UV2 belt reads the COMMITTED file at the published path BEFORE this write overwrites
-  // it (D3): TEXCOORD_1 must decode byte-identical or nothing publishes.
+  // it (D3): TEXCOORD_1 must decode byte-identical or nothing publishes. The belt runs BEFORE
+  // encodeTextures writes any ktx2 into the published out/tex (the review F4 fix): no gate
+  // failure may leave the published set half-new.
   await gateUv2Identity(glb, glbPath, out);
+  const textureBytes = encodeTextures(stage, texOut);
   writeFileSync(glbPath, glb);
   console.log(`gltf: ${glbPath} ${glb.length} B sha256 ${sha256(glb)}`);
   for (const name of TEXTURES) console.log(`gltf: tex/${name}.ktx2 ${textureBytes[name]} B`);

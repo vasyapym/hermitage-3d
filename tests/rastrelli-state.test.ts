@@ -114,8 +114,8 @@ describe('rastrelli-gallery state (RG-F4)', () => {
       .reduce((acc, f) => acc + f.bytes, 0);
     expect(sum).toBeLessThanOrEqual(MANIFEST.budget.payloadBytesMax);
     expect(tex).toBeLessThanOrEqual(MANIFEST.budget.textureBytesMax);
-    expect(sum).toBe(1254623); // the D3 re-encode (the glb 393,344 B: the floor's 4 m albedo tile + the procedural repaint; the plates byte-held)
-    expect(tex).toBe(861279);
+    expect(sum).toBe(1255019); // the review fix re-encode (the corrected 1 px joint edge mask: tex +396 B; the glb 393,344 B byte-held; the plates byte-held)
+    expect(tex).toBe(861675);
     expect(MANIFEST.geometry?.trianglesDrawn).toBe(17037); // the file-level law rides tests/assets.test.ts
   });
 });

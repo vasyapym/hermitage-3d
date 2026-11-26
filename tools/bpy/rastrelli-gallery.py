@@ -1006,8 +1006,13 @@ def stone_flags_px(x, y):
     u = x / FLAG_PX - bond - col                # flag crosses the tile seam unsplit
     v = fy - row
     if u < _MORTAR_U_FRAC or v < _MORTAR_U_FRAC:
-        shadow = (u * FLAG_PX < 1.0 or u * FLAG_PX >= MORTAR_PX - 1.0
-                  or v * FLAG_PX < 1.0 or v * FLAG_PX >= MORTAR_PX - 1.0)
+        # the 1 px shadow rides the band's EDGE px only (index 0 or MORTAR_PX-1 on the axis
+        # whose band holds this px) - a mid-band px is mortar, not edge (the review F6 fix);
+        # the analytic _MORTAR_MEAN_RGB fraction (12/16 = 0.75 of the corner cells) matches
+        # this mask exactly.
+        u_i, v_i = u * FLAG_PX, v * FLAG_PX
+        shadow = ((u < _MORTAR_U_FRAC and (u_i < 1.0 or u_i >= MORTAR_PX - 1.0))
+                  or (v < _MORTAR_U_FRAC and (v_i < 1.0 or v_i >= MORTAR_PX - 1.0)))
         k = 0.9 if shadow else 1.0
         return tuple(c * k for c in MORTAR_RGB)
     fi = (row % FLAGS_PER_TILE) * FLAGS_PER_TILE + (col % FLAGS_PER_TILE)
