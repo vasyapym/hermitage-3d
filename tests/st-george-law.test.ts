@@ -21,15 +21,33 @@ const censusPath = new URL('../tools/st-george/census.json', import.meta.url);
 
 /*
  * Independent frame/look fixture from the brief, deliberately not imported
- * from the builder. The cosine uses the brief's full unit-direction x rule.
+ * from the builder. The cosine uses the corrected horizontal-yaw rule, and the
+ * eyes sweep the H0–H4 path at the record's own density (0.25 m) with the look
+ * limits interpolated between stops — the same sweep the law certifies with.
  */
-const eyes = [
+const STOPS = [
   { id: 'H0', x: 93.5, up: 0.8390996311772799, down: 0.2679491924311227 },
   { id: 'H1', x: 103, up: 0.8390996311772799, down: 0.36397023426620234 },
   { id: 'H2', x: 114.5, up: 0.4663076581549986, down: 0.8390996311772799 },
   { id: 'H3', x: 124, up: 0.7002075382097097, down: 0.4663076581549986 },
   { id: 'H4', x: 130.5, up: 0.4663076581549986, down: 0.7002075382097097 },
 ];
+const SWEEP_STEP_M = 0.25;
+const eyes = STOPS.slice(0, -1).flatMap((stop, index) => {
+  const next = STOPS[index + 1];
+  const count = Math.ceil((next.x - stop.x) / SWEEP_STEP_M);
+  const rows: Array<{ id: string; x: number; up: number; down: number }> = [];
+  for (let i = 0; i <= count; i += 1) {
+    const t = i / count;
+    rows.push({
+      id: `${stop.id}-${next.id}#${i}`,
+      x: stop.x + (next.x - stop.x) * t,
+      up: stop.up + (next.up - stop.up) * t,
+      down: stop.down + (next.down - stop.down) * t,
+    });
+  }
+  return rows;
+});
 
 function independentlySeen(face: Face): boolean {
   const centre: Vec3 = [0, 0, 0];
@@ -239,7 +257,7 @@ describe('st-george review fixes (pass 1)', () => {
     const face = instance?.faces.find((entry) => entry.id.endsWith('/north'));
     if (face === undefined) throw new Error('missing the bay-3 capital north face');
     expect(face.visibility).toBe('exported');
-    expect(face.witness?.stop).toBe('H0');
+    expect(eyes.some((eye) => eye.id === face.witness?.stop)).toBe(true);
     expect(independentlySeen(face)).toBe(true);
   });
 

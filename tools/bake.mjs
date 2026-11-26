@@ -42,7 +42,7 @@ import {
   writeManifest,
 } from './common.mjs';
 
-const ROOMS = ['rastrelli-gallery', 'jordan', 'military-gallery'];
+const ROOMS = ['rastrelli-gallery', 'jordan', 'military-gallery', 'st-george'];
 const STATES = ['day', 'dusk', 'nightChandeliers'];
 const STATE_FILE = { day: 'day', dusk: 'dusk', nightChandeliers: 'night' };
 const STATE_ALIASES = { night: 'nightChandeliers' };
@@ -79,7 +79,7 @@ const TOKTX_INSTALL = 'install KTX-Software 4.4.2 (brew install ktx) so `toktx` 
 function usage(message) {
   console.error(`bake: ${message}`);
   console.error(
-    'usage: node tools/bake.mjs <rastrelli-gallery|jordan|military-gallery> <day|dusk|night|all> [--verify]',
+    'usage: node tools/bake.mjs <rastrelli-gallery|jordan|military-gallery|st-george> <day|dusk|night|all> [--verify]',
   );
   process.exit(2);
 }

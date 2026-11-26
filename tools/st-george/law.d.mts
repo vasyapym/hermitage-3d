@@ -177,6 +177,18 @@ export interface Law {
     atlasSize: number;
     states: string[];
     probes: string[];
+    lmChart: {
+      canvasM: number;
+      padPx: number;
+      minPx: number;
+      occupancy: number;
+      patchCount: number;
+      totalPatchArea: number;
+      shellRes: number;
+      finalRes: number;
+      densityShellPxPerM: number;
+      densityFinalPxPerM: number;
+    };
     source: string;
   };
   caps: Caps;
@@ -233,11 +245,14 @@ export interface Census {
   };
   lightmap: {
     exportedArea: number;
-    atlasTexels: number;
+    totalPatchArea: number;
+    patchCount: number;
+    canvasM: number;
     finalAtlasSize: number;
     shellAtlasSize: number;
     texelsPerMetreFinal: number;
     texelsPerMetreShell: number;
+    shellScale: number;
   };
   deferred: string[];
 }

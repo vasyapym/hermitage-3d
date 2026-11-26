@@ -449,14 +449,58 @@ function edgeInLook(a, b, stop) {
   return intervals.length > 0 ? intervals[0][0] : null;
 }
 
+/*
+ * The swept rail eyes (the record's rule verbatim: «a face is exported only if
+ * it front-faces at least one eye on the segment H0…H4 within the look
+ * limits»). The eye walks the stop path at RAIL_SWEEP_STEP_M intervals; each
+ * sampled eye carries its position and the look limits LINEARLY interpolated
+ * between the two stops it lies between (yaw is 35° at every stop, so the
+ * interpolation touches only the pitch pair). The five stops are the first and
+ * last samples of their segments — the sweep includes them.
+ */
+const RAIL_SWEEP_STEP_M = 0.25;
+
+function lerpLook(a, b, t) {
+  return {
+    yaw: a.yaw + (b.yaw - a.yaw) * t,
+    pitchUp: a.pitchUp + (b.pitchUp - a.pitchUp) * t,
+    pitchDown: a.pitchDown + (b.pitchDown - a.pitchDown) * t,
+  };
+}
+
+const RAIL_SWEEP_EYES = RAIL.slice(0, -1).flatMap((stop, index) => {
+  const next = RAIL[index + 1];
+  const span = [
+    next.position[0] - stop.position[0],
+    next.position[1] - stop.position[1],
+    next.position[2] - stop.position[2],
+  ];
+  const length = Math.sqrt(dot(span, span));
+  const count = Math.ceil(length / RAIL_SWEEP_STEP_M);
+  const eyes = [];
+  for (let i = 0; i <= count; i += 1) {
+    const t = i / count;
+    eyes.push({
+      id: `${stop.id}-${next.id}#${i}`,
+      position: [
+        stop.position[0] + span[0] * t,
+        stop.position[1] + span[1] * t,
+        stop.position[2] + span[2] * t,
+      ],
+      look: lerpLook(stop.look, next.look, t),
+    });
+  }
+  return eyes;
+});
+
 export function railWitness(face) {
   const centre = centreOf(face.vertices);
   const vertices = face.vertices;
-  for (const stop of RAIL) {
-    if (dot(face.normal, subtract(stop.position, centre)) <= 0) continue;
+  for (const eye of RAIL_SWEEP_EYES) {
+    if (dot(face.normal, subtract(eye.position, centre)) <= 0) continue;
     for (let edge = 0; edge < vertices.length; edge += 1) {
-      const t = edgeInLook(vertices[edge], vertices[(edge + 1) % vertices.length], stop);
-      if (t !== null) return { stop: stop.id, edge, t };
+      const t = edgeInLook(vertices[edge], vertices[(edge + 1) % vertices.length], eye);
+      if (t !== null) return { stop: eye.id, edge, t };
     }
   }
   return null;
@@ -1022,7 +1066,7 @@ export function buildLaw() {
       cosineYaw: COS_YAW,
       tangents: TANGENTS,
       samples: 'polygon arithmetic centre, then ordered vertices',
-      eyes: 'H0–H4 stop positions',
+      eyes: `the swept H0–H4 eye path: ${RAIL_SWEEP_EYES.length} samples at ${RAIL_SWEEP_STEP_M} m, the look limits interpolated between stops`,
       occlusion: 'not tested; conservative export is allowed',
     },
     materialSlots: materialSlots(),
@@ -1031,12 +1075,108 @@ export function buildLaw() {
       atlasSize: DESIGN.atlasSize,
       states: ['day', 'dusk', 'nightChandeliers'],
       probes: ['dusk'],
+      lmChart: lmChartPlan(classes),
       source: 'BUDGET',
     },
     caps: CAPS,
   };
   validatePlan(law);
   return law;
+}
+
+/*
+ * The lightmap chart plan (the builder's packer reads this block from law.json).
+ * Patches are the faces' in-plane metre rectangles (u = the longest loop edge,
+ * v = normal × u — the military-gallery ArchChart rule); each placed patch
+ * carries the pad on every side. The canvas is bisected in METRES until the
+ * placed demand fits the occupancy share, so the chart's normalized UVs are
+ * identical at the 1024² shell bake and the 2048² final bake — the glb built
+ * once never re-packs. The densities are the canvas's px/m at each resolution.
+ */
+const LM_PAD_PX = 2;
+const LM_MIN_PX = 8;
+const CHART_OCCUPANCY = 0.72;
+
+function patchExtents(vertices, normal) {
+  let u = subtract(vertices[1], vertices[0]);
+  let longest = 0;
+  for (let i = 0; i < vertices.length; i += 1) {
+    const a = vertices[i];
+    const b = vertices[(i + 1) % vertices.length];
+    const edge = subtract(b, a);
+    const length = Math.sqrt(dot(edge, edge));
+    if (length > longest) {
+      longest = length;
+      u = edge.map((value) => value / length);
+    }
+  }
+  const v = cross(normal, u);
+  let uMin = Infinity;
+  let uMax = -Infinity;
+  let vMin = Infinity;
+  let vMax = -Infinity;
+  for (const vertex of vertices) {
+    const du = dot(vertex, u);
+    const dv = dot(vertex, v);
+    uMin = Math.min(uMin, du);
+    uMax = Math.max(uMax, du);
+    vMin = Math.min(vMin, dv);
+    vMax = Math.max(vMax, dv);
+  }
+  return { wM: uMax - uMin, hM: vMax - vMin };
+}
+
+function placedDemand(patches, canvasM, res) {
+  // The pad and the min-clamp are pixel constants; in metres they scale with
+  // canvas/res. The SHELL resolution carries the larger metre-pads, so the
+  // bisection runs against it and the final bake's pads shrink inside the
+  // same layout.
+  const padM = (LM_PAD_PX * canvasM) / res;
+  const minM = (LM_MIN_PX * canvasM) / res;
+  let total = 0;
+  for (const patch of patches) {
+    const w = Math.max(patch.wM, minM) + 2 * padM;
+    const h = Math.max(patch.hM, minM) + 2 * padM;
+    total += w * h;
+  }
+  return total;
+}
+
+function lmChartPlan(classes) {
+  const patches = [];
+  let totalArea = 0;
+  for (const group of classes) {
+    for (const instance of group.instances) {
+      for (const face of instance.faces) {
+        const extents = patchExtents(face.vertices, face.normal);
+        patches.push(extents);
+        totalArea += face.area;
+      }
+    }
+  }
+  // Bisection on the canvas against the shell resolution's demand: the placed
+  // demand (patches + pads + the min clamp) must fit the occupancy share.
+  // 60 fixed iterations, no tolerance fuzz — byte-stable.
+  let lo = 1;
+  let hi = 400;
+  for (let i = 0; i < 60; i += 1) {
+    const mid = (lo + hi) / 2;
+    if (placedDemand(patches, mid, DESIGN.shellAtlasSize) <= CHART_OCCUPANCY * mid * mid) hi = mid;
+    else lo = mid;
+  }
+  const canvasM = hi;
+  return {
+    canvasM,
+    padPx: LM_PAD_PX,
+    minPx: LM_MIN_PX,
+    occupancy: CHART_OCCUPANCY,
+    patchCount: patches.length,
+    totalPatchArea: totalArea,
+    shellRes: DESIGN.shellAtlasSize,
+    finalRes: DESIGN.atlasSize,
+    densityShellPxPerM: DESIGN.shellAtlasSize / canvasM,
+    densityFinalPxPerM: DESIGN.atlasSize / canvasM,
+  };
 }
 
 /*
@@ -1129,9 +1269,9 @@ export function buildCensus(law = buildLaw()) {
       }
     }
   }
-  // Uniform density whose summed patch area occupies 70% of one square atlas.
-  const atlasTexels = DESIGN.atlasSize * DESIGN.atlasSize;
-  const texelsPerMetre = Math.sqrt((atlasTexels * DESIGN.atlasOccupancy) / exportedArea);
+  // The chart's real densities come from the law's bisected canvas (the whole
+  // patch demand, pads included) — the same numbers the builder packs with.
+  const chart = law.lighting.lmChart;
   const activeSlots = new Set();
   const rows = law.classes.map((group) => {
     let drawn = 0;
@@ -1168,8 +1308,8 @@ export function buildCensus(law = buildLaw()) {
       bakeOnlyFaces,
       lightmap: {
         islandClass: 'one planar patch; packed by later bake stage',
-        texelsPerMetreFinal: exportedFaces === 0 ? 0 : texelsPerMetre,
-        texelsPerMetreShell: exportedFaces === 0 ? 0 : texelsPerMetre / 2,
+        texelsPerMetreFinal: exportedFaces === 0 ? 0 : chart.densityFinalPxPerM,
+        texelsPerMetreShell: exportedFaces === 0 ? 0 : chart.densityShellPxPerM,
       },
       flags: {
         bands: 'pending-three-state-bake',
@@ -1242,18 +1382,21 @@ export function buildCensus(law = buildLaw()) {
     textureReservations: reservations,
     lightmap: {
       exportedArea,
-      atlasTexels,
+      totalPatchArea: chart.totalPatchArea,
+      patchCount: chart.patchCount,
+      canvasM: chart.canvasM,
       finalAtlasSize: DESIGN.atlasSize,
       shellAtlasSize: DESIGN.shellAtlasSize,
-      texelsPerMetreFinal: texelsPerMetre,
-      texelsPerMetreShell: texelsPerMetre * shellScale,
+      texelsPerMetreFinal: chart.densityFinalPxPerM,
+      texelsPerMetreShell: chart.densityShellPxPerM,
+      shellScale,
     },
     deferred: [
       'Chandelier count and instances remain unsourced and absent.',
       'Actual compressed bytes and decoded costs require later asset gates.',
       'Atlas packability and all bake/encoder failure classes require later gates.',
       'Relief rider requires the deferred figure ruling.',
-      'The 8.5 mm canopy-drape returns are ~0.22 texel wide at the final density: a specific minimum-island check for the step-2 packer.',
+      'The 8.5 mm canopy-drape returns sit at the chart min-px floor: a specific minimum-island check for the step-2 packer.',
     ],
   };
 }

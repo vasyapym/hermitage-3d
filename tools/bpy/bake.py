@@ -62,7 +62,7 @@ import mathutils.geometry
 from mathutils import Vector
 from mathutils.bvhtree import BVHTree
 
-ROOMS = ('rastrelli-gallery', 'jordan', 'military-gallery')
+ROOMS = ('rastrelli-gallery', 'jordan', 'military-gallery', 'st-george')
 STATES = ('day', 'dusk', 'nightChandeliers')
 STATE_ALIASES = {'night': 'nightChandeliers'}
 STATE_FILE = {'day': 'day', 'dusk': 'dusk', 'nightChandeliers': 'night'}
@@ -77,6 +77,9 @@ SUN_STRENGTH = {  # per-room (jordan 2c: the sun's G-cut 4.0→3.5 was REVERTED 
     'rastrelli-gallery': 4.0,
     'jordan': 4.0,
     'military-gallery': 4.0,
+    # st-george registration: the siblings' committed row (the sun through the swapped
+    # glass panes is the day driver; the golden sitting re-tunes from the bake logs).
+    'st-george': 4.0,
 }
 SUN_ANGLE_DEG = 0.53      # solar disc
 # Per-room world strengths (jordan 2c: the day sky lift + the dusk sky-led read); the
@@ -85,6 +88,10 @@ WORLD_STRENGTH = {
     'rastrelli-gallery': {'day': 1.0, 'dusk': 0.08, 'nightChandeliers': 0.0},
     'jordan': {'day': 4.0, 'dusk': 0.30, 'nightChandeliers': 0.0},  # 2c: sky-led dusk; the TRUE sky coefficient measured 0.10/unit at the plate's p50 (the brief's 0.254 was poisoned by the RIG_STATE_SCALE gate-only bug — dusk#1 carried the full rig); 0.30 targets stored p50 ≈ 82 inside the reply's 70-90 gate after the ETC1S q128 dark-median loss (~-16 at stored ~70, measured dusk#2-encode vs its EXR dry row)
     'military-gallery': {'day': 1.0, 'dusk': 0.08, 'nightChandeliers': 0.0},
+    # st-george registration: the siblings' neutral row (day sky + sun through the
+    # swapped glass; dim dusk horizon; night is a black world — the window-light
+    # emission bounce is the state's only light, the chandeliers are absent).
+    'st-george': {'day': 1.0, 'dusk': 0.08, 'nightChandeliers': 0.0},
 }
 DUSK_GLOW_GAIN = 0.25     # FILL — new default; MASKED-IN-BRIEF: keep the DUSK_GLOW_GAIN value
 DUSK_GLOW_POWER = 4.0     # FILL — new default; MASKED-IN-BRIEF: keep the DUSK_GLOW_POWER value
@@ -98,6 +105,11 @@ WHITE_POINT = {
     'rastrelli-gallery': {'day': 0.8, 'dusk': 0.8, 'nightChandeliers': 0.8},
     'jordan': 'percentile',
     'military-gallery': {'day': 1.5, 'dusk': 0.15, 'nightChandeliers': 0.3},
+    # st-george registration: the military-gallery shape (numeric per-state values, never
+    # the 'percentile' sentinel) — the calm seeds day 1.5 / dusk 0.25 / night 0.1 mirror
+    # ROOM.lightmaps.intensity in tools/gltf/st-george.mjs (the lightmapsRow agreement
+    # gate compares them state by state); owner re-tune data at the golden sitting.
+    'st-george': {'day': 1.5, 'dusk': 0.25, 'nightChandeliers': 0.1},
 }
 PROBE_WHITE_POINT = 1.0   # pinned by ADR-0013: "neutral" = absolute LDR clamp
 PROBE_RES = (512, 256)    # pinned by the ADR-0013 amendment (equirect)
@@ -108,6 +120,9 @@ PROBE_POINT = {
     'rastrelli-gallery': (0.0, 1.7, 80.0),
     'jordan': (79.0, 9.0, -74.0),
     'military-gallery': (86.25, 11.7, -12.5),
+    # st-george registration: the hall's centre stop eye (glTF frame; the law's
+    # X0..X0+48 centre, FLOOR_Y 10 + the eye height, AXIS_Z 14.5).
+    'st-george': (114.5, 11.65, 14.5),
 }
 PROBE_YAW_DEG = 0.0       # FILL — aligned against three's equirect convention in 17b
 # FILL — per-room pane material names for the committed swap law (D-13's table;
@@ -119,10 +134,22 @@ PANE_MATERIALS = {
     'rastrelli-gallery': (),
     'jordan': ('pane',),
     'military-gallery': ('MG_glass',),
+    # st-george registration: the emissive window panes are the hall's daylight source
+    # in the bake — day/dusk they swap to glass (camera-ray glass, shadow/diffuse
+    # transparent) so the sun and sky enter; nightChandeliers keeps them unswapped
+    # (their authored emission is the state's light, the chandeliers being absent).
+    'st-george': ('window-light',),
 }
 # R4 D-3: the dusk rig's fixtures per room — False composes the candelabra third at
 # re-encode time (tools/lm-recipes.mjs) instead of baking a third-emission rig.
-DUSK_FIXTURES = {'rastrelli-gallery': True, 'jordan': True, 'military-gallery': False}
+# st-george registration: False — the hall has NO fixtures this round (the chandeliers
+# are absent), so dusk runs the fixtures-off law and the dusk probe's
+# capture_fixtures/restore_fixtures pass no-ops safely over the builder's only
+# emission material (the window panes, restored to their authored strength for the
+# probe). No fixture roster exists to loop; RIG_STATE_SCALE carries no row, so no
+# rig is ever built for the room.
+DUSK_FIXTURES = {'rastrelli-gallery': True, 'jordan': True, 'military-gallery': False,
+                 'st-george': False}
 # R4 D-4/D-23: the lantern glazing's patch cells are PAINTED with the state's sky colour
 # (linear, bake units) after OIDN and before the LDR encode, into the surviving denoised
 # EXR — reencode.mjs and the compose law see the paint as bake content. The part names the
@@ -264,7 +291,13 @@ PREVIEW_SAMPLES = 32       # the layout-check path: quarter res, a fraction of t
 # glow's cells stay clear and the warm colour is runtime material emission; the earlier
 # siblings-keep-False byte-stability note no longer covers a room that re-bakes its
 # architecture (RG-E1 rebuilds the shell), and the sconce albedo is near-black iron.
-EMITTER_EXCLUSION = {'military-gallery': True, 'rastrelli-gallery': True}
+# st-george registration: True — the same look law (F11) through the existing mechanism:
+# the window-light panes' glow is runtime material emission (the glb's emissiveFactor),
+# never bake content, so their cells stay clear when they are LIVE emitters. The scan is
+# per state: day/dusk the swapped glass panes carry no emission, so nothing is excluded
+# and the cells bake; nightChandeliers the unswapped panes are live and their cells stay
+# clear (the walls still record the bounce).
+EMITTER_EXCLUSION = {'military-gallery': True, 'rastrelli-gallery': True, 'st-george': True}
 
 # ---- D1 (jordan slice 2): the per-room outcome tables — every other room keeps the
 # exact committed path (absent room row = the room is not in the table) --------------

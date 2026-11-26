@@ -10,16 +10,19 @@
     "Actual compressed bytes and decoded costs require later asset gates.",
     "Atlas packability and all bake/encoder failure classes require later gates.",
     "Relief rider requires the deferred figure ruling.",
-    "The 8.5 mm canopy-drape returns are ~0.22 texel wide at the final density: a specific minimum-island check for the step-2 packer."
+    "The 8.5 mm canopy-drape returns sit at the chart min-px floor: a specific minimum-island check for the step-2 packer."
   ],
   "drawRule": "merge exported patches by material slot; no per-instance draws",
   "lightmap": {
-    "atlasTexels": 4194304,
+    "canvasM": 122.9342390332921,
     "exportedArea": 4501.3476481058,
     "finalAtlasSize": 2048,
+    "patchCount": 1043,
     "shellAtlasSize": 1024,
-    "texelsPerMetreFinal": 25.53922383702467,
-    "texelsPerMetreShell": 12.769611918512336
+    "shellScale": 0.5,
+    "texelsPerMetreFinal": 16.659313272727676,
+    "texelsPerMetreShell": 8.329656636363838,
+    "totalPatchArea": 5761.422427371627
   },
   "maximumCapFraction": 0.85,
   "rows": [
@@ -40,8 +43,8 @@
       "id": "walls",
       "lightmap": {
         "islandClass": "one planar patch; packed by later bake stage",
-        "texelsPerMetreFinal": 25.53922383702467,
-        "texelsPerMetreShell": 12.769611918512336
+        "texelsPerMetreFinal": 16.659313272727676,
+        "texelsPerMetreShell": 8.329656636363838
       },
       "materialSlots": [
         0
@@ -72,8 +75,8 @@
       "id": "floor",
       "lightmap": {
         "islandClass": "one planar patch; packed by later bake stage",
-        "texelsPerMetreFinal": 25.53922383702467,
-        "texelsPerMetreShell": 12.769611918512336
+        "texelsPerMetreFinal": 16.659313272727676,
+        "texelsPerMetreShell": 8.329656636363838
       },
       "materialSlots": [
         6
@@ -104,8 +107,8 @@
       "id": "ceiling",
       "lightmap": {
         "islandClass": "one planar patch; packed by later bake stage",
-        "texelsPerMetreFinal": 25.53922383702467,
-        "texelsPerMetreShell": 12.769611918512336
+        "texelsPerMetreFinal": 16.659313272727676,
+        "texelsPerMetreShell": 8.329656636363838
       },
       "materialSlots": [
         7
@@ -136,8 +139,8 @@
       "id": "column-bases",
       "lightmap": {
         "islandClass": "one planar patch; packed by later bake stage",
-        "texelsPerMetreFinal": 25.53922383702467,
-        "texelsPerMetreShell": 12.769611918512336
+        "texelsPerMetreFinal": 16.659313272727676,
+        "texelsPerMetreShell": 8.329656636363838
       },
       "materialSlots": [
         1
@@ -168,8 +171,8 @@
       "id": "column-shafts",
       "lightmap": {
         "islandClass": "one planar patch; packed by later bake stage",
-        "texelsPerMetreFinal": 25.53922383702467,
-        "texelsPerMetreShell": 12.769611918512336
+        "texelsPerMetreFinal": 16.659313272727676,
+        "texelsPerMetreShell": 8.329656636363838
       },
       "materialSlots": [
         1
@@ -200,8 +203,8 @@
       "id": "column-capitals",
       "lightmap": {
         "islandClass": "one planar patch; packed by later bake stage",
-        "texelsPerMetreFinal": 25.53922383702467,
-        "texelsPerMetreShell": 12.769611918512336
+        "texelsPerMetreFinal": 16.659313272727676,
+        "texelsPerMetreShell": 8.329656636363838
       },
       "materialSlots": [
         2
@@ -232,8 +235,8 @@
       "id": "windows",
       "lightmap": {
         "islandClass": "one planar patch; packed by later bake stage",
-        "texelsPerMetreFinal": 25.53922383702467,
-        "texelsPerMetreShell": 12.769611918512336
+        "texelsPerMetreFinal": 16.659313272727676,
+        "texelsPerMetreShell": 8.329656636363838
       },
       "materialSlots": [
         3
@@ -264,8 +267,8 @@
       "id": "balconies",
       "lightmap": {
         "islandClass": "one planar patch; packed by later bake stage",
-        "texelsPerMetreFinal": 25.53922383702467,
-        "texelsPerMetreShell": 12.769611918512336
+        "texelsPerMetreFinal": 16.659313272727676,
+        "texelsPerMetreShell": 8.329656636363838
       },
       "materialSlots": [
         4
@@ -296,8 +299,8 @@
       "id": "balcony-rails",
       "lightmap": {
         "islandClass": "one planar patch; packed by later bake stage",
-        "texelsPerMetreFinal": 25.53922383702467,
-        "texelsPerMetreShell": 12.769611918512336
+        "texelsPerMetreFinal": 16.659313272727676,
+        "texelsPerMetreShell": 8.329656636363838
       },
       "materialSlots": [
         5
@@ -328,8 +331,8 @@
       "id": "throne-dais",
       "lightmap": {
         "islandClass": "one planar patch; packed by later bake stage",
-        "texelsPerMetreFinal": 25.53922383702467,
-        "texelsPerMetreShell": 12.769611918512336
+        "texelsPerMetreFinal": 16.659313272727676,
+        "texelsPerMetreShell": 8.329656636363838
       },
       "materialSlots": [
         10
@@ -360,8 +363,8 @@
       "id": "throne-seat",
       "lightmap": {
         "islandClass": "one planar patch; packed by later bake stage",
-        "texelsPerMetreFinal": 25.53922383702467,
-        "texelsPerMetreShell": 12.769611918512336
+        "texelsPerMetreFinal": 16.659313272727676,
+        "texelsPerMetreShell": 8.329656636363838
       },
       "materialSlots": [
         12
@@ -392,8 +395,8 @@
       "id": "canopy",
       "lightmap": {
         "islandClass": "one planar patch; packed by later bake stage",
-        "texelsPerMetreFinal": 25.53922383702467,
-        "texelsPerMetreShell": 12.769611918512336
+        "texelsPerMetreFinal": 16.659313272727676,
+        "texelsPerMetreShell": 8.329656636363838
       },
       "materialSlots": [
         11,
@@ -425,8 +428,8 @@
       "id": "eagle-plate",
       "lightmap": {
         "islandClass": "one planar patch; packed by later bake stage",
-        "texelsPerMetreFinal": 25.53922383702467,
-        "texelsPerMetreShell": 12.769611918512336
+        "texelsPerMetreFinal": 16.659313272727676,
+        "texelsPerMetreShell": 8.329656636363838
       },
       "materialSlots": [
         12
@@ -457,8 +460,8 @@
       "id": "relief-plate",
       "lightmap": {
         "islandClass": "one planar patch; packed by later bake stage",
-        "texelsPerMetreFinal": 25.53922383702467,
-        "texelsPerMetreShell": 12.769611918512336
+        "texelsPerMetreFinal": 16.659313272727676,
+        "texelsPerMetreShell": 8.329656636363838
       },
       "materialSlots": [
         13
@@ -489,8 +492,8 @@
       "id": "ceiling-ornament",
       "lightmap": {
         "islandClass": "one planar patch; packed by later bake stage",
-        "texelsPerMetreFinal": 25.53922383702467,
-        "texelsPerMetreShell": 12.769611918512336
+        "texelsPerMetreFinal": 16.659313272727676,
+        "texelsPerMetreShell": 8.329656636363838
       },
       "materialSlots": [
         8
@@ -521,8 +524,8 @@
       "id": "parquet-ornament",
       "lightmap": {
         "islandClass": "one planar patch; packed by later bake stage",
-        "texelsPerMetreFinal": 25.53922383702467,
-        "texelsPerMetreShell": 12.769611918512336
+        "texelsPerMetreFinal": 16.659313272727676,
+        "texelsPerMetreShell": 8.329656636363838
       },
       "materialSlots": [
         9
