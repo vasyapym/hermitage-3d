@@ -6,8 +6,8 @@ Start with AGENTS.md and this file only. Live state holds open work; Recent is a
 
 ### Now
 
-Tree: main @ t0-residue-merge · 2026-11-27
-Wave: turn-cascade, sq-shadow-dirt, rg-next, rg-improve, st-george, sq-fix-improve, sq-t0-residue and sg-improve all landed (the FULL gate + the CI verdict ride the wave's LAST merging session — deferred NOT waived); the rg-next battery ran on the office box 2026-11-26 (e2e 87/0); st-george second of three (room 4 of 7). The darwin goldens stay parked.
+Tree: main @ tear-tbdr-merge · 2026-11-27
+Wave: turn-cascade, sq-shadow-dirt, rg-next, rg-improve, st-george, sq-fix-improve, sq-t0-residue, sg-improve and tear-tbdr-lane all landed (the FULL gate + the CI verdict = this LAST merging session's battery — deferred NOT waived); the rg-next battery ran on the office box 2026-11-26 (e2e 87/0); st-george second of three (room 4 of 7). The darwin goldens stay parked.
 Lanes: <!-- none open; the template: at integration insert the actual name, branch, phase and matching docs/budget-ledger.md open-row key. -->
 
 Owed:

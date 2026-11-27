@@ -3,26 +3,26 @@
   "files": [
     {
       "path": "lm/day.ktx2",
-      "bytes": 290526,
-      "sha256": "21070dfc50ded69a9ec45769e72972a25c9a60b23cd0d822eba44c13e15b86a3",
+      "bytes": 336627,
+      "sha256": "b7f952bca591f4c55ba0371d83b199044ce7d53c0a144367b51bca7858befbc9",
       "kind": "ktx2"
     },
     {
       "path": "lm/dusk.ktx2",
-      "bytes": 261009,
-      "sha256": "d4eec68c205bd6cde4f47eef67c84ba7963169a4db75ad5da903722f0e6cfe25",
+      "bytes": 303413,
+      "sha256": "cf728dc788ce39cfc2d36620d4054051fe6d596651e80e4206fe87de2d8cf1b2",
       "kind": "ktx2"
     },
     {
       "path": "lm/night.ktx2",
-      "bytes": 260956,
-      "sha256": "27bb7c1eedd4e9cbb7e90e617da3e1ae00a817b7fa8f11ba5cf43a311b6f55e9",
+      "bytes": 301235,
+      "sha256": "983c4d51ce2fc111b978e673d8c9d578bed817a1a6b7211ea7c8585db2d141fa",
       "kind": "ktx2"
     },
     {
       "path": "probe/dusk.ktx2",
-      "bytes": 1734,
-      "sha256": "487556b1ae801c1c1432dae3d428ea18aa38134069132478e2afcf957c1e1479",
+      "bytes": 2348,
+      "sha256": "bbed81b76f5f4aca933bfc4a514a6960b3c36ae9bccaa88d1a0efd57a4296b1c",
       "kind": "ktx2"
     },
     {

@@ -2,7 +2,8 @@
 // §5 re-encode law (design-staircase §4 states, r17c): re-encode a room's surviving DENOISED
 // linear EXR into the committed 8-bit ETC1S ktx2 at the manifest's white point. Never consumes
 // the old PNG or the old ktx2. Deterministic: same EXR + white point → byte-identical outputs
-// (toktx single-threaded, no mips, no clock, no network). Publish is all-or-nothing per state.
+// (toktx single-threaded, no mips, no clock, no network). Publish is all-or-nothing per RUN:
+// the staged artifacts promote into public/ only after every requested state passed the gate.
 // The manifest's lightmaps.intensity record is the single source of truth for the white points;
 // changing a white point means editing the manifest first, then re-encoding.
 // R-UX4 (walkthrough-UX pass): a state carrying a compose recipe (tools/lm-recipes.mjs) first
@@ -44,6 +45,7 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const ENCODE_PY = join(HERE, 'reencode-encode.py');
 const COMPOSE_PY = join(HERE, 'lm_compose.py');
 const PAINT_PY = join(HERE, 'reencode-paint.py');
+const COVERAGE_PY = join(HERE, 'reencode-coverage.py');
 const LOG_DIR = join(HERE, 'bake-logs');
 const TOKTX_INSTALL = 'install KTX-Software 4.4.2 (brew install ktx) so `toktx` is on PATH';
 
@@ -288,7 +290,7 @@ function toktxFlagsFor(transfer) {
   return [...TOKTX_FLAGS.slice(0, at + 1), 'srgb', ...TOKTX_FLAGS.slice(at + 2)];
 }
 
-function reencodeChart(room, state, chart, whitePoint, manifest, work, transfer) {
+function reencodeChart(room, state, chart, whitePoint, work, transfer) {
   const file = FILE_BY_STATE[state];
   const prefix = chart === 'arch' ? '' : KIT_PREFIX;
   let exr = chartExr(room, state, chart);
@@ -359,6 +361,62 @@ function reencodeChart(room, state, chart, whitePoint, manifest, work, transfer)
     ]);
     exr = painted;
   }
+  // Brief 44's ruling §3 (v1): the coverage gate — the gallery's plates must not ship
+  // unwritten (exactly-0.0 float) atlas cells. The checker samples every REQUIRED cell's
+  // interior (2 px in from the allocation, the pad law): the receivers' roster cells —
+  // the receivers come from the per-state STAGE SIDECAR (bake-summary.<state>.json at the
+  // stage root, its `receivers` field: the flat bake's target datablock names + the S2A
+  // targets). The sconce strip is REPORT-ONLY (the RG-E1 look law): no --require-strip is
+  // passed, so the strip's inked cells are counted, never pinned — the emitter exclusion
+  // leaves them unwritten on dusk/night by design.
+  // Runs AFTER the paint (the paint's content must not mask the verdict) and BEFORE the
+  // LDR encode, on the exact EXR the encode consumes; `--python-exit-code 1` propagates
+  // the checker's exit code (all-or-nothing per the publish law). rastrelli-gallery only
+  // (the standing cross-room byte-safety law); arch chart only (the atlas — the room's
+  // manifest carries no kit lm rows). Fail-closed: a missing artifact fails the run
+  // naming it — never a silent pass.
+  if (room === 'rastrelli-gallery' && chart === 'arch') {
+    const stageDir = join(STAGE_ROOT, room);
+    const layoutPath = join(stageDir, `bake-layout.${state}.json`);
+    const receiversPath = join(stageDir, `bake-summary.${state}.json`);
+    for (const [label, path] of [
+      ['bake-layout', layoutPath],
+      ['bake-summary', receiversPath],
+    ]) {
+      if (!existsSync(path)) {
+        fail(
+          `coverage gate: missing ${label} artifact ${path}`,
+          'run the bake for this state first (node tools/bake.mjs)',
+        );
+      }
+    }
+    // The strip law: strip_px = round((1 - 0.875) * 1536) = 192 (the builder's
+    // LM_STRIP_FRAC 0.875 at LM_RES 1536). The checker cross-checks both constants
+    // against the layout's stripRowPx, the strip block's equal-cell grid and the plate's
+    // own size (fail loud on drift) — the driver's numbers are the law's restatement,
+    // never a trusted input. NO --require-strip: the RG-E1 re-adjudication (bake.py
+    // EMITTER_EXCLUSION's comment) keeps the sconce's cells clear whenever the glow is
+    // a live emitter — the strip is report-only here, exactly like the repo's own
+    // dead-cell gate excludes it (reencode-paint.py).
+    run(BLENDER, [
+      '-b',
+      '--factory-startup',
+      '-noaudio',
+      '--python-exit-code',
+      '1',
+      '-P',
+      COVERAGE_PY,
+      '--',
+      'check',
+      exr,
+      layoutPath,
+      receiversPath,
+      '--strip-px',
+      '192',
+      '--res',
+      '1536',
+    ]);
+  }
   const png = join(work, `${prefix}${file}.png`);
   const ktx2 = join(work, `${prefix}${file}.ktx2`);
   console.log(
@@ -411,24 +469,21 @@ function reencodeChart(room, state, chart, whitePoint, manifest, work, transfer)
   }
   run('toktx', [...toktxFlagsFor(transfer), ktx2, png]);
   if (!existsSync(ktx2)) fail(`toktx produced no file at ${ktx2}`);
-  // Publish only now: encode + transcode both succeeded (all-or-nothing per state).
+  // The staged artifact (the review's fix 2): this chart stops here — the ktx2 stays in the
+  // work dir; main() promotes every requested state's artifacts only after the whole states
+  // loop passed (the all-or-nothing publish law, now across the loop too).
   const rel = `lm/${prefix}${file}.ktx2`;
-  const dest = join(ASSETS_DIR, room, rel);
-  copyFileSync(ktx2, dest);
-  const bytes = readFileSync(dest);
-  const sha = sha256(bytes);
-  const row = manifest.files.find((f) => f.path === rel);
-  if (row === undefined) fail(`${room}: manifest has no files row for ${rel}`);
-  row.bytes = bytes.length;
-  row.sha256 = sha;
-  console.log(`published ${dest} (${bytes.length} bytes, sha256 ${sha})`);
+  return { rel, temp: ktx2 };
 }
 
 function reencodeState(room, state, manifest, work, charts, transfer) {
   const whitePoint = whitePointOf(manifest, room, state);
+  // One staged artifact per chart (arch, plus kit when the manifest carries kit rows).
+  const artifacts = [];
   for (const chart of charts) {
-    reencodeChart(room, state, chart, whitePoint, manifest, work, transfer);
+    artifacts.push(reencodeChart(room, state, chart, whitePoint, work, transfer));
   }
+  return artifacts;
 }
 
 const POST_ENCODE_HEADING =
@@ -599,8 +654,23 @@ async function main() {
   const charts = chartsOf(manifest, room);
   const work = mkdtempSync(join(tmpdir(), 'zimny-reencode-'));
   try {
+    const published = [];
     for (const state of states) {
-      reencodeState(room, state, manifest, work, charts, transfer);
+      published.push(...reencodeState(room, state, manifest, work, charts, transfer));
+    }
+    // The all-or-nothing promotion (the review's fix 2): the staged ktx2s travel into public/
+    // and the manifest rows update only after EVERY requested state has passed the gate — a
+    // late failure leaves the previous public set and the manifest untouched and consistent.
+    for (const artifact of published) {
+      const dest = join(ASSETS_DIR, room, artifact.rel);
+      copyFileSync(artifact.temp, dest);
+      const bytes = readFileSync(dest);
+      const sha = sha256(bytes);
+      const row = manifest.files.find((f) => f.path === artifact.rel);
+      if (row === undefined) fail(`${room}: manifest has no files row for ${artifact.rel}`);
+      row.bytes = bytes.length;
+      row.sha256 = sha;
+      console.log(`published ${dest} (${bytes.length} bytes, sha256 ${sha})`);
     }
     // The record is already the source of truth; rewrite it verbatim so the file is self-stating.
     manifest.lightmaps.intensity = Object.fromEntries(

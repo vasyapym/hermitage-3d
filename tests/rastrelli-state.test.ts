@@ -90,15 +90,17 @@ describe('rastrelli-gallery state (RG-F4)', () => {
     expect(paneBlock).not.toContain('0.006');
   });
 
-  it('containment: the glb pins at the D3 re-encode (the floor round: UV0 tile + repaint, TEXCOORD_1 byte-held by the UV2 belt), the three plate shas hold byte-identical', () => {
+  it('containment: the glb pins at the tear-tbdr-lane re-bake (the plates re-baked + re-encoded on the current rig — the stale bake19-era composition replaced; the glb byte-held at the fresh export), the three plate shas hold the re-encoded set', () => {
     const glb = MANIFEST.files.find((f) => f.path === 'rastrelli-gallery.glb');
     const day = MANIFEST.files.find((f) => f.path === 'lm/day.ktx2');
     const dusk = MANIFEST.files.find((f) => f.path === 'lm/dusk.ktx2');
     const night = MANIFEST.files.find((f) => f.path === 'lm/night.ktx2');
     expect(glb?.sha256).toBe('b694b1bdf5915d95c3b2e7314429859bd5dd83cf4f8653c858bbe4f22c1a11ed');
-    expect(day?.sha256).toBe('21070dfc50ded69a9ec45769e72972a25c9a60b23cd0d822eba44c13e15b86a3');
-    expect(dusk?.sha256).toBe('d4eec68c205bd6cde4f47eef67c84ba7963169a4db75ad5da903722f0e6cfe25');
-    expect(night?.sha256).toBe('27bb7c1eedd4e9cbb7e90e617da3e1ae00a817b7fa8f11ba5cf43a311b6f55e9');
+    expect(day?.sha256).toBe('b7f952bca591f4c55ba0371d83b199044ce7d53c0a144367b51bca7858befbc9');
+    expect(dusk?.sha256).toBe('cf728dc788ce39cfc2d36620d4054051fe6d596651e80e4206fe87de2d8cf1b2');
+    expect(night?.sha256).toBe('983c4d51ce2fc111b978e673d8c9d578bed817a1a6b7211ea7c8585db2d141fa');
+    const probe = MANIFEST.files.find((f) => f.path === 'probe/dusk.ktx2');
+    expect(probe?.sha256).toBe('bbed81b76f5f4aca933bfc4a514a6960b3c36ae9bccaa88d1a0efd57a4296b1c');
   });
 
   it('the manifest lightmaps row: three states at 1536, the committed wp 0.8 in every state', () => {
@@ -114,8 +116,8 @@ describe('rastrelli-gallery state (RG-F4)', () => {
       .reduce((acc, f) => acc + f.bytes, 0);
     expect(sum).toBeLessThanOrEqual(MANIFEST.budget.payloadBytesMax);
     expect(tex).toBeLessThanOrEqual(MANIFEST.budget.textureBytesMax);
-    expect(sum).toBe(1255019); // the review fix re-encode (the corrected 1 px joint edge mask: tex +396 B; the glb 393,344 B byte-held; the plates byte-held)
-    expect(tex).toBe(861675);
+    expect(sum).toBe(1384417); // the tear-tbdr-lane re-bake: the three plates re-encoded on the current rig (the lit vault carries more encode detail; day 336,627 / dusk 303,413 / night 301,235 / probe 2,348), the glb 393,344 B byte-held, the tex byte-held
+    expect(tex).toBe(991073);
     expect(MANIFEST.geometry?.trianglesDrawn).toBe(17037); // the file-level law rides tests/assets.test.ts
   });
 });

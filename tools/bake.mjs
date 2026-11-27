@@ -24,7 +24,7 @@ import {
   rmSync,
   writeFileSync,
 } from 'node:fs';
-import path from 'node:path';
+import path, { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import {
   ASSETS_DIR,
@@ -41,6 +41,9 @@ import {
   sha256,
   writeManifest,
 } from './common.mjs';
+// The compose table (the review's fix 3): a composed room's publication belongs to the
+// re-encode — the bake stops at the stage (the gate in main()).
+import { composeRecipeFor } from './lm-recipes.mjs';
 
 const ROOMS = ['rastrelli-gallery', 'jordan', 'military-gallery', 'st-george'];
 const STATES = ['day', 'dusk', 'nightChandeliers'];
@@ -516,6 +519,17 @@ async function main() {
     );
     return;
   }
+  // The composed-room law (the review's fix 3): a room whose published states are COMPOSED at
+  // re-encode (tools/lm-recipes.mjs carries its recipes) must not publish unchecked bake-time
+  // ktx2s over the checked compositions, and its manifest rows belong to the re-encode too —
+  // the bake's publication stops at the stage, loud.
+  if (STATES.some((state) => composeRecipeFor(room, state) !== null)) {
+    console.log(
+      `bake: ${room} composes at re-encode — the staged artifacts stay; publication rides ` +
+        `\`node tools/reencode.mjs ${room} all\``,
+    );
+    return;
+  }
   // Publish every state's CURRENT ktx2 from its stage dir: a state baked in an earlier run
   // keeps its stage output, so one run publishing only its own artifacts would leave the
   // other states' manifest rows pointing at nothing. The log rows carry the same sha256
@@ -542,12 +556,44 @@ async function main() {
       }
     }
   }
-  // The agreement gate runs BEFORE publish (the review's R2): an incremental rebake
+  // The agreement gate runs BEFORE publish (the sg-improve review's R2): an incremental rebake
   // against a moved descriptor must fail LOUD with public/ untouched — publish-then-gate
   // left the tree mixed (the old states' stage ktx2s published, the manifest not rebuilt).
   const { row, proposed } = lightmapsRow(descriptor, log, kitRes());
+  // The layout-identity law's manifest key AND the publish fence (the tear-tbdr review's fix 1): the
+  // builder writes bake-layout.<state>.json at the STAGE ROOT (beside the bake-<state> dirs,
+  // never inside them); common.mjs writeManifest rebuilds the manifest from the walked
+  // directory, so the lm.layoutHash extra must ride every layout-law bake's write or the
+  // contract key drops. The sidecar's hash is cross-checked against the export summary's lm
+  // block; for a layout-law room a missing/malformed sidecar or a hash divergence fails the
+  // bake BEFORE publish — the public files and the manifest stay untouched.
+  const stageRoot = join(STAGE_ROOT, room);
+  const sidecarPath = join(stageRoot, `bake-layout.${STATES[0]}.json`);
+  let layoutHash = null;
+  try {
+    layoutHash = JSON.parse(readFileSync(sidecarPath, 'utf8')).lm?.layoutHash ?? null;
+  } catch {
+    layoutHash = null;
+  }
+  if (layoutHash !== null) {
+    const summaryPath = join(stageRoot, 'summary.json');
+    let exportHash = null;
+    try {
+      exportHash = JSON.parse(readFileSync(summaryPath, 'utf8')).lm?.layoutHash ?? null;
+    } catch {
+      exportHash = null;
+    }
+    if (exportHash !== layoutHash) {
+      throw new ChainError(
+        `bake: the layout identity diverges: the stage sidecar ${layoutHash ?? 'absent'} vs ` +
+          `the export summary ${exportHash ?? 'absent'} — nothing published`,
+        'run the export stage at this commit (node tools/asset.mjs bpy <room>)',
+      );
+    }
+  }
+  const lmExtra = layoutHash === null ? {} : { lm: { layoutHash } };
   publish(room, staged);
-  writeManifest({ ...descriptor, lightmaps: row }, path.join(ASSETS_DIR, room), tc);
+  writeManifest({ ...descriptor, lightmaps: row }, path.join(ASSETS_DIR, room), tc, lmExtra);
   if (proposed) {
     console.log(
       `bake: ROOM.lightmaps is empty in tools/gltf/${room}.mjs — write this row there, then run ` +
