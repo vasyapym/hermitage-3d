@@ -50,6 +50,7 @@ that decides whether a next round's declared allowance fits. The project-course 
 
 | branch / candidate | what it reserves | status |
 |---|---|---|
+| tear-tbdr-lane (branch `tear-tbdr-lane`) | the gallery UV2-emission fix: the glb re-export rides the ROOM's caps (payload 1,257,669/2M · texture 861,675/1M byte-held · tris cap 110,000) · shared JS ≤ +300 B gz (the `__lmProbe` probe hook, the sqdebug class — droppable at merge) | OPEN (PARALLEL; the merge + the FULL gate ride the owner's later signal) |
 
 
 **Update log:** Update log: cut — history lives in the round archives (docs/archive/*.md); newest entry 2026-11-15 square-palace-2 merge.
