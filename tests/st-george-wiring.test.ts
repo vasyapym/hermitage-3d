@@ -343,8 +343,12 @@ describe('P10 — the lane’s diff-scope fence (retires at the merge)', () => {
         if (body === '' || body.startsWith('|---')) continue;
         // the lane TEMPLATE's neutral placeholder is the law-mandated flip's removed side
         if (body.startsWith('Lanes: <!--')) continue;
+        // the lane key is the branch's own name (a '-lane' suffix stripped) — the same
+        // branch-relative law as the base above (the review's R3/R4 shape): a lane
+        // passes under its own key only, never a foreign row's name.
+        const laneKey = head.replace(/-lane$/, '');
         expect(
-          body.includes('sg-improve'),
+          body.includes(laneKey),
           `a records line of ${p} carries the lane key: ${body.slice(0, 80)}`,
         ).toBe(true);
       }

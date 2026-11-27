@@ -1,7 +1,21 @@
-
-<!-- hermitage-3d / St George's Hall (Large Throne Room) - step-4 shared ornament plate (the record's step-4 plate line). ONE drawing, two palettes (gilt = ceiling plate seen from below, parquet = floor plate), rasterised into the shared 1024x1024 ETC1S plate. Canvas = one quadrant of the 45.04 x 10.20 m field (22.52 x 5.10 m; 1 px ~ 1 cm). The rasteriser mirrors it 2x2: left/bottom edges are the field's outer border, right/top edges are the field's centre lines (medallion = quarter at the top-right corner). Law: no state symbols in this drawing - the parquet repeats the plafond's ornament "за исключением государственных символов". Paint is class-only (p1..p6, fills only; no colours in this file) - hexes live in ornament-palettes.txt. -->
+<!-- hermitage-3d / St George's Hall (Large Throne Room) - the shared ornament plate, pp4b re-draw. ONE drawing, two palettes (gilt = ceiling plate seen from below, parquet = floor plate), rasterised into the shared 1024x1024 ETC1S plate. Canvas = one quadrant of the 45.04 x 10.20 m field (22.52 x 5.10 m; 1 unit = 1 cm). The runtime mirrors it 2x2: left/bottom edges are the field's outer border, right/top edges are the field's centre lines (the medallion is a quarter at the top-right corner). Vocabulary: one mark at two scales - an eight-point star in a ring per coffer, a sixteen-point star in the central disc; structure lines 20, mouldings 16, p5 at the hearts only. Law: no state symbols in this drawing - the parquet repeats the plafond's ornament "за исключением государственных символов". Paint is class-only (p1..p6, fills only; no colours in this file) - the hexes live in tools/bpy/plate-raster.mjs PALETTES. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2250 512">
 <title>St George's Hall ornament — one quadrant of the shared ceiling/floor plate (an original composition for this project)</title>
+<defs>
+<!-- seven dentils, 35 x 24 at pitch 75, origin = the first block's corner -->
+<path id="dentil7" class="p4" d="M0 0h35v24h-35zm75 0h35v24h-35zm75 0h35v24h-35zm75 0h35v24h-35zm75 0h35v24h-35zm75 0h35v24h-35zm75 0h35v24h-35z"/>
+<!-- the coffer mark, origin = the coffer centre: rebate 282 x 338, panel 250 x 306, ring r112/92, diagonal star (p4) under cardinal star (p3, tips fused into the ring), heart r24/12 -->
+<g id="coffer">
+<rect class="p2" x="-141" y="-169" width="282" height="338"/>
+<rect class="p6" x="-125" y="-153" width="250" height="306"/>
+<circle class="p3" r="112"/>
+<circle class="p6" r="92"/>
+<path class="p4" d="M60 -60L30 0L60 60L0 30L-60 60L-30 0L-60 -60L0 -30Z"/>
+<path class="p3" d="M0 -96L22 -22L96 0L22 22L0 96L-22 22L-96 0L-22 -22Z"/>
+<circle class="p2" r="24"/>
+<circle class="p5" r="12"/>
+</g>
+</defs>
 <!-- ground -->
 <rect class="p1" x="0" y="0" width="2250" height="512"/>
 <!-- border, measured from the left/bottom edges: fillet 0-20, dentil strip 40-76, fillet 96-116 -->
@@ -9,40 +23,27 @@
 <path class="p2" d="M40 0h36v472h-36zM40 436h2210v36h-2210z"/>
 <path class="p2" d="M96 0h20v416h-20zM96 396h2154v20h-2154z"/>
 <rect class="p4" x="48" y="444" width="20" height="20"/>
-<path class="p4" d="M95 442h35v24h-35zm75 0h35v24h-35zm75 0h35v24h-35zm75 0h35v24h-35zm75 0h35v24h-35zm75 0h35v24h-35zm75 0h35v24h-35zm75 0h35v24h-35zm75 0h35v24h-35zm75 0h35v24h-35zm75 0h35v24h-35zm75 0h35v24h-35zm75 0h35v24h-35zm75 0h35v24h-35zm75 0h35v24h-35zm75 0h35v24h-35zm75 0h35v24h-35zm75 0h35v24h-35zm75 0h35v24h-35zm75 0h35v24h-35zm75 0h35v24h-35zm75 0h35v24h-35zm75 0h35v24h-35zm75 0h35v24h-35zm75 0h35v24h-35zm75 0h35v24h-35zm75 0h35v24h-35zm75 0h35v24h-35zm75 0h35v24h-35z"/>
+<use href="#dentil7" x="95" y="442"/>
+<use href="#dentil7" x="620" y="442"/>
+<use href="#dentil7" x="1145" y="442"/>
+<use href="#dentil7" x="1670" y="442"/>
+<rect class="p4" x="2195" y="442" width="35" height="24"/>
 <path class="p4" d="M46 20h24v35h-24zm0 75h24v35h-24zm0 75h24v35h-24zm0 75h24v35h-24zm0 75h24v35h-24zm0 75h24v35h-24z"/>
 <!-- coffer grid: five 330 x 386 coffers in the quadrant (pitch 350), 20 cm frame lines, 10 cm half-line on the centre axis -->
 <path class="p2" d="M446 0h20v396h-20zm350 0h20v396h-20zm350 0h20v396h-20zm350 0h20v396h-20zm350 0h20v396h-20zM116 0h1750v10h-1750z"/>
-<path class="p2" d="M140 34h282v338h-282zm350 0h282v338h-282zm350 0h282v338h-282zm350 0h282v338h-282zm350 0h282v338h-282z"/>
-<path class="p6" d="M156 50h250v306h-250zm350 0h250v306h-250zm350 0h250v306h-250zm350 0h250v306h-250zm350 0h250v306h-250z"/>
-<path class="p3" d="M166 60h24v24h-24zm206 0h24v24h-24zm-206 262h24v24h-24zm206 0h24v24h-24zM516 60h24v24h-24zm206 0h24v24h-24zm-206 262h24v24h-24zm206 0h24v24h-24zM866 60h24v24h-24zm206 0h24v24h-24zm-206 262h24v24h-24zm206 0h24v24h-24zM1216 60h24v24h-24zm206 0h24v24h-24zm-206 262h24v24h-24zm206 0h24v24h-24zM1566 60h24v24h-24zm206 0h24v24h-24zm-206 262h24v24h-24zm206 0h24v24h-24z"/>
-<!-- coffer rosettes: ring r120/104, eight leaves (diagonal p4 under cardinal p3), heart r26/14 -->
-<path class="p3" d="M161 203a120 120 0 1 0 240 0a120 120 0 1 0 -240 0zM511 203a120 120 0 1 0 240 0a120 120 0 1 0 -240 0zM861 203a120 120 0 1 0 240 0a120 120 0 1 0 -240 0zM1211 203a120 120 0 1 0 240 0a120 120 0 1 0 -240 0zM1561 203a120 120 0 1 0 240 0a120 120 0 1 0 -240 0z"/>
-<path class="p6" d="M177 203a104 104 0 1 0 208 0a104 104 0 1 0 -208 0zM527 203a104 104 0 1 0 208 0a104 104 0 1 0 -208 0zM877 203a104 104 0 1 0 208 0a104 104 0 1 0 -208 0zM1227 203a104 104 0 1 0 208 0a104 104 0 1 0 -208 0zM1577 203a104 104 0 1 0 208 0a104 104 0 1 0 -208 0z"/>
-<path class="p4" d="M281 203c35 4 71 -20 68 -68c-48 -3 -72 33 -68 68zM281 203c-4 35 20 71 68 68c3 -48 -33 -72 -68 -68zM281 203c-35 -4 -71 20 -68 68c48 3 72 -33 68 -68zM281 203c4 -35 -20 -71 -68 -68c-3 48 33 72 68 68z"/>
-<path class="p4" d="M631 203c35 4 71 -20 68 -68c-48 -3 -72 33 -68 68zM631 203c-4 35 20 71 68 68c3 -48 -33 -72 -68 -68zM631 203c-35 -4 -71 20 -68 68c48 3 72 -33 68 -68zM631 203c4 -35 -20 -71 -68 -68c-3 48 33 72 68 68z"/>
-<path class="p4" d="M981 203c35 4 71 -20 68 -68c-48 -3 -72 33 -68 68zM981 203c-4 35 20 71 68 68c3 -48 -33 -72 -68 -68zM981 203c-35 -4 -71 20 -68 68c48 3 72 -33 68 -68zM981 203c4 -35 -20 -71 -68 -68c-3 48 33 72 68 68z"/>
-<path class="p4" d="M1331 203c35 4 71 -20 68 -68c-48 -3 -72 33 -68 68zM1331 203c-4 35 20 71 68 68c3 -48 -33 -72 -68 -68zM1331 203c-35 -4 -71 20 -68 68c48 3 72 -33 68 -68zM1331 203c4 -35 -20 -71 -68 -68c-3 48 33 72 68 68z"/>
-<path class="p4" d="M1681 203c35 4 71 -20 68 -68c-48 -3 -72 33 -68 68zM1681 203c-4 35 20 71 68 68c3 -48 -33 -72 -68 -68zM1681 203c-35 -4 -71 20 -68 68c48 3 72 -33 68 -68zM1681 203c4 -35 -20 -71 -68 -68c-3 48 33 72 68 68z"/>
-<path class="p3" d="M281 203c28 -22 36 -64 0 -96c-36 32 -28 74 0 96zM281 203c22 28 64 36 96 0c-32 -36 -74 -28 -96 0zM281 203c-28 22 -36 64 0 96c36 -32 28 -74 0 -96zM281 203c-22 -28 -64 -36 -96 0c32 36 74 28 96 0z"/>
-<path class="p3" d="M631 203c28 -22 36 -64 0 -96c-36 32 -28 74 0 96zM631 203c22 28 64 36 96 0c-32 -36 -74 -28 -96 0zM631 203c-28 22 -36 64 0 96c36 -32 28 -74 0 -96zM631 203c-22 -28 -64 -36 -96 0c32 36 74 28 96 0z"/>
-<path class="p3" d="M981 203c28 -22 36 -64 0 -96c-36 32 -28 74 0 96zM981 203c22 28 64 36 96 0c-32 -36 -74 -28 -96 0zM981 203c-28 22 -36 64 0 96c36 -32 28 -74 0 -96zM981 203c-22 -28 -64 -36 -96 0c32 36 74 28 96 0z"/>
-<path class="p3" d="M1331 203c28 -22 36 -64 0 -96c-36 32 -28 74 0 96zM1331 203c22 28 64 36 96 0c-32 -36 -74 -28 -96 0zM1331 203c-28 22 -36 64 0 96c36 -32 28 -74 0 -96zM1331 203c-22 -28 -64 -36 -96 0c32 36 74 28 96 0z"/>
-<path class="p3" d="M1681 203c28 -22 36 -64 0 -96c-36 32 -28 74 0 96zM1681 203c22 28 64 36 96 0c-32 -36 -74 -28 -96 0zM1681 203c-28 22 -36 64 0 96c36 -32 28 -74 0 -96zM1681 203c-22 -28 -64 -36 -96 0c32 36 74 28 96 0z"/>
-<path class="p2" d="M255 203a26 26 0 1 0 52 0a26 26 0 1 0 -52 0zM605 203a26 26 0 1 0 52 0a26 26 0 1 0 -52 0zM955 203a26 26 0 1 0 52 0a26 26 0 1 0 -52 0zM1305 203a26 26 0 1 0 52 0a26 26 0 1 0 -52 0zM1655 203a26 26 0 1 0 52 0a26 26 0 1 0 -52 0z"/>
-<path class="p5" d="M267 203a14 14 0 1 0 28 0a14 14 0 1 0 -28 0zM617 203a14 14 0 1 0 28 0a14 14 0 1 0 -28 0zM967 203a14 14 0 1 0 28 0a14 14 0 1 0 -28 0zM1317 203a14 14 0 1 0 28 0a14 14 0 1 0 -28 0zM1667 203a14 14 0 1 0 28 0a14 14 0 1 0 -28 0z"/>
-<!-- central panel (quarter): moulding on the two outer sides only; twelve-leaf medallion drawn as quarter/half shapes bounded by the axes -->
+<use href="#coffer" x="281" y="203"/>
+<use href="#coffer" x="631" y="203"/>
+<use href="#coffer" x="981" y="203"/>
+<use href="#coffer" x="1331" y="203"/>
+<use href="#coffer" x="1681" y="203"/>
+<!-- central panel (quarter, centre = the top-right corner): moulding on the two outer sides, solid p3 square, rim r320/300, p6 disc, sixteen-point star as quarter/half shapes bounded by the axes: minor rays p2 r184, diagonal ray p4 r236, cardinal rays p3 r300 touching the rim, heart r40/22 -->
 <rect class="p2" x="1890" y="0" width="360" height="372"/>
-<rect class="p6" x="1906" y="0" width="344" height="356"/>
-<path class="p3" d="M2250 0H1930A320 320 0 0 0 2250 320Z"/>
-<path class="p2" d="M2250 0H1946A304 304 0 0 0 2250 304Z"/>
-<path class="p6" d="M2250 0H1962A288 288 0 0 0 2250 288Z"/>
-<path class="p4" d="M2250 0c-79 26 -152 120 -135 234c106 -43 152 -153 135 -234zM2250 0c-62 55 -180 71 -270 0z"/>
-<path class="p3" d="M2250 0c-55 62 -71 180 0 270zM2250 0c-26 79 -120 152 -234 135c43 -106 153 -152 234 -135z"/>
-<path class="p2" d="M2250 0H2178A72 72 0 0 0 2250 72Z"/>
-<path class="p5" d="M2250 0H2196A54 54 0 0 0 2250 54Z"/>
-<path class="p4" d="M2250 0H2226A24 24 0 0 0 2250 24Z"/>
-<circle class="p3" cx="1986" cy="286" r="56"/>
-<circle class="p6" cx="1986" cy="286" r="40"/>
-<circle class="p2" cx="1986" cy="286" r="14"/>
+<rect class="p3" x="1906" y="0" width="344" height="356"/>
+<path class="p2" d="M2250 0H1930A320 320 0 0 0 2250 320Z"/>
+<path class="p6" d="M2250 0H1950A300 300 0 0 0 2250 300Z"/>
+<path class="p2" d="M2250 0H2180L2080 70L2200 50L2180 170L2250 70Z"/>
+<path class="p4" d="M2250 0H2186L2083 167L2250 64Z"/>
+<path class="p3" d="M2250 0H1950L2202 48L2250 300Z"/>
+<path class="p2" d="M2250 0H2210A40 40 0 0 0 2250 40Z"/>
+<path class="p5" d="M2250 0H2228A22 22 0 0 0 2250 22Z"/>
 </svg>
