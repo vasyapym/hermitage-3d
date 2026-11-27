@@ -50,7 +50,7 @@ that decides whether a next round's declared allowance fits. The project-course 
 
 | branch / candidate | what it reserves | status |
 |---|---|---|
-| sq-polish-lane (branch `sq-polish-lane`, worktree `hermitage-3d-sq-polish`, PARALLEL per the owner) | the ground-slot chaining fix (the handoff's ruled shape): shared JS +134 B gz (the tool's totals: main 296,237 → the lane 296,371; RU +0) — the creative deltas (the S0b slide, the doorway night laws) reserve nothing yet and re-measure at their integration | OPEN — the creative ruling pending (the brief `1-sq-polish-decisions`, the vault 03-2 session folder); the numbers reconcile at the merge |
+| sq-polish-lane (branch `sq-polish-lane`, worktree `hermitage-3d-sq-polish`, PARALLEL per the owner) | the ground-slot chaining fix (+134 B gz) + the ruling's doorway night law (+224 B gz — the lamp's night-gain hook, the ring far wall): shared JS +358 B gz (the tool's totals: main 296,237 → the lane 296,595; RU +0 = 7,933) | INTEGRATED on the branch (the goldens: the day set unchanged, the S0b pair re-baselined); the row's numbers reconcile at the merge |
 | tear-tbdr-lane (branch `tear-tbdr-lane`) | the gallery UV2-emission fix: the glb re-export rides the ROOM's caps (payload 1,257,669/2M · texture 861,675/1M byte-held · tris cap 110,000) · shared JS ≤ +300 B gz (the `__lmProbe` probe hook, the sqdebug class — droppable at merge) | LANDED at the round close 2026-11-27: the plates re-baked + re-encoded (texture 991,073/1,000,000, 9,323 spare; payload 1,387,067/2,000,000; shared JS +0 — the probe hook rode the main chunk's slack); the row's numbers reconcile at the merge |
 
 
