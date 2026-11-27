@@ -50,7 +50,7 @@ that decides whether a next round's declared allowance fits. The project-course 
 
 | branch / candidate | what it reserves | status |
 |---|---|---|
-| `sq-t0-residue` R3 (branch `sq-t0-residue`, PARALLEL off ba408d2) | JS gzip: the shadowless-floor wiring (the settleTier flip + the row value + the pins) — declared ≤ +200 B gz; RU +0; the RUNTIME saves the whole t0 shadow pass (fill + 16 MB map) | in flight — the owner's device nod pending; the merge rides the owner's word |
+| `sq-t0-residue` R4 (branch `sq-t0-residue`, PARALLEL off ba408d2) | JS gzip: the sun receiver variant (the GLSL ships in the bundle) + the arms sr/sm/sk + the tier field — declared ≤ +200 B gz, the MEASURED +1,342 (293,997 → 295,339) — the row re-declared at the measured cost; RU +0 | in flight — the R4 ruling integrated; the device sitting (PR preview) pending; the DEC-ready row parks for the integrating authority |
 
 
 **Update log:** Update log: cut — history lives in the round archives (docs/archive/*.md); newest entry 2026-11-15 square-palace-2 merge.

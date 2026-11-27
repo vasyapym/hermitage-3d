@@ -30,7 +30,9 @@ export type QualityTier = Readonly<{
   readonly shadowRadius: number;
   /** Caster slope offset (the shared depth material's polygonOffsetFactor) applied per settle. */
   readonly shadowDepthOffsetFactor: number;
-  /** Phase 1 renders exactly one shadow pass; 0 = the shadowless floor (t0 ships it since sq-t0-residue R3). */
+  /** The sun receiver's sampling variant (sq-t0-residue R4): stock PCF, the B-spline comparison filter, or + the plane correction. */
+  readonly sunReceiverMode: 'stock' | 'smooth' | 'plane';
+  /** Phase 1 renders exactly one shadow pass; 0 = the shadowless floor (R3 shipped it on t0; R4 reverted — the shadows stay on mobile). */
   shadowPasses: 0 | 1;
   /** Phase 1 has no post stack (bloom is Phase 2 machinery); T2's "full post" is reserved. */
   postEnabled: false;
@@ -52,11 +54,18 @@ export const TIERS: Readonly<Record<QualityTierId, QualityTier>> = Object.freeze
     // radius 0.5) — the grazing beat read as wide blotches + close grain on the phone.
     shadowMapSize: 2048,
     shadowNormalBias: 0.1,
-    shadowRadius: 0.5,
-    shadowDepthOffsetFactor: 2.0,
-    // sq-t0-residue R3 (the owner's call): the shadowless floor ships — the A13 TBDR beat and
-    // the texel-staircase edges die with the pass itself; the si=0 look was eye-verified twice.
-    shadowPasses: 0,
+    // sq-t0-residue R4 (brief 33, the arms' verdict): the radius spends on the lookup — the
+    // R2 offset ladder (1.4/2.0/2.6 at radius 0.5) measured indistinguishable on the A13, the
+    // blotch dies with shadows off and the close-up edges read as the map's texel staircase;
+    // the receiver variant (sunReceiverMode) takes the quality from here.
+    shadowRadius: 1,
+    shadowDepthOffsetFactor: 1.4,
+    // sq-t0-residue R3 revert: the shadows stay on mobile (the owner: «this feels like giving
+    // up») — the pass renders again and the receiver variant takes the quality from here.
+    shadowPasses: 1,
+    // sq-t0-residue R4: the sun receiver variant — the 3x3 B-spline comparison filter with the
+    // receiver-plane depth correction per tap (capped ±0.25 m along the light).
+    sunReceiverMode: 'plane',
     postEnabled: false,
     description:
       'Hard floor (≤ 33 ms). Tightens the §11 drawing buffer to 786,432 px (1024×768-' +
@@ -77,6 +86,7 @@ export const TIERS: Readonly<Record<QualityTierId, QualityTier>> = Object.freeze
     shadowRadius: 1,
     // sq-t0-residue R2: the Mac rows keep the shadow-dirt factor bit-identical (1.4).
     shadowDepthOffsetFactor: 1.4,
+    sunReceiverMode: 'stock',
     shadowPasses: 1,
     postEnabled: false,
     description:
@@ -94,6 +104,7 @@ export const TIERS: Readonly<Record<QualityTierId, QualityTier>> = Object.freeze
     shadowNormalBias: 0.05,
     shadowRadius: 1,
     shadowDepthOffsetFactor: 1.4,
+    sunReceiverMode: 'stock',
     shadowPasses: 1,
     postEnabled: false,
     description:

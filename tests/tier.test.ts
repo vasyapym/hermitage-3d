@@ -30,10 +30,14 @@ describe('tier registry', () => {
     expect(TIERS.t1.shadowMapSize).toBe(2048);
     expect(DEFAULT_TIER_ID).toBe('t1');
   });
-  it('carries the R2 caster offset: t0 2.0, the Mac rows keep the dirt-round 1.4', () => {
-    expect(TIERS.t0.shadowDepthOffsetFactor).toBe(2.0);
+  it('carries the R2→R4 shadow quality: the offset returns to 1.4, the radius to 1, t0 receives plane', () => {
+    expect(TIERS.t0.shadowDepthOffsetFactor).toBe(1.4);
+    expect(TIERS.t0.shadowRadius).toBe(1);
+    expect(TIERS.t0.sunReceiverMode).toBe('plane');
     expect(TIERS.t1.shadowDepthOffsetFactor).toBe(1.4);
     expect(TIERS.t2.shadowDepthOffsetFactor).toBe(1.4);
+    expect(TIERS.t1.sunReceiverMode).toBe('stock');
+    expect(TIERS.t2.sunReceiverMode).toBe('stock');
   });
   it('T0 tightens and T2 relaxes the §11 limits monotonically', () => {
     expect(TIERS.t0.bufferPixelsCap).toBeLessThan(TIERS.t1.bufferPixelsCap);
@@ -46,9 +50,9 @@ describe('tier registry', () => {
   it('keeps post honest: Phase 1 has no post stack in any tier', () => {
     for (const id of TIER_IDS) {
       expect(TIERS[id].postEnabled).toBe(false);
-      // sq-t0-residue R3: t0 ships the shadowless floor (shadowPasses 0); t1/t2 keep the one pass.
-      const expectedPasses = id === 't0' ? 0 : 1;
-      expect(TIERS[id].shadowPasses).toBe(expectedPasses);
+      // sq-t0-residue R4: the shadows stay on mobile (R3's shadowless floor reverted — the
+      // owner's call); every tier renders exactly one shadow pass again.
+      expect(TIERS[id].shadowPasses).toBe(1);
       expect(TIERS[id].label.startsWith(id.toUpperCase())).toBe(true);
     }
   });

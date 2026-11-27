@@ -232,6 +232,7 @@ import { SUN_DEPTH_MATERIAL } from './world/shadow-depth';
 import { snowSkyGain, snowWeight } from './world/snow-season';
 import { HQ_TONE_HEX } from './world/square-kit';
 import { parseStopParam } from './world/stop-param';
+import { applySunReceiver, type SunReceiverMode } from './world/sun-receiver';
 import {
   arrivePose,
   type BeatPose,
@@ -895,6 +896,9 @@ let lastLabelEpochMs = -1;
 // sq-t0-residue R2: the sitting arm si=0 zeroes the sun's shadow intensity (the
 // not-shadow-class diagnostic). 1 otherwise — the law below multiplies by exactly 1.
 let shadowGain = 1;
+
+// sq-t0-residue R4: the sun receiver mode in force — the tier row's on settle, the sk arm after.
+let sunReceiverMode: SunReceiverMode = 'stock';
 
 const applyEpoch = (nextEpochMs: number): void => {
   epochMs = nextEpochMs;
@@ -2786,23 +2790,15 @@ const settleTier = (next: QualityTier): void => {
   // kernel's reach in texels (the A13 grazing beat: wide blotches + close grain). Raster state
   // only: glPolygonOffset reads the material's value per draw, no recompile.
   SUN_DEPTH_MATERIAL.polygonOffsetFactor = next.shadowDepthOffsetFactor;
-  // sq-t0-residue R3: the shadowless floor — t0's shadowPasses 0 skips the whole pass (no map,
-  // no depth render, no PCF sampling: the A13 beat and the texel-staircase edges die with it).
-  // One-time flip per settle — the programs recompile here, never per frame (the castShadow
-  // toggle's retirement in sq-arch-day B1a(2) was about per-frame churn, not boot wiring).
+  // sq-t0-residue R3→R4: the shadowless flip stays wired (shadowPasses 0 skips the pass — no
+  // tier ships it since R4), and the sun receiver variant patches the receiving materials per
+  // settle: the B-spline comparison filter + the plane correction on t0 (the A13 beat and the
+  // texel-staircase edges die in the sampling, not in the parameters).
   const shadowOn = next.shadowPasses > 0;
-  if (renderer.shadowMap.enabled !== shadowOn) {
-    renderer.shadowMap.enabled = shadowOn;
-    scene.traverse((object) => {
-      const mesh = object as THREE.Mesh;
-      const materials = Array.isArray(mesh.material)
-        ? mesh.material
-        : mesh.material
-          ? [mesh.material]
-          : [];
-      for (const material of materials) material.needsUpdate = true;
-    });
-  }
+  const shadowFlip = renderer.shadowMap.enabled !== shadowOn;
+  if (shadowFlip) renderer.shadowMap.enabled = shadowOn;
+  sunReceiverMode = next.sunReceiverMode;
+  applySunReceiver(scene, sunReceiverMode, shadowFlip);
   // The shadow map materializes lazily at the next shadow pass; re-arm its size now.
   sun.shadow.mapSize.set(next.shadowMapSize, next.shadowMapSize);
   if (sun.shadow.map !== null) {
@@ -2859,22 +2855,36 @@ if (quality.tier !== 'auto') {
   }
 }
 
-// sq-t0-residue R2: the sitting arms — honoured only when sqdebug=1 AND the settled tier is t0
-// (the probe posture never arms them). Boot-only by design: each arm of the decision table is a
-// fresh page load. sd=<number> re-settles a frozen t0 copy at that dprCap (bufferPixelsCap stays
-// 786432); sf=<number> then overrides the ruled caster slope offset; si=0 zeroes the shadow
-// intensity (the not-shadow-class diagnostic). The shipped rows and the goldens never see these:
-// det boots T1, and no gate runs with sqdebug=1.
+// sq-t0-residue R2→R4: the sitting arms — honoured only when sqdebug=1 AND the settled tier is
+// t0 (the probe posture never arms them). Boot-only by design: each arm of the decision table is
+// a fresh page load. sd=<number> re-dimensions the drawing buffer; sr=<number> / sm=<number> /
+// sf=<number> override the tier's radius / map size / caster offset — sd/sr/sm/sf compose ONE
+// frozen tier copy before the map allocates; sk=stock|smooth|plane selects the receiver variant;
+// si=0 zeroes the shadow intensity (the not-shadow-class diagnostic). The shipped rows and the
+// goldens never see these: det boots T1, and no gate runs with sqdebug=1.
 const armQuery = new URLSearchParams(location.hash.split('?')[1] ?? '');
 if (armQuery.get('sqdebug') === '1' && tier.id === 't0' && !probeActive) {
-  const sd = armQuery.get('sd');
-  if (sd !== null && sd !== '' && Number.isFinite(Number(sd)) && Number(sd) > 0) {
-    settleTier(Object.freeze({ ...TIERS.t0, dprCap: Number(sd) }));
-  }
-  const sf = armQuery.get('sf');
-  if (sf !== null && sf !== '' && Number.isFinite(Number(sf)) && Number(sf) > 0) {
-    SUN_DEPTH_MATERIAL.polygonOffsetFactor = Number(sf);
-  }
+  const armNumber = (key: string): number | null => {
+    const raw = armQuery.get(key);
+    if (raw === null || raw === '') return null;
+    const value = Number(raw);
+    return Number.isFinite(value) && value > 0 ? value : null;
+  };
+  const sd = armNumber('sd');
+  const sr = armNumber('sr');
+  const sm = armNumber('sm');
+  const sf = armNumber('sf');
+  const frozen = {
+    ...TIERS.t0,
+    dprCap: sd ?? TIERS.t0.dprCap,
+    shadowRadius: sr ?? TIERS.t0.shadowRadius,
+    shadowMapSize: sm ?? TIERS.t0.shadowMapSize,
+    shadowDepthOffsetFactor: sf ?? TIERS.t0.shadowDepthOffsetFactor,
+  };
+  settleTier(Object.freeze(frozen));
+  const sk = armQuery.get('sk');
+  if (sk === 'smooth' || sk === 'plane' || sk === 'stock') sunReceiverMode = sk;
+  applySunReceiver(scene, sunReceiverMode, false);
   if (armQuery.get('si') === '0') shadowGain = 0;
 }
 

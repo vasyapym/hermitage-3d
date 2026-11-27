@@ -80,16 +80,19 @@ describe('B1a — the renderer shadow enable (the main.ts law scan)', () => {
     // si=0 multiplies the law by shadowGain — 1 in every shipped path, so the goldens read
     // the value bit-identical.
     expect(main).toContain('sun.shadow.intensity = Math.min(1, 4 * day) * shadowGain;');
-    // sq-t0-residue R2: the caster slope offset rides the tier — settleTier assigns the
-    // shared depth material's factor per settle (t0 2.0, t1/t2 1.4 — the rows tier.test.ts
+    // sq-t0-residue R2→R4: the caster slope offset rides the tier — settleTier assigns the
+    // shared depth material's factor per settle (t0 1.4, t1/t2 1.4 — the rows tier.test.ts
     // pins; the singleton's units stay 4, untouched since shadow-dirt R1).
     expect(main).toContain(
       'SUN_DEPTH_MATERIAL.polygonOffsetFactor = next.shadowDepthOffsetFactor;',
     );
-    // sq-t0-residue R3: the shadowless floor — the tier's shadowPasses 0 flips the renderer's
-    // shadow map off per settle (the programs recompile once here, never per frame).
+    // sq-t0-residue R3: the shadowless flip stays wired (shadowPasses 0 skips the pass — no
+    // tier ships it since R4). R4: the sun receiver variant patches the receiving materials
+    // per settle — the row's mode (t0 'plane'), the sk arm overrides after the settle.
     expect(main).toContain('const shadowOn = next.shadowPasses > 0;');
     expect(main).toContain('renderer.shadowMap.enabled = shadowOn;');
+    expect(main).toContain('sunReceiverMode = next.sunReceiverMode;');
+    expect(main).toContain('applySunReceiver(scene, sunReceiverMode, shadowFlip);');
   });
 });
 
