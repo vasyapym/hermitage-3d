@@ -50,6 +50,7 @@ that decides whether a next round's declared allowance fits. The project-course 
 
 | branch / candidate | what it reserves | status |
 |---|---|---|
+| `sq-t0-residue` (branch `sq-t0-residue` off main 3ab6aab, PARALLEL) | JS gzip: the tier key `shadowDepthOffsetFactor` + the per-settle assign + the sqdebug sitting arms (sf/si/sd) — declared ≤ +600 B gz; RU +0 | in flight — the R2 ruling integrated; the device sitting pending; the DEC-ready row parks for the integrating authority |
 
 
 **Update log:** Update log: cut — history lives in the round archives (docs/archive/*.md); newest entry 2026-11-15 square-palace-2 merge.

@@ -228,6 +228,7 @@ import {
   resolveRoute,
   type Vec3,
 } from './world/registry';
+import { SUN_DEPTH_MATERIAL } from './world/shadow-depth';
 import { snowSkyGain, snowWeight } from './world/snow-season';
 import { HQ_TONE_HEX } from './world/square-kit';
 import { parseStopParam } from './world/stop-param';
@@ -891,6 +892,10 @@ const elevationDegOf = (s: SkySample): number =>
 // module scoping masked.
 let lastLabelEpochMs = -1;
 
+// sq-t0-residue R2: the sitting arm si=0 zeroes the sun's shadow intensity (the
+// not-shadow-class diagnostic). 1 otherwise — the law below multiplies by exactly 1.
+let shadowGain = 1;
+
 const applyEpoch = (nextEpochMs: number): void => {
   epochMs = nextEpochMs;
   sample = sampleSky(nextEpochMs);
@@ -919,7 +924,9 @@ const applyEpoch = (nextEpochMs: number): void => {
   // and full from day = 0.25 (≈ 3.5° elevation). The old fade's «winter leak» was 9.47 %
   // at dec noon (intensity 0.9053, E ≈ 0.78) — not 22 %; the full-dark snow shadows below
   // that crossing are the row's point, not a bug.
-  sun.shadow.intensity = Math.min(1, 4 * day);
+  // sq-t0-residue R2: shadowGain is 1 in every shipped path (the goldens read this line's
+  // value bit-identical) — si=0 arms it to 0 for the device diagnostic only.
+  sun.shadow.intensity = Math.min(1, 4 * day) * shadowGain;
   sun.position.set(
     sample.sunDirection[0] * SUN_DISTANCE,
     sample.sunDirection[1] * SUN_DISTANCE,
@@ -2775,6 +2782,10 @@ const settleTier = (next: QualityTier): void => {
   probeActive = false;
   sun.shadow.normalBias = next.shadowNormalBias;
   sun.shadow.radius = next.shadowRadius;
+  // sq-t0-residue R2: the caster slope offset rides the tier — the factor must cover the PCF
+  // kernel's reach in texels (the A13 grazing beat: wide blotches + close grain). Raster state
+  // only: glPolygonOffset reads the material's value per draw, no recompile.
+  SUN_DEPTH_MATERIAL.polygonOffsetFactor = next.shadowDepthOffsetFactor;
   // The shadow map materializes lazily at the next shadow pass; re-arm its size now.
   sun.shadow.mapSize.set(next.shadowMapSize, next.shadowMapSize);
   if (sun.shadow.map !== null) {
@@ -2829,6 +2840,25 @@ if (quality.tier !== 'auto') {
       probeActive = true;
     }
   }
+}
+
+// sq-t0-residue R2: the sitting arms — honoured only when sqdebug=1 AND the settled tier is t0
+// (the probe posture never arms them). Boot-only by design: each arm of the decision table is a
+// fresh page load. sd=<number> re-settles a frozen t0 copy at that dprCap (bufferPixelsCap stays
+// 786432); sf=<number> then overrides the ruled caster slope offset; si=0 zeroes the shadow
+// intensity (the not-shadow-class diagnostic). The shipped rows and the goldens never see these:
+// det boots T1, and no gate runs with sqdebug=1.
+const armQuery = new URLSearchParams(location.hash.split('?')[1] ?? '');
+if (armQuery.get('sqdebug') === '1' && tier.id === 't0' && !probeActive) {
+  const sd = armQuery.get('sd');
+  if (sd !== null && sd !== '' && Number.isFinite(Number(sd)) && Number(sd) > 0) {
+    settleTier(Object.freeze({ ...TIERS.t0, dprCap: Number(sd) }));
+  }
+  const sf = armQuery.get('sf');
+  if (sf !== null && sf !== '' && Number.isFinite(Number(sf)) && Number(sf) > 0) {
+    SUN_DEPTH_MATERIAL.polygonOffsetFactor = Number(sf);
+  }
+  if (armQuery.get('si') === '0') shadowGain = 0;
 }
 
 // Hoisted (function declaration) so the boot-resolution block above may call it — §11's

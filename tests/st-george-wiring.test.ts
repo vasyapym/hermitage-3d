@@ -259,7 +259,21 @@ describe('P10 — the lane’s diff-scope fence (retires at the merge)', () => {
       cwd: ROOT,
       encoding: 'utf8',
     }).trim();
-    if (head === 'main') {
+    // Retired on main AND on any lane carrying the st-george merge 99b8dd4: the merge
+    // happened, the integrating authority owns the tree (the fence's own law, faafbd0) —
+    // past the merge the d38cec0 diff is main's history, not a scope question a new lane
+    // may answer. A branch still living on the pre-merge base stays guarded.
+    let carriesMerge = false;
+    try {
+      execFileSync('git', ['merge-base', '--is-ancestor', '99b8dd4', 'HEAD'], {
+        cwd: ROOT,
+        stdio: 'ignore',
+      });
+      carriesMerge = true;
+    } catch {
+      carriesMerge = false;
+    }
+    if (head === 'main' || carriesMerge) {
       // retired: the merge happened, the integrating authority owns the tree (the fence's
       // own law) — the lane's cumulative diff is main's history now.
       return;

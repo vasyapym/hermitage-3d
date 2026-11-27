@@ -76,8 +76,16 @@ describe('B1a — the renderer shadow enable (the main.ts law scan)', () => {
     expect(main).toContain('new THREE.HemisphereLight');
     expect(main).not.toContain('hemi.castShadow');
     // The fade site: the shadow's strength rides E(h) in applyEpoch — sq-shadow-dirt R4
-    // saturates it (0 at day = 0, full from day = 0.25).
-    expect(main).toContain('sun.shadow.intensity = Math.min(1, 4 * day);');
+    // saturates it (0 at day = 0, full from day = 0.25). sq-t0-residue R2: the sitting arm
+    // si=0 multiplies the law by shadowGain — 1 in every shipped path, so the goldens read
+    // the value bit-identical.
+    expect(main).toContain('sun.shadow.intensity = Math.min(1, 4 * day) * shadowGain;');
+    // sq-t0-residue R2: the caster slope offset rides the tier — settleTier assigns the
+    // shared depth material's factor per settle (t0 2.0, t1/t2 1.4 — the rows tier.test.ts
+    // pins; the singleton's units stay 4, untouched since shadow-dirt R1).
+    expect(main).toContain(
+      'SUN_DEPTH_MATERIAL.polygonOffsetFactor = next.shadowDepthOffsetFactor;',
+    );
   });
 });
 

@@ -28,6 +28,8 @@ export type QualityTier = Readonly<{
   readonly shadowNormalBias: number;
   /** PCF sampling-kernel radius in shadow-map texels (three.js LightShadow.radius). */
   readonly shadowRadius: number;
+  /** Caster slope offset (the shared depth material's polygonOffsetFactor) applied per settle. */
+  readonly shadowDepthOffsetFactor: number;
   /** Phase 1 renders exactly one shadow pass; 0 is reserved for a future shadowless floor. */
   shadowPasses: 0 | 1;
   /** Phase 1 has no post stack (bloom is Phase 2 machinery); T2's "full post" is reserved. */
@@ -46,9 +48,12 @@ export const TIERS: Readonly<Record<QualityTierId, QualityTier>> = Object.freeze
     // the reference-Mac acceptance run carried the numbers).
     // iPhone-11 device-backend ruling (sq-fix-improve R1): shadowNormalBias 0.1 / shadowRadius
     // 0.5 on t0 only; t1/t2 carry 0.05/1 to keep the Mac bit-identical.
+    // sq-t0-residue R2: the caster slope offset must cover the PCF kernel's reach (~2 texels at
+    // radius 0.5) — the grazing beat read as wide blotches + close grain on the phone.
     shadowMapSize: 2048,
     shadowNormalBias: 0.1,
     shadowRadius: 0.5,
+    shadowDepthOffsetFactor: 2.0,
     shadowPasses: 1,
     postEnabled: false,
     description:
@@ -68,6 +73,8 @@ export const TIERS: Readonly<Record<QualityTierId, QualityTier>> = Object.freeze
     shadowMapSize: 2048,
     shadowNormalBias: 0.05,
     shadowRadius: 1,
+    // sq-t0-residue R2: the Mac rows keep the shadow-dirt factor bit-identical (1.4).
+    shadowDepthOffsetFactor: 1.4,
     shadowPasses: 1,
     postEnabled: false,
     description:
@@ -84,6 +91,7 @@ export const TIERS: Readonly<Record<QualityTierId, QualityTier>> = Object.freeze
     shadowMapSize: 4096,
     shadowNormalBias: 0.05,
     shadowRadius: 1,
+    shadowDepthOffsetFactor: 1.4,
     shadowPasses: 1,
     postEnabled: false,
     description:

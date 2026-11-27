@@ -30,6 +30,11 @@ describe('tier registry', () => {
     expect(TIERS.t1.shadowMapSize).toBe(2048);
     expect(DEFAULT_TIER_ID).toBe('t1');
   });
+  it('carries the R2 caster offset: t0 2.0, the Mac rows keep the dirt-round 1.4', () => {
+    expect(TIERS.t0.shadowDepthOffsetFactor).toBe(2.0);
+    expect(TIERS.t1.shadowDepthOffsetFactor).toBe(1.4);
+    expect(TIERS.t2.shadowDepthOffsetFactor).toBe(1.4);
+  });
   it('T0 tightens and T2 relaxes the §11 limits monotonically', () => {
     expect(TIERS.t0.bufferPixelsCap).toBeLessThan(TIERS.t1.bufferPixelsCap);
     expect(TIERS.t1.bufferPixelsCap).toBeLessThan(TIERS.t2.bufferPixelsCap);
