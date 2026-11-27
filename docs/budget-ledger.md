@@ -1,6 +1,6 @@
 # The budget ledger — one authoritative table of committed and reserved costs
 
-main @ tear-tbdr-merge · 2026-11-27 — the snapshot this table is measured against (mirrors STATE's Tree label).
+main @ sq-polish-merge · 2026-11-28 — the snapshot this table is measured against (mirrors STATE's Tree label).
 
 **What this file is:** the single place where the project's byte/triangle/draw BALANCES are kept
 honest across parallel sessions. `tools/budget.mjs` measures the COMMITTED tree at build; STATE
