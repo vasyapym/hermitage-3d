@@ -58,6 +58,13 @@ const STOPS: Record<string, number> = {
   M2: 2,
   M3: 3,
   M4: 4,
+  // The 2026-11-26 st-george round (DECISION-1): the hall joins the route after M4 —
+  // H0–H4 read off its contract, the route's new terminal (M4's forward is a door now).
+  H0: 0,
+  H1: 1,
+  H2: 2,
+  H3: 3,
+  H4: 4,
 };
 const button = (p: Page, d: number) => p.locator(d > 0 ? '#touch-forward' : '#touch-back');
 const position = (p: Page) =>
@@ -328,11 +335,11 @@ test('terminal locks', async ({ browser, baseURL }) => {
     for (const d of [-1, 1]) {
       if (d > 0) {
         await p.goto(
-          `${baseURL ?? 'http://127.0.0.1:4173'}/#/1812?at=2026-06-21T12:00:00Z&lang=ru&hud=1`,
+          `${baseURL ?? 'http://127.0.0.1:4173'}/#/throne?at=2026-06-21T12:00:00Z&lang=ru&hud=1`,
         );
         await roomReady(p);
         await farEnd(p);
-        expect((await position(p)).stop).toMatch(/M4$/);
+        expect((await position(p)).stop).toMatch(/H4$/);
       }
       const before = await position(p);
       await button(p, d).focus();

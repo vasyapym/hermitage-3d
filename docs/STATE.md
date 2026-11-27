@@ -27,7 +27,7 @@ Owed:
 - Office speckle gate — CLOSED 2026-11-26 (the two-build gate on the reference Mac; the eye's display verdict stands) → docs/archive/2026-11-26-sqshadowdirt.md
 - Office square-kit e2e — CLOSED 2026-11-26 (8/8 on the reference Mac; the box's fails were the machine-stall class) → docs/archive/2026-11-26-sqshadowdirt.md
 
-Recent: 2026-11-27 → docs/briefs/ROUNDS.md (row: sg-improve, merge eaa0bff) · 2026-11-27 → docs/briefs/ROUNDS.md (row: sq-t0-residue, merge ba408d2) · 2026-11-27 → docs/briefs/ROUNDS.md (row: sq-fix-improve)
+Recent: 2026-11-27 → docs/archive/2026-11-27-teartbdr.md (row: tear-tbdr-lane, merge 084fa56, the FULL gate 87/0 + the review pass) · 2026-11-27 → docs/briefs/ROUNDS.md (row: sg-improve, merge eaa0bff) · 2026-11-27 → docs/briefs/ROUNDS.md (row: sq-t0-residue, merge ba408d2) · 2026-11-27 → docs/briefs/ROUNDS.md (row: sq-fix-improve)
 
 ## Standing protocol
 

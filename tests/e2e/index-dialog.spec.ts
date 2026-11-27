@@ -28,7 +28,7 @@ test('the button opens the dialog and lists every built room (RU default)', asyn
   await settleIndex(page, 'rastrelli-gallery');
   await page.locator('#index-open').click();
   await expect(page.locator('#index-dialog')).toBeVisible();
-  await expect(page.locator('#index-list button')).toHaveCount(4);
+  await expect(page.locator('#index-list button')).toHaveCount(5);
   await expect(page.locator('#index-list button[aria-current="true"]')).toHaveText(
     'Галерея Растрелли',
   );
