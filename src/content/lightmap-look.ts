@@ -48,13 +48,14 @@ export const INTERIOR_LOOK_GAIN: Readonly<Record<RoomId, Readonly<Record<LightSt
   // eff = wp × gain = 1.5 × 1.725 / 0.15 × 3.45 / 0.3 × 2.3 = 2.5875 / 0.5175 / 0.69.
   'military-gallery': { day: 1.725, dusk: 3.45, nightChandeliers: 2.3 },
 
-  // DECISION-1 (the appended hall): the bake landed (the manifest's white points day 1.5 /
-  // dusk 0.32 / night 0.1 confirmed — the lightmapsRow agreement gate holds) and the pane
+  // DECISION-1 (the appended hall): the bake landed (the manifest's white points day 2.3 /
+  // dusk 0.51 / night 0.15 confirmed — the lightmapsRow agreement gate holds) and the pane
   // field is EQUAL across the three states (the state brightness rides the bake's
   // PANE_BAKE_EMISSION strengths, not the gain), so the rastrelli shape holds: one gain,
-  // eff = wp × gain = 3.0 / 0.512 / 0.2 (the dusk gain 1.6 holds the eff 0.5 under the
-  // amber key's wp 0.32 — brief 42 slice 2). The owner's light knob at the golden sitting.
-  'st-george': { day: 2, dusk: 1.6, nightChandeliers: 2 },
+  // eff = wp × gain = 2.99 / 0.51 / 0.2025 (the round-42 gains hold the committed eff
+  // 3.0 / 0.5 / 0.2 under the lifted white points — the gilt cells hold light now, brief
+  // 42 slices 1–2). The owner's light knob at the golden sitting.
+  'st-george': { day: 1.3, dusk: 1.0, nightChandeliers: 1.35 },
 };
 
 export type InteriorEmissiveMaterial = 'pane' | 'sconce_glow' | 'chandelier_glow' | 'stairlight';

@@ -106,10 +106,13 @@ WHITE_POINT = {
     'jordan': 'percentile',
     'military-gallery': {'day': 1.5, 'dusk': 0.15, 'nightChandeliers': 0.3},
     # st-george registration: the military-gallery shape (numeric per-state values, never
-    # the 'percentile' sentinel) — the calm seeds day 1.5 / dusk 0.32 / night 0.1 mirror
+    # the 'percentile' sentinel) — the calm seeds day 2.3 / dusk 0.51 / night 0.15 mirror
     # ROOM.lightmaps.intensity in tools/gltf/st-george.mjs (the lightmapsRow agreement
     # gate compares them state by state); owner re-tune data at the golden sitting.
-    'st-george': {'day': 1.5, 'dusk': 0.32, 'nightChandeliers': 0.1},
+    # The round-42 lift: the gilt cells hold light now and the peaks rose (day 2.1529 /
+    # dusk 0.4881 / night 0.1372) — the wp sits above the peak, the encoded headroom
+    # restored, the rendered eff held by the lightmap-look gains.
+    'st-george': {'day': 2.3, 'dusk': 0.51, 'nightChandeliers': 0.15},
 }
 PROBE_WHITE_POINT = 1.0   # pinned by ADR-0013: "neutral" = absolute LDR clamp
 PROBE_RES = (512, 256)    # pinned by the ADR-0013 amendment (equirect)
