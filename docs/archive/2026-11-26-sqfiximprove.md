@@ -73,7 +73,7 @@ decisions belong to the creative; the orchestrator gathers evidence and integrat
    the tilt to the field sup (item 3). The look-probe waits (R2, breaks): the exterior look probes
    (sq-accept-gate, sq-shadow-toggle, sq-census-capture plates) re-waitered to the settled 1500 ms
    class per the capture law; the goldens stay historical/self-consistent — no re-baseline, no
-   census-count change. The device procedure (R3): the sitting pins ?tier=t0 for the paired captures
+   census-count change. The device procedure (R3): the sitting pins q=t0 for the paired captures
    — no code change. The exact identity (R4): the branchless select. The test tolerance (R6):
    explicit absolute-error assertions ≤ 0.01 at the ruled targets (toBeCloseTo(x, 2) was ±0.005).
    The declined (R5, the snowy-night guarantee):
@@ -117,7 +117,7 @@ decisions belong to the creative; the orchestrator gathers evidence and integrat
   is not a lane failure».
 - The same S0 → Sh sitting on Mac and iPhone: «Judge the same blade and lane on iPhone, not a fixed
   count of device pixels».
-- The iPhone boots pinned ?tier=t0 for the paired capture (the settled 0.1/0.5 readout recorded) +
+- The iPhone boots pinned q=t0 for the paired capture (the settled 0.1/0.5 readout recorded) +
   the ordinary auto boot checked separately (the review's R3 procedure).
 - The settled captures per the capture law, both sides of every pair.
 - The t0 device check rides the same sitting (brief 2's packet): «no acne/dirt returns on the facade
