@@ -39,12 +39,14 @@ export const ROOM = {
   // lowest value that still encodes the window bounce above zero). CALM SEEDS,
   // owner re-tune data: the golden sitting grades these from the bake logs'
   // peak/clippedFraction rows — a descriptor edit + reencode, never a re-bake.
+  // The dusk 0.32 rides brief 42 slice 2 (the amber key's luminance held at the
+  // rastrelli-shape eff 0.5); the day 1.5 and the night 0.1 are the committed calm seeds.
   // res is the SHELL chart (law.lighting.lmChart.shellRes); the step-5 final bake
   // flips the row to finalRes 2048.
   lightmaps: {
     states: ['day', 'dusk', 'nightChandeliers'],
     res: 1024,
-    intensity: { day: 1.5, dusk: 0.25, nightChandeliers: 0.1 },
+    intensity: { day: 1.5, dusk: 0.32, nightChandeliers: 0.1 },
   },
 };
 
