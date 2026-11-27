@@ -21,8 +21,10 @@
 #                                bake stage. Its cells rows ARE the per-cell px rects
 #                                ([x, y, w, h], chart px, y from the top, roster order) —
 #                                no bake-cells.<state>.json exists or is needed — plus
-#                                coveredCells/dimCells (brief 7's declared dim classes),
-#                                stripRowPx, and the strip's equal-cell grid under lm.strip
+#                                the patches dict (the paint step's domain: part name →
+#                                [x, y, w, h] chart px), coveredCells/dimCells (brief 7's
+#                                declared dim classes), stripRowPx, and the strip's
+#                                equal-cell grid under lm.strip
 #                                ({mode, grid, cellPx, faces, v0}; the strip-block
 #                                addition — the same fields the export summary's lm.strip
 #                                has always carried, now beside the layout too).
@@ -49,6 +51,13 @@
 #         dusk/night; that failure IS the demonstration the ruling demands).
 #   REPORT-ONLY (counted, never failing, v1): cells that are allocated but not pinned —
 #     the strip's inked cells when --require-strip is absent.
+#   PATCH-DOMAIN (report-only, counted, never failing): every roster cell whose rect
+#     exactly equals one of the layout lm block's `patches` rects (doorcard, pane01..11,
+#     stairlight — the shelf pack's single-rect parts). Those rects are the PAINT step's
+#     domain: reencode-paint.py overwrites exactly them per state with DECLARED colours
+#     (the night pane paint is the declared [0,0,0] — the D1 dial's night-zero law, proven
+#     by the bake summary's paneApplied/paneProof rows), so a declared-black patch cell is
+#     not unwritten. The strip and coveredCells/dimCells exemptions keep their precedence.
 #   EXEMPT (skipped, counted): coveredCells ∪ dimCells read from the layout block — the
 #     same source file and keys as tools/reencode-paint.py's declared handling — plus
 #     --exclude (an inline comma/space list of indices, or a JSON path carrying `deadCells`
@@ -57,8 +66,11 @@
 # Sampling law: every cell's interior = its allocation inset 2 px on all four sides (the
 # builder's Sol-amended pad law, LM_PAD_PX = 2); an empty interior is skipped (counted).
 # Chart y runs from the top, Blender's pixel rows from the bottom (r0 = height - (y + h)) —
-# the layout/paint convention. The unwritten verdict: max(R, G, B) over the whole interior
-# <= --floor (default 1e-5). A non-finite interior fails loud naming the cell — a plate
+# the layout/paint convention. The unwritten verdict, stated once: UNWRITTEN = the interior
+# is EXACTLY 0.0 everywhere — max(R, G, B) over the whole interior <= --floor, default 0.0
+# (the bake's use_clear cleared the cell and nothing wrote it; a float exact zero);
+# written-but-dark = ANY nonzero float however small, never unwritten (--floor exists for
+# overrides only). A non-finite interior fails loud naming the cell — a plate
 # defect, never a dead-cell row (the reencode-paint.py law). The reserved-band law: a
 # roster cell with y < strip_px fails loud (the band belongs to the sconce datablock; a
 # roster cell inside it is a packer bug).
@@ -118,7 +130,7 @@ def parse_check_args(argv):
     opts = {
         'strip_px': 0,
         'res': 1536,
-        'floor': 1e-5,
+        'floor': 0.0,
         'require_strip': False,
         'shelf_owner': 'shell',
         'strip_owner': 'sconce',
@@ -205,6 +217,27 @@ def declared_exemptions(lm, cells, path):
     return set(covered) | set(dim)
 
 
+def patch_rects(lm, path):
+    """The layout's lm block patches dict — the paint step's domain: reencode-paint.py
+    overwrites exactly these rects per state with declared colours (the night pane paint
+    is the declared [0,0,0]), so a patch cell's verdict is never the gate's. Fail-closed
+    on absence/malformity, the declared-key law: a dict of part name -> [x, y, w, h]
+    chart-px rect (integral px, the roster cells' convention). Returns {name: int tuple}."""
+    patches = lm.get('patches')
+    if not isinstance(patches, dict):
+        fail(f"the layout at {path} lacks a valid patches dict (the paint step's domain, "
+             f'got {patches!r}) — regenerate the bpy stage')
+    rects = {}
+    for name, rect in patches.items():
+        if not (isinstance(name, str) and isinstance(rect, list) and len(rect) == 4
+                and all(isinstance(v, (int, float)) and not isinstance(v, bool)
+                        and math.isfinite(v) and float(v).is_integer() for v in rect)):
+            fail(f"the layout's lm block patches entry {name!r} is not a chart-px rect "
+                 f'[x, y, w, h] (got {rect!r}) — regenerate the bpy stage')
+        rects[name] = tuple(int(v) for v in rect)
+    return rects
+
+
 def validate_strip_block(lm, res, strip_px):
     """The strip block's equal-cell grid law (the builder's strip mode: cell_w = res/grid,
     cell_h = strip_px/grid, v0 = 1 - strip_px/res; the stored floats validated to 1e-3,
@@ -254,8 +287,9 @@ def strip_cell_rects(strip_block):
 
 def load_layout(path, res, strip_px):
     """The layout's lm block, validated: the shelf cells' px rects, the reserved-band law,
-    the declared dim classes, and — when strip_px > 0 — the strip block's equal-cell grid.
-    Returns (cells, exempt, strip_block or None)."""
+    the declared dim classes, the patches dict (the paint step's domain), and — when
+    strip_px > 0 — the strip block's equal-cell grid.
+    Returns (cells, exempt, strip_block or None, patch rects {name: int (x, y, w, h)})."""
     lm = (read_json(path, 'bake-layout file').get('lm') or {})
     if lm.get('mode') != 'shelf':
         fail(f"the layout's lm.mode is {lm.get('mode')!r}, not 'shelf' — the coverage gate "
@@ -277,8 +311,9 @@ def load_layout(path, res, strip_px):
             fail(f'cell {index} rect {rect} reaches into the reserved strip rows '
                  f'[0, {strip_px}) — regenerate the bpy stage')
     exempt = declared_exemptions(lm, cells, path)
+    patches = patch_rects(lm, path)
     strip_block = validate_strip_block(lm, res, strip_px) if strip_px > 0 else None
-    return cells, exempt, strip_block
+    return cells, exempt, strip_block, patches
 
 
 def load_receivers(path, shelf_owner):
@@ -371,15 +406,27 @@ def verdict(sample, floor, index, owner, rect, dead):
 
 def check(argv):
     """The coverage gate's one mode. Fills the pin classes, samples the plate, fails on
-    any REQUIRED cell reading unwritten; the report-only and exempt classes only count."""
+    any REQUIRED cell reading unwritten; the report-only, patch-domain and exempt classes
+    only count."""
     opts = parse_check_args(argv)
-    cells, exempt, strip_block = load_layout(opts['layout'], opts['res'], opts['strip_px'])
+    cells, exempt, strip_block, patches = load_layout(
+        opts['layout'], opts['res'], opts['strip_px'])
     receivers, state = load_receivers(opts['receivers'], opts['shelf_owner'])
     for extra in opts['excludes']:
         exempt |= extra_exclusion(extra, len(cells))
+    # the patch-domain class: every roster cell whose rect exactly equals one of the
+    # layout's lm.patches rects — the paint step's domain (reencode-paint.py overwrites
+    # exactly those rects per state with declared colours, so a declared-black patch cell
+    # is not unwritten). Report-only: counted, never failing (v1). The exempt classes keep
+    # their precedence: an exempt cell stays skipped, never re-classified.
+    patch_domain = sorted(
+        index for index, row in enumerate(cells)
+        if index not in exempt
+        and tuple(int(v) for v in row['rect']) in set(patches.values())
+    )
     # (a) the receivers' roster cells — the v1 roster-owner law puts every roster cell
     # under the shelf owner, whose membership the receivers load just enforced.
-    required_roster = set(range(len(cells))) - exempt
+    required_roster = set(range(len(cells))) - exempt - set(patch_domain)
     # (b) the strip pin: the inked band cells are REQUIRED on every state under
     # --require-strip, else the report-only class (counted, never failing, v1).
     strip_rects = strip_cell_rects(strip_block) if strip_block is not None else []
@@ -388,13 +435,15 @@ def check(argv):
         f'reencode_coverage: receivers={receivers} shelfOwner={opts["shelf_owner"]} '
         f'stripPx={opts["strip_px"]} requireStrip={opts["require_strip"]} '
         f'roster={len(cells)} exempt={len(exempt)} required={required_total} '
-        f'stripCells={len(strip_rects)}'
+        f'stripCells={len(strip_rects)} patchCells={len(patch_domain)}'
     )
     rgb = load_exr(opts['exr'], opts['res'])
     dead_required = []
     dead_report_only = []
+    dead_patch_domain = []
     checked = 0
     report_checked = 0
+    patch_checked = 0
     skipped_empty = 0
     for index in sorted(required_roster):
         rect = cells[index]['rect']
@@ -413,6 +462,12 @@ def check(argv):
         else:
             report_checked += 1 if sampled else 0
         skipped_empty += 0 if sampled else 1
+    for index in patch_domain:
+        rect = cells[index]['rect']
+        sampled = verdict(sample_interior(rgb, rect, opts['res']), opts['floor'],
+                          index, opts['shelf_owner'], rect, dead_patch_domain)
+        patch_checked += 1 if sampled else 0
+        skipped_empty += 0 if sampled else 1
     if dead_report_only:
         print(
             'reencode_coverage: report-only dead (allocated, not pinned — counted, never '
@@ -420,6 +475,14 @@ def check(argv):
         )
         for index, owner, rect, mean, top in dead_report_only[:MAX_DEAD_LISTED]:
             print('reencode_coverage: report-only cell '
+                  + json.dumps([index, owner, rect, round(mean, 9), round(top, 9)]))
+    if dead_patch_domain:
+        print(
+            'reencode_coverage: patch-domain dead (the paint step owns these rects — '
+            f'counted, never failing): {len(dead_patch_domain)} of {patch_checked}'
+        )
+        for index, owner, rect, mean, top in dead_patch_domain[:MAX_DEAD_LISTED]:
+            print('reencode_coverage: patch-domain cell '
                   + json.dumps([index, owner, rect, round(mean, 9), round(top, 9)]))
     if dead_required:
         for index, owner, rect, mean, top in dead_required[:MAX_DEAD_LISTED]:
@@ -430,7 +493,8 @@ def check(argv):
              'atlas cells')
     print(
         f'reencode_coverage: exempt={len(exempt)} skippedEmpty={skipped_empty} '
-        f'reportOnlyDead={len(dead_report_only)}'
+        f'reportOnlyDead={len(dead_report_only)} patchChecked={patch_checked} '
+        f'patchDomainDead={len(dead_patch_domain)}'
     )
     print(f'ZIMNY_COVERAGE ok {state} cells={required_total} checked={checked}')
 
