@@ -41,8 +41,9 @@ describe('B1a — the renderer shadow enable (the main.ts law scan)', () => {
     expect(main).toContain('renderer.shadowMap.type = THREE.PCFShadowMap;');
     expect(main).not.toContain('PCFSoftShadowMap');
     // Once at creation: the enable lines precede the tier's mapSize application site.
+    // sq-t0-residue R5: the mapSize site resolves by the GPU class (the row / the sm= arm).
     const enabledAt = main.indexOf('renderer.shadowMap.enabled = true;');
-    const tierAt = main.indexOf('sun.shadow.mapSize.set(next.shadowMapSize');
+    const tierAt = main.indexOf('sun.shadow.mapSize.set(mapSize, mapSize);');
     expect(enabledAt).toBeGreaterThan(-1);
     expect(tierAt).toBeGreaterThan(enabledAt);
   });
@@ -55,8 +56,9 @@ describe('B1a — the renderer shadow enable (the main.ts law scan)', () => {
     expect(main).not.toContain('sun.shadow.normalBias = 0.25');
     expect(SUN_SHADOW_FIT.left).toBe(-130);
     expect(SUN_SHADOW_FIT.right).toBe(130);
-    // sq-shadow-dirt R2/F8: the owner's iPhone settles t0 — its row carries 2048 like the rest.
-    expect(TIERS.t0.shadowMapSize).toBe(2048);
+    // sq-t0-residue R5: t0's row carries 4096 behind the GPU-class clamp (Apple), t1 stays
+    // on the §11 2048, t2 keeps 4096 — resolveShadowMapSize pins in tests/tier.test.ts.
+    expect(TIERS.t0.shadowMapSize).toBe(4096);
     expect(TIERS.t1.shadowMapSize).toBe(2048);
     expect(TIERS.t2.shadowMapSize).toBe(4096);
   });
@@ -93,6 +95,13 @@ describe('B1a — the renderer shadow enable (the main.ts law scan)', () => {
     expect(main).toContain('renderer.shadowMap.enabled = shadowOn;');
     expect(main).toContain('sunReceiverMode = next.sunReceiverMode;');
     expect(main).toContain('applySunReceiver(scene, sunReceiverMode, shadowFlip);');
+    // sq-t0-residue R5: the GPU-class clamp + the caster gate + the arm overrides — the map
+    // size resolves (4096 on Apple, 2048 elsewhere; the sm= arm past the clamp) and the gate
+    // sweeps after the receiver sweep (the ruling's order).
+    expect(main).toContain(
+      'shadowMapSizeOverride ?? resolveShadowMapSize(next.shadowMapSize, gpuRendererString)',
+    );
+    expect(main).toContain('applyCasterGate(scene, minProud);');
   });
 });
 

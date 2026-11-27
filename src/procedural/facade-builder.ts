@@ -877,6 +877,11 @@ export function buildFacade(solved: SolvedFacade): FacadeBuild {
     // sq-shadow-dirt R1: the slope-scaled caster depth material goes ONLY where the law
     // casts — the socle's opt-out receives neither the material nor the shadow pass.
     if (mesh.castShadow) mesh.customDepthMaterial = SUN_DEPTH_MATERIAL;
+    // sq-t0-residue R5: the caster gate reads the part off the mesh (per partId cull) —
+    // the proudness and the castShadow law ride the userData, the gate stays law-respecting.
+    mesh.userData.partId = partId;
+    mesh.userData.castProud = KIT[partId].castProud;
+    mesh.userData.castShadowLaw = KIT[partId].castShadow;
     mesh.receiveShadow = true;
     meshes.push(mesh);
     group.add(mesh);

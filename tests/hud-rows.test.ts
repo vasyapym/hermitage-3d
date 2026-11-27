@@ -15,6 +15,7 @@ const fixture = {
   frameDrawCalls: 132,
   frameTriangles: 132_264,
   medianFrameMs: 16.666,
+  p95FrameMs: 17.2,
   room: 'rastrelli-gallery',
   stop: 'G1',
   holdMs: 1_200,
@@ -30,11 +31,13 @@ describe('buildHudAttrs', () => {
     expect(attrs['data-draws']).toBe('132');
     expect(attrs['data-tris']).toBe('132264');
     expect(attrs['data-frame-ms']).toBe('16.67');
+    expect(attrs['data-frame-p95']).toBe('17.2');
   });
-  it('exposes exactly the ten contract keys (Mobile-A adds tier-source + probe-count)', () => {
+  it('exposes exactly the eleven contract keys (Mobile-A adds tier-source + probe-count; R5 adds frame-p95)', () => {
     expect(Object.keys(buildHudAttrs(fixture)).sort()).toEqual([
       'data-draws',
       'data-frame-ms',
+      'data-frame-p95',
       'data-hold-ms',
       'data-ledger-bytes',
       'data-probe-count',
@@ -75,7 +78,7 @@ describe('buildHudLines', () => {
     const lines = buildHudLines(fixture);
     expect(lines[0]).toBe('tier tier high · q=2 · source probe · probe 8');
     expect(lines[1]).toBe('draws 132 · tris 132 264');
-    expect(lines[2]).toBe('fps 60 · 16.67 ms');
+    expect(lines[2]).toBe('fps 60 · 16.67 ms · p95 17.2 ms');
   });
   it('appends a fourth line with room, plain hold and grouped ledger bytes', () => {
     const lines = buildHudLines(fixture);
@@ -83,8 +86,8 @@ describe('buildHudLines', () => {
     expect(lines[3]).toBe('room rastrelli-gallery · hold 1200 ms · ledger 4 321 987 B');
   });
   it('still reads — for fps while no interval has been measured', () => {
-    const lines = buildHudLines({ ...fixture, medianFrameMs: 0, holdMs: 0 });
-    expect(lines[2]).toBe('fps — · 0 ms');
+    const lines = buildHudLines({ ...fixture, medianFrameMs: 0, p95FrameMs: 0, holdMs: 0 });
+    expect(lines[2]).toBe('fps — · 0 ms · p95 0 ms');
     expect(lines[3]).toBe('room rastrelli-gallery · hold 0 ms · ledger 4 321 987 B');
   });
 });

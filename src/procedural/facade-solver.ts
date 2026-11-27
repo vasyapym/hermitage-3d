@@ -83,6 +83,13 @@ export type PartMeta = {
    * law: the builder marks the mesh from it and the budget projection
    * charges shadow families from it. */
   readonly castShadow: boolean;
+  /**
+   * sq-t0-residue R5 — the caster gate's proudness: the part's projection from its mounting
+   * plane (the localBounds z-depth — the geometry's own constant). The gate drops the parts
+   * whose proudness is below the map's drawable minimum (2 texels): what the map cannot draw
+   * is noise, not shadow.
+   */
+  readonly castProud: number;
 };
 
 function box(sx: number, sy: number, sz: number): Aabb {
@@ -97,7 +104,9 @@ function part(
   shaftCount: 0 | 1 | 2 | 3,
   castShadow = true,
 ): PartMeta {
-  return { localBounds: box(sx, sy, sz), triangleCeiling, shaftCount, castShadow };
+  // The proudness IS the box's z-depth: the projection from the mounting plane
+  // (min.z 0 → max.z sz), authored from the kit's own geometry constants.
+  return { localBounds: box(sx, sy, sz), triangleCeiling, shaftCount, castShadow, castProud: sz };
 }
 
 const SURROUND_ROW1 = part(1.7, 2.25, 0.32, 192, 0);

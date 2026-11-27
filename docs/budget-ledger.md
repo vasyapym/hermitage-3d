@@ -50,7 +50,7 @@ that decides whether a next round's declared allowance fits. The project-course 
 
 | branch / candidate | what it reserves | status |
 |---|---|---|
-| `sq-t0-residue` R4 (branch `sq-t0-residue`, PARALLEL off ba408d2) | JS gzip: the sun receiver variant (the GLSL ships in the bundle) + the arms sr/sm/sk + the tier field — declared ≤ +200 B gz, the MEASURED +1,342 (293,997 → 295,339) — the row re-declared at the measured cost; RU +0 | in flight — the R4 ruling integrated; the device sitting (PR preview) pending; the DEC-ready row parks for the integrating authority |
+| `sq-t0-residue` R5 (branch `sq-t0-residue`, PARALLEL off main 693d09e; the PR #1 preview) | JS gzip: the R5 set — the caster gate module + the centred/cubic receiver GLSL + the GPU clamp + the p95 HUD + the arms sp/sc — the branch delta from main measured **+2,176** (293,997 → 296,173), declared ≤ +2,500; RU +0 | in flight — the R5 ruling integrated; the device sitting (the PR preview) pending; the DEC-ready row parks for the integrating authority |
 
 
 **Update log:** Update log: cut — history lives in the round archives (docs/archive/*.md); newest entry 2026-11-15 square-palace-2 merge.

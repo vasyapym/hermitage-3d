@@ -20,6 +20,7 @@ const STATE: HudState = Object.freeze({
   frameDrawCalls: 132,
   frameTriangles: 132264,
   medianFrameMs: 16.5,
+  p95FrameMs: 16.9,
   room: 'square',
   stop: 'S0',
   holdMs: 0,
@@ -139,10 +140,11 @@ describe('rollingMedianFrameMs', () => {
   });
 });
 describe('buildHudAttrs', () => {
-  it('exposes exactly the ten contract keys (Mobile-A adds tier-source + probe-count)', () => {
+  it('exposes exactly the eleven contract keys (Mobile-A adds tier-source + probe-count; R5 adds frame-p95)', () => {
     expect(Object.keys(buildHudAttrs(STATE)).sort()).toEqual([
       'data-draws',
       'data-frame-ms',
+      'data-frame-p95',
       'data-hold-ms',
       'data-ledger-bytes',
       'data-probe-count',
@@ -178,7 +180,7 @@ describe('buildHudLines', () => {
     expect(buildHudLines(STATE)).toEqual([
       'tier T1 · default · source probe · probe 8',
       'draws 132 · tris 132 264',
-      'fps 61 · 16.5 ms',
+      'fps 61 · 16.5 ms · p95 16.9 ms',
       'room square · hold 0 ms · ledger 0 B',
     ]);
   });
@@ -189,12 +191,20 @@ describe('buildHudLines', () => {
     expect(small[1]).toBe('draws 999 · tris 0');
   });
   it('shows — instead of a rate when no interval is measured', () => {
-    expect(buildHudLines({ ...STATE, medianFrameMs: 0 })[2]).toBe('fps — · 0 ms');
+    expect(buildHudLines({ ...STATE, medianFrameMs: 0, p95FrameMs: 0 })[2]).toBe(
+      'fps — · 0 ms · p95 0 ms',
+    );
   });
-  it('line 3 format pinned: fps <int> · <ms> ms, ms rounded like the attribute', () => {
-    expect(buildHudLines({ ...STATE, medianFrameMs: 16.666 })[2]).toBe('fps 60 · 16.67 ms');
-    expect(buildHudLines({ ...STATE, medianFrameMs: 33.3 })[2]).toBe('fps 30 · 33.3 ms');
-    expect(buildHudLines({ ...STATE, medianFrameMs: 8.333 })[2]).toBe('fps 120 · 8.33 ms');
+  it('line 3 format pinned: fps <int> · <ms> ms · p95 <ms> ms, ms rounded like the attribute', () => {
+    expect(buildHudLines({ ...STATE, medianFrameMs: 16.666 })[2]).toBe(
+      'fps 60 · 16.67 ms · p95 16.9 ms',
+    );
+    expect(buildHudLines({ ...STATE, medianFrameMs: 33.3 })[2]).toBe(
+      'fps 30 · 33.3 ms · p95 16.9 ms',
+    );
+    expect(buildHudLines({ ...STATE, medianFrameMs: 8.333 })[2]).toBe(
+      'fps 120 · 8.33 ms · p95 16.9 ms',
+    );
   });
 });
 describe('determinism and frozen inputs', () => {

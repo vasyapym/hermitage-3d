@@ -32,6 +32,12 @@ export type QualityTier = Readonly<{
   readonly shadowDepthOffsetFactor: number;
   /** The sun receiver's sampling variant (sq-t0-residue R4): stock PCF, the B-spline comparison filter, or + the plane correction. */
   readonly sunReceiverMode: 'stock' | 'smooth' | 'plane';
+  /**
+   * The caster gate (sq-t0-residue R5, «cast form, not texture»): a kit part casts only when its
+   * proudness (the localBounds z-depth) ≥ this many texels of the effective map — what the map
+   * cannot draw is noise, not shadow. 0 = the gate off (t1/t2 cast by the law alone).
+   */
+  readonly shadowCasterMinTexels: number;
   /** Phase 1 renders exactly one shadow pass; 0 = the shadowless floor (R3 shipped it on t0; R4 reverted — the shadows stay on mobile). */
   shadowPasses: 0 | 1;
   /** Phase 1 has no post stack (bloom is Phase 2 machinery); T2's "full post" is reserved. */
@@ -52,7 +58,11 @@ export const TIERS: Readonly<Record<QualityTierId, QualityTier>> = Object.freeze
     // 0.5 on t0 only; t1/t2 carry 0.05/1 to keep the Mac bit-identical.
     // sq-t0-residue R2: the caster slope offset must cover the PCF kernel's reach (~2 texels at
     // radius 0.5) — the grazing beat read as wide blotches + close grain on the phone.
-    shadowMapSize: 2048,
+    // sq-t0-residue R5 («cast form, not texture»): 4096 halves the pitch (6.3 cm/texel) — the
+    // confirmed direction — behind the GPU-class clamp (resolveShadowMapSize: 4096 on Apple,
+    // 2048 elsewhere — the A13 evidence is not Android clearance); the caster gate drops the
+    // sub-2-texel proudness (the architraves' thread shadows read as noise, not shadow).
+    shadowMapSize: 4096,
     shadowNormalBias: 0.1,
     // sq-t0-residue R4 (brief 33, the arms' verdict): the radius spends on the lookup — the
     // R2 offset ladder (1.4/2.0/2.6 at radius 0.5) measured indistinguishable on the A13, the
@@ -64,14 +74,16 @@ export const TIERS: Readonly<Record<QualityTierId, QualityTier>> = Object.freeze
     // up») — the pass renders again and the receiver variant takes the quality from here.
     shadowPasses: 1,
     // sq-t0-residue R4: the sun receiver variant — the 3x3 B-spline comparison filter with the
-    // receiver-plane depth correction per tap (capped ±0.25 m along the light).
+    // receiver-plane depth correction per tap (capped along the light).
     sunReceiverMode: 'plane',
+    // sq-t0-residue R5: the caster gate — 2 texels of the effective map (0.127 m at 4096).
+    shadowCasterMinTexels: 2,
     postEnabled: false,
     description:
       'Hard floor (≤ 33 ms). Tightens the §11 drawing buffer to 786,432 px (1024×768-' +
-      'equivalent): at 1920×1080 the render scale is ≈0.616 against T1’s ≈0.711. Shadow ' +
-      'stays 1 K because Phase 1 has one 1 K pass already; no post exists to disable. ' +
-      'Near-LOD instancing is a kit concern, not a renderer knob here.',
+      'equivalent): at 1920×1080 the render scale is ≈0.616 against T1’s ≈0.711. 4096 on ' +
+      'Apple GPUs, the clamp holds 2048 elsewhere (resolveShadowMapSize). Near-LOD ' +
+      'instancing is a kit concern, not a renderer knob here.',
   } satisfies QualityTier),
   t1: Object.freeze({
     id: 't1',
@@ -87,6 +99,8 @@ export const TIERS: Readonly<Record<QualityTierId, QualityTier>> = Object.freeze
     // sq-t0-residue R2: the Mac rows keep the shadow-dirt factor bit-identical (1.4).
     shadowDepthOffsetFactor: 1.4,
     sunReceiverMode: 'stock',
+    // sq-t0-residue R5: the caster gate off — the Mac rows cast by the law alone.
+    shadowCasterMinTexels: 0,
     shadowPasses: 1,
     postEnabled: false,
     description:
@@ -105,6 +119,8 @@ export const TIERS: Readonly<Record<QualityTierId, QualityTier>> = Object.freeze
     shadowRadius: 1,
     shadowDepthOffsetFactor: 1.4,
     sunReceiverMode: 'stock',
+    // sq-t0-residue R5: the caster gate off — the Mac rows cast by the law alone.
+    shadowCasterMinTexels: 0,
     shadowPasses: 1,
     postEnabled: false,
     description:
@@ -243,4 +259,17 @@ export function resolveAutoTier(
   return coarsePointer || (deviceMemoryGiB !== null && deviceMemoryGiB < AUTO_LOW_MEMORY_GIB)
     ? MOBILE_AUTO_TIER
     : 'probe';
+}
+
+/**
+ * sq-t0-residue R5 — the GPU-class clamp on the sun shadow map: the row's size is an Apple-GPU
+ * budget (the A13 evidence is not Android clearance — Mali/Adreno tile the same way but their
+ * frame budget and memory are unmeasured). The unmasked renderer string read once at boot
+ * (iOS Safari reports «Apple GPU»; Mali/Adreno/PowerVR/absent → the 2048 floor until an Android
+ * sitting rules the bigger map on this class).
+ */
+export function resolveShadowMapSize(rowSize: number, rendererString: string | null): number {
+  return rendererString !== null && /Apple/.test(rendererString)
+    ? rowSize
+    : Math.min(rowSize, 2048);
 }

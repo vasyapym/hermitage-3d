@@ -7,6 +7,7 @@ import {
   parseQualityUpdate,
   resolveAutoTier,
   resolveQualityScale,
+  resolveShadowMapSize,
   TIERS,
 } from '../src/engine/tier';
 
@@ -44,8 +45,24 @@ describe('tier registry', () => {
     expect(TIERS.t1.bufferPixelsCap).toBeLessThan(TIERS.t2.bufferPixelsCap);
     expect(TIERS.t0.dprCap).toBeLessThanOrEqual(TIERS.t1.dprCap);
     expect(TIERS.t1.dprCap).toBeLessThanOrEqual(TIERS.t2.dprCap);
-    expect(TIERS.t0.shadowMapSize).toBeLessThanOrEqual(TIERS.t1.shadowMapSize);
+    // sq-t0-residue R5: t0's map is the device budget (4096 on Apple, the clamp holds 2048
+    // elsewhere — resolveShadowMapSize), not a §11 relaxation — the t0 ≤ t1 map line retires.
     expect(TIERS.t1.shadowMapSize).toBeLessThanOrEqual(TIERS.t2.shadowMapSize);
+  });
+  it('resolves the sun shadow map by the GPU class (R5: the A13 evidence is not Android clearance)', () => {
+    expect(resolveShadowMapSize(4096, 'Apple GPU')).toBe(4096);
+    expect(resolveShadowMapSize(4096, 'ANGLE (Apple, ANGLE Metal Renderer: Apple M1, ...)')).toBe(
+      4096,
+    );
+    expect(resolveShadowMapSize(4096, 'Mali-G52 MC2')).toBe(2048);
+    expect(resolveShadowMapSize(4096, 'Adreno (TM) 610')).toBe(2048);
+    expect(resolveShadowMapSize(4096, null)).toBe(2048);
+    expect(resolveShadowMapSize(2048, 'Mali-G52 MC2')).toBe(2048);
+  });
+  it('carries the R5 caster gate: t0 drops the sub-2-texel proudness, t1/t2 cast by the law alone', () => {
+    expect(TIERS.t0.shadowCasterMinTexels).toBe(2);
+    expect(TIERS.t1.shadowCasterMinTexels).toBe(0);
+    expect(TIERS.t2.shadowCasterMinTexels).toBe(0);
   });
   it('keeps post honest: Phase 1 has no post stack in any tier', () => {
     for (const id of TIER_IDS) {

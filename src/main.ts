@@ -52,6 +52,7 @@ import {
   type QualityTierId,
   resolveAutoTier,
   resolveQualityScale,
+  resolveShadowMapSize,
   TIERS,
 } from './engine/tier';
 import { type Key, t } from './i18n';
@@ -156,10 +157,12 @@ import {
 import {
   buildHudAttrs,
   buildHudLines,
+  HUD_P95_WINDOW,
   type HudState,
   parseHudParam,
   pushFrameInterval,
   rollingMedianFrameMs,
+  rollingP95FrameMs,
 } from './ui/hud';
 import { bindIndexDialog } from './ui/index-dialog';
 import {
@@ -200,6 +203,7 @@ import {
   finishTransit,
   type TransitState,
 } from './world/airlock';
+import { applyCasterGate } from './world/caster-gate';
 import { SUN_SHADOW_FIT } from './world/column';
 import { snowBounceGround } from './world/ground-snow';
 import { parseLmParam } from './world/lm-mode';
@@ -232,7 +236,7 @@ import { SUN_DEPTH_MATERIAL } from './world/shadow-depth';
 import { snowSkyGain, snowWeight } from './world/snow-season';
 import { HQ_TONE_HEX } from './world/square-kit';
 import { parseStopParam } from './world/stop-param';
-import { applySunReceiver, type SunReceiverMode } from './world/sun-receiver';
+import { applySunReceiver, type SunReceiverMode, setSunReceiverCap } from './world/sun-receiver';
 import {
   arrivePose,
   type BeatPose,
@@ -568,6 +572,16 @@ renderer.toneMappingExposure = sample.exposure;
 // r166+ LightShadow.intensity — no per-crossing program recompiles, the same night image).
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFShadowMap;
+// sq-t0-residue R5: the unmasked renderer string, read once — the GPU-class clamp's input
+// (resolveShadowMapSize: the row's 4096 is an Apple-GPU budget; Mali/Adreno/absent → 2048).
+let gpuRendererString: string | null = null;
+try {
+  const gl = renderer.getContext();
+  const ext = gl.getExtension('WEBGL_debug_renderer_info');
+  if (ext) gpuRendererString = gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) as string;
+} catch {
+  gpuRendererString = null;
+}
 // §11 runtime counting: one reset per frame, every render in that frame aggregates.
 renderer.info.autoReset = false;
 // Dev/test-only scene readout (the earlier SUB-BISECT probe, committed by R24-ux as the
@@ -833,6 +847,8 @@ if (new URLSearchParams(location.hash.split('?')[1] ?? '').get('sqdebug') === '1
 // H toggles at runtime). Re-bound at most every 500 ms from the whole-frame aggregates.
 let hudOpen = false;
 let hudIntervals: readonly number[] = [];
+// sq-t0-residue R5: the p95 window — the trailing ~60 s at the design rate (the frame arm).
+let hudP95Intervals: readonly number[] = [];
 let hudBoundAtMs = -1;
 let hudLastLines = '';
 // Mobile-B §5: the rail's aria/data-row cadence card — its own clock, so the HUD's binding
@@ -899,6 +915,10 @@ let shadowGain = 1;
 
 // sq-t0-residue R4: the sun receiver mode in force — the tier row's on settle, the sk arm after.
 let sunReceiverMode: SunReceiverMode = 'stock';
+
+// sq-t0-residue R5: the arm overrides — the gate metre (sp), the map size past the clamp (sm).
+let casterMinProudOverride: number | null = null;
+let shadowMapSizeOverride: number | null = null;
 
 const applyEpoch = (nextEpochMs: number): void => {
   epochMs = nextEpochMs;
@@ -2800,11 +2820,25 @@ const settleTier = (next: QualityTier): void => {
   sunReceiverMode = next.sunReceiverMode;
   applySunReceiver(scene, sunReceiverMode, shadowFlip);
   // The shadow map materializes lazily at the next shadow pass; re-arm its size now.
-  sun.shadow.mapSize.set(next.shadowMapSize, next.shadowMapSize);
+  // sq-t0-residue R5: the GPU-class clamp applies to the row value (4096 on Apple, 2048
+  // elsewhere); the sm= arm overrides the clamp (the diagnostic selects what it names). The
+  // caster gate drops the sub-minimum proudness — what the map cannot draw is noise, not
+  // shadow; the arm sp= overrides the metre (0 = the gate off).
+  const mapSize =
+    shadowMapSizeOverride ?? resolveShadowMapSize(next.shadowMapSize, gpuRendererString);
+  shadowMapSizeOverride = null;
+  sun.shadow.mapSize.set(mapSize, mapSize);
   if (sun.shadow.map !== null) {
     sun.shadow.map.dispose(); // next pass reallocates at the tier's map size
     sun.shadow.map = null;
   }
+  const minProud =
+    casterMinProudOverride !== null
+      ? casterMinProudOverride
+      : (next.shadowCasterMinTexels * (SUN_SHADOW_FIT.right - SUN_SHADOW_FIT.left)) / mapSize;
+  casterMinProudOverride = null;
+  // sq-t0-residue R5: the gate after the receiver sweep (the ruling's order).
+  applyCasterGate(scene, minProud);
   applyViewport();
 };
 
@@ -2874,11 +2908,17 @@ if (armQuery.get('sqdebug') === '1' && tier.id === 't0' && !probeActive) {
   const sr = armNumber('sr');
   const sm = armNumber('sm');
   const sf = armNumber('sf');
+  const sp = armNumber('sp');
+  if (sp !== null) casterMinProudOverride = sp;
+  if (sm !== null) shadowMapSizeOverride = sm;
+  const scRaw = armQuery.get('sc');
+  if (scRaw !== null && scRaw !== '' && Number.isFinite(Number(scRaw)) && Number(scRaw) > 0) {
+    setSunReceiverCap(Number(scRaw));
+  }
   const frozen = {
     ...TIERS.t0,
     dprCap: sd ?? TIERS.t0.dprCap,
     shadowRadius: sr ?? TIERS.t0.shadowRadius,
-    shadowMapSize: sm ?? TIERS.t0.shadowMapSize,
     shadowDepthOffsetFactor: sf ?? TIERS.t0.shadowDepthOffsetFactor,
   };
   settleTier(Object.freeze(frozen));
@@ -3817,7 +3857,10 @@ const tick = (timeMs: number): void => {
   // HUD binding: whole-frame aggregates (renderer.info) + the live tier label + the
   // rolling median of pushed intervals. At most every 500 ms; text replaced only on change.
   if (hudOpen) {
-    if (deltaMs > 0) hudIntervals = pushFrameInterval(hudIntervals, deltaMs);
+    if (deltaMs > 0) {
+      hudIntervals = pushFrameInterval(hudIntervals, deltaMs);
+      hudP95Intervals = pushFrameInterval(hudP95Intervals, deltaMs, HUD_P95_WINDOW);
+    }
     if (hudBoundAtMs === -1 || timeMs - hudBoundAtMs >= 500) {
       hudBoundAtMs = timeMs;
       const hudState: HudState = {
@@ -3825,6 +3868,7 @@ const tick = (timeMs: number): void => {
         frameDrawCalls: renderer.info.render.calls,
         frameTriangles: renderer.info.render.triangles,
         medianFrameMs: rollingMedianFrameMs(hudIntervals),
+        p95FrameMs: rollingP95FrameMs(hudP95Intervals),
         room: hudRoom(),
         stop: rail.stops[nearestStopIndex(rail, railState.u)]?.id ?? '—',
         holdMs: hudHoldMs(),

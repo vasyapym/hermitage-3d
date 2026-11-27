@@ -23,6 +23,8 @@ export type HudState = Readonly<{
   frameDrawCalls: number;
   frameTriangles: number;
   medianFrameMs: number;
+  /** Nearest-rank p95 over the trailing ~60 s window (sq-t0-residue R5: the frame arm reads this). */
+  p95FrameMs: number;
   /** Active registry node id ('square' or a RoomId); fed by the host, no world import. */
   room: string;
   /** The active rail's nearest stop id (§6.1); '—' while the host has no rail. */
@@ -38,6 +40,8 @@ export type HudState = Readonly<{
 }>;
 /** Length of the rolling frame-interval buffer (about half a second at 60 Hz). */
 export const HUD_FRAME_WINDOW = 32 as const;
+/** The p95 window: the trailing ~60 s at the design rate (the ruling's frame bar reads this). */
+export const HUD_P95_WINDOW = 3600 as const;
 const PARAM = 'hud';
 /**
  * Parse `?hud=` from the hash query (the same URLSearchParams that parseTime and the
@@ -65,16 +69,26 @@ export function parseHudParam(
  * reports 0 — a baseline, not an interval); the input array is then returned as is.
  * The input is never mutated.
  */
-export function pushFrameInterval(prev: readonly number[], deltaMs: number): readonly number[] {
+export function pushFrameInterval(
+  prev: readonly number[],
+  deltaMs: number,
+  windowSize: number = HUD_FRAME_WINDOW,
+): readonly number[] {
   if (!Number.isFinite(deltaMs) || deltaMs <= 0) return prev;
   const next = [...prev, deltaMs];
-  return next.length > HUD_FRAME_WINDOW ? next.slice(next.length - HUD_FRAME_WINDOW) : next;
+  return next.length > windowSize ? next.slice(next.length - windowSize) : next;
 }
 /** Lower median of the buffer — no averaging of the middle pair, no rounding. Empty → 0. */
 export function rollingMedianFrameMs(intervals: readonly number[]): number {
   if (intervals.length === 0) return 0;
   const sorted = [...intervals].sort((a, b) => a - b);
   return sorted[Math.floor((sorted.length - 1) / 2)] ?? 0;
+}
+/** Nearest-rank 95th percentile of the buffer. Empty → 0. (sq-t0-residue R5: the p95 arm.) */
+export function rollingP95FrameMs(intervals: readonly number[]): number {
+  if (intervals.length === 0) return 0;
+  const sorted = [...intervals].sort((a, b) => a - b);
+  return sorted[Math.ceil(sorted.length * 0.95) - 1] ?? 0;
 }
 function integerText(n: number): string {
   return String(Math.trunc(n));
@@ -104,6 +118,7 @@ export function buildHudAttrs(state: HudState): Readonly<Record<string, string>>
     'data-draws': integerText(state.frameDrawCalls),
     'data-tris': integerText(state.frameTriangles),
     'data-frame-ms': frameMsText(state.medianFrameMs),
+    'data-frame-p95': frameMsText(state.p95FrameMs),
     'data-room': state.room,
     'data-stop': state.stop,
     'data-hold-ms': integerText(state.holdMs),
@@ -132,7 +147,7 @@ export function buildHudLines(state: HudState): readonly string[] {
       ' · probe ' +
       integerText(state.probeSampleCount),
     `draws ${grouped(state.frameDrawCalls)} · tris ${grouped(state.frameTriangles)}`,
-    `fps ${fps} · ${frameMsText(medianFrameMs)} ms`,
+    `fps ${fps} · ${frameMsText(medianFrameMs)} ms · p95 ${frameMsText(state.p95FrameMs)} ms`,
     ledgerLine,
   ];
 }
