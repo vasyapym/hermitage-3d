@@ -88,38 +88,40 @@ const glslBlock = (
         vec2 w2 = 0.5 * phase * phase;
 `;
   const loop = (n: 3 | 4): string => {
-    const pick =
-      n === 3
-        ? `          float wx = i == 0 ? w0.x : ( i == 1 ? w1.x : w2.x );
-          float wy = j == 0 ? w0.y : ( j == 1 ? w1.y : w2.y );`
-        : `          const float wi = float( i );
-          const float wj = float( j );
-          float wx = wi == 0.0 ? w0 : ( wi == 1.0 ? w1 : ( wi == 2.0 ? w2 : w3 ) );
-          float wy = wj == 0.0 ? w0 : ( wj == 1.0 ? w1 : ( wj == 2.0 ? w2 : w3 ) );`;
-    const weight =
-      n === 3
-        ? `          shadow += wx * wy * texture( shadowMap, vec3( tapUv, reference ) );`
-        : `          shadow += wx * wy * texture( shadowMap, vec3( tapUv, reference ) );`;
-    const stride =
-      n === 3
-        ? `            vec2 tapUv = ( base + vec2( float( i ), float( j ) ) + 0.5 ) / shadowMapSize;
+    if (n === 3) {
+      return `        shadow = 0.0;
+        for ( int j = 0; j < 3; j ++ ) {
+          float wy = j == 0 ? w0.y : ( j == 1 ? w1.y : w2.y );
+          for ( int i = 0; i < 3; i ++ ) {
+            float wx = i == 0 ? w0.x : ( i == 1 ? w1.x : w2.x );
+            vec2 tapUv = ( base + vec2( float( i ), float( j ) ) + 0.5 ) / shadowMapSize;
             float reference = shadowCoord.z;
             float offX = float( i ) - 0.5 - phase.x;
-            float offY = float( j ) - 0.5 - phase.y;`
-        : `            vec2 tapUv = ( base + vec2( float( i ), float( j ) ) + 0.5 ) / shadowMapSize;
-            float reference = shadowCoord.z;
-            float offX = float( i ) - 1.0 - t;
-            float offY = float( j ) - 1.0 - t;`;
-    return `        shadow = 0.0;
-        for ( int j = 0; j < ${n}; j ++ ) {
-${pick}
-          for ( int i = 0; i < ${n}; i ++ ) {
-${stride}
+            float offY = float( j ) - 0.5 - phase.y;
 #ifdef ZIMNY_SUN_PLANE
             float correction = dzdu * offX * texelSize.x + dzdv * offY * texelSize.y;
             reference += clamp( correction, -${capValue.toExponential(10)}, ${capValue.toExponential(10)} );
 #endif
-${weight}
+            shadow += wx * wy * texture( shadowMap, vec3( tapUv, reference ) );
+          }
+        }`;
+    }
+    return `        shadow = 0.0;
+        for ( int j = 0; j < 4; j ++ ) {
+          float wj = float( j );
+          float wy = wj == 0.0 ? w0 : ( wj == 1.0 ? w1 : ( wj == 2.0 ? w2 : w3 ) );
+          for ( int i = 0; i < 4; i ++ ) {
+            float wi = float( i );
+            float wx = wi == 0.0 ? w0 : ( wi == 1.0 ? w1 : ( wi == 2.0 ? w2 : w3 ) );
+            vec2 tapUv = ( base + vec2( float( i ), float( j ) ) + 0.5 ) / shadowMapSize;
+            float reference = shadowCoord.z;
+            float offX = float( i ) - 1.0 - t;
+            float offY = float( j ) - 1.0 - t;
+#ifdef ZIMNY_SUN_PLANE
+            float correction = dzdu * offX * texelSize.x + dzdv * offY * texelSize.y;
+            reference += clamp( correction, -${capValue.toExponential(10)}, ${capValue.toExponential(10)} );
+#endif
+            shadow += wx * wy * texture( shadowMap, vec3( tapUv, reference ) );
           }
         }`;
   };
