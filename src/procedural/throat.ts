@@ -22,12 +22,10 @@ import {
   COLLAR_RGB,
   LAMP_STATIONS_M,
   LIT_STATIONS_M,
-  lampFloorSpill,
-  lampShade,
+  lampRadiance,
   lampSlab,
   lampSpill,
   skyLitAlbedo,
-  slabGradeAt,
   THROAT,
   THROAT_TRIANGLE_CEILING,
   throatProfile,
@@ -80,65 +78,37 @@ function inwardNormal(p: Pt): Vec {
   const r = Math.hypot(x, y - THROAT.springY);
   return [-x / r, -(y - THROAT.springY) / r, 0];
 }
-function profileRow(
-  a: Acc,
-  profile: readonly Pt[],
-  depth: number,
-  c: Rgb | ((p: Pt) => Rgb),
-  alpha = 0,
-): number {
+function profileRow(a: Acc, profile: readonly Pt[], depth: number, c: Rgb, alpha = 0): number {
   const base = a.count;
   const z = THROAT.mouthZ - depth;
-  for (const p of profile) {
-    push(a, [p[0], p[1], z], inwardNormal(p), typeof c === 'function' ? c(p) : c, alpha);
-  }
+  for (const p of profile) push(a, [p[0], p[1], z], inwardNormal(p), c, alpha);
   return base;
 }
-function floorRow(a: Acc, depth: number, c: Rgb | ((p: Pt) => Rgb), alpha = 0): number {
+function floorRow(a: Acc, depth: number, c: Rgb, alpha = 0): number {
   const base = a.count;
   const z = THROAT.mouthZ - depth;
-  const at0: Pt = [-THROAT.halfWidth, 0];
-  const at1: Pt = [THROAT.halfWidth, 0];
-  push(
-    a,
-    [-THROAT.halfWidth, THROAT.floorLiftM, z],
-    [0, 1, 0],
-    typeof c === 'function' ? c(at0) : c,
-    alpha,
-  );
-  push(
-    a,
-    [THROAT.halfWidth, THROAT.floorLiftM, z],
-    [0, 1, 0],
-    typeof c === 'function' ? c(at1) : c,
-    alpha,
-  );
+  push(a, [-THROAT.halfWidth, THROAT.floorLiftM, z], [0, 1, 0], c, alpha);
+  push(a, [THROAT.halfWidth, THROAT.floorLiftM, z], [0, 1, 0], c, alpha);
   return base;
 }
-/** Strips the profile and the floor along the stations; colour is the per-station law (the
- * far station may grade per vertex), and the optional spill laws write the lamp's forward
- * spill into the vertex alpha (the night gate's input — the material's emissive multiplies
- * by it under the shader patch). The floor's spill may law its own e-fold: the lit run's
- * threshold floor reads dark at night while the vault keeps the passage-length glow. */
+/** Strips the profile and the floor along the stations; colour is the per-station law, and the
+ * optional spill law writes the lamp's forward spill into the vertex alpha (the night gate's
+ * input — the material's emissive multiplies by it under the shader patch). */
 function run(
   a: Acc,
   profile: readonly Pt[],
   st: readonly number[],
-  shade: (d: number, p: Pt) => Rgb,
+  shade: (d: number) => Rgb,
   spill?: (d: number) => number,
-  floorSpill?: (d: number) => number,
 ) {
   const n = profile.length;
   const alphaAt = (d: number): number => (spill === undefined ? 0 : spill(d));
-  const floorAlphaAt = (d: number): number =>
-    floorSpill === undefined ? alphaAt(d) : floorSpill(d);
-  const d0 = at(st, 0);
-  let prevP = profileRow(a, profile, d0, (p) => shade(d0, p), alphaAt(d0));
-  let prevF = floorRow(a, d0, (p) => shade(d0, p), floorAlphaAt(d0));
+  let prevP = profileRow(a, profile, at(st, 0), shade(at(st, 0)), alphaAt(at(st, 0)));
+  let prevF = floorRow(a, at(st, 0), shade(at(st, 0)), alphaAt(at(st, 0)));
   for (let k = 1; k < st.length; k++) {
     const d = at(st, k);
-    const rowP = profileRow(a, profile, d, (p) => shade(d, p), alphaAt(d));
-    const rowF = floorRow(a, d, (p) => shade(d, p), floorAlphaAt(d));
+    const rowP = profileRow(a, profile, d, shade(d), alphaAt(d));
+    const rowF = floorRow(a, d, shade(d), alphaAt(d));
     for (let i = 0; i < n - 1; i++) {
       // near i → far i → far i+1 → near i+1: inward for a profile walked up, over and down.
       a.idx.push(prevP + i, rowP + i, rowP + i + 1, prevP + i, rowP + i + 1, prevP + i + 1);
@@ -148,10 +118,8 @@ function run(
     prevF = rowF;
   }
 }
-/** The warm slab: a fan over the profile at the far depth, facing the mouth; the fan's
- * vertices carry the same per-vertex law as the run's far row (same plane, same colours —
- * the coplanar duplicates must never fight). */
-function endWall(a: Acc, profile: readonly Pt[], c: (p: Pt) => Rgb): void {
+/** The warm slab: a fan over the profile at the far depth, facing the mouth. */
+function endWall(a: Acc, profile: readonly Pt[], c: Rgb): void {
   const base = profileRow(a, profile, THROAT.depthM, c);
   for (let i = 1; i < profile.length - 1; i++) a.idx.push(base, base + i + 1, base + i);
 }
@@ -210,11 +178,11 @@ export function patchThroatLitShader(shader: { fragmentShader: string }): void {
 export function buildThroat(): ThroatBuild {
   const profile = throatProfile();
   const litAcc = newAcc(4);
-  run(litAcc, profile, LIT_STATIONS_M, (d) => skyLitAlbedo(d), lampSpill, lampFloorSpill);
+  run(litAcc, profile, LIT_STATIONS_M, skyLitAlbedo, lampSpill);
   collar(litAcc, profile);
   const lampAcc = newAcc();
-  run(lampAcc, profile, LAMP_STATIONS_M, lampShade);
-  endWall(lampAcc, profile, (p) => slabGradeAt(p[0], p[1]));
+  run(lampAcc, profile, LAMP_STATIONS_M, lampRadiance);
+  endWall(lampAcc, profile, lampSlab());
   // Opacity 0 at build: the host fades the throat in with the massing (applyPresentation).
   // The emissive carries the lamp slab at intensity 0 — the night gate (setThroatNightSpill)
   // turns the forward spill on with the lattice weight; the shader patch multiplies it by

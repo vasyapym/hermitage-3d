@@ -148,41 +148,6 @@ export const lampSlab = (): Rgb => scale(LAMP_WARM, LAMP_SLAB_RADIANCE);
 export const lampSpill = (d: number): number =>
   GLOW_TOE * Math.exp((d - LAMP_REACH_M) / THROAT.depthM);
 /**
- * The floor's own spill e-fold (the 2026-11-28 doorway note): the lamp reaches the passage
- * floor mostly by bounce, and the bounce dies long before the mouth — the vault keeps the
- * passage-length e-fold above, the floor's glow concentrates near the lamp run. From across
- * the night square the threshold reads dark stone, so the main arch keeps its true size
- * against its two dark neighbours instead of growing a lit floor wedge down to the ground
- * line. Same seam value as the vault's spill at d = LAMP_REACH_M (both are GLOW_TOE there).
- */
-export const FLOOR_SPILL_FOLD_M = 9;
-export const lampFloorSpill = (d: number): number =>
-  GLOW_TOE * Math.exp((d - LAMP_REACH_M) / FLOOR_SPILL_FOLD_M);
-/** The far slab's grade (the same note): lamplight pools low and centred — the flat slab read
- * as a pasted sticker from across the night square, its hard cream edge against the dark near
- * vault. The crown keeps SLAB_CROWN_KEEP of the slab's radiance, the jambs SLAB_JAMB_KEEP;
- * the hue (D2) and the centre-bottom's full slab never move. The run's far row and the
- * end-wall fan share the law (and the plane), so the coplanar duplicates stay identical. */
-export const SLAB_CROWN_KEEP = 0.55;
-export const SLAB_JAMB_KEEP = 0.75;
-export function slabGradeAt(x: number, y: number): Rgb {
-  if (!Number.isFinite(x) || !Number.isFinite(y)) {
-    throw new RangeError(`throat: slab grade coordinates must be finite, got ${x}, ${y}`);
-  }
-  const crownY = THROAT.springY + THROAT.halfWidth; // the vault profile's own crown (9.60)
-  const v = clamp01(y / crownY);
-  const h = Math.min(1, Math.abs(x) / THROAT.halfWidth);
-  const k = (1 - (1 - SLAB_CROWN_KEEP) * v ** 1.5) * (1 - (1 - SLAB_JAMB_KEEP) * h * h);
-  return scale(lampSlab(), k);
-}
-/** The lamp run's shade law: the depth ramp, with the far station (the end wall's own plane)
- * carrying the slab's grade. The builder calls it per vertex; the far cap reads as lamplight
- * pooling, not a flat panel. */
-export function lampShade(d: number, p: Pt): Rgb {
-  if (d >= THROAT.depthM) return slabGradeAt(p[0], p[1]);
-  return lampRadiance(d);
-}
-/**
  * sq-arch-day B5: the massing head's solid test — inside the pavilion's rectangle
  * (±massHalfWidth, 0..massTopY) minus the arch opening (THROAT_VOID): the old rectangular
  * void's shoulders are now solid, the arch above the spring is open. main.ts builds the head

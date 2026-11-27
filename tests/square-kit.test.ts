@@ -408,18 +408,13 @@ describe('4 · corrected backdrop-ray pins', () => {
     expect(hit).toBeLessThanOrEqual(kit.HQ_Z.south);
   });
 
-  it('pins the committed S0b pose from SQUARE_RAIL: the hit is exactly 83.715 (the 2026-11-28 slide)', () => {
-    // The 2026-11-28 turn note slid S0b back along the rail line (t 0.25 → 0.203; the first
-    // Forward's right pan softened to 0.85 ×): the centre ray's HQ hit eased north off the
-    // wall's north end, and the wall still fills the frame's right half beside the Column —
-    // the slide's own capture check read both facades flanking the monument at noon and
-    // night. The value is the pose's fingerprint: any S0b pose change moves it and fails
-    // here on purpose.
+  it('pins the committed S0b pose from SQUARE_RAIL: the hit is exactly 107.5, in span', () => {
     const stop = SQUARE_RAIL.stops.find((candidate) => candidate.id === 'S0b');
     if (!stop?.subject) throw new Error('the committed S0b stop is missing');
     const hit = kit.squareKitBackdropHitZ(stop.position, stop.subject, kit.HQ_FACE_X);
-    expect(hit).toBeCloseTo(83.715, 3);
+    expect(hit).toBeCloseTo(107.5, 6);
     if (hit === null) throw new Error('missing committed S0b backdrop hit');
+    expect(hit).toBeGreaterThanOrEqual(kit.HQ_Z.north);
     expect(hit).toBeLessThanOrEqual(kit.HQ_Z.south);
   });
 

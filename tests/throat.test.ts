@@ -24,13 +24,11 @@ import {
   LAMP_REACH_M,
   LAMP_STATIONS_M,
   LIT_STATIONS_M,
-  lampFloorSpill,
   lampRadiance,
   lampSlab,
   lampSpill,
   type Rgb,
   skyLitAlbedo,
-  slabGradeAt,
   THROAT,
   THROAT_TONE_KNOTS,
   THROAT_TRIANGLE_CEILING,
@@ -325,66 +323,6 @@ describe('the lamp forward spill (the doorway night law, 2026-11-14)', () => {
     // The census caps the round rides (kit 6/6, whole-frame 56 / 75,000 — unmoved).
     expect(SQUARE_DRAW_CAP).toBe(56);
     expect(SQUARE_TRI_CAP).toBe(75_000);
-  });
-});
-
-describe('the floor spill and the slab grade (the 2026-11-28 doorway note)', () => {
-  const slab = lampSlab();
-  const lum = (c: Rgb): number => 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
-
-  it('the floor glow concentrates near the lamp run: the night threshold reads dark stone', () => {
-    // The 2026-11-28 note: the lit floor at the mouth made the main arch read bigger than
-    // its two dark neighbours from across the square. The floor's e-fold (9 m) is the
-    // vault's steeper cousin — at the mouth the floor spill is a fraction of the vault's.
-    expect(lampFloorSpill(0)).toBeLessThan(0.15 * lampSpill(LAMP_REACH_M));
-    expect(lampFloorSpill(0) / lampSpill(0)).toBeLessThan(0.25);
-    // The seam is shared with the vault's spill (both are GLOW_TOE there): the floor's
-    // radiance continues into the lamp run's toe without a step.
-    expect(lampFloorSpill(LAMP_REACH_M)).toBeCloseTo(lampSpill(LAMP_REACH_M), 12);
-    expect(lampFloorSpill(LAMP_REACH_M) * slab[0]).toBeCloseTo(lampRadiance(LAMP_REACH_M)[0], 12);
-  });
-
-  it('the floor spill is strictly increasing across the lit stations (the vault shape)', () => {
-    let prev = 0;
-    for (const d of LIT_STATIONS_M) {
-      const s = lampFloorSpill(d ?? 0);
-      expect(s).toBeGreaterThan(prev);
-      prev = s;
-    }
-  });
-
-  it('the far slab pools low and centred: the keeps at the crown and the jambs, the full slab at the centre-bottom', () => {
-    // The centre-bottom keeps the slab bit-exact (the walk's destination glow, D2's hue).
-    expect(slabGradeAt(0, 0)).toEqual(slab);
-    // The crown keeps 55 %, the jambs 75 % — the pool's soft edges (the hard cream edge
-    // against the dark near vault was the sticker read from across the night square).
-    const crown = slabGradeAt(0, THROAT.springY + THROAT.halfWidth);
-    expect(crown[0]).toBeCloseTo(0.55 * slab[0], 12);
-    expect(crown[1]).toBeCloseTo(0.55 * slab[1], 12);
-    expect(crown[2]).toBeCloseTo(0.55 * slab[2], 12);
-    const jamb = slabGradeAt(THROAT.halfWidth, 0);
-    expect(jamb[0]).toBeCloseTo(0.75 * slab[0], 12);
-    // The grade is monotone down each axis from the centre-bottom (no hot rings).
-    expect(lum(slabGradeAt(0, 3))).toBeGreaterThan(lum(slabGradeAt(0, 6)));
-    expect(lum(slabGradeAt(1, 0))).toBeGreaterThan(lum(slabGradeAt(2, 0)));
-    expect(() => slabGradeAt(Number.NaN, 0)).toThrow(RangeError);
-  });
-
-  it('the built far cap carries the grade; the run row and the fan share it (no coplanar fight)', () => {
-    const b = buildThroat();
-    const attr = b.lamp.geometry.getAttribute('color');
-    const n = throatProfile().length;
-    const rowVerts = n + 2; // a profile row plus the floor pair
-    const fanBase = rowVerts * LAMP_STATIONS_M.length; // the end-wall fan's first vertex
-    const lastRowStart = fanBase - rowVerts; // the run's own far row (same plane)
-    const corner = slabGradeAt(-THROAT.halfWidth, 0);
-    const centre = slabGradeAt(0, THROAT.springY + THROAT.halfWidth);
-    // The fan's corner vertex and the run row's corner vertex carry the SAME graded colour.
-    expect(attr.getX(fanBase)).toBeCloseTo(corner[0], 7);
-    expect(attr.getX(lastRowStart)).toBeCloseTo(corner[0], 7);
-    // The grade's shape at the crown centre: dimmer than the full slab (the pool falls off up).
-    expect(attr.getX(fanBase + (n - 1) / 2)).toBeCloseTo(centre[0], 7);
-    expect(centre[0]).toBeLessThan(slab[0]);
   });
 });
 
