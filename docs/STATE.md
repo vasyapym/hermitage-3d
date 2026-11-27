@@ -6,9 +6,9 @@ Start with AGENTS.md and this file only. Live state holds open work; Recent is a
 
 ### Now
 
-Tree: main @ sq-fix-improve-merge · 2026-11-27
-Wave: turn-cascade, sq-shadow-dirt, rg-next, rg-improve, st-george and sq-fix-improve all landed (sq-fix-improve merged per ticket; the FULL gate rides this merge per the last-merge law); the rg-next battery ran on the office box 2026-11-26 (e2e 87/0); rg-improve first of three (the hour on the faces, the laid-stone floor, the limewash; JS +40 gz, the owner's D1); st-george second of three (room 4 of 7, the full gate by the last merging session). The darwin goldens stay parked.
-Lanes: sq-t0-residue (branch `sq-t0-residue`, phase: the R2 ruling integrated, the device sitting pending; ledger key: the `sq-t0-residue` open-reservation row) — PARALLEL per the owner
+Tree: main @ t0-residue-merge · 2026-11-27
+Wave: turn-cascade, sq-shadow-dirt, rg-next, rg-improve, st-george, sq-fix-improve and sq-t0-residue all landed (the FULL gate + the CI verdict ride the wave's LAST merging session — deferred NOT waived); the rg-next battery ran on the office box 2026-11-26 (e2e 87/0); st-george second of three (room 4 of 7). The darwin goldens stay parked.
+Lanes: <!-- none open; the template: at integration insert the actual name, branch, phase and matching docs/budget-ledger.md open-row key. -->
 
 Owed:
 - Jordan J1 spire read — closes when: the owner judges the J1 frame; the caption fallback stays parked → docs/parking-lot.md
@@ -23,10 +23,11 @@ Owed:
 - rg-improve capture battery + the golden re-baselines — closes when: the owner's sitting judges the frames on the merged build → docs/archive/2026-11-26-rgimprove.md
 - F8 iPhone tier — CLOSED 2026-11-27: the owner's device verdict «still not good. but it is better» (IMG_0059, the settled live app) — the 0.1/0.5 rows validated directionally; the residue (the A13/Safari TBDR + the dprCap-1 stretch) parked → docs/archive/2026-11-26-sqfiximprove.md
 - The sq-fix-improve sitting — closes when: the owner judges the blade/lane (S0→Sh, Mac + iPhone pinned t0) and the seasonal low-sun look → docs/archive/2026-11-26-sqfiximprove.md
+- The t0-residue sitting — closes when: the owner runs the arms (the decision table (a)–(d)) on the device after the deploy → the vault 03-1_projects/hermitage-3d-2026-11-27-t0-residue/sitting/
 - Office speckle gate — CLOSED 2026-11-26 (the two-build gate on the reference Mac; the eye's display verdict stands) → docs/archive/2026-11-26-sqshadowdirt.md
 - Office square-kit e2e — CLOSED 2026-11-26 (8/8 on the reference Mac; the box's fails were the machine-stall class) → docs/archive/2026-11-26-sqshadowdirt.md
 
-Recent: 2026-11-27 → docs/briefs/ROUNDS.md (row: sq-fix-improve) · 2026-11-27 → docs/briefs/ROUNDS.md (row: st-george, merge 99b8dd4) · 2026-11-26 → docs/briefs/ROUNDS.md (row: rg-improve, merge d80feee)
+Recent: 2026-11-27 → docs/briefs/ROUNDS.md (row: sq-t0-residue, merge ba408d2) · 2026-11-27 → docs/briefs/ROUNDS.md (row: sq-fix-improve) · 2026-11-27 → docs/briefs/ROUNDS.md (row: st-george, merge 99b8dd4)
 
 ## Standing protocol
 

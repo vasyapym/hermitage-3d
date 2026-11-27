@@ -1,6 +1,6 @@
 # The budget ledger — one authoritative table of committed and reserved costs
 
-main @ sq-fix-improve-merge · 2026-11-27 — the snapshot this table is measured against (mirrors STATE's Tree label).
+main @ t0-residue-merge · 2026-11-27 — the snapshot this table is measured against (mirrors STATE's Tree label).
 
 **What this file is:** the single place where the project's byte/triangle/draw BALANCES are kept
 honest across parallel sessions. `tools/budget.mjs` measures the COMMITTED tree at build; STATE
@@ -29,7 +29,7 @@ that decides whether a next round's declared allowance fits. The project-course 
 
 | line | cap | operating ceiling | committed (main @ records-decision · 2026-11-26) | committed (branch `rg-improve`, merged 2026-11-26) | remaining to the operating ceiling |
 |---|---|---|---|---|---|
-| JS gzip (all chunks) | 350,000 | 285,707 — proposed explicit ceiling, owner ratification pending (design-project-course §1); the rg-walk-tune merge lands +185 OVER it — the OWNER PLATE line (the hard CI cap holds with 61,842 spare) | 289,447 @ main, the socle re-tune, 2026-11-23 (the union merge 289,411 → +36, the derived lower-tier stretch law) | **291,653 measured at the round's close, 2026-11-25** (the P1 review batch + the DEC-054 pick-set; +2,134 over main's 289,519; RU +0) — **MERGED at the wave's slot 2/3 (the merge e72c442)**; the rg-next merge a470f06 re-measured the merged tree: 291,807 (the office box's battery, e2e 87/0); the rg-improve merge d80feee re-measured: 291,847 (+40 gz — the D2 emissive dial rows, the owner's D1) | **293,483 @ the merged main, the st-george merge, 2026-11-27** (+1,636 gz — the wiring's P9 +1,642 measured on the lane base; RU +324 = 7,933); the sq-fix-improve merge re-measured: **293,779** (the branch's +277 rides the st-george 293,483 — the merge overlap +19; RU +0 = 7,933) | −8,072 to the proposed ceiling (OVER — the OWNER PLATE line stands: the hard CI cap holds 56,221 spare) |
+| JS gzip (all chunks) | 350,000 | 285,707 — proposed explicit ceiling, owner ratification pending (design-project-course §1); the rg-walk-tune merge lands +185 OVER it — the OWNER PLATE line (the hard CI cap holds with 61,842 spare) | 289,447 @ main, the socle re-tune, 2026-11-23 (the union merge 289,411 → +36, the derived lower-tier stretch law) | **291,653 measured at the round's close, 2026-11-25** (the P1 review batch + the DEC-054 pick-set; +2,134 over main's 289,519; RU +0) — **MERGED at the wave's slot 2/3 (the merge e72c442)**; the rg-next merge a470f06 re-measured the merged tree: 291,807 (the office box's battery, e2e 87/0); the rg-improve merge d80feee re-measured: 291,847 (+40 gz — the D2 emissive dial rows, the owner's D1) | **293,483 @ the merged main, the st-george merge, 2026-11-27** (+1,636 gz — the wiring's P9 +1,642 measured on the lane base; RU +324 = 7,933); the sq-fix-improve merge re-measured: **293,779** (the branch's +277 rides the st-george 293,483 — the merge overlap +19; RU +0 = 7,933); the sq-t0-residue merge re-measured: **293,932** (+153 — the tier key `shadowDepthOffsetFactor` + the sqdebug sitting arms; RU +0 = 7,933) | −8,225 to the proposed ceiling (OVER — the OWNER PLATE line stands: the hard CI cap holds 56,068 spare) |
 | RU strings (lazy chunk) | 12,000 | — | 7,546 @ main, the sq-facade union merge, 2026-11-23 (the jordan-next captions +97 → the sq-facade formula chips +19; the dressings law's declared RU +0 held — the +19 is the notes page's own re-wording) | +0 measured (no strings touched); the merged tree re-measured: the rg-next merge 7,609 · the st-george wiring +324 = 7,933 · the sq-fix-improve merge re-measured 7,933 (no i18n in the round) | 4,067 |
 | basis transcoder | 600,000 | — | 584,862 @ main, square-env2 merge 2026-11-05 | none | 15,138 — effectively closed |
 | exterior (square payload) | 4,000,000 | — | 0 @ main, square-env2 merge 2026-11-05 | none | full |
@@ -50,7 +50,6 @@ that decides whether a next round's declared allowance fits. The project-course 
 
 | branch / candidate | what it reserves | status |
 |---|---|---|
-| `sq-t0-residue` (branch `sq-t0-residue` off main 3ab6aab, PARALLEL) | JS gzip: the tier key `shadowDepthOffsetFactor` + the per-settle assign + the sqdebug sitting arms (sf/si/sd) — declared ≤ +600 B gz; RU +0 | in flight — the R2 ruling integrated; the device sitting pending; the DEC-ready row parks for the integrating authority |
 
 
 **Update log:** Update log: cut — history lives in the round archives (docs/archive/*.md); newest entry 2026-11-15 square-palace-2 merge.
