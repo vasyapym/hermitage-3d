@@ -8,7 +8,7 @@
  * (R18-ux D1) — five since the 2026-11-12/13 stops round (the owner's stop order, Fable 5.1's
  * placement): S0b and Shb split the two 54.3 m gaps — at the line's quarter points until the
  * 2026-11-28 turn note slid S0b back to t 0.203 (the softer first Forward's pan, the ruling's
- * bare-field-gated farthest; the stop table carries the figures). S0 faces the
+ * gate-checked slide; the stop table carries the figures). S0 faces the
  * facade. Sh (R18-ux D1) stands halfway (z 177), so the first Forward comes closer without
  * arriving. S1 (R-UX3, D7) stands back so the gate pavilion composes as architecture. Under the
  * glide look law, each glide holds its destination's subject: S0→S0b holds the Column, S0b→Sh

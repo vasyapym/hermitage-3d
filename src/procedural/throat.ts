@@ -15,14 +15,21 @@
  * Shape from the same law. openGroundArch(): the kit's middle ground-arch instance (the dark
  * slab that fills the opening today) is collapsed to a zero matrix AFTER the build — the
  * solver/kit law is untouched.
+ * The 2026-11-28 doorway ruling (brief 1), Decision B — the main doorway's night read: the
+ * lamp mesh takes the lit mesh's own idiom (itemSize-4 colour, the night gain in the vertex
+ * alpha, ONE shader hook — patchLampNightShader below) and the far wall is RINGS of the vault
+ * profile (the law's FAR_WALL_RINGS) instead of the single fan.
  */
 import * as THREE from 'three';
 import type { Pt, Rgb } from '../world/throat';
 import {
   COLLAR_RGB,
+  FAR_WALL_RINGS,
+  FLOOR_NIGHT_GAIN,
   LAMP_STATIONS_M,
   LIT_STATIONS_M,
   lampRadiance,
+  lampRunNightGain,
   lampSlab,
   lampSpill,
   skyLitAlbedo,
@@ -41,8 +48,10 @@ export type ThroatBuild = Readonly<{
   triangles: number;
 }>;
 type Vec = readonly [number, number, number];
-/** Vertex colours, interleaved: rgb always; the lit run carries the lamp's forward spill as
- * the 4th component (itemSize 4) — the night gate's input under the shader patch. */
+/** Vertex colours, interleaved: rgb always; the night gain rides as the 4th component
+ * (itemSize 4) on BOTH meshes (the 2026-11-28 doorway ruling) — the lit run carries the
+ * lamp's forward spill, the lamp run and the far-wall rings the night gain — the night
+ * gate's input under the shader patches. */
 type Acc = {
   pos: number[];
   nrm: number[];
@@ -92,23 +101,26 @@ function floorRow(a: Acc, depth: number, c: Rgb, alpha = 0): number {
   return base;
 }
 /** Strips the profile and the floor along the stations; colour is the per-station law, and the
- * optional spill law writes the lamp's forward spill into the vertex alpha (the night gate's
- * input — the material's emissive multiplies by it under the shader patch). */
+ * optional alpha law writes the night gain into the vertex alpha (the night gate's input —
+ * the material's shader patch multiplies it into the rgb at wNight 1): profile rows get it
+ * plain, floor rows × floorGain (the ruling's FLOOR_NIGHT_GAIN; the default 1 is the plain
+ * spill). */
 function run(
   a: Acc,
   profile: readonly Pt[],
   st: readonly number[],
   shade: (d: number) => Rgb,
-  spill?: (d: number) => number,
+  alpha?: (d: number) => number,
+  floorGain = 1,
 ) {
   const n = profile.length;
-  const alphaAt = (d: number): number => (spill === undefined ? 0 : spill(d));
+  const alphaAt = (d: number): number => (alpha === undefined ? 0 : alpha(d));
   let prevP = profileRow(a, profile, at(st, 0), shade(at(st, 0)), alphaAt(at(st, 0)));
-  let prevF = floorRow(a, at(st, 0), shade(at(st, 0)), alphaAt(at(st, 0)));
+  let prevF = floorRow(a, at(st, 0), shade(at(st, 0)), alphaAt(at(st, 0)) * floorGain);
   for (let k = 1; k < st.length; k++) {
     const d = at(st, k);
     const rowP = profileRow(a, profile, d, shade(d), alphaAt(d));
-    const rowF = floorRow(a, d, shade(d), alphaAt(d));
+    const rowF = floorRow(a, d, shade(d), alphaAt(d) * floorGain);
     for (let i = 0; i < n - 1; i++) {
       // near i → far i → far i+1 → near i+1: inward for a profile walked up, over and down.
       a.idx.push(prevP + i, rowP + i, rowP + i + 1, prevP + i, rowP + i + 1, prevP + i + 1);
@@ -118,10 +130,30 @@ function run(
     prevF = rowF;
   }
 }
-/** The warm slab: a fan over the profile at the far depth, facing the mouth. */
+/**
+ * The far wall (the 2026-11-28 doorway ruling, brief 1): RINGS of the vault profile scaled
+ * about (0, 0) at the far depth — strips between consecutive rings, a fan inside the last.
+ * Scaling about the origin keeps the floor line (the endpoints' y stays 0) and the outer ring
+ * (scale 1.0) IS the profile, so the outline and the day read are unchanged — coplanar,
+ * constant lampSlab rgb. Every vertex's ALPHA is its ring's night gain (FAR_WALL_RINGS),
+ * interpolated across the strips — the shader's rgb multiplier at wNight 1.
+ */
 function endWall(a: Acc, profile: readonly Pt[], c: Rgb): void {
-  const base = profileRow(a, profile, THROAT.depthM, c);
-  for (let i = 1; i < profile.length - 1; i++) a.idx.push(base, base + i + 1, base + i);
+  const rows: number[] = [];
+  for (const [ringScale, gain] of FAR_WALL_RINGS) {
+    const ring = profile.map((p): Pt => [p[0] * ringScale, p[1] * ringScale]);
+    rows.push(profileRow(a, ring, THROAT.depthM, c, gain));
+  }
+  for (let r = 0; r < rows.length - 1; r++) {
+    const outer = at(rows, r);
+    const inner = at(rows, r + 1);
+    for (let i = 0; i < profile.length - 1; i++) {
+      // outer i → inner i → inner i+1 → outer i+1: the quad walk the station strips use.
+      a.idx.push(outer + i, inner + i, inner + i + 1, outer + i, inner + i + 1, outer + i + 1);
+    }
+  }
+  const core = at(rows, rows.length - 1);
+  for (let i = 1; i < profile.length - 1; i++) a.idx.push(core, core + i + 1, core + i);
 }
 /**
  * The mouth collar (sq-arch-day B5): the arch outline minus the vault profile — the 0.10 ring
@@ -175,13 +207,51 @@ export function patchThroatLitShader(shader: { fragmentShader: string }): void {
   }
   shader.fragmentShader = patched;
 }
+/** The ONE shared night uniform (the FACADE_SURFACE_UNIFORMS pattern): written by
+ * setThroatNightSpill beside the lit emissive's intensity write, read by the lamp's patched
+ * shader. 0 all day — the rgb multiplier is exactly 1.0 and the day read is bit-exact. */
+export const THROAT_NIGHT_UNIFORM: { value: number } = { value: 0 };
+/**
+ * The lamp shader's night-gain patch (the 2026-11-28 doorway ruling, brief 1 — Decision B):
+ * the lamp mesh's colour attribute is itemSize 4 and its vertex ALPHA is the night gain (the
+ * fraction of the day radiance kept at wNight 1) — the lit patch's own idiom. In three
+ * 0.186.1 the meshbasic fragment's `#include <color_fragment>` does `diffuseColor *= vColor;`
+ * under USE_COLOR_ALPHA — the FULL vec4, alpha included — so the splice multiplies the RGB
+ * channels only, by `1.0 + ( vColor.a - 1.0 ) * uThroatNight` (exactly 1.0 at uThroatNight 0
+ * — the day read bit-exact; vColor.a at wNight 1 — the gain itself), then restores
+ * `diffuseColor.a = opacity;` — the same restore the lit patch does, so the massing fade law
+ * survives. The uniform is declared after <common>; the shared uniform object is wired by the
+ * builder's onBeforeCompile (THROAT_NIGHT_UNIFORM). Loud-fails if three renames a token (the
+ * repo's silent-noop law).
+ */
+export function patchLampNightShader(shader: { fragmentShader: string }): void {
+  const src = shader.fragmentShader;
+  const body = src.replace(
+    '#include <color_fragment>',
+    '#include <color_fragment>\n\tdiffuseColor.rgb *= 1.0 + ( vColor.a - 1.0 ) * uThroatNight;\n\tdiffuseColor.a = opacity;',
+  );
+  if (body === src) {
+    throw new Error('throat: the lamp-shader patch found no <color_fragment> token');
+  }
+  const declared = body.replace(
+    '#include <common>',
+    '#include <common>\nuniform float uThroatNight;',
+  );
+  if (declared === body) {
+    throw new Error('throat: the lamp-shader patch found no <common> token');
+  }
+  shader.fragmentShader = declared;
+}
 export function buildThroat(): ThroatBuild {
   const profile = throatProfile();
   const litAcc = newAcc(4);
-  run(litAcc, profile, LIT_STATIONS_M, skyLitAlbedo, lampSpill);
+  run(litAcc, profile, LIT_STATIONS_M, skyLitAlbedo, lampSpill, FLOOR_NIGHT_GAIN);
   collar(litAcc, profile);
-  const lampAcc = newAcc();
-  run(lampAcc, profile, LAMP_STATIONS_M, lampRadiance);
+  // The ruling (brief 1): the lamp mesh rides the same itemSize-4 attribute — the alpha is
+  // the night gain (linear 1.0 → LAMP_RUN_END_GAIN, floors × FLOOR_NIGHT_GAIN), the rgb stays
+  // today's lampRadiance; the far wall is the RINGS, the gain per ring in the alpha.
+  const lampAcc = newAcc(4);
+  run(lampAcc, profile, LAMP_STATIONS_M, lampRadiance, lampRunNightGain, FLOOR_NIGHT_GAIN);
   endWall(lampAcc, profile, lampSlab());
   // Opacity 0 at build: the host fades the throat in with the massing (applyPresentation).
   // The emissive carries the lamp slab at intensity 0 — the night gate (setThroatNightSpill)
@@ -204,6 +274,12 @@ export function buildThroat(): ThroatBuild {
     opacity: 0,
   });
   lampMaterial.name = 'ThroatLamp';
+  // The ruling's ONE shader hook: the shared uniform wired into the program, then the rgb
+  // gain spliced after <color_fragment> (patchLampNightShader).
+  lampMaterial.onBeforeCompile = (s) => {
+    s.uniforms.uThroatNight = THROAT_NIGHT_UNIFORM;
+    patchLampNightShader(s);
+  };
   const lit = new THREE.Mesh(toGeometry(litAcc), litMaterial);
   lit.name = 'ThroatLit';
   lit.receiveShadow = true;
@@ -234,10 +310,14 @@ export function setThroatOpacity(build: ThroatBuild, opacity: number): void {
     m.transparent = opacity < 1;
   }
 }
-/** The night gate: the lamp's forward spill rides the same switch that removes the crown's
- * ground bounce (the lattice weight) — 0 all day, 1 through the night plateau. */
+/** The night gate (the 2026-11-28 doorway ruling, brief 1): the lamp's forward spill AND the
+ * lamp mesh's rgb gain ride the same switch that removes the crown's ground bounce (the
+ * lattice weight) — 0 all day (both multipliers exactly 1: the day read bit-exact), 1 through
+ * the night plateau (the factor is the vertex gain itself). Writes BOTH gates beside each
+ * other: the lit emissive's intensity and the shared uThroatNight. */
 export function setThroatNightSpill(build: ThroatBuild, wNight: number): void {
   (build.lit.material as THREE.MeshLambertMaterial).emissiveIntensity = wNight;
+  THROAT_NIGHT_UNIFORM.value = wNight;
 }
 const VOID_MATRIX = new THREE.Matrix4().makeScale(0, 0, 0);
 /** Collapses the ground-arch instance centred at `centreX` — the slab the throat replaces. */

@@ -1,6 +1,10 @@
 // Throat gates — R-UX3 (docs/design-walkthrough-ux.md §3, §11, D2/D7).
 // sq-arch-day B5 (2026-11-24): the concentric arch (springY 7.25, the void = the r 2.45 arch,
 // crown 9.70), the ONE massing head, the B5b depth-knot grade — extends R-UX3's own law.
+// The 2026-11-28 doorway ruling (brief 1), Decision B: the night read — the far wall is RINGS
+// of the vault profile with the night gain in the vertex alpha, the lamp run's gain falls
+// 1.0 → 0.15 (floors × 0.5), the spill's mouth fades to exactly 0, and the lamp shader
+// multiplies the gain into its rgb at wNight 1.
 // The law is pure numbers; the builder turns them into buffers; the facade fixture is the
 // real frozen chain (solve → build) so openGroundArch is gated on the committed kit.
 
@@ -14,20 +18,28 @@ import { solveSouthFacade } from '../src/procedural/facade-solver';
 import {
   buildThroat,
   openGroundArch,
+  patchLampNightShader,
   patchThroatLitShader,
   setThroatNightSpill,
+  THROAT_NIGHT_UNIFORM,
 } from '../src/procedural/throat';
 import { lightmapWeights } from '../src/sky/lightmap-weights';
 import { KIT_PORTAL_BOX, SQUARE_DRAW_CAP, SQUARE_TRI_CAP } from '../src/world/square-kit';
 import {
+  FAR_WALL_RINGS,
+  FLOOR_NIGHT_GAIN,
   headSolidAt,
   LAMP_REACH_M,
+  LAMP_RUN_END_GAIN,
   LAMP_STATIONS_M,
   LIT_STATIONS_M,
   lampRadiance,
+  lampRunNightGain,
   lampSlab,
   lampSpill,
+  type Pt,
   type Rgb,
+  SPILL_MOUTH_FADE_M,
   skyLitAlbedo,
   THROAT,
   THROAT_TONE_KNOTS,
@@ -152,6 +164,36 @@ describe('throat law (R-UX3 §3, §11, D2; sq-arch-day B5 the concentric arch)',
     expect(() => skyLitAlbedo(-1)).toThrow(RangeError);
     expect(() => lampRadiance(-1)).toThrow(RangeError);
   });
+
+  it('the far-wall ring law: the scales/gains, the core standing on the floor (2026-11-28)', () => {
+    expect(FAR_WALL_RINGS).toEqual([
+      [1.0, 0.05],
+      [0.7, 0.2],
+      [0.4, 0.7],
+    ]);
+    // The core (scale 0.4): 1.88 m wide with its crown at 3.84 m, standing on the floor —
+    // scaling the profile about (0, 0) keeps the floor line (the endpoints' y stays 0).
+    const core = (FAR_WALL_RINGS[FAR_WALL_RINGS.length - 1] ?? [0, 0])[0];
+    const scaled = throatProfile().map(([x, y]): Pt => [x * core, y * core]);
+    const xs = scaled.map(([x]) => x);
+    const ys = scaled.map(([, y]) => y);
+    expect(Math.max(...xs) - Math.min(...xs)).toBeCloseTo(1.88, 12);
+    expect(Math.max(...ys)).toBeCloseTo(3.84, 12);
+    expect(Math.min(...ys)).toBe(0);
+  });
+
+  it('the lamp run night gain: linear 1.0 → 0.15 in t, floor × 0.5 (2026-11-28)', () => {
+    expect(LAMP_RUN_END_GAIN).toBe(0.15);
+    expect(FLOOR_NIGHT_GAIN).toBe(0.5);
+    expect(lampRunNightGain(LAMP_REACH_M)).toBe(1); // the seam keeps the full gain
+    expect(lampRunNightGain(THROAT.depthM)).toBeCloseTo(LAMP_RUN_END_GAIN, 12);
+    const mid = (LAMP_REACH_M + THROAT.depthM) / 2;
+    expect(lampRunNightGain(mid)).toBeCloseTo(0.575, 12); // the linear midpoint
+    // The floor rows take the same linear gain × FLOOR_NIGHT_GAIN.
+    expect(lampRunNightGain(LAMP_REACH_M) * FLOOR_NIGHT_GAIN).toBeCloseTo(0.5, 12);
+    expect(lampRunNightGain(THROAT.depthM) * FLOOR_NIGHT_GAIN).toBeCloseTo(0.075, 12);
+    expect(() => lampRunNightGain(-1)).toThrow(RangeError);
+  });
 });
 
 describe('throat law purity', () => {
@@ -252,7 +294,7 @@ describe('the massing head (sq-arch-day B5, the main.ts law scan)', () => {
   });
 });
 
-describe('the lamp forward spill (the doorway night law, 2026-11-14)', () => {
+describe('the lamp forward spill (the doorway night law, 2026-11-14; the 2026-11-28 mouth fade)', () => {
   const slab = lampSlab();
   const spillRgb = (d: number): Rgb => {
     const s = lampSpill(d);
@@ -266,8 +308,17 @@ describe('the lamp forward spill (the doorway night law, 2026-11-14)', () => {
     expect(lampSpill(LAMP_REACH_M) * slab[2]).toBeCloseTo(b0, 12);
   });
 
-  it('is strictly increasing and positive across the lit stations', () => {
-    let prev = 0;
+  it('fades the mouth: exactly 0 there, the pre-fade curve from 5 m in, the seam kept', () => {
+    expect(SPILL_MOUTH_FADE_M).toBe(5);
+    expect(lampSpill(0)).toBe(0); // smoothTone(0) = 0 — exactly dark, not just small
+    expect(lampSpill(5)).toBeCloseTo(0.04 * Math.exp(-15 / 29.5), 12); // the fade released
+    expect(lampSpill(LAMP_REACH_M)).toBe(0.04); // the seam value kept (0.04 × 1 × 1)
+  });
+
+  it('is strictly increasing across the lit stations (the mouth’s exact 0 the floor)', () => {
+    // The 2026-11-28 re-seed: the mouth's spill is exactly 0 now, so «positive» is not the
+    // law — the strict rise between consecutive stations is (the fade is monotone).
+    let prev = -1;
     for (const d of LIT_STATIONS_M) {
       const s = lampSpill(d ?? 0);
       expect(s).toBeGreaterThan(prev);
@@ -275,10 +326,9 @@ describe('the lamp forward spill (the doorway night law, 2026-11-14)', () => {
     }
   });
 
-  it('keeps the mouth ratio in the designed band', () => {
+  it('the mouth ratio is exactly 0 (the 2026-11-28 re-pin: the fade owns the mouth)', () => {
     const ratio = lampSpill(0) / lampSpill(LAMP_REACH_M);
-    expect(ratio).toBeGreaterThanOrEqual(0.5);
-    expect(ratio).toBeLessThanOrEqual(0.75);
+    expect(ratio).toBe(0);
   });
 
   it('reads one non-decreasing warm ramp across the whole night throat', () => {
@@ -309,8 +359,10 @@ describe('the lamp forward spill (the doorway night law, 2026-11-14)', () => {
     expect((s20 - s16) / 4).toBeLessThanOrEqual((s23 - s20) / 3);
   });
 
-  it('clears the display floor at the mouth on the night exposure', () => {
-    expect(lum(spillRgb(0)) * EXPOSURE.low).toBeGreaterThanOrEqual(0.01);
+  it('clears the display floor past the fade on the night exposure (the 2026-11-28 re-pin)', () => {
+    // The mouth itself is exactly 0 now; the display-floor check lives where the fade
+    // releases (SPILL_MOUTH_FADE_M in) — the spill still reads on the night exposure.
+    expect(lum(spillRgb(SPILL_MOUTH_FADE_M)) * EXPOSURE.low).toBeGreaterThanOrEqual(0.01);
   });
 
   it('carries the sq-arch-day pins: the knot mouth, the ring collar, the census caps', () => {
@@ -318,8 +370,9 @@ describe('the lamp forward spill (the doorway night law, 2026-11-14)', () => {
     expect(skyLitAlbedo(0)[0]).toBeCloseTo(0.22, 12);
     expect(skyLitAlbedo(0)[1]).toBeCloseTo(0.21, 12);
     expect(skyLitAlbedo(0)[2]).toBeCloseTo(0.19, 12);
-    // The collar is now the arch outline minus the vault profile (2n vertices → 2n − 2 tris).
-    expect(throatTriangleEstimate()).toBe(347);
+    // The collar is now the arch outline minus the vault profile (2n vertices → 2n − 2 tris);
+    // the far wall is 3 rings (the 2026-11-28 doorway ruling): 48 strip + 11 fan tris → 395.
+    expect(throatTriangleEstimate()).toBe(395);
     // The census caps the round rides (kit 6/6, whole-frame 56 / 75,000 — unmoved).
     expect(SQUARE_DRAW_CAP).toBe(56);
     expect(SQUARE_TRI_CAP).toBe(75_000);
@@ -334,6 +387,7 @@ describe('the lit builder carries the spill and the night gate', () => {
     const attr = build.lit.geometry.getAttribute('color');
     expect(attr.itemSize).toBe(4);
     const firstStation = LIT_STATIONS_M[0] ?? 0;
+    expect(attr.getW(0)).toBe(0); // the mouth fade: lampSpill(0) is exactly 0 (2026-11-28)
     expect(attr.getW(0)).toBeCloseTo(lampSpill(firstStation), 8); // Float32 buffer precision
     expect(attr.getW(attr.count - 1)).toBe(0); // the collar rides the same attribute, spill 0
     const albedo = skyLitAlbedo(firstStation);
@@ -358,6 +412,65 @@ describe('the lit builder carries the spill and the night gate', () => {
     expect(() => patchThroatLitShader({ fragmentShader: 'no tokens here' })).toThrow(
       /no <color_fragment> token/,
     );
+  });
+
+  it('patches the real basic shader and loud-fails without the token (the lamp night gain)', () => {
+    // The ruling's twin of the lit patch: rgb gain after <color_fragment>, alpha restored,
+    // the uniform declared. In three 0.186.1 the chunk does `diffuseColor *= vColor;` on the
+    // full vec4 (USE_COLOR_ALPHA) — hence the restore line.
+    const real = { fragmentShader: THREE.ShaderLib.basic.fragmentShader };
+    patchLampNightShader(real);
+    expect(real.fragmentShader).toContain('uniform float uThroatNight;');
+    expect(real.fragmentShader).toContain(
+      'diffuseColor.rgb *= 1.0 + ( vColor.a - 1.0 ) * uThroatNight;',
+    );
+    expect(real.fragmentShader).toContain('diffuseColor.a = opacity;');
+    expect(() => patchLampNightShader({ fragmentShader: 'no tokens here' })).toThrow(
+      /no <color_fragment> token/,
+    );
+  });
+
+  it('writes the lamp colour attribute as rgb + the night-gain alpha (itemSize 4)', () => {
+    const attr = build.lamp.geometry.getAttribute('color');
+    expect(attr.itemSize).toBe(4);
+    // Every lamp alpha in (0, 1]: the seam's gain 1.0 is the ceiling, nothing is fully dark.
+    for (let i = 0; i < attr.count; i++) {
+      const a = attr.getW(i);
+      expect(a).toBeGreaterThan(0);
+      expect(a).toBeLessThanOrEqual(1);
+    }
+    // The run's alphas: the linear night gain plain on the vault, × FLOOR_NIGHT_GAIN on the
+    // floor (each station row is 13 profile vertices then 2 floor vertices).
+    const n = throatProfile().length;
+    const row = n + 2;
+    expect(attr.getW(0)).toBe(1); // the seam station: the full gain on the vault
+    expect(attr.getW(n)).toBeCloseTo(FLOOR_NIGHT_GAIN, 7);
+    const last = (LAMP_STATIONS_M.length - 1) * row;
+    expect(attr.getW(last)).toBeCloseTo(LAMP_RUN_END_GAIN, 7);
+    expect(attr.getW(last + n)).toBeCloseTo(LAMP_RUN_END_GAIN * FLOOR_NIGHT_GAIN, 7);
+    // The far wall's rings follow the run's rows; their alphas are the FAR_WALL_RINGS gains
+    // in order — outer 0.05, middle 0.20, core 0.70.
+    const ringStart = LAMP_STATIONS_M.length * row;
+    expect(attr.count).toBe(ringStart + FAR_WALL_RINGS.length * n);
+    FAR_WALL_RINGS.forEach((ring, r) => {
+      const gain = ring[1];
+      for (let i = 0; i < n; i++) {
+        expect(attr.getW(ringStart + r * n + i)).toBeCloseTo(gain, 7);
+      }
+    });
+  });
+
+  it('gates both night inputs together (uThroatNight 0 ⇒ the multiplier exactly 1)', () => {
+    // The ruling's day-exactness pin: setThroatNightSpill writes the lit emissive AND the
+    // shared lamp uniform beside each other — at wNight 0 both are 0, so the lamp splice's
+    // factor is exactly 1.0 (rgb untouched) and the lit emissive is off.
+    setThroatNightSpill(build, 0);
+    expect((build.lit.material as THREE.MeshLambertMaterial).emissiveIntensity).toBe(0);
+    expect(THROAT_NIGHT_UNIFORM.value).toBe(0);
+    setThroatNightSpill(build, 1);
+    expect((build.lit.material as THREE.MeshLambertMaterial).emissiveIntensity).toBe(1);
+    expect(THROAT_NIGHT_UNIFORM.value).toBe(1); // night: the factor is the vertex gain itself
+    setThroatNightSpill(build, 0); // the gate closes again — the day read
   });
 
   it('gates the spill on the lattice weight', () => {

@@ -19,6 +19,11 @@
  * hemisphere is directionless, so depth is written into the albedo); the lamp run carries the
  * slab's warmth to the seam as a toe and rises to the slab's last-metre fall. The mouth keeps
  * the kit's stone; the exposure E(h) is the eye.
+ * The 2026-11-28 doorway ruling (brief 1), Decision B — the main doorway's night read: the
+ * night gain (the fraction of the day radiance kept at wNight 1) is authored in the vertex
+ * ALPHA of the lamp mesh — the far wall's rings (FAR_WALL_RINGS), the lamp run's linear fall
+ * (LAMP_RUN_END_GAIN), the floors halved (FLOOR_NIGHT_GAIN) — and the spill's mouth fades to
+ * exactly 0 (SPILL_MOUTH_FADE_M). The lamp shader multiplies the gain into its rgb at night.
  */
 export type Pt = readonly [number, number];
 export type Rgb = readonly [number, number, number];
@@ -55,6 +60,25 @@ export const THROAT_TRIANGLE_CEILING = 500;
 export const LAMP_REACH_M = 20;
 export const LIT_STATIONS_M: readonly number[] = [0, 0.6, 1.5, 3, 5, 8, 12, 16, LAMP_REACH_M];
 export const LAMP_STATIONS_M: readonly number[] = [LAMP_REACH_M, 23, 26, 28.5, THROAT.depthM];
+/**
+ * The 2026-11-28 doorway ruling (brief 1) — the night laws:
+ * - FAR_WALL_RINGS: the far wall is RINGS of the vault profile scaled about (0, 0) at the far
+ *   depth — each entry [scale, night gain]; strips between consecutive rings, a fan inside
+ *   the last. Scaling about the origin keeps the floor line; the core (scale 0.4) is 1.88 m
+ *   wide with its crown at 3.84 m, standing on the floor.
+ * - LAMP_RUN_END_GAIN: the lamp run's night gain is linear in t = (d − 20)/9.5 — 1.0 at the
+ *   seam, 0.15 at the far end; the floor rows take the same gain × FLOOR_NIGHT_GAIN.
+ * - SPILL_MOUTH_FADE_M: the spill's mouth fade — exactly 0 at the mouth, the pre-fade curve
+ *   unchanged from 5 m inward (the seam's 0.04 kept).
+ */
+export const FAR_WALL_RINGS: readonly (readonly [number, number])[] = [
+  [1.0, 0.05],
+  [0.7, 0.2],
+  [0.4, 0.7],
+] as const;
+export const LAMP_RUN_END_GAIN = 0.15;
+export const FLOOR_NIGHT_GAIN = 0.5;
+export const SPILL_MOUTH_FADE_M = 5;
 const STONE_ALBEDO: Rgb = [0.22, 0.21, 0.19];
 const LAMP_WARM: Rgb = [1, 0.55, 0.22];
 export const COLLAR_RGB: Rgb = [0.017, 0.019, 0.024]; // the kit's recess dark, linear
@@ -142,11 +166,21 @@ export function lampRadiance(d: number): Rgb {
   );
 }
 export const lampSlab = (): Rgb => scale(LAMP_WARM, LAMP_SLAB_RADIANCE);
+/** The lamp run's night gain (the 2026-11-28 doorway ruling, brief 1): linear in t from 1.0
+ * at the seam to LAMP_RUN_END_GAIN at the far wall — the fraction of the day radiance the
+ * lamp run keeps at wNight 1, riding the vertex alpha into the shader's rgb multiplier. */
+export const lampRunNightGain = (d: number): number => {
+  if (!Number.isFinite(d) || d < 0) throw new RangeError(`throat: depth must be ≥ 0, got ${d}`);
+  const t = clamp01((d - LAMP_REACH_M) / (THROAT.depthM - LAMP_REACH_M));
+  return 1 + (LAMP_RUN_END_GAIN - 1) * t;
+};
 /** The lamp's forward spill on the sky-lit run, relative to the slab: the toe carried back to
- * the mouth with the passage's own length as the e-fold. Absolute radiance — it reads at
- * E(h)→0 where the albedo×hemisphere body collapses; gated at runtime (× wNight). */
+ * the mouth with the passage's own length as the e-fold, × the mouth fade (the 2026-11-28
+ * doorway ruling): exactly 0 at the mouth, the pre-fade curve unchanged from 5 m inward (the
+ * seam's 0.04 kept). Absolute radiance — it reads at E(h)→0 where the albedo×hemisphere body
+ * collapses; gated at runtime (× wNight). */
 export const lampSpill = (d: number): number =>
-  GLOW_TOE * Math.exp((d - LAMP_REACH_M) / THROAT.depthM);
+  GLOW_TOE * Math.exp((d - LAMP_REACH_M) / THROAT.depthM) * smoothTone(d / SPILL_MOUTH_FADE_M);
 /**
  * sq-arch-day B5: the massing head's solid test — inside the pavilion's rectangle
  * (±massHalfWidth, 0..massTopY) minus the arch opening (THROAT_VOID): the old rectangular
@@ -169,11 +203,15 @@ export function headSolidAt(
   }
   return true;
 }
-/** Exact triangle count the builder must produce (strips + end fan + collar polygon). */
+/** Exact triangle count the builder must produce (strips + the far-wall rings + the collar). */
 export function throatTriangleEstimate(): number {
   const n = throatProfile().length;
   const strips = (s: readonly number[]): number => (s.length - 1) * (n - 1 + 1) * 2;
+  // The far wall (the 2026-11-28 doorway ruling): RINGS of the vault profile scaled about
+  // (0, 0) — a strip between each consecutive pair of rings, 2(n−1) triangles each, and a
+  // fan of n − 2 inside the innermost ring.
+  const ringStrips = (FAR_WALL_RINGS.length - 1) * 2 * (n - 1);
   // The collar (sq-arch-day B5): the arch outline (n points) minus the vault profile (n
   // points) — a 2n-vertex simple polygon, earcut gives 2n − 2 triangles.
-  return strips(LIT_STATIONS_M) + strips(LAMP_STATIONS_M) + (n - 2) + (2 * n - 2);
+  return strips(LIT_STATIONS_M) + strips(LAMP_STATIONS_M) + ringStrips + (n - 2) + (2 * n - 2);
 }
