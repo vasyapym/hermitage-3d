@@ -1756,7 +1756,21 @@ def restore_s2a_faces(saved, layer):
         layer.data[li].uv = uv
 
 
-def s2a_passes(scene, namespace, shell, pad_px):
+def save_witness(image, stage_dir, name):
+    """The ZIMNY_BAKE_WITNESS instrument: a per-pass EXR snapshot of the bake image, read-only
+    for the bake itself (the image pixels are never touched). Absent env -> no-op."""
+    if os.environ.get('ZIMNY_BAKE_WITNESS') != '1':
+        return
+    witness_dir = stage_dir / 'witness'
+    witness_dir.mkdir(parents=True, exist_ok=True)
+    path = witness_dir / name
+    image.filepath_raw = str(path)
+    image.file_format = 'OPEN_EXR'
+    image.save()
+    print(f'ZIMNY_WITNESS {path}', flush=True)
+
+
+def s2a_passes(scene, namespace, shell, pad_px, image, state, stage_root):
     """THE JUNCTION LAW'S S2A SEQUENCE for one state (day/dusk only — the S2A_STATES gate
     sits at the call site). The committed flat bake has already written the atlas
     (use_clear=True); these passes overwrite ONLY their own target's cells, in the fixed
@@ -1829,6 +1843,8 @@ def s2a_passes(scene, namespace, shell, pad_px):
             for proxy in flipped:
                 proxy.select_set(False)
                 proxy.hide_render = True
+            target_file = ''.join(ch if ch.isalnum() else '-' for ch in target)
+            save_witness(image, stage_root, f'{state}.witness-s2a-{target_file}.exr')
             rows.append({'cageM': cage, 'excludedFaces': len(covered), 'faces': len(faces),
                          'proxies': list(proxy_names), 'seamFaces': len(seam),
                          'target': target, 'writableFaces': len(writable)})
@@ -1966,6 +1982,7 @@ def main():
         image = bake_lightmap(scene, meshes, targets, bake_mats, spec['res'], margin_px)
         if collapsed:
             restore_frame_backfaces(collapsed)
+        save_witness(image, stage_root, f'{state}.witness-flat.exr')
         # THE JUNCTION LAW'S S2A PASSES (batch B; rastrelli-gallery day/dusk, the arch chart
         # only, never in preview): the committed flat bake above was the atlas's FIRST write
         # (use_clear=True); these passes overwrite only their own target's cells with
@@ -1974,7 +1991,8 @@ def main():
         s2a_rows = None
         if (room == S2A_ROOM and state in S2A_STATES and spec['name'] == 'arch'
                 and not preview):
-            s2a_rows = s2a_passes(scene, namespace, s2a_shell_object(objects), margin_px)
+            s2a_rows = s2a_passes(scene, namespace, s2a_shell_object(objects), margin_px,
+                                  image, state, stage_root)
         save_exr(image, lm_dir / f'{prefix}{file_state}.raw.exr')
         # The denoiser decision knob (see DENOISE_ENV): the committed path is the compositor
         # OIDN below; a decision re-run (ZIMNY_BAKE_DENOISE=off) encodes from the RAW plate —
