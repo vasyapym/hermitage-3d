@@ -404,7 +404,7 @@ describe('1812 stop-gaze swings (R18-ux D5: the axial dolly)', () => {
     ...swingRows(GALLERY_1812.rail, 'M0', 'M1', 0.5), // the §8 quote «0°» — the 3D 0.48°
     ...swingRows(GALLERY_1812.rail, 'M1', 'M2', 0.9),
     ...swingRows(GALLERY_1812.rail, 'M2', 'M3', 3.1),
-    ...swingRows(GALLERY_1812.rail, 'M3', 'M4', 51.3), // the §8 quote «≈52°»
+    ...swingRows(GALLERY_1812.rail, 'M3', 'M4', 89.9), // mg-1812-look DECISION-1: the door square-on east (the §8 quote «≈52°» rode the corner run)
   ]) {
     it(`${n}: swing ≈ ${expected}° within one glide`, () => {
       expect(measured, n).toBeCloseTo(expected, 1);

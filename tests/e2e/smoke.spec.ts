@@ -362,7 +362,7 @@ test('keyboard walk: every stop reachable, reduced-motion cuts', async ({ page }
     M1: 'The west wall — a block of portraits in gilt frames.',
     M2: 'The lantern — the vault and the glazing bars above the gallery.',
     M3: 'The monarchs — the end wall, the large portraits above the small.',
-    M4: 'The doors are closed; beyond them — St George’s Hall.',
+    M4: 'The doors in the east wall lead to St George’s Hall — the Great Throne Room.',
     // DECISION-1: the five hall landings join the walk — the EN corpus verbatim (h0 carries
     // the sourced h0 reword, the strings step).
     H0: 'St George’s Hall, the Large Throne Room. After the narrow gallery the palace opens: white marble, double ranks of Corinthian columns, and the throne at the far end of the axis.',

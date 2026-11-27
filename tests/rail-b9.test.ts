@@ -468,11 +468,13 @@ describe('R22-ux: the military corner-run hold', () => {
     const rail = contract1812.rail;
     const end = framings(rail, 3); // the two endpoint base-gaze angles, from the file's helper
     // M3: south base + held yaw −90 (clamped by the ±90 row) composes to due east (90°).
-    // M4: the doors base yaw clamped by the ±40 row composes to the square-on doors view.
+    // M4: the doors base yaw clamped by the ±15 row composes to the square-on doors view.
+    // (mg-1812-look DECISION-1 re-sited M4 onto the axis facing due east; the row is 15 —
+    // the run is axial now, the pin's arithmetic re-derives for it.)
     // B9c: the base gaze AND the limits both move with the one lag weight g(s) (held at
     // the anchor's across the first 20 %), so the
     // composed view stays linear in that weight (the old linear-in-s read retires).
-    const atDoor = end.b.yaw - 40;
+    const atDoor = end.b.yaw - 15;
     for (const s of S) {
       const base = midState(rail, 3, s, 1); // the file's helper; heading forward
       const state = {

@@ -18,11 +18,14 @@
  *   closed St George's doors on the east wall. Framed by capture at integration.
  *
  * R18-ux D5: the gallery is one axial dolly. M0–M3 stand on AXIS_X; M0–M2 hold AXIS_FAR (a
- * locked dolly: the gaze marches down the axis), M3 reads the monarch wall from z 0, and M4
- * (the committed door stop) is reached from M3 as a corner run — the only off-axis step,
- * straight to the doors. The west block and the lantern are drag rewards in the look rows
- * (M1 yaw 60, M2 pitchUp 55), not base subjects: a subject beside its stop makes the held
- * gaze sweep in the last metres, which read as jumpy.
+ * locked dolly: the gaze marches down the axis), M3 reads the monarch wall from z 0. The west
+ * block and the lantern are drag rewards in the look rows (M1 yaw 60, M2 pitchUp 55), not base
+ * subjects: a subject beside its stop makes the held gaze sweep in the last metres, which read
+ * as jumpy.
+ *
+ * mg-1812-look DECISION-1 (the owner's door ask): M4 re-sited onto the axis at the door's
+ * centre line (z 12.5), facing due east — the run is axial end to end and the door's heading
+ * rides the throne-airlock's declared `headingFrom` (src/world/door.ts), not the rail tangent.
  */
 import type { RoomContract, Vec3 } from '../../src/world/registry';
 
@@ -41,8 +44,10 @@ export const WEST_BLOCK: Vec3 = [82.0, FLOOR_Y + 2.2, -25.0];
 export const LANTERN: Vec3 = [AXIS_X, EYE + 4.9, -5.5];
 /** M3: the H3 super-block on the end wall (z +15). */
 const MONARCHS: Vec3 = [AXIS_X, FLOOR_Y + 3.2, 14.9];
-/** M4: the closed St George's doors on the east wall (x 90.5), the bay nearest the monarch end. */
-const ST_GEORGE_DOORS: Vec3 = [90.4, FLOOR_Y + 2.0, 14.5];
+/** M4: the St George doors — the real opening the mg-1812-look round built into the east
+ * wall's last bay (design-gallery §2.5's seat; DECISION-1 of that round): wall plane x 90.5,
+ * centre line z 12.5, 1.9 × 3.4 m, the leaves runtime-hinged. The door centre sits 1.7 m up. */
+const ST_GEORGE_DOORS: Vec3 = [90.5, FLOOR_Y + 1.7, 12.5];
 
 export const contract: RoomContract = {
   id: 'military-gallery',
@@ -80,22 +85,25 @@ export const contract: RoomContract = {
         caption: 'caption.m2',
       },
       {
-        // R18-ux D5: z 9→0, so the monarch wall reads at 14.9 m; flagged corner — M4 is
-        // reached from M3 across a corner run (the only off-axis step, straight to the doors).
+        // R18-ux D5: z 9→0, so the monarch wall reads at 14.9 m. The corner flag retired with
+        // the mg-1812-look round's DECISION-1: M4 re-sited ONTO the axis makes M2→M3→M4 one
+        // collinear run — the flag's run split and the walk's hard stop both lost their seat,
+        // and the visitor reaches the door in one walk.
         id: 'M3',
         position: [AXIS_X, EYE, 0],
         subject: MONARCHS,
         look: { yaw: 90, pitchUp: 20, pitchDown: 10 },
-        corner: true,
         caption: 'caption.m3',
       },
       {
-        // R22-ux: yaw 40 squares the east wall, 38.3° left of the doors; the west wall lies
-        // 141.7° round, past the cap, and is read from the axial stops.
+        // mg-1812-look DECISION-1: on the axis at the door's centre line, facing due east —
+        // the doors whole at 4.25 m between the two torcheres. The yaw row ±15 (was 40): the
+        // R22-ux cap law holds (no row exceeds 90; the row squares the east wall it faces),
+        // and the west wall stays read from the axial stops, 141.7° round.
         id: 'M4',
-        position: [88.5, EYE, 13.0],
+        position: [AXIS_X, EYE, 12.5],
         subject: ST_GEORGE_DOORS,
-        look: { yaw: 40, pitchUp: 10, pitchDown: 10 },
+        look: { yaw: 15, pitchUp: 15, pitchDown: 10 },
         caption: 'caption.m4',
       },
     ],

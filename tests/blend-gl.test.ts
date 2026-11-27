@@ -24,7 +24,7 @@ const JORDAN = { day: 0.45, dusk: 0.35, nightChandeliers: 4 } as const;
 // (public/assets/rastrelli-gallery/manifest.json is the source of truth this fixture mirrors).
 const GALLERY = { day: 0.8, dusk: 0.8, nightChandeliers: 0.8 } as const;
 // R4 Block 2: WHITE_POINT_1812 + the look gains (eff = wp × gain). B10 (owner, ≈15 % more
-// light): the gains ×1.15 — eff 2.5875 / 0.5175 / 0.69.
+// light): the gains ×1.15 then ×1.10 (mg-1812-look DECISION-2) — eff 2.84625 / 0.56925 / 0.759.
 // The Military Gallery's manifest intensity record as committed (R4's fixed tree).
 const MILITARY = { day: 1.5, dusk: 0.15, nightChandeliers: 0.3 } as const;
 const PRECISION = 12;
@@ -235,9 +235,9 @@ describe('applyChartedTechnique — two charts (D-9)', () => {
     expect(sArch.uniforms.lmB?.value).toBe(arch.get('dusk'));
     expect(sKit.uniforms.lmB?.value).toBe(kit.get('dusk'));
     // One white point per state serves both charts: the scalars are identical.
-    expect(mArch.lightMapIntensity).toBeCloseTo(0.6 * 2.5875, PRECISION);
-    expect(mKit.lightMapIntensity).toBeCloseTo(0.6 * 2.5875, PRECISION);
-    expect(sArch.uniforms.lmScale?.value).toBeCloseTo(0.4 * 0.5175, PRECISION);
+    expect(mArch.lightMapIntensity).toBeCloseTo(0.6 * 2.84625, PRECISION);
+    expect(mKit.lightMapIntensity).toBeCloseTo(0.6 * 2.84625, PRECISION);
+    expect(sArch.uniforms.lmScale?.value).toBeCloseTo(0.4 * 0.56925, PRECISION);
   });
 
   it('a null B binds black on EVERY chart with scalar 0', () => {
@@ -286,8 +286,8 @@ describe('applyChartedTechnique — two charts (D-9)', () => {
     applyWeights('military-gallery', W_DUSK);
     expect(mArch.lightMap).toBe(arch.get('dusk'));
     expect(mKit.lightMap).toBe(kit.get('dusk'));
-    expect(mArch.lightMapIntensity).toBeCloseTo(0.5175, PRECISION);
-    expect(mKit.lightMapIntensity).toBeCloseTo(0.5175, PRECISION);
+    expect(mArch.lightMapIntensity).toBeCloseTo(0.56925, PRECISION);
+    expect(mKit.lightMapIntensity).toBeCloseTo(0.56925, PRECISION);
   });
 
   it('a material naming a chart the room lacks throws at mount and leaves the room free', () => {

@@ -91,7 +91,9 @@ export const ru = {
   'caption.m1': 'Западная стена\u00A0— блок портретов в\u00A0золочёных рамах.',
   'caption.m2': 'Фонарь\u00A0— свод и\u00A0переплёты остекления над\u00A0галереей.',
   'caption.m3': 'Монархи\u00A0— торцевая стена: большие портреты над\u00A0малыми.',
-  'caption.m4': 'Двери закрыты: за\u00A0дверями\u00A0— Георгиевский зал.',
+  // mg-1812-look DECISION-1: двери — настоящий проём в восточной стене; подпись закрытых
+  // дверей уходит вместе с фолбэком, который она описывала.
+  'caption.m4': 'Двери в\xa0восточной стене ведут в\xa0Георгиевский зал\xa0— Большой тронный.',
   // The St George's Hall stops (DECISION-1 STRINGS, sourcing-gated): h0 carries the round-2
   // rework (the unsourced «сорок восемь колонн» replaced by the sourced clause); h1–h4 verified.
   'caption.h0':

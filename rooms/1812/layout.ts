@@ -51,6 +51,10 @@ export type FrameRecord = FrameTransform & {
   readonly chart: UvRect;
   /** The canvas quad's strip in the kit chart (same latecomer law for the portal). */
   readonly chartCanvas: UvRect;
+  /** mg-1812-look DECISION-1: the east wall's doorway keep-clear law — a dropped frame's
+   * part is never built (the bpy kit skips it) while its atlas slot stays allocated by rank
+   * (the atlas byte-identical; the «missing slot» posture of tools/gallery/atlas-law.mjs). */
+  readonly dropped: boolean;
   readonly index: number;
   readonly slot: number;
   readonly uv: UvRect;
@@ -93,6 +97,35 @@ export const NORTH_DOOR_CENTRE_X = (WEST_WALL_X + EAST_WALL_X) / 2;
 export const FLANK_OFFSET_X = 1.45;
 /** Row 2 height: the flanking pair hangs one row above the bottom row (§2.7). */
 export const FLANK_CANVAS_Y = 2.3;
+
+/* mg-1812-look DECISION-1 — the east wall's doorway keep-clear zone. The St George door sits
+ * in the east wall's last bay (design §2.5's seat): opening z 11.55..13.45 (DOOR_W centred on
+ * z 12.5), 3.4 m tall from the floor (abs y 10.0..13.4), the gilt case's 0.06 jambs around it.
+ * A STANDARD frame drops (the kit never builds it; its atlas slot stays allocated by rank) if
+ * its OUTER rect — the canvas ± the §2.7 bar — intersects this zone. The committed rect
+ * grazes the flanking columns by design: their frames' outer edges sit 3.5 cm clear of the
+ * zone at both sides (z 10.96 → 10.715..11.205; z 14.04 → 13.795..14.285), and the top row
+ * (4.4 → abs 14.115..14.685) rides wholly above the zone — one frame over the door. */
+export const FRAME_BAR = 0.07; // §2.7's boom per side; frame outer = canvas + 2 bars
+export const FLOOR_Y = 10.0; // the committed room floor (rooms/1812/contract.ts; design §2.2)
+export const DOOR_ZONE = {
+  wall: 'east',
+  zMin: 11.24,
+  zMax: 13.76,
+  /** The zone's ceiling in ABSOLUTE y (floor 10 + 3.71); the frame y's are floor-relative. */
+  yMaxAbs: 13.71,
+} satisfies Readonly<{ wall: WallId; zMin: number; zMax: number; yMaxAbs: number }>;
+
+export function frameDropped(frame: FrameTransform): boolean {
+  if (frame.wall !== DOOR_ZONE.wall || frame.kind !== 'standard') return false;
+  const halfW = CANVAS_WIDTH * 0.5 + FRAME_BAR;
+  if (frame.position.z - halfW > DOOR_ZONE.zMax || frame.position.z + halfW < DOOR_ZONE.zMin) {
+    return false;
+  }
+  const localCeiling = DOOR_ZONE.yMaxAbs - FLOOR_Y;
+  const yBottom = frame.position.y - (CANVAS_HEIGHT * 0.5 + FRAME_BAR);
+  return yBottom <= localCeiling;
+}
 
 /* §3.4 — the portrait atlas. v2 (design-gallery-atlas-v2.md §3.1): every geometric
  * constant is v1 × 1.5 at the 3072² container — same 21×17 grid, same slot law, nothing
@@ -518,6 +551,8 @@ export type CountsLaw = {
   readonly allies: number;
   readonly baysPerWall: number;
   readonly columnsPerBay: number;
+  /** mg-1812-look DECISION-1: the east wall's doorway keep-clear law's dropped frames. */
+  readonly dropped: number;
   readonly flanking: number;
   readonly framesPerBay: number;
   readonly framesPerWall: number;
@@ -579,6 +614,7 @@ export function buildLayout(): GalleryLayout {
       ...frame,
       chart: strips.frame,
       chartCanvas: strips.canvas,
+      dropped: frameDropped(frame),
       index,
       slot: slotOfFrame(index),
       uv: frameUvRect(index),
@@ -602,6 +638,7 @@ export function buildLayout(): GalleryLayout {
       allies: ALLY_FRAMES,
       baysPerWall: BAYS_PER_WALL,
       columnsPerBay: COLUMNS_PER_BAY,
+      dropped: allFrames().filter((frame) => frameDropped(frame)).length,
       flanking: FLANKING_FRAMES,
       framesPerBay: framesPerBay(),
       framesPerWall: framesPerWall(),

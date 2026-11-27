@@ -171,6 +171,11 @@ def build_frames(collection, script_dir, floor_y=0.0):
     objects = []
     for index in range(len(frames)):
         frame = frames[index]
+        # mg-1812-look DECISION-1: the doorway keep-clear law — a dropped frame's part is
+        # never built; the part indices stay stable (named by the layout index) and the
+        # frame's atlas slot stays allocated by rank (the atlas byte-identical).
+        if frame.get('dropped', False):
+            continue
         bars = _build_frame(frame, index, canvas_offset)
         canvas = _build_canvas(frame, index, canvas_offset)
         collection.objects.link(bars)

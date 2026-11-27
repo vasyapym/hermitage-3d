@@ -284,10 +284,31 @@ function patchRect(room, part) {
 
 /** D1: the sRGB branch swaps the OETF ASSIGN only — encode etc1s, threads 1, no
  * --genmipmap stay exactly as pinned. */
-function toktxFlagsFor(transfer) {
-  if (transfer !== 'srgb') return TOKTX_FLAGS;
-  const at = TOKTX_FLAGS.indexOf('--assign_oetf');
-  return [...TOKTX_FLAGS.slice(0, at + 1), 'srgb', ...TOKTX_FLAGS.slice(at + 2)];
+// mg-1812-look DECISION-3: the kit chart keeps the bake's own ETC1S economics (q128/c1 —
+// the portraits' strips and the gilt hide the block quantization; the jordan F3 precedent
+// applies to the smooth ARCHITECTURE charts). The sRGB branch swaps the OETF ASSIGN only,
+// never the quality tier.
+const TOKTX_FLAGS_KIT = [
+  '--t2',
+  '--encode',
+  'etc1s',
+  '--clevel',
+  '1',
+  '--qlevel',
+  '128',
+  '--threads',
+  '1',
+  '--assign_oetf',
+  'linear',
+  '--assign_primaries',
+  'bt709',
+];
+
+function toktxFlagsFor(transfer, chart) {
+  const base = chart === 'kit' ? TOKTX_FLAGS_KIT : TOKTX_FLAGS;
+  if (transfer !== 'srgb') return base;
+  const at = base.indexOf('--assign_oetf');
+  return [...base.slice(0, at + 1), 'srgb', ...base.slice(at + 2)];
 }
 
 function reencodeChart(room, state, chart, whitePoint, work, transfer) {
@@ -467,7 +488,7 @@ function reencodeChart(room, state, chart, whitePoint, work, transfer) {
       '--required',
     ]);
   }
-  run('toktx', [...toktxFlagsFor(transfer), ktx2, png]);
+  run('toktx', [...toktxFlagsFor(transfer, chart), ktx2, png]);
   if (!existsSync(ktx2)) fail(`toktx produced no file at ${ktx2}`);
   // The staged artifact (the review's fix 2): this chart stops here — the ktx2 stays in the
   // work dir; main() promotes every requested state's artifacts only after the whole states

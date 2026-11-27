@@ -45,8 +45,10 @@ export const INTERIOR_LOOK_GAIN: Readonly<Record<RoomId, Readonly<Record<LightSt
   // 0.5 → 1.5), so the rendered light is bake × gain and this row is the room's light knob.
   // B10 (owner call, «around 15 % more light»): every state × 1.15 — one shape, so night ≤ day
   // per texel and every inter-state ratio (incl. the dusk compose's 1/3 candelabra) holds.
-  // eff = wp × gain = 1.5 × 1.725 / 0.15 × 3.45 / 0.3 × 2.3 = 2.5875 / 0.5175 / 0.69.
-  'military-gallery': { day: 1.725, dusk: 3.45, nightChandeliers: 2.3 },
+  // mg-1812-look DECISION-2 (the owner, «around 10 %» brighter again): every state × 1.10,
+  // PINNED AS LITERALS (1.725 × 1.1 is not exact in floating point) — the same one-shape law:
+  // eff = wp × gain = 1.5 × 1.8975 / 0.15 × 3.795 / 0.3 × 2.53 = 2.84625 / 0.56925 / 0.759.
+  'military-gallery': { day: 1.8975, dusk: 3.795, nightChandeliers: 2.53 },
 
   // DECISION-1 (the appended hall): the bake landed (the manifest's white points day 2.3 /
   // dusk 0.51 / night 0.15 confirmed — the lightmapsRow agreement gate holds) and the pane

@@ -39,8 +39,8 @@
     },
     {
       "path": "military-gallery.glb",
-      "bytes": 867276,
-      "sha256": "cb9eb38449c3e5f3275cb9ad05af5bc413c0c485e349056d983ff2cdcd6ead2c",
+      "bytes": 867152,
+      "sha256": "92fd25b2ecd4041a0faefbc7a19df13019ea579f6b750049856c823771c3c6b6",
       "kind": "glb"
     },
     {
@@ -74,7 +74,7 @@
         "name": "wall_crimson",
         "instances": 1,
         "primitives": 1,
-        "triangles": 4
+        "triangles": 8
       },
       {
         "name": "wall_plaster",
@@ -111,6 +111,30 @@
         "instances": 1,
         "primitives": 1,
         "triangles": 252
+      },
+      {
+        "name": "door_reveal",
+        "instances": 1,
+        "primitives": 1,
+        "triangles": 10
+      },
+      {
+        "name": "door_case_sg",
+        "instances": 1,
+        "primitives": 1,
+        "triangles": 36
+      },
+      {
+        "name": "leaf_sg_n",
+        "instances": 1,
+        "primitives": 1,
+        "triangles": 12
+      },
+      {
+        "name": "leaf_sg_s",
+        "instances": 1,
+        "primitives": 1,
+        "triangles": 12
       },
       {
         "name": "pier_shafts",
@@ -3959,18 +3983,6 @@
         "triangles": 2
       },
       {
-        "name": "frame_316",
-        "instances": 1,
-        "primitives": 1,
-        "triangles": 48
-      },
-      {
-        "name": "canvas_316",
-        "instances": 1,
-        "primitives": 1,
-        "triangles": 2
-      },
-      {
         "name": "frame_317",
         "instances": 1,
         "primitives": 1,
@@ -3990,18 +4002,6 @@
       },
       {
         "name": "canvas_318",
-        "instances": 1,
-        "primitives": 1,
-        "triangles": 2
-      },
-      {
-        "name": "frame_319",
-        "instances": 1,
-        "primitives": 1,
-        "triangles": 48
-      },
-      {
-        "name": "canvas_319",
         "instances": 1,
         "primitives": 1,
         "triangles": 2
@@ -4031,18 +4031,6 @@
         "triangles": 2
       },
       {
-        "name": "frame_322",
-        "instances": 1,
-        "primitives": 1,
-        "triangles": 48
-      },
-      {
-        "name": "canvas_322",
-        "instances": 1,
-        "primitives": 1,
-        "triangles": 2
-      },
-      {
         "name": "frame_323",
         "instances": 1,
         "primitives": 1,
@@ -4062,18 +4050,6 @@
       },
       {
         "name": "canvas_324",
-        "instances": 1,
-        "primitives": 1,
-        "triangles": 2
-      },
-      {
-        "name": "frame_325",
-        "instances": 1,
-        "primitives": 1,
-        "triangles": 48
-      },
-      {
-        "name": "canvas_325",
         "instances": 1,
         "primitives": 1,
         "triangles": 2
@@ -4187,8 +4163,8 @@
         "triangles": 2
       }
     ],
-    "trianglesUnique": 31090,
-    "trianglesDrawn": 31090,
+    "trianglesUnique": 30964,
+    "trianglesDrawn": 30964,
     "extensionsRequired": [
       "EXT_meshopt_compression",
       "KHR_mesh_quantization",

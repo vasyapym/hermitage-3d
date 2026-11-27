@@ -28,6 +28,8 @@ const DOORWAY: AirlockDef = {
   portalTo: { min: [-3, 0, 85.5], max: [3, 3.6, 87.5] },
   transit: 'doorway',
   holdMs: 300,
+  headingFrom: null,
+  headingTo: null,
 };
 const DEAD_END: AirlockDef = {
   id: 'landing-airlock',
@@ -37,6 +39,8 @@ const DEAD_END: AirlockDef = {
   portalTo: null,
   transit: 'cut',
   holdMs: 600,
+  headingFrom: null,
+  headingTo: null,
 };
 const FRAME_MS = 16;
 const SPIKE_MS = 120;

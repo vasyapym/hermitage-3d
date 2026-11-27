@@ -103,32 +103,54 @@ describe('P3 — five stops H0…H4 on one axis; every gaze east', () => {
   });
 });
 
-describe('P4 — the portal boxes enclose their stops; the 2×2×3 convention; hold 800', () => {
+describe('P4 — the portal boxes enclose their stops; the doorway class; hold 800', () => {
   const def = AIRLOCKS.find((a) => a.id === 'throne-airlock');
   if (def === undefined) throw new Error('fixture: the throne-airlock def is missing');
   const portalTo = def.portalTo;
   if (portalTo === null) throw new Error('fixture: the throne-airlock has no far portal');
-  it('portalTo encloses H0; portalFrom encloses M4 (read from the committed 1812 contract)', () => {
+  it('portalTo encloses H0; the departure box straddles the doorway plane (mg-1812-look DECISION-1: the beats re-seat — the box centres on the door, no longer enclosing the re-sited M4)', () => {
     const h0 = georgeContract.rail.stops[0];
     expect(h0?.id).toBe('H0');
     const m4 = militaryContract.rail.stops.find((s) => s.id === 'M4');
     expect(m4).toBeDefined();
-    expect(inside(h0?.position ?? [0, 0, 0], portalTo), 'portalTo ∋ H0').toBe(true);
-    expect(inside(m4?.position ?? [0, 0, 0], def.portalFrom), 'portalFrom ∋ M4').toBe(true);
+    // mg-1812-look DECISION-1: the arrival box centres on the hall-axis point 1.5 m west
+    // of H0 — the arrive law reads the CENTRE (arrivePose's start), not the box enclosure.
+    const arriveCentre = [
+      (portalTo.min[0] + portalTo.max[0]) / 2,
+      (portalTo.min[1] + portalTo.max[1]) / 2,
+      (portalTo.min[2] + portalTo.max[2]) / 2,
+    ];
+    expect(arriveCentre, 'the arrive portal centres 1.5 m west of H0').toEqual([92.0, 11.65, 14.5]);
+    // The depart box straddles the east wall plane (x 90.5) around the door centre line;
+    // M4 rests on the gallery's axis 4.25 m west — the depart glide covers that approach.
+    const centre = [
+      (def.portalFrom.min[0] + def.portalFrom.max[0]) / 2,
+      (def.portalFrom.min[1] + def.portalFrom.max[1]) / 2,
+      (def.portalFrom.min[2] + def.portalFrom.max[2]) / 2,
+    ];
+    expect(centre[0], 'the depart box centres on the door plane x').toBe(90.5);
+    expect(centre[2], 'the depart box centres on the door line z').toBe(12.5);
+    expect(def.headingFrom, 'the declared door heading points east').toEqual([1, 0, 0]);
+    expect(def.headingTo).toBeNull();
   });
-  it('both boxes are 2 × 2 × 3 m and the hold is 800 ms', () => {
+  it('both boxes are 2 × 2 × 3.3 m (the eye-centred doorway class) and the hold is 800 ms', () => {
     for (const box of [def.portalFrom, portalTo]) {
       const [dx, dy, dz] = [
         box.max[0] - box.min[0],
         box.max[1] - box.min[1],
         box.max[2] - box.min[2],
       ];
-      expect([dx, dy, dz], '2 × 3 × 2 m (x, y, z)').toEqual([2, 3, 2]);
+      // mg-1812-look DECISION-1: y 10..13.3 — the box centre sits at eye height (11.65),
+      // the gallery-airlock's eye-centred precedent; the 2 × 2 × 3 J0 convention retires
+      // with the closed-decor fallback.
+      expect(dx, '2 m across (x)').toBeCloseTo(2, 9);
+      expect(dy, '3.3 m tall (y)').toBeCloseTo(3.3, 9);
+      expect(dz, '2 m deep (z)').toBeCloseTo(2, 9);
     }
     expect(def.holdMs).toBe(800);
   });
-  it('ships the capture-owned transit kind: cut (the M4-departure capture verdict)', () => {
-    expect(def.transit).toBe('cut');
+  it('ships the doorway beats (the real opening; the cut rides reduced motion only)', () => {
+    expect(def.transit).toBe('doorway');
   });
 });
 
@@ -379,7 +401,20 @@ describe('P10 — the lane’s diff-scope fence (retires at the merge)', () => {
     if (changed.length === 0) return;
     for (const line of changed) {
       expect(
-        /^export type (RoomId|AirlockId|RouteKey)/.test(line) || /^\| '/.test(line) || line === ';',
+        /^export type (RoomId|AirlockId|RouteKey)/.test(line) ||
+          /^\| '/.test(line) ||
+          line === ';' ||
+          // mg-1812-look DECISION-1: the declared-doorway widening — the AirlockDef gains
+          // headingFrom/headingTo (null on every other airlock; src/world/door.ts owns the
+          // law). The block's own vocabulary is the fence's allowance; everything else in
+          // the registry stays fenced.
+          /heading(From|To)/.test(line) ||
+          /mg-1812-look|src\/world\/door|declared door heading|levelled unit vector|declares one/.test(
+            line,
+          ) ||
+          /^\/\*\*?$/.test(line) ||
+          /^\*\/$/.test(line) ||
+          /^\*/.test(line),
         `a union line only, got: ${line.slice(0, 60)}`,
       ).toBe(true);
     }

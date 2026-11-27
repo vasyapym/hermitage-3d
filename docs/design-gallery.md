@@ -22,7 +22,7 @@ Phase 3 ships room three, the Military Gallery of 1812 (route `#/1812`), and wit
 
 1.6 The "to be continued" card retires. It was a parked placeholder at a null edge (r18b); the edge now has a neighbour. The card module is deleted (git remembers); the gallery's own far end is a closed door with an ordinary stop caption, no card. Rejected: moving the card to the St George's door — a palace should not announce its own unfinishedness inside the frame; v1 is a complete route, not a preview (the owner may reverse via Q2(b)).
 
-1.7 Beats in order: landing stop → card (cut) → M0 threshold long view → M1 west wall close → M2 under the middle lantern → M3 the monarch wall → M4 the St George's doors, closed. Backward travel reverses through the same airlock (cut back to the landing).
+1.7 Beats in order: landing stop → card (cut) → M0 threshold long view → M1 west wall close → M2 under the middle lantern → M3 the monarch wall → M4 the St George doors. Backward travel reverses through the same airlock (cut back to the landing). [mg-1812-look 2026-11-28: the east crossing is the 'doorway' beats now — the doors swing open on the push, the depart glides 2.5 m, the card, the 1.5 m arrive push-in; the landing side keeps the cut (§1.3's compression law).]
 
 ## 2. Set design
 
@@ -259,9 +259,9 @@ The adopted probe law applies unchanged (ADR-0013): one static dusk environment 
 - **M1** axis, z −25 → far axis; the west block, due west, is the drag-left reward; yaw ±90°, pitch +25°/−15°.
 - **M2** axis, z −12.5 → far axis; the lantern is the look-up reward; yaw ±90°, pitch +55°/0°.
 - **M3** axis, z 0 → monarch wall at 14.9 m; corner stop; yaw ±90°, pitch +20°/−10°.
-- **M4** x 88.5, z 13 → St George doors, by the corner run from M3; yaw ±40°, pitch ±10°.
+- **M4** on the axis, z 12.5 → the St George doors (the real east-wall opening, design §2.5's seat), square-on east; yaw ±15°, pitch +15°/−10°. [mg-1812-look 2026-11-28: re-sited from the x 88.5 corner run — the corner flag retired with the re-site (M2→M4 one collinear run); the heading rides the throne-airlock's declared `headingFrom`, not the rail tangent; the door reads whole at 4.25 m between the torcheres.]
 
-R22-ux (owner ruling): the gallery is read off its two portrait walls, so every axial stop's yaw row opens to ±90° — the composed gaze squares on either wall at 4.2 m, where the unchanged pitch rows already frame the whole five-row ladder (−3.6°…+35.2°) inside the 55° frame — and the door stop M4 opens to ±40°, the turn that squares it on the east wall 2 m beside it, because no yaw row exceeds 90°: a look never faces back past the side, the half the frusta union was never built for. This also supersedes the stale pre-R18 values that used to live in this list (M1 «x 84.3 … yaw ±25°», M3 «z +9 … yaw ±20°, pitch ±15°»).
+R22-ux (owner ruling): the gallery is read off its two portrait walls, so every axial stop's yaw row opens to ±90° — the composed gaze squares on either wall at 4.2 m, where the unchanged pitch rows already frame the whole five-row ladder (−3.6°…+35.2°) inside the 55° frame — and the door stop M4 opens to ±40°, the turn that squares it on the east wall 2 m beside it, because no yaw row exceeds 90°: a look never faces back past the side, the half the frusta union was never built for. [mg-1812-look 2026-11-28: M4's row reads ±15° now — the door sits square-on east on the axis; the cap law holds.] This also supersedes the stale pre-R18 values that used to live in this list (M1 «x 84.3 … yaw ±25°», M3 «z +9 … yaw ±20°, pitch ±15°»).
 
 Captions are i18n keys `caption.m0`–`caption.m4` (committed grammar), Russian canonical.
 

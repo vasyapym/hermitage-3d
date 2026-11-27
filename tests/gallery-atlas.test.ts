@@ -585,13 +585,14 @@ describe('register + runtime fences (§5.3, §6.1–6.4)', () => {
 
   it('sets anisotropy on the atlas texture exactly once (§5.1)', () => {
     const source = readFileSync(ROOM_TS_PATH, 'utf8');
+    // mg-1812-look DECISION-3: the atlas cap gains the parquet map — the floor's grazing
+    // moiré was anisotropy starvation (the map ships mips; the §5.1 cap never reached it).
+    // Two assignments, ONE cap law, both inside the same Math.min(8, getMaxAnisotropy()).
     const assignments = source.match(/\.anisotropy\s*=/g) ?? [];
-    expect(assignments).toHaveLength(1);
+    expect(assignments).toHaveLength(2);
     expect(
-      source.match(
-        /\.anisotropy\s*=\s*Math\.min\(\s*8,\s*\n?\s*\(ctx\.renderer as WebGLRenderer\)/s,
-      ),
-    ).not.toBeNull();
+      (source.match(/Math\.min\(\s*8,\s*\n?\s*\(ctx\.renderer as WebGLRenderer\)/gs) ?? []).length,
+    ).toBe(2);
     expect(source).toContain('getMaxAnisotropy()');
   });
 });

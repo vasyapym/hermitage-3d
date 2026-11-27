@@ -72,6 +72,14 @@ export type AirlockDef = Readonly<{
   portalTo: Bounds | null;
   transit: AirlockTransit;
   holdMs: number;
+  /**
+   * The DECLARED door heading (mg-1812-look DECISION-1, §4.1a bent): the threshold beat and
+   * the lean travel this levelled unit vector when the airlock declares one — a real doorway
+   * whose approach the rail's end tangent does not square — and the end tangent otherwise
+   * (null: every other airlock, unchanged). src/world/door.ts owns the law.
+   */
+  headingFrom: Vec3 | null;
+  headingTo: Vec3 | null;
 }>;
 export type RoomNeighbor = Readonly<{ to: NodeHandle | null; airlock: AirlockId }>;
 export type RoomBudget = Readonly<{

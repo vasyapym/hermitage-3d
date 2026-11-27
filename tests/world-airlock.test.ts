@@ -21,6 +21,8 @@ const def: AirlockDef = {
   portalTo: box,
   transit: 'doorway',
   holdMs: 900,
+  headingFrom: null,
+  headingTo: null,
 };
 const deadEnd: AirlockDef = { ...def, from: 'square', to: null, portalTo: null };
 const begin = (from: 'rastrelli-gallery' | null = 'rastrelli-gallery', reducedMotion = false) =>

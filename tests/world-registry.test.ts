@@ -51,6 +51,8 @@ const airlocks: readonly AirlockDef[] = [
     portalTo: box,
     transit: 'doorway',
     holdMs: 900,
+    headingFrom: null,
+    headingTo: null,
   },
   {
     id: 'gallery-airlock',
@@ -60,6 +62,8 @@ const airlocks: readonly AirlockDef[] = [
     portalTo: box,
     transit: 'doorway',
     holdMs: 900,
+    headingFrom: null,
+    headingTo: null,
   },
   {
     id: 'landing-airlock',
@@ -69,6 +73,8 @@ const airlocks: readonly AirlockDef[] = [
     portalTo: null,
     transit: 'doorway',
     holdMs: 900,
+    headingFrom: null,
+    headingTo: null,
   },
 ];
 const roomEntry = (id: RoomId, route: RouteKey): RoomEntry => ({

@@ -26,6 +26,8 @@ export const AIRLOCKS: readonly AirlockDef[] = [
     portalTo: { min: [-3, 0, 85.5], max: [3, 3.6, 87.5] },
     transit: 'doorway',
     holdMs: 800,
+    headingFrom: null,
+    headingTo: null,
   },
   {
     id: 'gallery-airlock',
@@ -38,6 +40,8 @@ export const AIRLOCKS: readonly AirlockDef[] = [
     portalTo: { min: [66.2, 0, -64.6], max: [68.2, 3.4, -62.6] },
     transit: 'doorway',
     holdMs: 800,
+    headingFrom: null,
+    headingTo: null,
   },
   {
     id: 'landing-airlock',
@@ -50,22 +54,29 @@ export const AIRLOCKS: readonly AirlockDef[] = [
     portalTo: { min: [85.25, 10, -39], max: [87.25, 13, -37] },
     transit: 'cut',
     holdMs: 800,
+    headingFrom: null,
+    headingTo: null,
   },
   {
-    // DECISION-1 AIRLOCK (the appended hall): the 2 × 2 × 3 m convention on both ends — the
-    // departure box encloses M4 (88.5, 11.65, 13.0; the committed door stop), the arrival box
-    // encloses H0 (93.5, 11.65, 14.5). The step-3 M4-departure capture (the record's gate)
-    // shipped the fallback: the doorway glide reads as walking INTO the gallery's end wall —
-    // the doors are committed closed decor (P10 keeps the 1812 shell byte-identical; they
-    // never open on screen), so the transit is a cut — one word of data, nothing is skipped.
-    // The capture frames live in the vault (round-3/m4-departure.png).
+    // mg-1812-look DECISION-1 (the owner's door ask; the DECISION-1 closed-decor fallback
+    // retires): the real St George doorway built into the east wall's last bay — wall plane
+    // x 90.5, centre line z 12.5, opening 1.9 × 3.4 m (DOOR_W × DOOR_H), two runtime-hinged
+    // leaves (rooms/1812/room.ts's 'leaf' role; src/world/door.ts's laws). The boxes re-seat
+    // the beats: the departure box straddles the wall plane (the arch-portal's shape) so the
+    // depart travel reads 2.5 m to x 88.75 — 0.80 m short of the swung leaf tips; the arrival
+    // box centre is the hall-axis point 1.5 m west of H0, so the arrive is a 1.5 m push-in and
+    // the 2 m jog between the door line (z 12.5) and the hall axis (z 14.5) hides in the card.
+    // The heading is DECLARED (the rail's end tangent points south; the door faces east) —
+    // src/world/door.ts doorHeading; §4.1a bent by name in the round's record.
     id: 'throne-airlock',
     from: 'military-gallery',
     to: 'st-george',
-    portalFrom: { min: [87.5, 10, 12], max: [89.5, 13, 14] },
-    portalTo: { min: [92.5, 10, 13.5], max: [94.5, 13, 15.5] },
-    transit: 'cut',
+    portalFrom: { min: [89.5, 10, 11.5], max: [91.5, 13.3, 13.5] },
+    portalTo: { min: [91.0, 10, 13.5], max: [93.0, 13.3, 15.5] },
+    transit: 'doorway',
     holdMs: 800,
+    headingFrom: [1, 0, 0],
+    headingTo: null,
   },
 ];
 

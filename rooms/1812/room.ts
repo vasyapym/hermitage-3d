@@ -35,6 +35,7 @@ import { applyChartedTechnique, disposeTechnique } from '../../src/assets/blend-
 import { releaseOwnedEnvironment } from '../../src/assets/environment-slot';
 import { LIGHT_STATES } from '../../src/content/lightmap-look';
 import { stateOfPath } from '../../src/world/blend';
+import { DOOR_LEAF_KEY, type DoorLeaf } from '../../src/world/door';
 import type {
   LightmapIntensity,
   RoomLoadContext,
@@ -47,7 +48,7 @@ import type {
 } from '../../src/world/registry';
 import { chartOfUserData, kitStateOfPath, LM_CHART_KEY, type LmChart } from './charts';
 import { contract } from './contract';
-import { KIT_WALLS, type KitWall, roleOf, wallOfName } from './kit-layout';
+import { KIT_WALLS, type KitWall, leafOfName, roleOf, wallOfName } from './kit-layout';
 
 const ATLAS_PATH = 'tex/military-gallery-portraits.ktx2';
 /**
@@ -226,8 +227,20 @@ const mergeKit = (root: RoomObject, atlas: Texture, ctx: RoomLoadContext): Merge
   const arch = new Map<Material, BufferGeometry[]>();
   let giltSource: MeshStandardMaterial | null = null;
   for (const mesh of sources) {
-    const geometry = dequantizeGeometry(mesh.geometry).applyMatrix4(mesh.matrixWorld);
     const role = roleOf(mesh.name);
+    // mg-1812-look DECISION-1: the runtime-hinged door leaves skip every merge bucket — they
+    // keep their own geometry (quantized accessors render directly), their glb node transform
+    // (the origin sits at the hinge) and their material instance (the technique patches it in
+    // the tree), and carry the tag the host's per-frame door law reads (src/world/door.ts).
+    if (role === 'leaf') {
+      const leaf = leafOfName(mesh.name);
+      if (leaf === null) {
+        throw new Error(`${contract.id}: leaf part ${mesh.name} names no hinge law`);
+      }
+      mesh.userData[DOOR_LEAF_KEY] = leaf satisfies DoorLeaf;
+      continue;
+    }
+    const geometry = dequantizeGeometry(mesh.geometry).applyMatrix4(mesh.matrixWorld);
     if (role === 'architecture') {
       const material = mesh.material as Material;
       const bucket = arch.get(material);
@@ -293,6 +306,9 @@ const mergeKit = (root: RoomObject, atlas: Texture, ctx: RoomLoadContext): Merge
   ctx.ledger.register(contract.id, 'geometry', gpuBytes(archGeometry), 'architecture');
   parent.add(new Mesh(archGeometry, materials));
   // The floor's repeat law (R1b's deferred duty): the parquet texture sweeps the floor.
+  // mg-1812-look DECISION-3: the parquet map gains the atlas's own anisotropy cap — the
+  // floor's striped moiré at the grazing angle was anisotropy starvation (the map ships mips,
+  // the atlas's §5.1 cap never reached it). Zero bytes.
   const floor = sources.find((mesh) => mesh.name === 'floor');
   if (floor !== undefined) {
     const material = Array.isArray(floor.material) ? floor.material[0] : floor.material;
@@ -301,6 +317,10 @@ const mergeKit = (root: RoomObject, atlas: Texture, ctx: RoomLoadContext): Merge
       if (parquetMap !== null) {
         parquetMap.wrapS = RepeatWrapping;
         parquetMap.wrapT = RepeatWrapping;
+        parquetMap.anisotropy = Math.min(
+          8,
+          (ctx.renderer as WebGLRenderer).capabilities.getMaxAnisotropy(),
+        );
         const b = contract.bounds;
         parquetMap.repeat.set(
           (b.max[0] - b.min[0]) / FLOOR_TILE_M,
@@ -309,9 +329,14 @@ const mergeKit = (root: RoomObject, atlas: Texture, ctx: RoomLoadContext): Merge
       }
     }
   }
-  // The source meshes leave the tree (their merged replacements hang in); the shared
-  // materials stay — the merged meshes carry them and disposeParsed reaches them there.
+  // The source meshes leave the tree (their merged replacements hang in) — EXCEPT the
+  // runtime-hinged door leaves (mg-1812-look DECISION-1): the 'leaf' role skips the merge,
+  // keeps its quantized accessors (the GPU normalizes them) and its glb node transform (the
+  // origin sits at the hinge), and stays in the tree for the host's per-frame rotation law
+  // (src/world/door.ts). The shared materials stay — the merged meshes carry them and
+  // disposeParsed reaches them there.
   for (const mesh of sources) {
+    if (roleOf(mesh.name) === 'leaf') continue;
     mesh.removeFromParent();
     mesh.geometry.dispose();
   }

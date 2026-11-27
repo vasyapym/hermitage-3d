@@ -95,6 +95,17 @@ BLIND_DOOR_BAYS = (2, 9)    # pier indices per long wall (of 12): z -30/+5, symm
                             # about the hall's mid, both PLAIN piers (the old (4, 8) sat
                             # the blind doors inside the engaged columns at piers 4/8)
 
+# ---- the St George doorway (mg-1812-look DECISION-1; design §2.5's seat) ------
+# A real opening in the east wall's last bay: the wall plane is x 90.5, the centre
+# line z 12.5, the opening DOOR_W × DOOR_H; the reveal runs DOOR_REVEAL_D deep into
+# the unmodelled gap (x 90.5..91.0) and bakes dark (the 'door' material); the two
+# leaves are SEPARATE hinge-pivoted nodes (leaf_sg_n/s, origins at the jambs) the
+# runtime swings (src/world/door.ts). The kit frame zone is excluded by the layout
+# law's DOOR_ZONE (tools/gallery/layout.mjs) — the bay's centre column rows 1..4
+# drop, the top row rides over the door.
+SG_DOOR_Z = 12.5            # the opening's centre line on the east wall
+SG_REVEAL_D = 0.5           # the reveal depth into the unmodelled gap (to x 91.0)
+
 # ---- piers (twelve per wall between the law's eleven portrait bays) ---------
 PIERS_PER_WALL = 12
 PILASTER_W = 0.30           # R4 fit re-fit (owner-ruled): the pair's shafts span
@@ -502,8 +513,11 @@ def build_floor(collection, materials):
 
 
 def build_walls(collection, materials):
-    """Crimson portrait fields on the long walls below the cornice band;
-    plaster above and on both end walls. One developable patch per wall face (D-10)."""
+    """Crimson portrait fields on the long walls below the cornice band; plaster above and
+    on both end walls. One developable patch per wall face (D-10) — EXCEPT the east wall's
+    doorway (mg-1812-look DECISION-1): the opening (z 11.55..13.45, y 10..13.4) splits the
+    east crimson field into three pieces, each its own patch; the reveal's dark quads close
+    the hole (build_doorway)."""
     span_x, span_z = hall_span()
     half_x = span_x * 0.5
     mid_x = hall_mid_x()
@@ -511,14 +525,47 @@ def build_walls(collection, materials):
     field_h = band_y - FLOOR_Y
     crimson, bm_c = _new_part(collection, 'wall_crimson')
     _, _ = _layers(bm_c)
-    for wall_x, nx, tag in ((WALL_X_WEST, 1.0, 'west'), (WALL_X_EAST, -1.0, 'east')):
-        patch = CHART.add('wall_crimson', span_z, field_h, tag)
-        _wall(bm_c, (wall_x, FLOOR_Y, WALL_Z_NORTH),
-              (wall_x, FLOOR_Y, WALL_Z_SOUTH),
-              (wall_x, band_y, WALL_Z_SOUTH),
-              (wall_x, band_y, WALL_Z_NORTH),
-              ((0.0, 0.0), (span_z, 0.0), (span_z, field_h), (0.0, field_h)),
-              nx > 0.0, patch)
+    west_x, west_nx, west_tag = WALL_X_WEST, 1.0, 'west'
+    patch = CHART.add('wall_crimson', span_z, field_h, west_tag)
+    _wall(bm_c, (west_x, FLOOR_Y, WALL_Z_NORTH),
+          (west_x, FLOOR_Y, WALL_Z_SOUTH),
+          (west_x, band_y, WALL_Z_SOUTH),
+          (west_x, band_y, WALL_Z_NORTH),
+          ((0.0, 0.0), (span_z, 0.0), (span_z, field_h), (0.0, field_h)),
+          west_nx > 0.0, patch)
+    # The east field around the opening: left (north) of it, right (south) of it, above it.
+    # The (s, t) metres restart at each piece's own corner (D-10's per-face law).
+    east_x = WALL_X_EAST
+    opening_lo = SG_DOOR_Z - DOOR_W * 0.5   # z 11.55
+    opening_hi = SG_DOOR_Z + DOOR_W * 0.5   # z 13.45
+    opening_top = FLOOR_Y + DOOR_H          # y 13.4
+    z_north = WALL_Z_NORTH
+    z_south = WALL_Z_SOUTH
+    span_left = opening_lo - z_north
+    patch_l = CHART.add('wall_crimson', span_left, field_h, 'east-left')
+    _wall(bm_c, (east_x, FLOOR_Y, z_north),
+          (east_x, FLOOR_Y, opening_lo),
+          (east_x, band_y, opening_lo),
+          (east_x, band_y, z_north),
+          ((0.0, 0.0), (span_left, 0.0), (span_left, field_h), (0.0, field_h)),
+          False, patch_l)
+    span_right = z_south - opening_hi
+    patch_r = CHART.add('wall_crimson', span_right, field_h, 'east-right')
+    _wall(bm_c, (east_x, FLOOR_Y, opening_hi),
+          (east_x, FLOOR_Y, z_south),
+          (east_x, band_y, z_south),
+          (east_x, band_y, opening_hi),
+          ((0.0, 0.0), (span_right, 0.0), (span_right, field_h), (0.0, field_h)),
+          False, patch_r)
+    span_over = opening_hi - opening_lo
+    height_over = band_y - opening_top
+    patch_t = CHART.add('wall_crimson', span_over, height_over, 'east-over')
+    _wall(bm_c, (east_x, opening_top, opening_lo),
+          (east_x, opening_top, opening_hi),
+          (east_x, band_y, opening_hi),
+          (east_x, band_y, opening_lo),
+          ((0.0, 0.0), (span_over, 0.0), (span_over, height_over), (0.0, height_over)),
+          False, patch_t)
     obj = _finish(crimson, bm_c, True)
     obj.data.materials.append(materials['crimson'])
     plaster, bm_p = _new_part(collection, 'wall_plaster')
@@ -852,6 +899,34 @@ def build_lanterns(collection, materials):
 
 
 # ---- doors (K4: one authored double-door panel, six reuses) -------------------
+def door_architrave(bm_case, centre, normal, width, part='door_cases'):
+    """The gilt architrave law of door_panel's case half: two jamb boxes plus the head,
+    one DOOR_PANEL_D proud of the wall plane. door_panel composes it with its leaves;
+    build_doorway calls it alone for the east opening (the leaves there are separate
+    hinge-pivoted nodes, not merged decor). The chart part name follows the MESH name
+    (the D-12 gate maps mesh -> patch part): build_doorway passes 'door_case_sg'."""
+    cx, cy, cz = centre
+    nx, _, nz = normal
+    ux, uz = -nz, nx
+    half_h = DOOR_H * 0.5
+    jamb_off = width * 0.5 + DOOR_CASE_W * 0.5
+    for side in (-1.0, 1.0):
+        jx = cx + ux * side * jamb_off + nx * DOOR_PANEL_D * 0.5
+        jz = cz + uz * side * jamb_off + nz * DOOR_PANEL_D * 0.5
+        add_box(bm_case, (jx, cy + half_h + DOOR_CASE_W * 0.5, jz),
+                (abs(ux) * DOOR_CASE_W * 0.5 + abs(nx) * DOOR_PANEL_D * 0.5,
+                 half_h + DOOR_CASE_W * 0.5,
+                 abs(uz) * DOOR_CASE_W * 0.5 + abs(nz) * DOOR_PANEL_D * 0.5),
+                part)
+    hx = cx + nx * DOOR_PANEL_D * 0.5
+    hz = cz + nz * DOOR_PANEL_D * 0.5
+    add_box(bm_case, (hx, cy + DOOR_H + DOOR_CASE_W * 0.5, hz),
+            (abs(ux) * (width * 0.5 + DOOR_CASE_W) + abs(nx) * DOOR_PANEL_D * 0.5,
+             DOOR_CASE_W * 0.5,
+             abs(uz) * (width * 0.5 + DOOR_CASE_W) + abs(nz) * DOOR_PANEL_D * 0.5),
+            part)
+
+
 def door_panel(bm_leaf, bm_case, centre, normal, swing, width=DOOR_W):
     """Two leaves plus a gilt architrave; swing offsets the leaves inward."""
     cx, cy, cz = centre
@@ -869,22 +944,7 @@ def door_panel(bm_leaf, bm_case, centre, normal, swing, width=DOOR_W):
                  half_h,
                  abs(uz) * leaf_w * 0.5 + abs(nz) * DOOR_PANEL_D * 0.5),
                 'door_leaves')
-    jamb_off = width * 0.5 + DOOR_CASE_W * 0.5
-    for side in (-1.0, 1.0):
-        jx = cx + ux * side * jamb_off + nx * DOOR_PANEL_D * 0.5
-        jz = cz + uz * side * jamb_off + nz * DOOR_PANEL_D * 0.5
-        add_box(bm_case, (jx, cy + half_h + DOOR_CASE_W * 0.5, jz),
-                (abs(ux) * DOOR_CASE_W * 0.5 + abs(nx) * DOOR_PANEL_D * 0.5,
-                 half_h + DOOR_CASE_W * 0.5,
-                 abs(uz) * DOOR_CASE_W * 0.5 + abs(nz) * DOOR_PANEL_D * 0.5),
-                'door_cases')
-    hx = cx + nx * DOOR_PANEL_D * 0.5
-    hz = cz + nz * DOOR_PANEL_D * 0.5
-    add_box(bm_case, (hx, cy + DOOR_H + DOOR_CASE_W * 0.5, hz),
-            (abs(ux) * (width * 0.5 + DOOR_CASE_W) + abs(nx) * DOOR_PANEL_D * 0.5,
-             DOOR_CASE_W * 0.5,
-             abs(uz) * (width * 0.5 + DOOR_CASE_W) + abs(nz) * DOOR_PANEL_D * 0.5),
-            'door_cases')
+    door_architrave(bm_case, centre, normal, width)
 
 
 def door_stations(piers):
@@ -915,6 +975,92 @@ def build_doors(collection, materials, metrics):
     leaves_obj.data.materials.append(materials['door'])
     cases_obj.data.materials.append(materials['gilt'])
     return [leaves_obj, cases_obj]
+
+
+# ---- the St George doorway (mg-1812-look DECISION-1; design §2.5's seat) -------
+def build_doorway(collection, materials):
+    """The east wall's real opening: the reveal's dark quads (two jambs, the soffit, the
+    back and the sill — §2.8's single-quad law) closing the hole build_walls split around,
+    plus the gilt architrave on the room face. The reveal bakes dark: the next hall is
+    unmodelled, the enclosed gap reads as the dark throat the card hides."""
+    reveal, bm_r = _new_part(collection, 'door_reveal')
+    _, _ = _layers(bm_r)
+    wx = WALL_X_EAST
+    back_x = wx + SG_REVEAL_D
+    lo = SG_DOOR_Z - DOOR_W * 0.5
+    hi = SG_DOOR_Z + DOOR_W * 0.5
+    top = FLOOR_Y + DOOR_H
+    # The north jamb at z lo, facing +z (into the opening).
+    patch = CHART.add('door_reveal', SG_REVEAL_D, DOOR_H, 'jamb-n')
+    _plane(bm_r, (((back_x, FLOOR_Y, lo), (0.0, 0.0)),
+                  ((wx, FLOOR_Y, lo), (SG_REVEAL_D, 0.0)),
+                  ((wx, top, lo), (SG_REVEAL_D, DOOR_H)),
+                  ((back_x, top, lo), (0.0, DOOR_H))), patch)
+    # The south jamb at z hi, facing -z.
+    patch = CHART.add('door_reveal', SG_REVEAL_D, DOOR_H, 'jamb-s')
+    _plane(bm_r, (((back_x, FLOOR_Y, hi), (0.0, 0.0)),
+                  ((wx, FLOOR_Y, hi), (SG_REVEAL_D, 0.0)),
+                  ((wx, top, hi), (SG_REVEAL_D, DOOR_H)),
+                  ((back_x, top, hi), (0.0, DOOR_H))), patch)
+    # The soffit at y top, facing -y (down).
+    patch = CHART.add('door_reveal', DOOR_W, SG_REVEAL_D, 'soffit')
+    _plane(bm_r, (((wx, top, lo), (0.0, 0.0)),
+                  ((back_x, top, lo), (DOOR_W, 0.0)),
+                  ((back_x, top, hi), (DOOR_W, SG_REVEAL_D)),
+                  ((wx, top, hi), (0.0, SG_REVEAL_D))), patch)
+    # The back at x back, facing -x (west, toward the room).
+    patch = CHART.add('door_reveal', DOOR_W, DOOR_H, 'back')
+    _plane(bm_r, (((back_x, FLOOR_Y, lo), (0.0, 0.0)),
+                  ((back_x, FLOOR_Y, hi), (DOOR_W, 0.0)),
+                  ((back_x, top, hi), (DOOR_W, DOOR_H)),
+                  ((back_x, top, lo), (0.0, DOOR_H))), patch)
+    # The sill at the floor, facing +y (up) — the parquet stops at the wall plane.
+    patch = CHART.add('door_reveal', DOOR_W, SG_REVEAL_D, 'sill')
+    _plane(bm_r, (((wx, FLOOR_Y, lo), (0.0, 0.0)),
+                  ((wx, FLOOR_Y, hi), (DOOR_W, 0.0)),
+                  ((back_x, FLOOR_Y, hi), (DOOR_W, SG_REVEAL_D)),
+                  ((back_x, FLOOR_Y, lo), (0.0, SG_REVEAL_D))), patch)
+    reveal_obj = _finish(reveal, bm_r, True)
+    reveal_obj.data.materials.append(materials['door'])
+    # The gilt architrave on the room face — the door law's case boxes (door_architrave),
+    # its own part: the architecture merge groups by material, so the shared gilt bucket
+    # absorbs it (no new draw).
+    case, bm_c = _new_part(collection, 'door_case_sg')
+    _, _ = _layers(bm_c)
+    door_architrave(bm_c, (wx, FLOOR_Y, SG_DOOR_Z), (-1.0, 0.0, 0.0), DOOR_W, 'door_case_sg')
+    case_obj = _finish(case, bm_c, True)
+    case_obj.data.materials.append(materials['gilt'])
+    return [reveal_obj, case_obj]
+
+
+def build_door_leaves(collection, materials):
+    """The doorway's two hinge-pivoted leaves (the runtime swing's subjects): SEPARATE
+    glb nodes named leaf_sg_n / leaf_sg_s, each authored in HINGE-LOCAL coordinates with
+    the node origin AT the jamb (glTF translation = the hinge) so the runtime's
+    rotation.y swings the leaf about its hinge (src/world/door.ts). Both bake CLOSED:
+    the enclosed reveal bakes dark, the leaves carry their closed-pose texels."""
+    leaf_w = (DOOR_W - DOOR_LEAF_INSET * 2.0) * 0.5
+    leaves = []
+    stations = (
+        # (name, hinge glTF (x, y, z), the panel's local z span, the hinge law's sign)
+        ('leaf_sg_n', (WALL_X_EAST, FLOOR_Y, SG_DOOR_Z - DOOR_W * 0.5), (0.0, leaf_w), -1),
+        ('leaf_sg_s', (WALL_X_EAST, FLOOR_Y, SG_DOOR_Z + DOOR_W * 0.5), (-leaf_w, 0.0), 1),
+    )
+    for name, hinge, (z_lo, z_hi), _sign in stations:
+        obj, bm = _new_part(collection, name)
+        _, _ = _layers(bm)
+        # The panel: x -DOOR_PANEL_D..0 (proud of the wall plane, the door law's depth),
+        # y 0..DOOR_H, z the leaf's own span — all hinge-local glTF metres. The chart part
+        # name follows the MESH name (the D-12 gate maps mesh -> patch part).
+        add_box(bm,
+                (-DOOR_PANEL_D * 0.5, DOOR_H * 0.5, (z_lo + z_hi) * 0.5),
+                (DOOR_PANEL_D * 0.5, DOOR_H * 0.5, (z_hi - z_lo) * 0.5),
+                name)
+        leaf_obj = _finish(obj, bm, True)
+        leaf_obj.data.materials.append(materials['door'])
+        leaf_obj.location = to_b(hinge)
+        leaves.append(leaf_obj)
+    return leaves
 
 
 # ---- piers (paired pilasters + gilt capitals/bases, band, engaged columns) ----
@@ -1068,6 +1214,8 @@ def main():
     parts.append(build_vault(collection, materials))
     parts.extend(build_lanterns(collection, materials))
     parts.extend(build_doors(collection, materials, metrics))
+    parts.extend(build_doorway(collection, materials))
+    parts.extend(build_door_leaves(collection, materials))
     parts.extend(build_piers(collection, materials, metrics))
     parts.extend(build_torcheres(collection, materials, metrics))
     parts.append(build_benches(collection, materials))

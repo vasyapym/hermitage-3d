@@ -85,7 +85,9 @@ export const en = {
   'caption.m1': 'The west wall — a block of portraits in gilt frames.',
   'caption.m2': 'The lantern — the vault and the glazing bars above the gallery.',
   'caption.m3': 'The monarchs — the end wall, the large portraits above the small.',
-  'caption.m4': 'The doors are closed; beyond them — St George\u2019s Hall.',
+  // mg-1812-look DECISION-1: the doors are the real east-wall opening now; the closed-decor
+  // caption retires with the fallback it described.
+  'caption.m4': 'The doors in the east wall lead to St George\u2019s Hall — the Great Throne Room.',
   // The St George's Hall stops (DECISION-1 STRINGS, sourcing-gated): h0 carries the round-2
   // rework — the «forty-eight columns» count was a design constant (unsourced), the reworded
   // clause carries the sourcing rows A/B/C; h1–h4 verified by the same rework.

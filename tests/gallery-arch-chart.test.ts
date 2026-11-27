@@ -70,11 +70,15 @@ const EPS = 2e-4;
 
 const KIT_ARCH_PARTS = [
   'bench',
+  'door_case_sg',
   'door_cases',
   'door_leaves',
+  'door_reveal',
   'floor',
   'lantern_bars',
   'lantern_glazing',
+  'leaf_sg_n',
+  'leaf_sg_s',
   'pier_columns',
   'pier_gilt',
   'pier_shafts',
@@ -307,6 +311,8 @@ describe('the committed glb (geometry ↔ chart, D-12)', () => {
         }
       }
     }
-    expect(kitPrims).toBe(670);
+    // mg-1812-look DECISION-1: 670 kit strips minus the four doorway-dropped frames'
+    // frame+canvas pairs (the keep-clear law; the slots stay allocated by rank).
+    expect(kitPrims).toBe(670 - 2 * 4);
   });
 });

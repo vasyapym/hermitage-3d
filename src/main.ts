@@ -205,6 +205,9 @@ import {
 } from './world/airlock';
 import { applyCasterGate } from './world/caster-gate';
 import { SUN_SHADOW_FIT } from './world/column';
+// mg-1812-look DECISION-1: the declared door headings (§4.1a bent) and the runtime-hinged
+// leaves' per-frame law. door.ts is pure; the host owns the three-side wiring below.
+import { DOOR_LEAF_KEY, type DoorLeaf, doorHeading, doorOpen, leafYaw } from './world/door';
 import { snowBounceGround } from './world/ground-snow';
 import { parseLmParam } from './world/lm-mode';
 import { WINDOW_WARM_LINEAR, warmGround } from './world/night-facade';
@@ -1087,6 +1090,56 @@ let beatTangent: Vec3 | null = null;
 let beatFromExposure = 1;
 let beatToExposure = 1;
 
+// The runtime-hinged door leaves (mg-1812-look DECISION-1, src/world/door.ts's laws): the
+// host collects the tagged nodes from the rooms root at every swap — the leaves ride their
+// room's object tree, so a freshly mounted room's leaves surface here and a disposed room's
+// leave with its tree (the next swap's rebuild drops them). The per-frame writer runs while a
+// beat is open; doorOpen returns exactly 0 at both hand-over frames, so the resting leaves sit
+// closed bit-identically with the pre-round state and no idle frame ever writes a rotation.
+const doorLeaves = new Map<NodeHandle, Array<{ node: THREE.Object3D; leaf: DoorLeaf }>>();
+const collectDoorLeaves = (): void => {
+  doorLeaves.clear();
+  roomsRoot.traverse((node) => {
+    const tag = (node.userData as Record<string, unknown>)[DOOR_LEAF_KEY];
+    if (
+      tag === undefined ||
+      tag === null ||
+      typeof tag !== 'object' ||
+      !('airlock' in tag) ||
+      !('hinge' in tag) ||
+      !('room' in tag)
+    ) {
+      return;
+    }
+    const leaf = tag as DoorLeaf;
+    const bucket = doorLeaves.get(leaf.room);
+    if (bucket === undefined) doorLeaves.set(leaf.room, [{ node, leaf }]);
+    else bucket.push({ node, leaf });
+  });
+};
+/** One transit frame's leaf law: the beat owns the doors — the FROM room's leaves swing open
+ * over the depart and hold through the card; the TO room's hold through the card and close
+ * over the arrive; a cut never moves a leaf (reduced motion's law rides the transit kind). */
+const applyDoorLeaves = (): void => {
+  const open = transit;
+  const st = open?.state;
+  if (open === null || st === undefined || st.phase === 'idle' || st.phase === 'exit') return;
+  const progress = st.phase === 'card' ? 0 : beatProgress(st);
+  const beat = {
+    airlockId: st.airlockId,
+    phase: st.phase,
+    transit: st.transit,
+    from: st.from,
+    to: st.to,
+    progress,
+  };
+  for (const [room, entries] of doorLeaves) {
+    for (const { node, leaf } of entries) {
+      node.rotation.y = leafYaw({ open: doorOpen({ beat, leaf, room }), hinge: leaf.hinge });
+    }
+  }
+};
+
 // The prefetch chain's host side (§4.6): the pure scheduler plans one unit per idle frame; this
 // host kicks the neighbours' manifests + lazy chunks at every arrival settle and stages each
 // planned unit into the loaders' session cache. `pendingChains` gates the scheduler on: settled,
@@ -1421,7 +1474,9 @@ const RIGHT_AXIS = new THREE.Vector3(1, 0, 0);
  * threshold beat locks on its first depart frame — one helper, both consumers, so the lean's
  * direction and the departure glide's direction agree by construction. The raw unit tangent is
  * flattened by `levelHeading` (a stair's slope removed; a level tangent rides through by
- * reference). */
+ * reference). mg-1812-look DECISION-1: when the boundary's airlock DECLARES the door heading
+ * (a real doorway whose approach the end tangent does not square — the throne-airlock), that
+ * heading leads; the tangent stays the fallback (src/world/door.ts doorHeading). */
 const doorTangent = (pose: BeatPose, u: number): Vec3 => {
   const step = 1e-4;
   const inner = samplePosition(rail, Math.min(1, Math.max(0, u >= 0.5 ? u - step : u + step)));
@@ -1432,7 +1487,21 @@ const doorTangent = (pose: BeatPose, u: number): Vec3 => {
   ];
   const len = Math.hypot(raw[0], raw[1], raw[2]);
   if (len <= 0) throw new Error('zimny: the door stop has a degenerate rail tangent');
-  return levelHeading([raw[0] / len, raw[1] / len, raw[2] / len]);
+  const tangent = levelHeading([raw[0] / len, raw[1] / len, raw[2] / len]);
+  return doorHeading({ declared: boundaryDeclaredHeading(), tangent });
+};
+/** The declared heading of the door the current rail end pushes into, or null (no airlock, or
+ * the def declares none): the lean's and the beat's shared read. The direction picks the
+ * def's side — a forward push leaves the def's `from` through `headingFrom`; a backward push
+ * leaves its `to` through `headingTo`. */
+const boundaryDeclaredHeading = (): Vec3 | null => {
+  const direction = railPushBoundary();
+  if (direction === null) return null;
+  const next = boundaryNext(direction);
+  if (next === null) return null;
+  const def = nextAirlockOnPath(ENTRIES, AIRLOCKS, railNode, next);
+  if (def === null) return null;
+  return direction === 'forward' ? def.headingFrom : def.headingTo;
 };
 const applyRailPose = (): void => {
   const pose = samplePose(rail, railState);
@@ -1526,6 +1595,7 @@ const applyBeatPose = (): boolean => {
 };
 
 const applySwap = (to: NodeHandle | null): void => {
+  collectDoorLeaves(); // the mounted rooms' hinged leaves surface here (mg-1812-look DECISION-1)
   if (to === 'square') {
     indoor = false;
     sun.visible = true;
@@ -2709,6 +2779,8 @@ const beginTransitTo = (target: NodeHandle, cold = false): void => {
       portalTo: SQUARE_CUT_PORTAL,
       transit: 'cut',
       holdMs: 800,
+      headingFrom: null,
+      headingTo: null,
     };
   }
   if (def === null) {
@@ -3742,6 +3814,7 @@ const tick = (timeMs: number): void => {
   if (transit !== null) {
     const advanced = advanceTransit(transit.state, deltaMs, ready);
     transit = { ...transit, state: advanced.state };
+    applyDoorLeaves(); // the beat owns the hinged leaves' swing (mg-1812-look DECISION-1)
     let swapCostMs: number | null = null;
     let disposeCostMs: number | null = null;
     for (const event of advanced.events) {

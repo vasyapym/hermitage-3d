@@ -23,6 +23,9 @@ import {
   sha256,
   writeGlb,
 } from '../common.mjs';
+// mg-1812-look DECISION-1: the doorway keep-clear law lives in the layout law — the
+// dropped frames' parts are never built, so the gate expects FRAME_COUNT − dropped.
+import { buildLayout } from '../gallery/layout.mjs';
 
 export const ROOM = {
   id: 'military-gallery',
@@ -62,15 +65,23 @@ const ATLAS_BYTES_MAX = 400_000;
 const FRAME_PART_PREFIX = 'frame_';
 const CANVAS_PART_PREFIX = 'canvas_';
 const FRAME_COUNT = 335;
+// mg-1812-look DECISION-1: the east wall's doorway keep-clear law drops the bay's centre
+// column rows 1..4 — their parts are never built (the layout law's DOOR_ZONE; the atlas
+// slots stay allocated by rank). The gate derives the expected count from the law.
+const DROPPED_COUNT = buildLayout().counts.dropped;
 const FRAME_TRIS = 48; // four mitred bars, six quads each — the landed kit
 const CANVAS_TRIS = 2;
 const ARCH_PARTS = [
   'bench',
+  'door_case_sg',
   'door_cases',
   'door_leaves',
+  'door_reveal',
   'floor',
   'lantern_bars',
   'lantern_glazing',
+  'leaf_sg_n',
+  'leaf_sg_s',
   'pier_columns',
   'pier_gilt',
   'pier_shafts',
@@ -215,8 +226,10 @@ function gateGeometry(json, summary) {
     }
     byName.set(m.name, m);
   }
-  if (frames !== FRAME_COUNT) fail(`frames ${frames} !== ${FRAME_COUNT}`);
-  if (canvases !== FRAME_COUNT) fail(`canvases ${canvases} !== ${FRAME_COUNT}`);
+  if (frames !== FRAME_COUNT - DROPPED_COUNT)
+    fail(`frames ${frames} !== ${FRAME_COUNT - DROPPED_COUNT}`);
+  if (canvases !== FRAME_COUNT - DROPPED_COUNT)
+    fail(`canvases ${canvases} !== ${FRAME_COUNT - DROPPED_COUNT}`);
   for (const name of ARCH_PARTS) {
     if (!byName.has(name)) fail(`arch part ${name} missing`);
   }
