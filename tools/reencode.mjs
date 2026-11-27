@@ -44,6 +44,7 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const ENCODE_PY = join(HERE, 'reencode-encode.py');
 const COMPOSE_PY = join(HERE, 'lm_compose.py');
 const PAINT_PY = join(HERE, 'reencode-paint.py');
+const COVERAGE_PY = join(HERE, 'reencode-coverage.py');
 const LOG_DIR = join(HERE, 'bake-logs');
 const TOKTX_INSTALL = 'install KTX-Software 4.4.2 (brew install ktx) so `toktx` is on PATH';
 
@@ -358,6 +359,59 @@ function reencodeChart(room, state, chart, whitePoint, manifest, work, transfer)
       payload,
     ]);
     exr = painted;
+  }
+  // Brief 44's ruling §3 (v1): the coverage gate — the gallery's plates must not ship
+  // unwritten (exactly-0.0 float) atlas cells. The checker samples every REQUIRED cell's
+  // interior (2 px in from the allocation, the pad law): the receivers' roster cells
+  // (the bake summary's `receivers` field — the flat bake's target datablock names + the
+  // S2A targets) and, under --require-strip, the sconce strip's inked cells (chart rows
+  // [0, stripRowPx); the emitter exclusion leaves them unwritten on dusk/night — the
+  // gate is expected RED on HEAD, that failure IS the demonstration the ruling demands).
+  // Runs AFTER the paint (the paint's content must not mask the verdict) and BEFORE the
+  // LDR encode, on the exact EXR the encode consumes; `--python-exit-code 1` propagates
+  // the checker's exit code (all-or-nothing per the publish law). rastrelli-gallery only
+  // (the standing cross-room byte-safety law); arch chart only (the atlas — the room's
+  // manifest carries no kit lm rows). Fail-closed: a missing artifact fails the run
+  // naming it — never a silent pass.
+  if (room === 'rastrelli-gallery' && chart === 'arch') {
+    const stageDir = join(STAGE_ROOT, room);
+    const layoutPath = join(stageDir, `bake-layout.${state}.json`);
+    const receiversPath = join(stageDir, `bake-summary.${state}.json`);
+    for (const [label, path] of [
+      ['bake-layout', layoutPath],
+      ['bake-summary', receiversPath],
+    ]) {
+      if (!existsSync(path)) {
+        fail(
+          `coverage gate: missing ${label} artifact ${path}`,
+          'run the bake for this state first (node tools/bake.mjs)',
+        );
+      }
+    }
+    // The strip law: strip_px = round((1 - 0.875) * 1536) = 192 (the builder's
+    // LM_STRIP_FRAC 0.875 at LM_RES 1536). The checker cross-checks both constants
+    // against the layout's stripRowPx, the strip block's equal-cell grid and the plate's
+    // own size (fail loud on drift) — the driver's numbers are the law's restatement,
+    // never a trusted input.
+    run(BLENDER, [
+      '-b',
+      '--factory-startup',
+      '-noaudio',
+      '--python-exit-code',
+      '1',
+      '-P',
+      COVERAGE_PY,
+      '--',
+      'check',
+      exr,
+      layoutPath,
+      receiversPath,
+      '--strip-px',
+      '192',
+      '--res',
+      '1536',
+      '--require-strip',
+    ]);
   }
   const png = join(work, `${prefix}${file}.png`);
   const ktx2 = join(work, `${prefix}${file}.ktx2`);

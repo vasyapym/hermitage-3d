@@ -3065,16 +3065,6 @@ def main():
         'shell', b, shell_slots, mode='shelf')
 
     if BAKE:
-        # the layout-identity law: the bake chain writes the lm block it packed to the path
-        # bake.py names (I/O only). The object is the one the export summary carries as
-        # `lm`, so one reader serves both; the sconce's strip is not the layout.
-        layout_out = os.environ.get('ZIMNY_LM_LAYOUT_OUT')
-        if not layout_out:
-            fail('ZIMNY_BAKE=1 needs ZIMNY_LM_LAYOUT_OUT (the layout-identity law)')
-        with open(layout_out, 'w', encoding='utf-8') as fh:
-            json.dump({'lm': lm_shell}, fh, indent=1, sort_keys=True)
-            fh.write('\n')
-    if BAKE:
         # BATCH B's S2A wiring (the junction law): bake.py reads the shell's face→element
         # map straight from this exec namespace — the roster order IS the mesh polygon
         # order (the dump_layout belt's correspondence), and the bake stage prints no
@@ -3084,6 +3074,22 @@ def main():
     sconce_b = build_sconce()
     me_sconce, t_sconce, lm_strip = finish(
         'sconce', sconce_b, [mat_iron, mat_glow], mode='strip')
+    if BAKE:
+        # the layout-identity law: the bake chain writes the lm block it packed to the path
+        # bake.py names (I/O only). The object is the one the export summary carries as
+        # `lm`, so one reader serves both. The coverage gate's strip pin (brief 44 §3, v1)
+        # reads the strip's equal-cell grid from the SAME file, so lm.strip joins the
+        # block exactly as the export summary's lm carries it — written AFTER the sconce
+        # finish for that (the write is still inside this exec; bake.py checks the file
+        # only after it returns). The identity law compares pxPerM/stripRowPx/faces/
+        # layoutHash + the cells list only, so the added key moves no hash and no check;
+        # the shelf's per-cell px rects already ride lm.cells.
+        layout_out = os.environ.get('ZIMNY_LM_LAYOUT_OUT')
+        if not layout_out:
+            fail('ZIMNY_BAKE=1 needs ZIMNY_LM_LAYOUT_OUT (the layout-identity law)')
+        with open(layout_out, 'w', encoding='utf-8') as fh:
+            json.dump({'lm': {**lm_shell, 'strip': lm_strip}}, fh, indent=1, sort_keys=True)
+            fh.write('\n')
     instance('shell', me_shell, (0.0, 0.0, 0.0))
     for x in SCONCE_X:  # 12 sconces on the odd pilasters' shaft planes
         instance('sconce', me_sconce, (x, SCONCE_Y, G_Z0 + SCONCE_MOUNT_D))

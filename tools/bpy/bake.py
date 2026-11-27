@@ -1929,6 +1929,12 @@ def main():
     arch_row = None
     files = []
     lm_layout = None  # the layout-identity law: the bake lm block, set per shelf-law room
+    # The coverage gate's receiver law (brief 44's ruling §3): the summary's `receivers`
+    # field = the arch chart's flat-bake target datablock names + the S2A targets. The
+    # names are captured where they exist (below); the field lands emit-gated in the
+    # summary assembly.
+    arch_target_names = []
+    s2a_target_names = []
     # bake.mjs passes the per-state dir (bake-<state> under the shared stage root — its own
     # law: never the bpy stage dir); the export summary, the sidecars and the manifest all
     # live at the ROOT.
@@ -1970,6 +1976,8 @@ def main():
         print('ZIMNY_BAKE_MATERIALS n=' + str(len(bake_mats)) + ' names=' +
               json.dumps(sorted(mat.name for mat in bake_mats)), flush=True)
         targets, reps = bake_targets(objects, room)
+        if spec['name'] == 'arch':
+            arch_target_names = sorted({obj.data.name for obj in targets})
         if room in LM_LAYOUT_LAW_ROOMS:
             # the layout-identity law: refuse to bake against a stale or divergent export
             # (the summary AND the layout both live at the stage root — one canonical place)
@@ -1993,6 +2001,7 @@ def main():
                 and not preview):
             s2a_rows = s2a_passes(scene, namespace, s2a_shell_object(objects), margin_px,
                                   image, state, stage_root)
+            s2a_target_names = sorted({row['target'] for row in s2a_rows})
         save_exr(image, lm_dir / f'{prefix}{file_state}.raw.exr')
         # The denoiser decision knob (see DENOISE_ENV): the committed path is the compositor
         # OIDN below; a decision re-run (ZIMNY_BAKE_DENOISE=off) encodes from the RAW plate —
@@ -2122,6 +2131,15 @@ def main():
                                'faces': lm_layout['faces'],
                                'stripRowPx': lm_layout['stripRowPx'],
                                'state': state}
+    # The coverage gate's receiver law (brief 44's ruling §3, v1): the per-state receiver
+    # datablock names — the flat bake's selected targets' mesh datablock names + the S2A
+    # targets (the elements whose cells the S2A passes write; they all live on the shelf
+    # datablock). Lands ONLY for the layout-law rooms (the standing emit-gated provenance
+    # pattern); every sibling's printed summary stays byte-stable. The committed bake log
+    # gains the field on the next bake; tools/reencode-coverage.py consumes it fail-closed
+    # (a missing field = a summary that predates the law).
+    if room in LM_LAYOUT_LAW_ROOMS:
+        summary['receivers'] = sorted(set(arch_target_names) | set(s2a_target_names))
     print_summary(summary)
     # The state's sidecar (new; the summary was print-only): the same dict, for the manifest
     # step's identity assertion and the job's evidence capture.
