@@ -8,7 +8,6 @@
 import './fonts.css';
 import './style.css';
 import * as THREE from 'three';
-import { KTX2Loader } from 'three/examples/jsm/loaders/KTX2Loader.js';
 import { AIRLOCKS, ENTRIES } from '../rooms/index';
 import { applyWeights } from './assets/blend-gl';
 import { clearEnvironmentIfOwned } from './assets/environment-slot';
@@ -845,20 +844,12 @@ if (new URLSearchParams(location.hash.split('?')[1] ?? '').get('sqdebug') === '1
 }
 // tear-tbdr-lane probe: the lightmap/atlas diagnostics hook — __lmProbe registers only with
 // `lmprobe=1` in the hash query, the sqdebug class: the bundle carries it inert and the lane
-// probes reach the mounted scene's materials through it (plus a probe-only KTX2Loader and the
-// renderer for the plate experiments).
+// probes reach the mounted scene's materials through it. Law: scene+renderer only — the
+// KTX2Loader/THREE exposure pulled the loader graph into the main chunk (+35,774 gz measured
+// against 3ab6aab); the plate forensics that needed it are recorded in the round archive and
+// the coverage gate is the durable bake-side instrument now.
 if (new URLSearchParams(location.hash.split('?')[1] ?? '').get('lmprobe') === '1') {
-  const ktx2 = new KTX2Loader()
-    .setTranscoderPath('/basis/')
-    .setWorkerLimit(1)
-    .detectSupport(renderer);
-  (window as unknown as { __lmProbe?: object }).__lmProbe = {
-    scene,
-    THREE,
-    ktx2,
-    renderer,
-    KTX2Loader,
-  };
+  (window as unknown as { __lmProbe?: object }).__lmProbe = { scene, renderer };
 }
 
 // Debug HUD — ?hud=1 shares the hash query with time/tier (parseHudParam never persists;
