@@ -408,13 +408,20 @@ describe('4 · corrected backdrop-ray pins', () => {
     expect(hit).toBeLessThanOrEqual(kit.HQ_Z.south);
   });
 
-  it('pins the committed S0b pose from SQUARE_RAIL: the hit is exactly 107.5, in span', () => {
+  it('pins the committed S0b pose from SQUARE_RAIL: the hit is exactly 83.715 (the ruling bend)', () => {
+    // The 2026-11-28 turn note (the creative ruling, brief 1) slid S0b to t 0.203 — the
+    // owner's 15 % softer pan. The bend, named in the ruling: the centre ray's HQ-wall hit
+    // moved north of the wall's end (z 100) — the wall FLANKS the Column on the right, the
+    // palace's east massing backs the shaft, and the bare-field band behind the monument
+    // measured 0.0 % at the ruling's gate (the ≤ 20 % bar NOT bent; the original T2
+    // instrument is unrecovered — the massing-scoped reconstruction reproduces the recorded
+    // 0.0 % on the pre-slide pose). The value is the pose's fingerprint: any S0b pose change
+    // moves it and fails here on purpose.
     const stop = SQUARE_RAIL.stops.find((candidate) => candidate.id === 'S0b');
     if (!stop?.subject) throw new Error('the committed S0b stop is missing');
     const hit = kit.squareKitBackdropHitZ(stop.position, stop.subject, kit.HQ_FACE_X);
-    expect(hit).toBeCloseTo(107.5, 6);
+    expect(hit).toBeCloseTo(83.715, 3);
     if (hit === null) throw new Error('missing committed S0b backdrop hit');
-    expect(hit).toBeGreaterThanOrEqual(kit.HQ_Z.north);
     expect(hit).toBeLessThanOrEqual(kit.HQ_Z.south);
   });
 

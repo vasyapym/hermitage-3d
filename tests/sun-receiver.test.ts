@@ -84,3 +84,57 @@ describe('the sun receiver variant (R4/R5)', () => {
     expect(String(material.onBeforeCompile)).not.toContain('zimnySunGetShadow');
   });
 });
+
+// The ground-slot fix (2026-11-28): the receiver patch CHAINS with any pre-existing
+// onBeforeCompile — the ground's snow/paving slot, the kit's uSnow + facade-surface slots —
+// instead of the blind assignment that erased them (the deployed «no asphalt» bug).
+describe('the receiver patch chains with pre-existing material hooks (the ground-slot fix)', () => {
+  const slottedMaterial = (): { material: THREE.MeshBasicMaterial; slot: (s: never) => void } => {
+    const material = new THREE.MeshBasicMaterial();
+    const slot = (shader: { vertexShader: string }): void => {
+      shader.vertexShader = `// slot\n${shader.vertexShader}`;
+    };
+    material.onBeforeCompile = slot;
+    material.customProgramCacheKey = () => 'slot-key';
+    return { material, slot };
+  };
+  const sceneWith = (material: THREE.MeshBasicMaterial): THREE.Scene => {
+    const mesh = new THREE.Mesh(new THREE.BoxGeometry(), material);
+    mesh.receiveShadow = true;
+    const scene = new THREE.Scene();
+    scene.add(mesh);
+    return scene;
+  };
+
+  it('the slot runs first, the receiver composes after, and the cache key composes', () => {
+    const { material } = slottedMaterial();
+    const scene = sceneWith(material);
+    applySunReceiver(scene, 'plane', false);
+    expect(material.customProgramCacheKey?.()).toContain('slot-key');
+    expect(material.customProgramCacheKey?.()).toContain('zimny-sun-receiver-plane');
+    const shader = { fragmentShader: FAKE_SHADER, vertexShader: 'void main(){}\n' };
+    (material.onBeforeCompile as (s: typeof shader) => void)(shader as never);
+    expect(shader.vertexShader).toContain('// slot'); // the slot's splice survived
+    expect(shader.fragmentShader).toContain('zimnySunGetShadow'); // the receiver's splice too
+  });
+
+  it('stock restores the pre-existing hooks verbatim after a re-patch cycle', () => {
+    const { material, slot } = slottedMaterial();
+    const scene = sceneWith(material);
+    applySunReceiver(scene, 'plane', false);
+    applySunReceiver(scene, 'cubic', false); // a mode change re-patches ON the saved original
+    applySunReceiver(scene, 'stock', false);
+    expect(material.onBeforeCompile).toBe(slot); // the ORIGINAL hook object, restored
+    expect(material.customProgramCacheKey?.()).toBe('slot-key');
+  });
+
+  it('a force sweep over a never-patched material leaves its own hooks alone', () => {
+    const { material } = slottedMaterial();
+    const scene = sceneWith(material);
+    applySunReceiver(scene, 'stock', true); // the renderer-flip sweep: force over unpatched
+    expect(material.onBeforeCompile).not.toBe(null);
+    const shader = { vertexShader: 'void main(){}\n' };
+    (material.onBeforeCompile as (s: typeof shader) => void)(shader as never);
+    expect(shader.vertexShader).toContain('// slot'); // not deleted by the sweep
+  });
+});

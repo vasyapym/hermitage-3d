@@ -6,7 +6,9 @@
  * The square's gaze is authored, not the room pose law: S0 — level with the boot camera, up at
  * the cornice line — is what the noon and white-night goldens pin. The square has three stops
  * (R18-ux D1) — five since the 2026-11-12/13 stops round (the owner's stop order, Fable 5.1's
- * placement): S0b and Shb split the two 54.3 m gaps at the line's quarter points. S0 faces the
+ * placement): S0b and Shb split the two 54.3 m gaps — at the line's quarter points until the
+ * 2026-11-28 turn note slid S0b back to t 0.203 (the softer first Forward's pan, the ruling's
+ * gate-checked slide; the stop table carries the figures). S0 faces the
  * facade. Sh (R18-ux D1) stands halfway (z 177), so the first Forward comes closer without
  * arriving. S1 (R-UX3, D7) stands back so the gate pavilion composes as architecture. Under the
  * glide look law, each glide holds its destination's subject: S0→S0b holds the Column, S0b→Sh
@@ -44,19 +46,25 @@ export const SQUARE_RAIL = {
     },
     {
       // The 2026-11-12/13 stops round (the owner's stop order; Fable 5.1's placement): the
-      // first quarter-point insert, t 0.25 on the committed XZ line (x = −24 + 24t,
-      // z = 230 − 106t) — the 54.3 m S0→Sh gap splits into two even 27.17 m gaps, four over
-      // the whole rail, so the cruise reads 18 m/s instead of 36. The monument pause: the
-      // Column gets its own frame before the walk passes it — 22.5 m off the axis (≈11 m
-      // clear of the fence's NW corner), gaze 13.3° up with the pedestal centred and the
-      // shaft rising through the upper frame; pitchUp 20 lets the visitor tilt to the capital
-      // without a strong committed look-up. The only square stop that looks away from the
-      // axis (≈40° right of the walk line): S0→S0b pans ≈48° right onto the monolith as it
-      // grows, S0b→Sh pans ≈46° back left onto the pavilion («past the column» lands at Sh
-      // exactly as written). Subject y 7 is set from the real monument's proportions
-      // (the pedestal top / the shaft's foot) — the one value capture may move.
+      // first quarter-point insert on the committed XZ line (x = −24 + 24t, z = 230 − 106t).
+      // The 2026-11-28 turn note (the creative ruling, brief 1): the owner read the first
+      // Forward's right pan as «a bit too much» and asked ≈ 15 % less; the ruling slides the
+      // insert to t 0.203 — S0→S0b pans ≈ 40.7° (0.85 × the 47.9 the quarter point measured),
+      // the pan back ≈ 38.6°, the gaps read 22.1/32.3 m (the even split retires, the owner's
+      // ask the reason). The monument pause keeps its law: the Column gets its own frame
+      // before the walk passes it — 26.6 m off the axis (≈ 14.9 m clear of the fence's NW
+      // corner), gaze 11.3° up with the pedestal centred and the shaft rising through the
+      // upper frame; pitchUp 20 lets the visitor tilt to the capital without a strong
+      // committed look-up. Still the only square stop that looks away from the axis (≈ 33°
+      // right of the walk line): the pan onto the monolith as it grows, then back onto the
+      // pavilion («past the column» lands at Sh exactly as written). DEC-049's flanking: the
+      // centre ray's HQ-wall hit moves north of the wall's end (z 83.7 vs the end z 100) —
+      // the wall FLANKS the Column on the right now, the palace's east massing backs it
+      // (the bare-field band behind the monument measured 0.0 % at the ruling's gate — the
+      // ≤ 20 % bar not bent). Subject y 7 is set from the real monument's proportions (the
+      // pedestal top / the shaft's foot) — the one value capture may move.
       id: 'S0b',
-      position: [-18, 1.7, 203.5],
+      position: [-19.128, 1.7, 208.482],
       subject: SQUARE_S0B_GAZE,
       look: { yaw: 30, pitchUp: 20, pitchDown: 20 },
       caption: 'caption.s0b',

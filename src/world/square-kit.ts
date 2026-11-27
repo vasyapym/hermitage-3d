@@ -220,8 +220,9 @@ export const HQ_SNOW_LIP_BAND = {
 
 /** The el:gs-junction rider (the square-next-2 round): the General Staff junction's massing at
  * the HQ wall's south end — the sourced relation «HQ = the GS height» reads the HQ's own
- * cornice law; 'hq-massing' slot only. z 300 = where the S0b max-right edge ray meets x 110
- * (≈ 296) — the void closes to the frame edge (golden-neutral by the record's arithmetic). Its
+ * cornice law; 'hq-massing' slot only. z 300 = where the S0b max-right edge ray met x 110 at
+ * the quarter-point placement (≈ 296); the 2026-11-28 S0b slide eases that ray north, so the
+ * extent still closes past the frame edge (golden-neutral by the record's arithmetic). Its
  * plinth/cornice courses mirror the HQ wall's vocabulary (the PROUD pair). */
 export const GS_JUNCTION = {
   xWest: HQ_FACE_X,

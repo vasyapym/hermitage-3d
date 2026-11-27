@@ -8,7 +8,7 @@ Start with AGENTS.md and this file only. Live state holds open work; Recent is a
 
 Tree: main @ tear-tbdr-merge · 2026-11-27
 Wave: turn-cascade, sq-shadow-dirt, rg-next, rg-improve, st-george, sq-fix-improve, sq-t0-residue, sg-improve and tear-tbdr-lane all landed (the FULL gate + the CI verdict = this LAST merging session's battery — deferred NOT waived); the rg-next battery ran on the office box 2026-11-26 (e2e 87/0); st-george second of three (room 4 of 7). The darwin goldens stay parked.
-Lanes: <!-- none open; the template: at integration insert the actual name, branch, phase and matching docs/budget-ledger.md open-row key. -->
+Lanes: sq-polish-lane: branch `sq-polish-lane` (the worktree `hermitage-3d-sq-polish`), phase the round integrated on the branch (the ground-slot fix + the Creative's two rulings — DECISION-1; the S0b pair's goldens re-baselined), ledger key `sq-polish-lane` in docs/budget-ledger.md Open reservations — PARALLEL per the owner; the merge + the FULL gate ride the owner's signal. <!-- the template: at integration insert the actual name, branch, phase and matching docs/budget-ledger.md open-row key. -->
 
 Owed:
 - Jordan J1 spire read — closes when: the owner judges the J1 frame; the caption fallback stays parked → docs/parking-lot.md
