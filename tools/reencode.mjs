@@ -392,7 +392,10 @@ function reencodeChart(room, state, chart, whitePoint, manifest, work, transfer)
     // LM_STRIP_FRAC 0.875 at LM_RES 1536). The checker cross-checks both constants
     // against the layout's stripRowPx, the strip block's equal-cell grid and the plate's
     // own size (fail loud on drift) — the driver's numbers are the law's restatement,
-    // never a trusted input.
+    // never a trusted input. NO --require-strip: the RG-E1 re-adjudication (bake.py
+    // EMITTER_EXCLUSION's comment) keeps the sconce's cells clear whenever the glow is
+    // a live emitter — the strip is report-only here, exactly like the repo's own
+    // dead-cell gate excludes it (reencode-paint.py).
     run(BLENDER, [
       '-b',
       '--factory-startup',
@@ -410,7 +413,6 @@ function reencodeChart(room, state, chart, whitePoint, manifest, work, transfer)
       '192',
       '--res',
       '1536',
-      '--require-strip',
     ]);
   }
   const png = join(work, `${prefix}${file}.png`);
