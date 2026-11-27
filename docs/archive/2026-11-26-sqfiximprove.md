@@ -123,6 +123,10 @@ decisions belong to the creative; the orchestrator gathers evidence and integrat
 - The t0 device check rides the same sitting (brief 2's packet): «no acne/dirt returns on the facade
   fields (t0 0.1/0.5 stays); the dec stripe survives t0's 2048 map».
 
+## The iPhone verdict (2026-11-27, the sitting) — IMG_0059, the settled live app
+
+The owner's words, verbatim: «for iphone 11 it is still not good. but it is better.» The t0 device ruling (shadowNormalBias 0.1 / shadowRadius 0.5) validated directionally on the real device; the close-up residue is the recorded device-backend class (the A13/Safari TBDR shadow-pass + the dprCap-1 canvas stretched ~2× on the 828-px screen). The owner's weight: «i guess it is not critical». The parked lever: the t0 dprCap revisit (1 → 2 — the §11 fit bounds the buffer at ≈ 786k px ≈ 3× today's fill on the A13; the frame budget is UNMEASURED on the device; the brief-1 ruling declined this trade once for the fill budget). The path if the eye wants more: a measured experiment first (the dprCap 2.0 build on the device + the Mac Safari → Develop frame timing), the creative rules with the trade in view. F8 closes with this verdict; the residue is a parked candidate, not an open Owed item (the owner: not critical).
+
 ## Parked / the successor list
 
 - The T6 wart: the massing's `transparent: true` never unset at settle (only opacity is driven) —

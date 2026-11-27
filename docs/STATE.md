@@ -21,7 +21,7 @@ Owed:
 - Jordan cell ownership (finding 06) — closes when: the chain emits and verifies each mesh's first-cell row in the manifest → docs/archive/2026-11-24-turncascade.md
 - R5 arch tunnels — closes when: the successor prices and rules on openings/returns with only the middle arch open, gate 30 m back and resident throat retained → docs/archive/2026-11-26-sqshadowdirt.md
 - rg-improve capture battery + the golden re-baselines — closes when: the owner's sitting judges the frames on the merged build → docs/archive/2026-11-26-rgimprove.md
-- F8 iPhone tier — closes when: the owner judges the t0 device sitting (the 0.1/0.5 rows live; the mapSize ruling held 2048) → docs/archive/2026-11-26-sqfiximprove.md
+- F8 iPhone tier — CLOSED 2026-11-27: the owner's device verdict «still not good. but it is better» (IMG_0059, the settled live app) — the 0.1/0.5 rows validated directionally; the residue (the A13/Safari TBDR + the dprCap-1 stretch) parked → docs/archive/2026-11-26-sqfiximprove.md
 - The sq-fix-improve sitting — closes when: the owner judges the blade/lane (S0→Sh, Mac + iPhone pinned t0) and the seasonal low-sun look → docs/archive/2026-11-26-sqfiximprove.md
 - Office speckle gate — CLOSED 2026-11-26 (the two-build gate on the reference Mac; the eye's display verdict stands) → docs/archive/2026-11-26-sqshadowdirt.md
 - Office square-kit e2e — CLOSED 2026-11-26 (8/8 on the reference Mac; the box's fails were the machine-stall class) → docs/archive/2026-11-26-sqshadowdirt.md
