@@ -99,6 +99,8 @@ describe('rastrelli-gallery state (RG-F4)', () => {
     expect(day?.sha256).toBe('b7f952bca591f4c55ba0371d83b199044ce7d53c0a144367b51bca7858befbc9');
     expect(dusk?.sha256).toBe('cf728dc788ce39cfc2d36620d4054051fe6d596651e80e4206fe87de2d8cf1b2');
     expect(night?.sha256).toBe('983c4d51ce2fc111b978e673d8c9d578bed817a1a6b7211ea7c8585db2d141fa');
+    const probe = MANIFEST.files.find((f) => f.path === 'probe/dusk.ktx2');
+    expect(probe?.sha256).toBe('bbed81b76f5f4aca933bfc4a514a6960b3c36ae9bccaa88d1a0efd57a4296b1c');
   });
 
   it('the manifest lightmaps row: three states at 1536, the committed wp 0.8 in every state', () => {

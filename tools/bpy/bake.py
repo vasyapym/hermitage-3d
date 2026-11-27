@@ -1990,7 +1990,7 @@ def main():
         image = bake_lightmap(scene, meshes, targets, bake_mats, spec['res'], margin_px)
         if collapsed:
             restore_frame_backfaces(collapsed)
-        save_witness(image, stage_root, f'{state}.witness-flat.exr')
+        save_witness(image, stage_root, f"{state}.witness-flat-{spec['name']}.exr")
         # THE JUNCTION LAW'S S2A PASSES (batch B; rastrelli-gallery day/dusk, the arch chart
         # only, never in preview): the committed flat bake above was the atlas's FIRST write
         # (use_clear=True); these passes overwrite only their own target's cells with
@@ -2135,9 +2135,10 @@ def main():
     # datablock names — the flat bake's selected targets' mesh datablock names + the S2A
     # targets (the elements whose cells the S2A passes write; they all live on the shelf
     # datablock). Lands ONLY for the layout-law rooms (the standing emit-gated provenance
-    # pattern); every sibling's printed summary stays byte-stable. The committed bake log
-    # gains the field on the next bake; tools/reencode-coverage.py consumes it fail-closed
-    # (a missing field = a summary that predates the law).
+    # pattern); every sibling's printed summary stays byte-stable. The field lands in the
+    # per-state bake-summary.<state>.json SIDECAR at the stage root, not the committed log;
+    # tools/reencode-coverage.py consumes it fail-closed (a missing field = a summary that
+    # predates the law).
     if room in LM_LAYOUT_LAW_ROOMS:
         summary['receivers'] = sorted(set(arch_target_names) | set(s2a_target_names))
     print_summary(summary)

@@ -46,9 +46,10 @@
 #     (b) under --require-strip: the strip's INKED cells — the strip block's first `faces`
 #         grid slots (cell i: col = i % grid, row = i // grid, rect = [col*cellW,
 #         (grid-row-1)*cellH, cellW, cellH], chart px); the band's empty grid slots (no
-#         face's UV rect maps there) are never pinned. Required on EVERY state for a
-#         sconce-bearing room — expected RED on HEAD (the strip is unwritten on
-#         dusk/night; that failure IS the demonstration the ruling demands).
+#         face's UV rect maps there) are never pinned. The flag stays a decision-rerun
+#         capability, never the committed drive: the RG-E1 re-adjudication makes the strip
+#         REPORT-ONLY (the look law keeps the sconce's cells clear whenever the glow is a
+#         live emitter), and tools/reencode.mjs passes no --require-strip.
 #   REPORT-ONLY (counted, never failing, v1): cells that are allocated but not pinned —
 #     the strip's inked cells when --require-strip is absent.
 #   PATCH-DOMAIN (report-only, counted, never failing): every roster cell whose rect
