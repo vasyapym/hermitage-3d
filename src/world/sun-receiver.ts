@@ -26,7 +26,13 @@
  * with the plane correction — a wider, flatter transition for the still-square edge case.
  *
  * The variant rides onBeforeCompile per receiving material with a distinct program cache key
- * (per mode AND cap); the stock hooks restore on leaving t0. No global shader-chunk edit: the
+ * (per mode AND cap); the stock hooks restore on leaving t0. The patch CHAINS with any
+ * pre-existing hook (the ground-slot fix, 2026-11-28): the material's own onBeforeCompile —
+ * the ground's snow/paving slot, the kit's uSnow + facade-surface slots — is saved per
+ * material, called first on every compile, and restored verbatim on clear; the receiver's
+ * replaces run after the original's splices on the same shader object, and the cache key
+ * composes (original key | receiver key) so the slot programs never collide. No global
+ * shader-chunk edit: the
  * `#define getShadow zimnySunGetShadow` line binds the patched directional call site only — the
  * stock getShadow definition (shadowmap_pars_fragment, PCF branch) precedes it and keeps its
  * name; the SUN cascade branch never compiles (the app's sun is a DirectionalLight,
@@ -40,6 +46,20 @@ import { SUN_SHADOW_FIT } from './column';
 export type SunReceiverMode = 'stock' | 'smooth' | 'plane' | 'cubic';
 
 const PATCHED = new WeakMap<THREE.Material, string>();
+
+/**
+ * The pre-existing hooks the patch replaced, saved ONCE per patch lifetime and restored
+ * verbatim on clear (the ground-slot fix): the receiver variant composes WITH the material's
+ * own onBeforeCompile — never instead of it. A material saved with both hooks undefined
+ * returns to the stock shader on clear, exactly as before.
+ */
+const ORIGINALS = new WeakMap<
+  THREE.Material,
+  {
+    onBeforeCompile?: THREE.Material['onBeforeCompile'];
+    customProgramCacheKey?: THREE.Material['customProgramCacheKey'];
+  }
+>();
 
 // The plane cap along the light, normalized by the fit's linear depth range (the ortho sun's
 // post-divide z is linear across [near, far] — the cap converts directly). R5: 0.5 m — the
@@ -168,7 +188,22 @@ ${plane}${phaseLine}${weightLines}${loop(taps)}
 const applyPatch = (material: THREE.Material, mode: 'smooth' | 'plane' | 'cubic'): void => {
   const block = glslBlock(mode, capNorm(), mode !== 'smooth');
   const planeDefine = mode === 'plane' || mode === 'cubic' ? '#define ZIMNY_SUN_PLANE\n' : '';
-  material.onBeforeCompile = (shader) => {
+  if (!ORIGINALS.has(material)) {
+    // Save the PRE-EXISTING hooks once per patch lifetime: a re-patch (a mode or cap change)
+    // must chain onto the material's own hook, never onto the receiver's own last wrapper.
+    ORIGINALS.set(material, {
+      onBeforeCompile: material.onBeforeCompile,
+      customProgramCacheKey: material.customProgramCacheKey,
+    });
+  }
+  const saved = ORIGINALS.get(material);
+  const originalHook = saved?.onBeforeCompile;
+  const originalKey = saved?.customProgramCacheKey;
+  material.onBeforeCompile = (shader, renderer) => {
+    // The slot first: the ground/kit hooks register their shared uniforms and splice their
+    // chunks; the receiver's replaces then run on the same shader object (one hook, one
+    // material, the slots composed inside it — the repo's own convention).
+    originalHook?.call(material, shader, renderer);
     shader.fragmentShader = shader.fragmentShader
       .replace('#include <shadowmap_pars_fragment>', `#include <shadowmap_pars_fragment>\n${block}`)
       .replace(
@@ -176,14 +211,35 @@ const applyPatch = (material: THREE.Material, mode: 'smooth' | 'plane' | 'cubic'
         `${planeDefine}#define getShadow zimnySunGetShadow\n#include <lights_fragment_begin>`,
       );
   };
-  material.customProgramCacheKey = () => wantedKey(mode);
+  // The cache key composes the same way: the slot's key distinguishes its program, the
+  // receiver's suffix re-distinguishes per mode AND cap — no collision, no mismatch.
+  material.customProgramCacheKey = originalKey
+    ? () => `${originalKey.call(material)}|${wantedKey(mode)}`
+    : () => wantedKey(mode);
   material.needsUpdate = true;
   PATCHED.set(material, wantedKey(mode));
 };
 
 const clearPatch = (material: THREE.Material): void => {
-  delete (material as { onBeforeCompile?: unknown }).onBeforeCompile;
-  delete (material as { customProgramCacheKey?: unknown }).customProgramCacheKey;
+  const saved = ORIGINALS.get(material);
+  if (saved === undefined) {
+    // Never patched by us (a force sweep over an unpatched material): the hooks on it are
+    // not ours to touch — the recompile bump alone carries the renderer-level flip.
+    material.needsUpdate = true;
+    PATCHED.delete(material);
+    return;
+  }
+  if (saved.onBeforeCompile === undefined) {
+    delete (material as { onBeforeCompile?: unknown }).onBeforeCompile;
+  } else {
+    material.onBeforeCompile = saved.onBeforeCompile;
+  }
+  if (saved.customProgramCacheKey === undefined) {
+    delete (material as { customProgramCacheKey?: unknown }).customProgramCacheKey;
+  } else {
+    material.customProgramCacheKey = saved.customProgramCacheKey;
+  }
+  ORIGINALS.delete(material);
   material.needsUpdate = true;
   PATCHED.delete(material);
 };

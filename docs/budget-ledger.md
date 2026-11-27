@@ -50,6 +50,7 @@ that decides whether a next round's declared allowance fits. The project-course 
 
 | branch / candidate | what it reserves | status |
 |---|---|---|
+| sq-polish-lane (branch `sq-polish-lane`, worktree `hermitage-3d-sq-polish`, PARALLEL per the owner) | the ground-slot chaining fix + the S0b slide (t 0.203) + the doorway night laws (the floor-spill fold + the slab grade): shared JS ≤ +3,100 B gz (measured +3,088 — the tool's totals: main 293,483 → the branch 296,571; RU +0 = 7,933) | OPEN — the creative ruling pending (the brief `1-sq-polish-decisions`, the vault 03-2 session folder); the numbers reconcile at the merge |
 | tear-tbdr-lane (branch `tear-tbdr-lane`) | the gallery UV2-emission fix: the glb re-export rides the ROOM's caps (payload 1,257,669/2M · texture 861,675/1M byte-held · tris cap 110,000) · shared JS ≤ +300 B gz (the `__lmProbe` probe hook, the sqdebug class — droppable at merge) | LANDED at the round close 2026-11-27: the plates re-baked + re-encoded (texture 991,073/1,000,000, 9,323 spare; payload 1,387,067/2,000,000; shared JS +0 — the probe hook rode the main chunk's slack); the row's numbers reconcile at the merge |
 
 

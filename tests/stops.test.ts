@@ -326,8 +326,10 @@ const swingRows = (
 
 describe('square stop-gaze swings (R18-ux D1: the halfway rhythm)', () => {
   it('carries the five collinear stops; Sh holds the gate pavilion on the arch plane', () => {
-    // The 2026-11-12/13 stops round: S0b/Shb split the two 54.3 m gaps at the line's quarter
-    // points; S0/Sh/S1 poses and subjects are untouched by construction.
+    // The 2026-11-12/13 stops round: S0b/Shb split the two 54.3 m gaps; S0/Sh/S1 poses and
+    // subjects are untouched by construction. The 2026-11-28 turn note slid S0b back along
+    // the same line (t 0.25 → 0.203): the first Forward's right pan softens to 0.85 × — the
+    // subject (the Column pedestal) keeps its centred monument pause.
     expect(SQUARE_RAIL.stops.map((s) => s.id)).toEqual(['S0', 'S0b', 'Sh', 'Shb', 'S1']);
     const sh = SQUARE_RAIL.stops[2];
     if (!sh) throw new Error('Sh missing');
@@ -346,7 +348,7 @@ describe('square stop-gaze swings (R18-ux D1: the halfway rhythm)', () => {
     // reuses the S1 const by reference — the equal-subjects lock.
     const s0b = SQUARE_RAIL.stops[1];
     if (!s0b) throw new Error('S0b missing');
-    expect(s0b.position).toEqual([-18, 1.7, 203.5]);
+    expect(s0b.position).toEqual([-19.128, 1.7, 208.482]);
     expect(s0b.subject).toEqual(SQUARE_S0B_GAZE);
     expect(SQUARE_S0B_GAZE).toEqual([0, 7, 190]);
     expect(s0b.look).toEqual({ yaw: 30, pitchUp: 20, pitchDown: 20 });
@@ -358,8 +360,8 @@ describe('square stop-gaze swings (R18-ux D1: the halfway rhythm)', () => {
     expect(shb.look).toEqual({ yaw: 25, pitchUp: 20, pitchDown: 15 });
   });
   for (const [n, measured, expected] of [
-    ...swingRows(SQUARE_RAIL, 'S0', 'S0b', 47.9), // the round's Column pan (the reply's ≈47° yaw)
-    ...swingRows(SQUARE_RAIL, 'S0b', 'Sh', 45.8), // the pavilion pan back (the reply's ≈45° yaw)
+    ...swingRows(SQUARE_RAIL, 'S0', 'S0b', 40.7), // the round's Column pan, softened 15 % (the 2026-11-28 turn note; was 47.9)
+    ...swingRows(SQUARE_RAIL, 'S0b', 'Sh', 38.6), // the pavilion pan back, eased with the slide (was 45.8)
     ...swingRows(SQUARE_RAIL, 'Sh', 'Shb', 1.8), // the mouth drift (the reply's ≈1°; yaw −1.7°)
     ...swingRows(SQUARE_RAIL, 'Shb', 'S1', 7.0), // the locked dolly's convergence (was Sh→S1 8.7)
   ]) {
