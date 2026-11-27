@@ -50,7 +50,7 @@ that decides whether a next round's declared allowance fits. The project-course 
 
 | branch / candidate | what it reserves | status |
 |---|---|---|
-| sg-improve-lane | JS ≤ +8 B gz (one numeric literal: the st-george dusk gain, brief 42 slice 2) · RU +0 · the st-george room rows regenerate in place (no new texture rows) | open |
+| sg-improve-lane | JS +0 measured (the reservation ≤ +8 B unused — the gains return to the committed 2/2/2 per the review's exposure fix) · RU +0 · the st-george room rows regenerate in place (no new texture rows) | open |
 
 
 **Update log:** Update log: cut — history lives in the round archives (docs/archive/*.md); newest entry 2026-11-15 square-palace-2 merge.
