@@ -7,7 +7,7 @@ Start with AGENTS.md and this file only. Live state holds open work; Recent is a
 ### Now
 
 Tree: main @ sq-polish-merge · 2026-11-28
-Wave: sq-polish-lane MERGED (first of three — the FULL gate rides the LAST merging session, deferred NOT waived); the other two lanes of the wave merge after; the rg-next battery ran on the office box 2026-11-26 (e2e 87/0); st-george second of three (room 4 of 7). The darwin goldens stay parked.
+Wave: sq-polish-lane landed (the wave's first of three — the FULL gate rides the LAST merging session, deferred NOT waived); the other two lanes of the wave merge after; the rg-next battery ran on the office box 2026-11-26 (e2e 87/0); st-george second of three (room 4 of 7). The darwin goldens stay parked.
 Lanes: <!-- none open; the wave's two remaining lanes pend their merges (their sessions record them); the template: at integration insert the actual name, branch, phase and matching docs/budget-ledger.md open-row key. -->
 
 Owed:
