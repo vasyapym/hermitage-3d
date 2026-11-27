@@ -23,7 +23,7 @@ Owed:
 - rg-improve capture battery + the golden re-baselines — closes when: the owner's sitting judges the frames on the merged build → docs/archive/2026-11-26-rgimprove.md
 - F8 iPhone tier — CLOSED 2026-11-27: the owner's device verdict «still not good. but it is better» (IMG_0059, the settled live app) — the 0.1/0.5 rows validated directionally; the residue (the A13/Safari TBDR + the dprCap-1 stretch) parked → docs/archive/2026-11-26-sqfiximprove.md
 - The sq-fix-improve sitting — closes when: the owner judges the blade/lane (S0→Sh, Mac + iPhone pinned t0) and the seasonal low-sun look → docs/archive/2026-11-26-sqfiximprove.md
-- The t0-residue sitting — closes when: the owner runs the arms (the decision table (a)–(d)) on the device after the deploy → the vault 03-1_projects/hermitage-3d-2026-11-27-t0-residue/sitting/
+- The t0-residue sitting — CLOSED 2026-11-27: the owner's eye on the ordinary boot (the R5 row as ruled) — «i think this looks fine»; the R5 set ships (the caster gate + the centred plane filter + the cap 0.5 + 4096 on Apple) → docs/archive/2026-11-27-t0residue.md
 - Office speckle gate — CLOSED 2026-11-26 (the two-build gate on the reference Mac; the eye's display verdict stands) → docs/archive/2026-11-26-sqshadowdirt.md
 - Office square-kit e2e — CLOSED 2026-11-26 (8/8 on the reference Mac; the box's fails were the machine-stall class) → docs/archive/2026-11-26-sqshadowdirt.md
 
