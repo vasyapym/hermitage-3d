@@ -6,9 +6,9 @@ The committed ktx2 bytes + sha256 below are the byte-identity gate (`--verify`).
 
 | state | command | Blender | res | samples | denoiser | white point | peak | clipped | wall s |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| day | `node tools/bake.mjs st-george day` | Blender 4.2.23 LTS | 1024 | 128 | OPENIMAGEDENOISE | 2.3 | 2.1529 | 0 | 14.3 |
-| dusk | `node tools/bake.mjs st-george dusk` | Blender 4.2.23 LTS | 1024 | 128 | OPENIMAGEDENOISE | 0.51 | 0.4881 | 0 | 59.5 |
-| nightChandeliers | `node tools/bake.mjs st-george nightChandeliers` | Blender 4.2.23 LTS | 1024 | 128 | OPENIMAGEDENOISE | 0.15 | 0.1372 | 0 | 16.8 |
+| day | `node tools/bake.mjs st-george day` | Blender 4.2.23 LTS | 1024 | 128 | OPENIMAGEDENOISE | 2.3 | 2.1529 | 0 | 13.4 |
+| dusk | `node tools/bake.mjs st-george dusk` | Blender 4.2.23 LTS | 1024 | 128 | OPENIMAGEDENOISE | 0.51 | 0.4881 | 0 | 59.8 |
+| nightChandeliers | `node tools/bake.mjs st-george nightChandeliers` | Blender 4.2.23 LTS | 1024 | 128 | OPENIMAGEDENOISE | 0.15 | 0.1372 | 0 | 16.6 |
 
 ## Artifacts
 

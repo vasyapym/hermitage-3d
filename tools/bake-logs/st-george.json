@@ -7,7 +7,7 @@
         {
           "clippedFraction": 0,
           "emitters": 1,
-          "exrSha256": "9166cabae74237c0defd359ea9e1f4d6b5b696b98afbf64e68c36c577e03e61d",
+          "exrSha256": "50915caba46e1ada1af4759bf60a5fa53ac3b09cccbda3ad80811f7fc100d9bb",
           "name": "arch",
           "objects": 13,
           "pad": 2,
@@ -25,7 +25,7 @@
       "probe": null,
       "res": 1024,
       "samples": 128,
-      "seconds": 14.3,
+      "seconds": 13.4,
       "state": "day",
       "whitePoint": 2.3,
       "artifacts": [
@@ -42,7 +42,7 @@
         {
           "clippedFraction": 0,
           "emitters": 1,
-          "exrSha256": "30d9ca65d40f91c277a4f74af574920c4b7f9b77089ff8c0d6c18ceab8fd8220",
+          "exrSha256": "be7890f7a522afad358065a7e9c0e73f8dd791e44749fb0766c9ef669d2ff51e",
           "name": "arch",
           "objects": 13,
           "pad": 2,
@@ -74,7 +74,7 @@
       },
       "res": 1024,
       "samples": 128,
-      "seconds": 59.5,
+      "seconds": 59.8,
       "state": "dusk",
       "whitePoint": 0.51,
       "artifacts": [
@@ -96,7 +96,7 @@
         {
           "clippedFraction": 0,
           "emitters": 1,
-          "exrSha256": "db65b85d3e1f38576a96311c3709abb4446558754547745aadda316e9e98e69d",
+          "exrSha256": "8924faed991018fc7ff22b24264baa1964767ebd9b79a7752ad4353a440f0bd9",
           "name": "arch",
           "objects": 13,
           "pad": 2,
@@ -114,7 +114,7 @@
       "probe": null,
       "res": 1024,
       "samples": 128,
-      "seconds": 16.8,
+      "seconds": 16.6,
       "state": "nightChandeliers",
       "whitePoint": 0.15,
       "artifacts": [
