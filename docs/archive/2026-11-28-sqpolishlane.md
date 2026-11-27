@@ -48,10 +48,9 @@ instrument-reconstruction story.
 
 ## The sitting debts (the owner's eye)
 
-- The S0b pose: the monument pause at the new range (26.6 m) — the pitch 11.3° up.
-- The doorway's dials, the ruling's order: core gain 0.70 → core scale 0.4 →
-  FLOOR_NIGHT_GAIN 0.5.
-- The full 15 % experience: the uneven 22/32 m gaps (the second Forward reads longer).
+- CLOSED 2026-11-28: the owner's verdict on the exhibits — «ok seems good» (the static
+  before/after read: the doorway's night law, the S0b pause, the day exactness); the dials
+  stand as ruled. The live walk's feel stays with the next sitting on the live app.
 - The gallery G1 drift: the tear-tbdr account's re-baseline debt (not this round's).
 
 The lane: branch `sq-polish-lane` @ the B batch · the brief 1 + the reply + DECISION-1 in the
