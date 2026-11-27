@@ -544,7 +544,25 @@ async function main() {
   }
   publish(room, staged);
   const { row, proposed } = lightmapsRow(descriptor, log, kitRes());
-  writeManifest({ ...descriptor, lightmaps: row }, path.join(ASSETS_DIR, room), tc);
+  // The layout-identity law's manifest key: common.mjs writeManifest rebuilds the manifest
+  // from the walked directory, so a bare call drops the contract's lm.layoutHash key (the
+  // assets test's manifest contract) — the export's write carried it, the bake's must too.
+  // Source: the stage's own bake-layout sidecar (the file the identity gate verified).
+  let lmExtra = {};
+  try {
+    const layout = JSON.parse(
+      readFileSync(
+        path.join(stageDir(room, STATES[0], ''), `bake-layout.${STATES[0]}.json`),
+        'utf8',
+      ),
+    );
+    if (typeof layout.lm?.layoutHash === 'string' && layout.lm.layoutHash !== '') {
+      lmExtra = { lm: { layoutHash: layout.lm.layoutHash } };
+    }
+  } catch {
+    // a non-shelf room has no layout sidecar — the manifest stays as buildManifest built it
+  }
+  writeManifest({ ...descriptor, lightmaps: row }, path.join(ASSETS_DIR, room), tc, lmExtra);
   if (proposed) {
     console.log(
       `bake: ROOM.lightmaps is empty in tools/gltf/${room}.mjs — write this row there, then run ` +

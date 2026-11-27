@@ -8,9 +8,9 @@
 import './fonts.css';
 import './style.css';
 import * as THREE from 'three';
+import { KTX2Loader } from 'three/examples/jsm/loaders/KTX2Loader.js';
 import { AIRLOCKS, ENTRIES } from '../rooms/index';
 import { applyWeights } from './assets/blend-gl';
-import { KTX2Loader } from 'three/examples/jsm/loaders/KTX2Loader.js';
 import { clearEnvironmentIfOwned } from './assets/environment-slot';
 import { createLoaders } from './assets/loaders';
 import { fetchManifest } from './assets/manifests';
