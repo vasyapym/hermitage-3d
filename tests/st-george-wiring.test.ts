@@ -248,9 +248,11 @@ describe('P10 — the lane’s diff-scope fence (retires at the merge)', () => {
     /^biome\.json$/,
     /^package\.json$/,
     /^docs\/STATE\.md$/,
-    // the records rows a PARALLEL lane flips on its own branch (the records law)
+    // the records rows a PARALLEL lane flips on its own branch (the records law); the
+    // row-level check below pins them to the lane's key
     /^docs\/briefs\/ROUNDS\.md$/,
     /^docs\/budget-ledger\.md$/,
+    /^docs\/artistic-license\.md$/,
   ];
   const FORBIDDEN = [
     /^src\/engine\//,
@@ -261,20 +263,46 @@ describe('P10 — the lane’s diff-scope fence (retires at the merge)', () => {
     /^public\/assets\/military-gallery\//,
     /^rooms\/1812\/room\.ts$/,
   ];
-  const branchPoint = execFileSync('git', ['merge-base', 'HEAD', 'origin/main'], {
-    cwd: ROOT,
-    encoding: 'utf8',
-  }).trim();
-  it('every changed or added path is inside the lane’s allowlist', () => {
-    const head = execFileSync('git', ['rev-parse', '--abbrev-ref', 'HEAD'], {
+  // The base resolves ONLY when the fence applies (a non-main head): a main checkout with
+  // no origin/main must not throw at suite collection (the review's R3). A missing base on
+  // an applicable lane fails LOUD, never passes.
+  const headRef = () =>
+    execFileSync('git', ['rev-parse', '--abbrev-ref', 'HEAD'], {
       cwd: ROOT,
       encoding: 'utf8',
     }).trim();
+  const laneBase = (): string => {
+    try {
+      return execFileSync('git', ['merge-base', 'HEAD', 'origin/main'], {
+        cwd: ROOT,
+        encoding: 'utf8',
+      }).trim();
+    } catch {
+      throw new Error('the lane fence needs origin/main ancestry — fetch the base before the run');
+    }
+  };
+  // The fence's trigger: a lane whose diff touches the hall's OWN surface. The shared
+  // files (lightmap-look, registry, main, i18n, the records rows) are not triggers —
+  // another room's lane may widen its own row there; the st-george policy judges only
+  // the lanes it protects (the review's R4).
+  const HALL_SURFACE = [
+    /^rooms\/st-george\//,
+    /^tools\/st-george\//,
+    /^tools\/bpy\/st-george/,
+    /^tools\/gltf\/st-george\.mjs$/,
+    /^tools\/bake-logs\/st-george/,
+    /^public\/assets\/st-george\//,
+    /^tests\/st-george-wiring\.test\.ts$/,
+    /^tests\/st-george-law\.test\.ts$/,
+  ];
+  it('every changed or added path is inside the lane’s allowlist', () => {
+    const head = headRef();
     if (head === 'main') {
       // retired: the merge happened, the integrating authority owns the tree (the fence's
       // own law) — the lane's cumulative diff is main's history now.
       return;
     }
+    const branchPoint = laneBase();
     const paths = execFileSync('git', ['diff', '--name-only', branchPoint], {
       cwd: ROOT,
       encoding: 'utf8',
@@ -289,7 +317,38 @@ describe('P10 — the lane’s diff-scope fence (retires at the merge)', () => {
           .split('\n')
           .filter((line) => line.length > 0),
       );
+    const triggered = paths.some((p) => HALL_SURFACE.some((re) => re.test(p)));
+    if (!triggered) return; // another room's lane: this fence does not judge its paths
     expect(paths.length, 'the lane has changes to pin').toBeGreaterThan(0);
+    // The records rows are the lane's own data: every changed line carries the lane's
+    // key — a foreign row's deletion does not pass under this lane's name (the review's
+    // R7: the file-level allowance was broader than row ownership).
+    for (const p of paths.filter((p) =>
+      /^docs\/(briefs\/ROUNDS|budget-ledger|artistic-license|STATE)\.md$/.test(p),
+    )) {
+      const recordDiff = execFileSync('git', ['diff', branchPoint, '--', p], {
+        cwd: ROOT,
+        encoding: 'utf8',
+      });
+      for (const line of recordDiff
+        .split('\n')
+        .filter(
+          (l) =>
+            (l.startsWith('+') || l.startsWith('-')) &&
+            !l.startsWith('+++') &&
+            !l.startsWith('---'),
+        )) {
+        const body = line.slice(1).trim();
+        // blank lines and table separators carry no row data
+        if (body === '' || body.startsWith('|---')) continue;
+        // the lane TEMPLATE's neutral placeholder is the law-mandated flip's removed side
+        if (body.startsWith('Lanes: <!--')) continue;
+        expect(
+          body.includes('sg-improve'),
+          `a records line of ${p} carries the lane key: ${body.slice(0, 80)}`,
+        ).toBe(true);
+      }
+    }
     for (const p of paths) {
       expect(
         ALLOWED.some((re) => re.test(p)),
@@ -302,7 +361,8 @@ describe('P10 — the lane’s diff-scope fence (retires at the merge)', () => {
     }
   });
   it('registry.ts’s diff touches only the union lines', () => {
-    const diff = execFileSync('git', ['diff', branchPoint, '--', 'src/world/registry.ts'], {
+    if (headRef() === 'main') return; // the fence's own retire law
+    const diff = execFileSync('git', ['diff', laneBase(), '--', 'src/world/registry.ts'], {
       cwd: ROOT,
       encoding: 'utf8',
     });
