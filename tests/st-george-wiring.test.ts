@@ -214,9 +214,13 @@ describe('P10 — the lane’s diff-scope fence (retires at the merge)', () => {
   // load path), src/main.ts RAIL_CHAIN (the walk's boundary chain — M4 was inert without it),
   // and the typecheck-mandatory INTERIOR_LOOK_GAIN row (Record<RoomId, …>). All three are
   // one-line widenings of "the list's data" (DECISION-1, amendment 10); the protected rooms
-  // stay byte-identical either way. The diff base is the LANE's start commit (d38cec0, the
-  // branch point) — cumulative over every landed step plus the working tree, so the fence
-  // holds at review time AND at the merge, where a working-tree status pin would be empty.
+  // stay byte-identical either way. The diff base is the BRANCH's own start commit,
+  // computed as the merge-base with origin/main (d38cec0 for the st-george lane, whatever
+  // the branch point is for any other lane) — cumulative over every landed step plus the
+  // working tree, so the fence holds at review time AND at the merge, where a
+  // working-tree status pin would be empty. The records rows (ROUNDS.md, budget-ledger.md)
+  // joined the allowlist: a PARALLEL lane flips its own records rows on the branch (the
+  // records law), the merge lands them.
   const ALLOWED = [
     /^src\/world\/registry\.ts$/,
     /^src\/world\/prefetch\.ts$/,
@@ -244,6 +248,11 @@ describe('P10 — the lane’s diff-scope fence (retires at the merge)', () => {
     /^biome\.json$/,
     /^package\.json$/,
     /^docs\/STATE\.md$/,
+    // the records rows a PARALLEL lane flips on its own branch (the records law); the
+    // row-level check below pins them to the lane's key
+    /^docs\/briefs\/ROUNDS\.md$/,
+    /^docs\/budget-ledger\.md$/,
+    /^docs\/artistic-license\.md$/,
   ];
   const FORBIDDEN = [
     /^src\/engine\//,
@@ -254,31 +263,47 @@ describe('P10 — the lane’s diff-scope fence (retires at the merge)', () => {
     /^public\/assets\/military-gallery\//,
     /^rooms\/1812\/room\.ts$/,
   ];
-  it('every changed or added path is inside the lane’s allowlist', () => {
-    const head = execFileSync('git', ['rev-parse', '--abbrev-ref', 'HEAD'], {
+  // The base resolves ONLY when the fence applies (a non-main head): a main checkout with
+  // no origin/main must not throw at suite collection (the review's R3). A missing base on
+  // an applicable lane fails LOUD, never passes.
+  const headRef = () =>
+    execFileSync('git', ['rev-parse', '--abbrev-ref', 'HEAD'], {
       cwd: ROOT,
       encoding: 'utf8',
     }).trim();
-    // Retired on main AND on any lane carrying the st-george merge 99b8dd4: the merge
-    // happened, the integrating authority owns the tree (the fence's own law, faafbd0) —
-    // past the merge the d38cec0 diff is main's history, not a scope question a new lane
-    // may answer. A branch still living on the pre-merge base stays guarded.
-    let carriesMerge = false;
+  const laneBase = (): string => {
     try {
-      execFileSync('git', ['merge-base', '--is-ancestor', '99b8dd4', 'HEAD'], {
+      return execFileSync('git', ['merge-base', 'HEAD', 'origin/main'], {
         cwd: ROOT,
-        stdio: 'ignore',
-      });
-      carriesMerge = true;
+        encoding: 'utf8',
+      }).trim();
     } catch {
-      carriesMerge = false;
+      throw new Error('the lane fence needs origin/main ancestry — fetch the base before the run');
     }
-    if (head === 'main' || carriesMerge) {
+  };
+  // The fence's trigger: a lane whose diff touches the hall's OWN content surface. The
+  // shared files (lightmap-look, registry, main, i18n, the records rows) are not triggers —
+  // another room's lane may widen its own row there; the st-george policy judges only
+  // the lanes it protects (the review's R4). The fence test itself is not a trigger:
+  // a lane that only fixes the fence (the t0-residue class) is not hall content.
+  const HALL_SURFACE = [
+    /^rooms\/st-george\//,
+    /^tools\/st-george\//,
+    /^tools\/bpy\/st-george/,
+    /^tools\/gltf\/st-george\.mjs$/,
+    /^tools\/bake-logs\/st-george/,
+    /^public\/assets\/st-george\//,
+    /^tests\/st-george-law\.test\.ts$/,
+  ];
+  it('every changed or added path is inside the lane’s allowlist', () => {
+    const head = headRef();
+    if (head === 'main') {
       // retired: the merge happened, the integrating authority owns the tree (the fence's
       // own law) — the lane's cumulative diff is main's history now.
       return;
     }
-    const paths = execFileSync('git', ['diff', '--name-only', 'd38cec0'], {
+    const branchPoint = laneBase();
+    const paths = execFileSync('git', ['diff', '--name-only', branchPoint], {
       cwd: ROOT,
       encoding: 'utf8',
     })
@@ -292,7 +317,38 @@ describe('P10 — the lane’s diff-scope fence (retires at the merge)', () => {
           .split('\n')
           .filter((line) => line.length > 0),
       );
+    const triggered = paths.some((p) => HALL_SURFACE.some((re) => re.test(p)));
+    if (!triggered) return; // another room's lane: this fence does not judge its paths
     expect(paths.length, 'the lane has changes to pin').toBeGreaterThan(0);
+    // The records rows are the lane's own data: every changed line carries the lane's
+    // key — a foreign row's deletion does not pass under this lane's name (the review's
+    // R7: the file-level allowance was broader than row ownership).
+    for (const p of paths.filter((p) =>
+      /^docs\/(briefs\/ROUNDS|budget-ledger|artistic-license|STATE)\.md$/.test(p),
+    )) {
+      const recordDiff = execFileSync('git', ['diff', branchPoint, '--', p], {
+        cwd: ROOT,
+        encoding: 'utf8',
+      });
+      for (const line of recordDiff
+        .split('\n')
+        .filter(
+          (l) =>
+            (l.startsWith('+') || l.startsWith('-')) &&
+            !l.startsWith('+++') &&
+            !l.startsWith('---'),
+        )) {
+        const body = line.slice(1).trim();
+        // blank lines and table separators carry no row data
+        if (body === '' || body.startsWith('|---')) continue;
+        // the lane TEMPLATE's neutral placeholder is the law-mandated flip's removed side
+        if (body.startsWith('Lanes: <!--')) continue;
+        expect(
+          body.includes('sg-improve'),
+          `a records line of ${p} carries the lane key: ${body.slice(0, 80)}`,
+        ).toBe(true);
+      }
+    }
     for (const p of paths) {
       expect(
         ALLOWED.some((re) => re.test(p)),
@@ -305,7 +361,8 @@ describe('P10 — the lane’s diff-scope fence (retires at the merge)', () => {
     }
   });
   it('registry.ts’s diff touches only the union lines', () => {
-    const diff = execFileSync('git', ['diff', 'd38cec0', '--', 'src/world/registry.ts'], {
+    if (headRef() === 'main') return; // the fence's own retire law
+    const diff = execFileSync('git', ['diff', laneBase(), '--', 'src/world/registry.ts'], {
       cwd: ROOT,
       encoding: 'utf8',
     });
@@ -316,7 +373,10 @@ describe('P10 — the lane’s diff-scope fence (retires at the merge)', () => {
           (l.startsWith('+') || l.startsWith('-')) && !l.startsWith('+++') && !l.startsWith('---'),
       )
       .map((l) => l.slice(1).trim());
-    expect(changed.length, 'the unions are the only change').toBeGreaterThan(0);
+    // The fence's protective clause, made conditional: a lane branch that never touched
+    // the registry has an empty diff — nothing to fence (the widening assertion was the
+    // st-george lane's own fact). The fence bites only when the diff exists.
+    if (changed.length === 0) return;
     for (const line of changed) {
       expect(
         /^export type (RoomId|AirlockId|RouteKey)/.test(line) || /^\| '/.test(line) || line === ';',

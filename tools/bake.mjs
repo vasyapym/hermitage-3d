@@ -542,8 +542,11 @@ async function main() {
       }
     }
   }
-  publish(room, staged);
+  // The agreement gate runs BEFORE publish (the review's R2): an incremental rebake
+  // against a moved descriptor must fail LOUD with public/ untouched — publish-then-gate
+  // left the tree mixed (the old states' stage ktx2s published, the manifest not rebuilt).
   const { row, proposed } = lightmapsRow(descriptor, log, kitRes());
+  publish(room, staged);
   writeManifest({ ...descriptor, lightmaps: row }, path.join(ASSETS_DIR, room), tc);
   if (proposed) {
     console.log(
