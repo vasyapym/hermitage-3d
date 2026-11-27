@@ -8,7 +8,7 @@ Start with AGENTS.md and this file only. Live state holds open work; Recent is a
 
 Tree: main @ sq-fix-improve-merge · 2026-11-27
 Wave: turn-cascade, sq-shadow-dirt, rg-next, rg-improve, st-george and sq-fix-improve all landed (sq-fix-improve merged per ticket; the FULL gate rides this merge per the last-merge law); the rg-next battery ran on the office box 2026-11-26 (e2e 87/0); rg-improve first of three (the hour on the faces, the laid-stone floor, the limewash; JS +40 gz, the owner's D1); st-george second of three (room 4 of 7, the full gate by the last merging session). The darwin goldens stay parked.
-Lanes: <!-- none open; the template: at integration insert the actual name, branch, phase and matching docs/budget-ledger.md open-row key. -->
+Lanes: sg-improve (the improvement iteration of st-george, room 4 of 7; PARALLEL worktree, merge + the FULL gate ride the owner's signal) · branch sg-improve-lane off 3ab6aab · ledger key: sg-improve-lane.
 
 Owed:
 - Jordan J1 spire read — closes when: the owner judges the J1 frame; the caption fallback stays parked → docs/parking-lot.md
