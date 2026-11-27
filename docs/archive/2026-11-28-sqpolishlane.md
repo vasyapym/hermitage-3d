@@ -46,6 +46,20 @@ instrument-reconstruction story.
   on UNMODIFIED main (reproduced on the clean clone) — the tear-tbdr re-bake's parked-golden
   account, not this lane's.
 
+## The handoff's asphalt — the fix's reproduction trail (2026-11-28)
+
+The handoff's symptom does NOT reproduce on the desktop tier (t1 boots 'stock' — the sweep
+skips, the slot survives; the t1 frames bit-identical before/after the fix, diff 0.00 %).
+The reproduction: the t0 tier forced (the localStorage zimny:tier override) + the sitting
+arms (sqdebug=1&sk=plane) at the june noon — on MAIN the receiver's blind assignment erases
+the ground's slot (the flat grey plane: no sett, no lanes, no macro — the owner's «no
+asphalt»); on the lane the chain composes the slot with the receiver's filter — the pattern,
+the lanes and the macro back (the ground band's diff 35.5 %; the whole frame 15.4 % — the
+FacadeKit's own slots return too). The winter read rides the snow cap (the slot's snow mix
+under it) — the dec frames read identical at the square's ranges. The exhibit pair:
+probes/sitting/ground-armed-{before,after}.png (the sitting page §5). The owner's acceptance
+was «the owner's look at the ground» — the sitting page carries it.
+
 ## The sitting debts (the owner's eye)
 
 - CLOSED 2026-11-28: the owner's verdict on the exhibits — «ok seems good» (the static
