@@ -86,6 +86,10 @@ describe('B1a — the renderer shadow enable (the main.ts law scan)', () => {
     expect(main).toContain(
       'SUN_DEPTH_MATERIAL.polygonOffsetFactor = next.shadowDepthOffsetFactor;',
     );
+    // sq-t0-residue R3: the shadowless floor — the tier's shadowPasses 0 flips the renderer's
+    // shadow map off per settle (the programs recompile once here, never per frame).
+    expect(main).toContain('const shadowOn = next.shadowPasses > 0;');
+    expect(main).toContain('renderer.shadowMap.enabled = shadowOn;');
   });
 });
 

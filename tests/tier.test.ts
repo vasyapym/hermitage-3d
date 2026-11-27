@@ -46,7 +46,9 @@ describe('tier registry', () => {
   it('keeps post honest: Phase 1 has no post stack in any tier', () => {
     for (const id of TIER_IDS) {
       expect(TIERS[id].postEnabled).toBe(false);
-      expect(TIERS[id].shadowPasses).toBe(1);
+      // sq-t0-residue R3: t0 ships the shadowless floor (shadowPasses 0); t1/t2 keep the one pass.
+      const expectedPasses = id === 't0' ? 0 : 1;
+      expect(TIERS[id].shadowPasses).toBe(expectedPasses);
       expect(TIERS[id].label.startsWith(id.toUpperCase())).toBe(true);
     }
   });

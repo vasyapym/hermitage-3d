@@ -8,7 +8,7 @@ Start with AGENTS.md and this file only. Live state holds open work; Recent is a
 
 Tree: main @ t0-residue-merge · 2026-11-27
 Wave: turn-cascade, sq-shadow-dirt, rg-next, rg-improve, st-george, sq-fix-improve and sq-t0-residue all landed (the FULL gate + the CI verdict ride the wave's LAST merging session — deferred NOT waived); the rg-next battery ran on the office box 2026-11-26 (e2e 87/0); st-george second of three (room 4 of 7). The darwin goldens stay parked.
-Lanes: <!-- none open; the template: at integration insert the actual name, branch, phase and matching docs/budget-ledger.md open-row key. -->
+Lanes: sq-t0-residue (branch `sq-t0-residue`, phase: R3 the shadowless floor in flight — the device nod + the merge pending; ledger key: the `sq-t0-residue` R3 open-reservation row) — PARALLEL per the owner
 
 Owed:
 - Jordan J1 spire read — closes when: the owner judges the J1 frame; the caption fallback stays parked → docs/parking-lot.md

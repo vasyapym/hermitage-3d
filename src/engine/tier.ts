@@ -30,7 +30,7 @@ export type QualityTier = Readonly<{
   readonly shadowRadius: number;
   /** Caster slope offset (the shared depth material's polygonOffsetFactor) applied per settle. */
   readonly shadowDepthOffsetFactor: number;
-  /** Phase 1 renders exactly one shadow pass; 0 is reserved for a future shadowless floor. */
+  /** Phase 1 renders exactly one shadow pass; 0 = the shadowless floor (t0 ships it since sq-t0-residue R3). */
   shadowPasses: 0 | 1;
   /** Phase 1 has no post stack (bloom is Phase 2 machinery); T2's "full post" is reserved. */
   postEnabled: false;
@@ -54,7 +54,9 @@ export const TIERS: Readonly<Record<QualityTierId, QualityTier>> = Object.freeze
     shadowNormalBias: 0.1,
     shadowRadius: 0.5,
     shadowDepthOffsetFactor: 2.0,
-    shadowPasses: 1,
+    // sq-t0-residue R3 (the owner's call): the shadowless floor ships — the A13 TBDR beat and
+    // the texel-staircase edges die with the pass itself; the si=0 look was eye-verified twice.
+    shadowPasses: 0,
     postEnabled: false,
     description:
       'Hard floor (≤ 33 ms). Tightens the §11 drawing buffer to 786,432 px (1024×768-' +

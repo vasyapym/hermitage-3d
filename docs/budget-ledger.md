@@ -50,6 +50,7 @@ that decides whether a next round's declared allowance fits. The project-course 
 
 | branch / candidate | what it reserves | status |
 |---|---|---|
+| `sq-t0-residue` R3 (branch `sq-t0-residue`, PARALLEL off ba408d2) | JS gzip: the shadowless-floor wiring (the settleTier flip + the row value + the pins) — declared ≤ +200 B gz; RU +0; the RUNTIME saves the whole t0 shadow pass (fill + 16 MB map) | in flight — the owner's device nod pending; the merge rides the owner's word |
 
 
 **Update log:** Update log: cut — history lives in the round archives (docs/archive/*.md); newest entry 2026-11-15 square-palace-2 merge.

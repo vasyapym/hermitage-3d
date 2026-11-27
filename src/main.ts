@@ -2786,6 +2786,23 @@ const settleTier = (next: QualityTier): void => {
   // kernel's reach in texels (the A13 grazing beat: wide blotches + close grain). Raster state
   // only: glPolygonOffset reads the material's value per draw, no recompile.
   SUN_DEPTH_MATERIAL.polygonOffsetFactor = next.shadowDepthOffsetFactor;
+  // sq-t0-residue R3: the shadowless floor — t0's shadowPasses 0 skips the whole pass (no map,
+  // no depth render, no PCF sampling: the A13 beat and the texel-staircase edges die with it).
+  // One-time flip per settle — the programs recompile here, never per frame (the castShadow
+  // toggle's retirement in sq-arch-day B1a(2) was about per-frame churn, not boot wiring).
+  const shadowOn = next.shadowPasses > 0;
+  if (renderer.shadowMap.enabled !== shadowOn) {
+    renderer.shadowMap.enabled = shadowOn;
+    scene.traverse((object) => {
+      const mesh = object as THREE.Mesh;
+      const materials = Array.isArray(mesh.material)
+        ? mesh.material
+        : mesh.material
+          ? [mesh.material]
+          : [];
+      for (const material of materials) material.needsUpdate = true;
+    });
+  }
   // The shadow map materializes lazily at the next shadow pass; re-arm its size now.
   sun.shadow.mapSize.set(next.shadowMapSize, next.shadowMapSize);
   if (sun.shadow.map !== null) {
