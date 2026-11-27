@@ -291,14 +291,10 @@ describe('P10 — the lane’s diff-scope fence (retires at the merge)', () => {
     }
   });
   it('registry.ts’s diff touches only the union lines', () => {
-    const diff = execFileSync(
-      'git',
-      ['diff', 'd38cec0', '--', 'src/world/registry.ts'],
-      {
-        cwd: ROOT,
-        encoding: 'utf8',
-      },
-    );
+    const diff = execFileSync('git', ['diff', 'd38cec0', '--', 'src/world/registry.ts'], {
+      cwd: ROOT,
+      encoding: 'utf8',
+    });
     const changed = diff
       .split('\n')
       .filter(
