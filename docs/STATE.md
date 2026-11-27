@@ -8,7 +8,7 @@ Start with AGENTS.md and this file only. Live state holds open work; Recent is a
 
 Tree: main @ sq-polish-merge · 2026-11-28
 Wave: sq-polish-lane MERGED (first of three — the FULL gate rides the LAST merging session, deferred NOT waived); the other two lanes of the wave merge after; the rg-next battery ran on the office box 2026-11-26 (e2e 87/0); st-george second of three (room 4 of 7). The darwin goldens stay parked.
-Lanes: sq-polish-lane MERGED at this tree; two more wave lanes pending their merges (their branches on origin; not this session's to record). <!-- none open; the template: at integration insert the actual name, branch, phase and matching docs/budget-ledger.md open-row key. -->
+Lanes: <!-- none open; the wave's two remaining lanes pend their merges (their sessions record them); the template: at integration insert the actual name, branch, phase and matching docs/budget-ledger.md open-row key. -->
 
 Owed:
 - Jordan J1 spire read — closes when: the owner judges the J1 frame; the caption fallback stays parked → docs/parking-lot.md
