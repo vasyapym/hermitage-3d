@@ -106,10 +106,14 @@ WHITE_POINT = {
     'jordan': 'percentile',
     'military-gallery': {'day': 1.5, 'dusk': 0.15, 'nightChandeliers': 0.3},
     # st-george registration: the military-gallery shape (numeric per-state values, never
-    # the 'percentile' sentinel) — the calm seeds day 1.5 / dusk 0.25 / night 0.1 mirror
+    # the 'percentile' sentinel) — the calm seeds day 2.3 / dusk 0.51 / night 0.15 mirror
     # ROOM.lightmaps.intensity in tools/gltf/st-george.mjs (the lightmapsRow agreement
     # gate compares them state by state); owner re-tune data at the golden sitting.
-    'st-george': {'day': 1.5, 'dusk': 0.25, 'nightChandeliers': 0.1},
+    # The round-42 lift: the gilt cells hold light now and the peaks rose (day 2.1529 /
+    # dusk 0.4881 / night 0.1372) — the wp sits above the peak, the encoded headroom
+    # restored; the gains stay the committed 2/2/2 (the rendered light is bake × gain —
+    # the room's daylight genuinely rose with the gilt lit; the sitting grades the look).
+    'st-george': {'day': 2.3, 'dusk': 0.51, 'nightChandeliers': 0.15},
 }
 PROBE_WHITE_POINT = 1.0   # pinned by ADR-0013: "neutral" = absolute LDR clamp
 PROBE_RES = (512, 256)    # pinned by the ADR-0013 amendment (equirect)
@@ -317,7 +321,7 @@ PANE_SWAP_DAY_DUSK = {'st-george': False}
 PANE_BAKE_EMISSION = {
     'st-george': {
         'day': ((0.880, 0.830, 0.700), 15.0),
-        'dusk': ((0.880, 0.830, 0.700), 2.5),
+        'dusk': ((0.980, 0.620, 0.340), 3.0),
         # nightChandeliers: None — the authored pane emission (strength 1.0) IS the night
         # state; the authored tree stands unswapped at night, the override skips.
         'nightChandeliers': None,

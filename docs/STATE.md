@@ -7,8 +7,8 @@ Start with AGENTS.md and this file only. Live state holds open work; Recent is a
 ### Now
 
 Tree: main @ t0-residue-merge · 2026-11-27
-Wave: turn-cascade, sq-shadow-dirt, rg-next, rg-improve, st-george, sq-fix-improve and sq-t0-residue all landed (the FULL gate + the CI verdict ride the wave's LAST merging session — deferred NOT waived); the rg-next battery ran on the office box 2026-11-26 (e2e 87/0); st-george second of three (room 4 of 7). The darwin goldens stay parked.
-Lanes: sq-t0-residue (branch `sq-t0-residue`, phase: R3 the shadowless floor in flight — the device nod + the merge pending; ledger key: the `sq-t0-residue` R3 open-reservation row) — PARALLEL per the owner
+Wave: turn-cascade, sq-shadow-dirt, rg-next, rg-improve, st-george, sq-fix-improve, sq-t0-residue and sg-improve all landed (the FULL gate + the CI verdict ride the wave's LAST merging session — deferred NOT waived); the rg-next battery ran on the office box 2026-11-26 (e2e 87/0); st-george second of three (room 4 of 7). The darwin goldens stay parked.
+Lanes: <!-- none open; the template: at integration insert the actual name, branch, phase and matching docs/budget-ledger.md open-row key. -->
 
 Owed:
 - Jordan J1 spire read — closes when: the owner judges the J1 frame; the caption fallback stays parked → docs/parking-lot.md
@@ -27,7 +27,7 @@ Owed:
 - Office speckle gate — CLOSED 2026-11-26 (the two-build gate on the reference Mac; the eye's display verdict stands) → docs/archive/2026-11-26-sqshadowdirt.md
 - Office square-kit e2e — CLOSED 2026-11-26 (8/8 on the reference Mac; the box's fails were the machine-stall class) → docs/archive/2026-11-26-sqshadowdirt.md
 
-Recent: 2026-11-27 → docs/briefs/ROUNDS.md (row: sq-t0-residue, merge ba408d2) · 2026-11-27 → docs/briefs/ROUNDS.md (row: sq-fix-improve) · 2026-11-27 → docs/briefs/ROUNDS.md (row: st-george, merge 99b8dd4)
+Recent: 2026-11-27 → docs/briefs/ROUNDS.md (row: sg-improve, merge eaa0bff) · 2026-11-27 → docs/briefs/ROUNDS.md (row: sq-t0-residue, merge ba408d2) · 2026-11-27 → docs/briefs/ROUNDS.md (row: sq-fix-improve)
 
 ## Standing protocol
 

@@ -7,11 +7,11 @@
         {
           "clippedFraction": 0,
           "emitters": 1,
-          "exrSha256": "5d96c22ab1b1114a72b8cd9e74f7a6bf164300253ed393d20e941fb204f32861",
+          "exrSha256": "50915caba46e1ada1af4759bf60a5fa53ac3b09cccbda3ad80811f7fc100d9bb",
           "name": "arch",
           "objects": 13,
           "pad": 2,
-          "peak": 1.4056,
+          "peak": 2.1529,
           "res": 1024,
           "targets": 13
         }
@@ -21,18 +21,18 @@
       "denoiser": "OPENIMAGEDENOISE",
       "duskFixtures": null,
       "margin": 2,
-      "peak": 1.4056,
+      "peak": 2.1529,
       "probe": null,
       "res": 1024,
       "samples": 128,
-      "seconds": 14,
+      "seconds": 13.4,
       "state": "day",
-      "whitePoint": 1.5,
+      "whitePoint": 2.3,
       "artifacts": [
         {
           "rel": "lm/day.ktx2",
-          "bytes": 3880,
-          "sha256": "9b5b527d8353085114ab20b95828def4d2478fac8f7b5834073a72b2b995e82d"
+          "bytes": 6170,
+          "sha256": "e8e5711704a6ff1ec841aeb6d8798af68f73a510fed244476a1c55d674f45347"
         }
       ]
     },
@@ -42,11 +42,11 @@
         {
           "clippedFraction": 0,
           "emitters": 1,
-          "exrSha256": "dc988f251fba301e2cf19c8256e46ab8067c3bb8e737f68eeabb53f647094852",
+          "exrSha256": "be7890f7a522afad358065a7e9c0e73f8dd791e44749fb0766c9ef669d2ff51e",
           "name": "arch",
           "objects": 13,
           "pad": 2,
-          "peak": 0.2279,
+          "peak": 0.4881,
           "res": 1024,
           "targets": 13
         }
@@ -56,10 +56,10 @@
       "denoiser": "OPENIMAGEDENOISE",
       "duskFixtures": false,
       "margin": 2,
-      "peak": 0.2279,
+      "peak": 0.4881,
       "probe": {
-        "clippedFraction": 0.0039,
-        "peak": 1.1303,
+        "clippedFraction": 0.0064,
+        "peak": 1.2938,
         "point": [
           114.5,
           11.65,
@@ -74,19 +74,19 @@
       },
       "res": 1024,
       "samples": 128,
-      "seconds": 90.8,
+      "seconds": 59.8,
       "state": "dusk",
-      "whitePoint": 0.25,
+      "whitePoint": 0.51,
       "artifacts": [
         {
           "rel": "lm/dusk.ktx2",
-          "bytes": 3963,
-          "sha256": "a3ee9587f84479061cb26382a5a30bc5fe23977c88373f293b7ac6f9ff79be1d"
+          "bytes": 5263,
+          "sha256": "9d331325aa1094c5a03062b2829057e96b0ee051e64a0ad0c91c775143920893"
         },
         {
           "rel": "probe/dusk.ktx2",
-          "bytes": 8907,
-          "sha256": "59c12d5309592084178f84f7d107cc16030bc5919695e4c1ff87a15c7df5b9e7"
+          "bytes": 9142,
+          "sha256": "f3d4adfb95f15e15a429491fecc993d5a98b6ed5914667deec4bdb4b65e2c4e3"
         }
       ]
     },
@@ -96,11 +96,11 @@
         {
           "clippedFraction": 0,
           "emitters": 1,
-          "exrSha256": "b5c0527ce4f3774c8c15501517ea69db82f39bbdfb73af11286562f33ef1e36d",
+          "exrSha256": "8924faed991018fc7ff22b24264baa1964767ebd9b79a7752ad4353a440f0bd9",
           "name": "arch",
           "objects": 13,
           "pad": 2,
-          "peak": 0.1,
+          "peak": 0.1372,
           "res": 1024,
           "targets": 13
         }
@@ -110,18 +110,18 @@
       "denoiser": "OPENIMAGEDENOISE",
       "duskFixtures": null,
       "margin": 2,
-      "peak": 0.1,
+      "peak": 0.1372,
       "probe": null,
       "res": 1024,
       "samples": 128,
-      "seconds": 18.1,
+      "seconds": 16.6,
       "state": "nightChandeliers",
-      "whitePoint": 0.1,
+      "whitePoint": 0.15,
       "artifacts": [
         {
           "rel": "lm/night.ktx2",
-          "bytes": 3924,
-          "sha256": "54bbaf8c589bd88299c76786fbffedd121cf1f0c2e9e3cf229d47f304ccb74bc"
+          "bytes": 5919,
+          "sha256": "a45729b667a42292c3f2b120ab597a2e9a208abf61aedc192d6d79c9c6f83c52"
         }
       ]
     }
