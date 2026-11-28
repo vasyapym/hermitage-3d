@@ -114,7 +114,7 @@ WHITE_POINT = {
     # tables (tools/gltf/st-george.mjs ROOM.lightmaps.intensity mirrors it; the
     # lightmapsRow agreement gate compares state by state); gains stay 2/2/2; the golden
     # sitting re-tunes.
-    'st-george': {'day': 2.09, 'dusk': 0.46, 'nightChandeliers': 0.93},
+    'st-george': {'day': 2.09, 'dusk': 0.46, 'nightChandeliers': 1.07},
 }
 PROBE_WHITE_POINT = 1.0   # pinned by ADR-0013: "neutral" = absolute LDR clamp
 PROBE_RES = (512, 256)    # pinned by the ADR-0013 amendment (equirect)

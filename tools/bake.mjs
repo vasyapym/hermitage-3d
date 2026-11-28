@@ -148,6 +148,11 @@ function encodeOutputs(summary, stage, percentileMode) {
   const flags = TOKTX_GENMIPMAP ? [...TOKTX_LINEAR_FLAGS, '--genmipmap'] : TOKTX_LINEAR_FLAGS;
   const magic = Buffer.from(KTX2_MAGIC);
   const artifacts = [];
+  // S4: the probe's subcap ladder (8,000 B; the quality steps 80 -> 72 -> 64 -> 60; the
+  // edge fallback 256 -> 224 is a manual follow-up at the floor). The lm charts keep the
+  // committed flags — the ladder is probe-only.
+  const PROBE_LADDER = [80, 72, 64, 60];
+  const PROBE_CAP = 8000;
   for (const file of summary.files) {
     if (!file.rel.endsWith('.png')) continue;
     // D1: a percentile room's lm charts bake EXR ONLY — their PNGs never exist, and a
@@ -157,7 +162,34 @@ function encodeOutputs(summary, stage, percentileMode) {
     const input = path.join(stage, file.rel);
     const output = path.join(stage, rel);
     ensureDir(path.dirname(output));
-    run('toktx', [...flags, output, input]);
+    if (file.rel.startsWith('probe/')) {
+      let landed = null;
+      for (const q of PROBE_LADDER) {
+        run('toktx', [
+          ...flags.slice(0, flags.indexOf('--qlevel')),
+          '--qlevel',
+          String(q),
+          ...flags.slice(flags.indexOf('--qlevel') + 2),
+          output,
+          input,
+        ]);
+        const bytes = readFileSync(output);
+        if (bytes.length <= PROBE_CAP) {
+          landed = { q, bytes: bytes.length };
+          break;
+        }
+      }
+      if (!landed) {
+        throw new ChainError(
+          `probe ${rel} stays above ${PROBE_CAP} B through the quality ladder ${PROBE_LADDER.join(' -> ')} — the edge fallback (PROBE_RES 256 -> 224) is a manual follow-up`,
+        );
+      }
+      console.log(
+        `probe ladder: ${rel} landed at qlevel ${landed.q} (${landed.bytes} B <= ${PROBE_CAP})`,
+      );
+    } else {
+      run('toktx', [...flags, output, input]);
+    }
     const bytes = readFileSync(output);
     if (!bytes.subarray(0, magic.length).equals(magic)) {
       throw new ChainError(`${rel} is not a KTX2 container`);

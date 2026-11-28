@@ -39,13 +39,13 @@ export const ROOM = {
   // SEEDS, owner re-tune data: the golden sitting grades these from the bake logs'
   // peak/clippedFraction rows — a descriptor edit + reencode, never a re-bake. The gains
   // stay the committed 2/2/2 (the rendered light is bake × gain).
-  // res is the SHELL chart (law.lighting.lmChart.shellRes); the step-5 final bake
-  // flips the row to finalRes 2048.
+  // res is the FINAL chart (law.lighting.lmChart.finalRes) — the S4 flip landed with
+  // st-george.py's LM_RES flip (the lightmapsRow agreement gate pins both).
   lightmaps: {
     states: ['day', 'dusk', 'nightChandeliers'],
-    res: 1024,
+    res: 2048,
     // [commit b, S2+S3] provisional seeds = bake.py WHITE_POINT['st-george'] (wp = first 0.01 step >= 1.04 x peak).
-    intensity: { day: 2.09, dusk: 0.46, nightChandeliers: 0.93 },
+    intensity: { day: 2.09, dusk: 0.46, nightChandeliers: 1.07 },
   },
 };
 

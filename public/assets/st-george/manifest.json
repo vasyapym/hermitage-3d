@@ -3,26 +3,26 @@
   "files": [
     {
       "path": "lm/day.ktx2",
-      "bytes": 6600,
-      "sha256": "a9e60c06d9754bb75069eea429f0063f1c84dac99a51fbbcba1c6667f35d6991",
+      "bytes": 14720,
+      "sha256": "d223d26d7d51a5f818a50bc9ccdadfb5e8cebe455a4c756c315c1ba324a2e379",
       "kind": "ktx2"
     },
     {
       "path": "lm/dusk.ktx2",
-      "bytes": 6103,
-      "sha256": "af969f118d71743c02f26c28ceab312db37e507276b9b655b1934589f69b1d7c",
+      "bytes": 11806,
+      "sha256": "a00c653a7b043cd6341537199ced0e3511df485fd2e6d6d72d147010aa513dd4",
       "kind": "ktx2"
     },
     {
       "path": "lm/night.ktx2",
-      "bytes": 5879,
-      "sha256": "2f24fdf308332fa0d00241afd8c77543291222954cc28d946a291fea7ab8a13b",
+      "bytes": 11697,
+      "sha256": "c6b88270a30893c359f7a7305ca46e3ee2c42af57054b5d57390bf19c6d99888",
       "kind": "ktx2"
     },
     {
       "path": "probe/dusk.ktx2",
-      "bytes": 9376,
-      "sha256": "0e56f335ee2e6ec8f1ea2a4cb178079df1e7227d14b02479c9823f051966d94c",
+      "bytes": 7244,
+      "sha256": "b77ece058d3605b2d406667e0c963c70f59eb28dc571fdabcbe852911196351c",
       "kind": "ktx2"
     },
     {
@@ -175,11 +175,11 @@
       "dusk",
       "nightChandeliers"
     ],
-    "res": 1024,
+    "res": 2048,
     "intensity": {
       "day": 2.09,
       "dusk": 0.46,
-      "nightChandeliers": 0.93
+      "nightChandeliers": 1.07
     }
   },
   "budget": {

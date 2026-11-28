@@ -167,7 +167,7 @@ describe('chandeliers (S2)', () => {
   it('the bake rows (text pins)', () => {
     const bake = read('tools/bpy/bake.py');
     expect(bake).toMatch(/'chandelier-flame': {'day': 0.0, 'dusk': 1.0, 'nightChandeliers': 12.0}/);
-    expect(bake).toMatch(/'st-george': {'day': 2.09, 'dusk': 0.46, 'nightChandeliers': 0.93}/);
+    expect(bake).toMatch(/'st-george': {'day': 2.09, 'dusk': 0.46, 'nightChandeliers': 1.07}/);
   });
 });
 
@@ -240,14 +240,14 @@ describe('the borrowed cells (rg-f5)', () => {
 });
 
 // lands with commit c (the S4 flip)
-describe.skip('S4 flip (lands with commit c)', () => {
+describe('S4 flip (lands with commit c)', () => {
   it('LM_RES reads finalRes and the descriptor says 2048', async () => {
     const py = read('tools/bpy/st-george.py');
     expect(py).toContain("LM_RES = LM['finalRes']");
     expect(py).not.toContain("LM_RES = LM['shellRes']");
     const { ROOM } = await import('../../tools/gltf/st-george.mjs');
     expect(ROOM.lightmaps.res).toBe(2048);
-    expect(ROOM.lightmaps.intensity).toEqual({ day: 2.3, dusk: 0.56, nightChandeliers: 0.3 });
+    expect(ROOM.lightmaps.intensity).toEqual({ day: 2.09, dusk: 0.46, nightChandeliers: 1.07 });
   });
   it('the probe is <= 8,000 B', () => {
     const probe = readFileSync(new URL('public/assets/st-george/probe/dusk.ktx2', ROOT));

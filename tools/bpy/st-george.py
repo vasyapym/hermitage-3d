@@ -1041,5 +1041,5 @@ main()
 # flips LM_RES to LM['finalRes'] (the metre canvas keeps the UVs resolution-independent,
 # so the glb does not change). They sit after main() because the law globals exist only
 # once load_law() has run inside it.
-LM_RES = LM['shellRes']
+LM_RES = LM['finalRes']
 LM_PAD_PX = LM['padPx']

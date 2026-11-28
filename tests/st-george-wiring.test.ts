@@ -172,7 +172,7 @@ describe('P6 — the manifest mirrors the contract (DEFERRED until the bake land
       expect(createHash('sha256').update(bytes).digest('hex'), row.path).toBe(row.sha256);
     }
     expect(manifest.lightmaps.states).toEqual(['day', 'dusk', 'nightChandeliers']);
-    expect(manifest.lightmaps.res).toBe(1024); // the step-3 shell; 2048 from step 5
+    expect(manifest.lightmaps.res).toBe(2048); // the S4 flip: the final bake's chart
     const intensity = manifest.lightmaps.intensity;
     expect(intensity).not.toBeNull();
     for (const state of ['day', 'dusk', 'nightChandeliers']) {
