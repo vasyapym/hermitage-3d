@@ -50,7 +50,7 @@ that decides whether a next round's declared allowance fits. The project-course 
 
 | branch / candidate | what it reserves | status |
 |---|---|---|
-| sg-plate (branch `sg-plate`) | the ornament plate + the stage-2 slices (S1–S3): the room's rows regenerate in place (the ornament + eagle + relief ktx2s, the 3-state re-bake and probe; the room texture cap 2,400,000 · payload measured 412,785/4,000,000) · shared JS +13 gz (the declared chandelier-flame emissive row) · RU +0 · S4 the 2048² flip pending as the closing commit | open |
+| sg-plate (branch `sg-plate`) | the ornament plate + the stage-2 slices (S1–S3): the room's rows regenerate in place (the ornament + eagle + relief ktx2s, the 3-state re-bake and probe; the room texture cap 2,400,000 · payload measured 412,785/4,000,000) · shared JS +13 gz (the declared chandelier-flame emissive row) · RU +0 · S4 the 2048² flip landed (the probe ladder closed the subcap) | open |
 | tear-tbdr-lane (branch `tear-tbdr-lane`) | the gallery UV2-emission fix: the glb re-export rides the ROOM's caps (payload 1,257,669/2M · texture 861,675/1M byte-held · tris cap 110,000) · shared JS ≤ +300 B gz (the `__lmProbe` probe hook, the sqdebug class — droppable at merge) | LANDED at the round close 2026-11-27: the plates re-baked + re-encoded (texture 991,073/1,000,000, 9,323 spare; payload 1,387,067/2,000,000; shared JS +0 — the probe hook rode the main chunk's slack); the row's numbers reconcile at the merge |
 
 
