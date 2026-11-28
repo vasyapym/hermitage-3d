@@ -76,6 +76,13 @@ export const CONSTANTS = {
     value: 'Corinthian capitals on the restored paired columns',
     source: 'L',
   },
+  CHANDELIER_COUNT: {
+    kind: 'licence',
+    value: 5,
+    source: 'F',
+    licence: 'AL-SG-2',
+    derivation: 'one fixture per two window bays of the 12-bay tier',
+  },
   MARBLE: {
     kind: 'historical',
     value: 'white Carrara marble walls and columns',
@@ -406,8 +413,14 @@ function edgeInLook(a, b, stop) {
   const ddz = b[2] - a[2];
   const cosSq = COS_YAW * COS_YAW;
   const sinSq = 1 - cosSq;
-  const tangentUp = TANGENTS[stop.look.pitchUp];
-  const tangentDown = TANGENTS[stop.look.pitchDown];
+  // The pinned binary64 literals hit for the stops' own integer angles; the swept eyes
+  // BETWEEN stops carry interpolated (fractional) pitches — TANGENTS[fraction] is
+  // undefined and the squared intervals would go NaN-silent. Math.tan is byte-identical
+  // to every pinned literal, so the certificate's arithmetic is unchanged where the
+  // table hits and the interpolated eyes read their limits as the sweep documents.
+  const tangentUp = TANGENTS[stop.look.pitchUp] ?? Math.tan((stop.look.pitchUp * Math.PI) / 180);
+  const tangentDown =
+    TANGENTS[stop.look.pitchDown] ?? Math.tan((stop.look.pitchDown * Math.PI) / 180);
   const horizontalSqA = ddx * ddx + ddz * ddz;
   const horizontalSqB = 2 * (dx0 * ddx + dz0 * ddz);
   const horizontalSqC = dx0 * dx0 + dz0 * dz0;
@@ -510,7 +523,7 @@ export function seenFromRail(face) {
   return railWitness(face) !== null;
 }
 
-function makeFace(id, vertices, materialSlot, u = 1, v = 1) {
+function makeFace(id, vertices, materialSlot, u = 1, v = 1, opts = {}) {
   const normal = normalOf(vertices, id);
   const face = {
     id,
@@ -524,12 +537,345 @@ function makeFace(id, vertices, materialSlot, u = 1, v = 1) {
     triangles: vertices.length === 4 ? 2 * u * v : vertices.length - 2,
     area: areaOf(vertices),
   };
+  // The eye-plane backface rule (the S2/S3 classes opt in via
+  // opts.backfaceCull): a horizontal face whose front faces away from the
+  // shared stop eye height can never be seen from the rail — bake-only
+  // without a witness, before the cone certificate runs.
+  if (opts.backfaceCull === 'eye-plane' && eyePlaneBackface(normal, vertices, EYE_PLANE_Y)) {
+    return {
+      ...face,
+      visibility: 'bake-only',
+      witness: null,
+      reason: 'eye-plane-backface',
+    };
+  }
   const witness = railWitness(face);
   return {
     ...face,
     visibility: witness === null ? 'bake-only' : 'exported',
     witness,
   };
+}
+
+/*
+ * The stage-2 patch (pp4c/pp4d): Appendix M verbatim plus the tail (ring faces with
+ * verified outward windings, candles/flames in slot 16, -y spokes, bipyramid finial, stem
+ * foot), the S3 glazing class, the slot rows, the eye-plane wiring and the class pushes.
+ * The splice anchors are the committed lines named in the appendix ([A] materialSlots,
+ * [B] eagle/front, [C] figureRuling, [D] makeFace opts, [F] CHANDELIER_COUNT, [E] the
+ * class pushes).
+ */
+
+// [C] the relief-plate class field, verbatim:
+export const RELIEF_FIGURE_RULING =
+  'SETTLED by the owner 2026-11-28: a drawn low-relief depiction is not a charter figure; the relief ships as the drawn plate';
+
+// ---- shared helpers (pp4c) ------------------------------------------------------------
+const r6 = (v) => Math.round(v * 1e6) / 1e6; // the byte pin survives libm ulps
+const P = (x, y, z) => [r6(x), r6(y), r6(z)];
+const TAU = 2 * Math.PI;
+// u x v = the face normal; vertices CCW seen from the front (the emit computes normal/area/triangles).
+const AXES = {
+  '+x': [
+    [0, 1, 0],
+    [0, 0, 1],
+  ],
+  '-x': [
+    [0, 0, 1],
+    [0, 1, 0],
+  ],
+  '+y': [
+    [0, 0, 1],
+    [1, 0, 0],
+  ],
+  '-y': [
+    [1, 0, 0],
+    [0, 0, 1],
+  ],
+  '+z': [
+    [1, 0, 0],
+    [0, 1, 0],
+  ],
+  '-z': [
+    [0, 1, 0],
+    [1, 0, 0],
+  ],
+};
+function face(id, materialSlot, vertices) {
+  // 4 vertices: the law's bilinear grid 1x1; more: the law's own first-vertex-fan kind.
+  return {
+    id,
+    materialSlot,
+    vertices,
+    tessellation:
+      vertices.length === 4 ? { kind: 'bilinear-grid', u: 1, v: 1 } : { kind: 'first-vertex-fan' },
+  };
+}
+function rectFace(id, slot, key, c, hu, hv) {
+  const [u, v] = AXES[key];
+  const at = (su, sv) =>
+    P(
+      c[0] + su * hu * u[0] + sv * hv * v[0],
+      c[1] + su * hu * u[1] + sv * hv * v[1],
+      c[2] + su * hu * u[2] + sv * hv * v[2],
+    );
+  return face(id, slot, [at(-1, -1), at(1, -1), at(1, 1), at(-1, 1)]);
+}
+// the outward faces of an axis-aligned box [min, max], chosen by key. Named keyedBoxFaces:
+// the committed boxFaces(id, min, max, slot) above emits all six sides — this keyed variant
+// is the patch's own and must not collide with it.
+function keyedBoxFaces(id, slot, min, max, keys) {
+  const mid = [(min[0] + max[0]) / 2, (min[1] + max[1]) / 2, (min[2] + max[2]) / 2];
+  const half = [(max[0] - min[0]) / 2, (max[1] - min[1]) / 2, (max[2] - min[2]) / 2];
+  return keys.map((key) => {
+    const axis = 'xyz'.indexOf(key[1]);
+    const c = mid.slice();
+    c[axis] = key[0] === '+' ? max[axis] : min[axis];
+    const [u, v] = AXES[key];
+    return rectFace(`${id}/${key}`, slot, key, c, half[u.indexOf(1)], half[v.indexOf(1)]);
+  });
+}
+// [D] the eye-plane backface rule — OPT-IN per class (cls.backfaceCull === 'eye-plane'),
+// applied after the normal is computed and BEFORE the cone certificate: a horizontal face
+// whose front faces away from the shared stop eye height can never be seen from the rail
+// -> visibility 'bake-only', witness null, reason 'eye-plane-backface'. No committed class
+// opts in, so no committed census row moves.
+export function eyePlaneBackface(normal, vertices, eyeY) {
+  if (Math.abs(normal[1]) < 1 - 1e-9) return false;
+  const ys = vertices.map((v) => v[1]);
+  return normal[1] > 0 ? Math.min(...ys) > eyeY : Math.max(...ys) < eyeY;
+}
+
+// ---- S2 (pp4c): chandeliers — SOURCES F (existence) + licence AL-SG-2 (count, form) -----------
+export const CHANDELIER = {
+  // Five fixtures (the licence's pre-authorized fallback): the eagle-sightline pin measured
+  // chandelier-5 (bay 10) only 0.2347 m clear of the H0 sightline to the relief's top edge
+  // (< the 0.25 m requirement), so bay 10 is dropped — one fixture per two window bays:
+  // the 1st, 3rd, 5th, 7th and 9th of the twelve.
+  bays: [0, 2, 4, 6, 8],
+  bayModule: 47 / 12, // the window tier's module: 12 panes per wall-tier over L 47
+  axisZ: 14.5,
+  ceilingY: 20,
+  stem: { half: 0.07, bottomY: 17.2 },
+  tiers: [
+    { y: 18.85, R: 0.55, n: 12 },
+    { y: 18.25, R: 0.85, n: 16 },
+    { y: 17.55, R: 1.15, n: 24 },
+  ],
+  band: 0.16,
+  ringWidth: 0.25,
+  spokes: 3,
+  spokeHalf: 0.03,
+  candle: { half: 0.025, height: 0.22, inset: 0.12 },
+  flame: { half: 0.035, height: 0.12 },
+  finial: { y: 17.1, r: 0.16, up: 0.15, down: 0.15, n: 8 },
+  slot: { gilt: 15, flame: 16 },
+  lowestY: 16.95, // finial.y - finial.down; the relief-clearance pin reads it
+};
+function ringPoint(cx, y, cz, r, i, n) {
+  const a = (i / n) * TAU;
+  return P(cx + r * Math.cos(a), y, cz + r * Math.sin(a));
+}
+function chandelier(k, cx) {
+  const C = CHANDELIER;
+  const cz = C.axisZ;
+  const id = `chandelier-${k}`;
+  const g = C.slot.gilt;
+  const f = C.slot.flame;
+  const faces = [];
+  faces.push(
+    ...keyedBoxFaces(
+      `${id}/stem`,
+      g,
+      [cx - C.stem.half, C.stem.bottomY, cz - C.stem.half],
+      [cx + C.stem.half, C.ceilingY, cz + C.stem.half],
+      ['+x', '-x', '+z', '-z'],
+    ),
+  );
+  C.tiers.forEach((t, ti) => {
+    const yb = t.y - C.band / 2;
+    const yt = t.y + C.band / 2;
+    const ri = t.R - C.ringWidth;
+    for (let i = 0; i < t.n; i++) {
+      const j = (i + 1) % t.n;
+      const Ob = ringPoint(cx, yb, cz, t.R, i, t.n);
+      const Ob1 = ringPoint(cx, yb, cz, t.R, j, t.n);
+      const Ot = ringPoint(cx, yt, cz, t.R, i, t.n);
+      const Ot1 = ringPoint(cx, yt, cz, t.R, j, t.n);
+      const Ib = ringPoint(cx, yb, cz, ri, i, t.n);
+      const Ib1 = ringPoint(cx, yb, cz, ri, j, t.n);
+      const It = ringPoint(cx, yt, cz, ri, i, t.n);
+      const It1 = ringPoint(cx, yt, cz, ri, j, t.n);
+      const seg = `${id}/tier${ti}/seg${i}`;
+      // windings verified at angle 0 (+x out, +z = increasing angle): (v1-v0) x (v3-v0) is the front normal
+      faces.push(face(`${seg}/outer`, g, [Ob1, Ob, Ot, Ot1])); // radial out
+      faces.push(face(`${seg}/inner`, g, [Ib, Ib1, It1, It])); // radial in, toward the stem
+      faces.push(face(`${seg}/top`, g, [Ot1, Ot, It, It1])); // +y: bake-only by the eye-plane rule (never seen from the rail)
+      faces.push(face(`${seg}/bottom`, g, [Ob, Ob1, Ib1, Ib])); // -y: the underside the rail sees
+      // one candle per segment (slot 16, the emitter): a wax box on the band's top at the
+      // segment's mid-angle, inset from the rim, a 4-tri flame pyramid on it
+      const am = ((i + 0.5) / t.n) * TAU;
+      const rc = t.R - C.candle.inset;
+      const qx = cx + rc * Math.cos(am);
+      const qz = cz + rc * Math.sin(am);
+      const y0 = yt + C.candle.height;
+      faces.push(
+        ...keyedBoxFaces(
+          `${seg}/candle`,
+          f,
+          [qx - C.candle.half, yt, qz - C.candle.half],
+          [qx + C.candle.half, y0, qz + C.candle.half],
+          ['+x', '-x', '+z', '-z'],
+        ),
+      );
+      faces.push(...pyramidFaces(`${seg}/flame`, f, qx, y0, qz, C.flame.half, C.flame.height));
+    }
+    // three spokes per tier: flat bars stem -> band inner face, flush with the band's
+    // UNDERSIDE, front -y (a +y spoke would be culled by the eye-plane rule)
+    for (let s = 0; s < C.spokes; s++) {
+      const a = (s / C.spokes) * TAU;
+      const dx = Math.cos(a);
+      const dz = Math.sin(a);
+      const px = -Math.sin(a) * C.spokeHalf;
+      const pz = Math.cos(a) * C.spokeHalf;
+      const r0 = C.stem.half;
+      const r1 = ri;
+      faces.push(
+        face(`${id}/tier${ti}/spoke${s}`, g, [
+          P(cx + r0 * dx - px, yb, cz + r0 * dz - pz),
+          P(cx + r1 * dx - px, yb, cz + r1 * dz - pz),
+          P(cx + r1 * dx + px, yb, cz + r1 * dz + pz),
+          P(cx + r0 * dx + px, yb, cz + r0 * dz + pz),
+        ]),
+      );
+    }
+  });
+  // the stem's foot: the finial's upper cone (r 0.053 at y 17.2) does not cover the stem's
+  // 0.07 square, so the -y face is drawn (pp4d: +2 tris per fixture)
+  faces.push(
+    ...keyedBoxFaces(
+      `${id}/stem-foot`,
+      g,
+      [cx - C.stem.half, C.stem.bottomY, cz - C.stem.half],
+      [cx + C.stem.half, C.ceilingY, cz + C.stem.half],
+      ['-y'],
+    ),
+  );
+  // the 8-fold finial: a bipyramid on the stem's foot; the lower apex is the fixture's
+  // lowest point (CHANDELIER.lowestY)
+  const F = C.finial;
+  const up = P(cx, F.y + F.up, cz);
+  const down = P(cx, F.y - F.down, cz);
+  for (let i = 0; i < F.n; i++) {
+    const j = (i + 1) % F.n;
+    const Ri = ringPoint(cx, F.y, cz, F.r, i, F.n);
+    const Rj = ringPoint(cx, F.y, cz, F.r, j, F.n);
+    faces.push(face(`${id}/finial/up${i}`, g, [Rj, Ri, up])); // out + up
+    faces.push(face(`${id}/finial/down${i}`, g, [Ri, Rj, down])); // out + down
+  }
+  return faces;
+  // 1,084 triangles per fixture: stem 8 + foot 2 + rings 416 + spokes 18 + candles 624 +
+  // finial 16 (x6 = 6,504; the ring tops 104 x 6 bake-only -> drawn <= 5,880)
+}
+// a square pyramid, open base, apex up; base order q0..q3 chosen so [q_i, q_{i+1}, apex]
+// has the outward normal (verified per side)
+function pyramidFaces(id, slot, x, y0, z, h, H) {
+  const q = [P(x + h, y0, z - h), P(x - h, y0, z - h), P(x - h, y0, z + h), P(x + h, y0, z + h)];
+  const apex = P(x, y0 + H, z);
+  return q.map((v, i) => face(`${id}/${i}`, slot, [v, q[(i + 1) % 4], apex]));
+}
+export const CHANDELIER_X0 = 91; // FRAME X0 — the law's own constant; the pin asserts equality
+// chandelierX: 92.958333 100.791667 108.625 116.458333 124.291667
+export const chandelierX = (bay) => r6(CHANDELIER_X0 + (bay + 0.5) * CHANDELIER.bayModule);
+export const CHANDELIER_LICENCE = 'AL-SG-2';
+// The chandeliers' faces draw but bake nothing of their own: they adopt the ceiling's
+// lightmap cells (the rg-f5 borrowed-cells pattern — the exporter's TEXCOORD_1 borrows
+// the host cell, the bake chain never builds their charts).
+export const CHANDELIER_ISLAND_CLASS =
+  'adopted host cells (rg-f5 pattern); no atlas cells of their own';
+
+// ---- S3 (pp4c/pp4d): glazing bars + surround per pane — SOURCES A (the windows), form
+// DETAIL; rides S2's bake -----
+// Per pane: a 0.12 architrave OUTSIDE the pane rectangle on the wall (head + sill full width
+// with end faces, jambs between: 16 faces), one mullion 0.07 proud (3 faces), two
+// through-transoms 0.055 proud passing BEHIND the mullion (3 faces each; no coplanar fronts)
+// -> 6 lights, 25 quads = 50 tris per pane, 2,400 total (cap 2,500), slot 0 wall-marble,
+// 0 draws. Tops/undersides fall to the eye-plane rule.
+export const GLAZING = {
+  mullionHalf: 0.04,
+  transomHalf: 0.04,
+  surround: 0.12,
+  proud: 0.07,
+  transomProud: 0.055,
+  slot: 0,
+  lights: 6,
+};
+function glazingBars(paneId, vertices) {
+  const G = GLAZING;
+  const s = G.slot;
+  const z0 = vertices[0][2];
+  if (vertices.some((v) => Math.abs(v[2] - z0) > 1e-9)) {
+    throw new Error(`glazing: pane ${paneId} is not a z-plane — extend the frame mapping`);
+  }
+  const inward = CHANDELIER.axisZ > z0 ? 1 : -1;
+  const front = inward > 0 ? '+z' : '-z';
+  const xs = vertices.map((v) => v[0]);
+  const ys = vertices.map((v) => v[1]);
+  const x0 = Math.min(...xs);
+  const x1 = Math.max(...xs);
+  const y0 = Math.min(...ys);
+  const y1 = Math.max(...ys);
+  const S = G.surround;
+  const xm = (x0 + x1) / 2;
+  const h = y1 - y0;
+  const faces = [];
+  const box = (name, xa, xb, ya, yb, d, keys) =>
+    faces.push(
+      ...keyedBoxFaces(
+        `${paneId}/bars/${name}`,
+        s,
+        [xa, ya, inward > 0 ? z0 : z0 - d],
+        [xb, yb, inward > 0 ? z0 + d : z0],
+        [front, ...keys],
+      ),
+    );
+  box('head', x0 - S, x1 + S, y1, y1 + S, G.proud, ['-y', '+y', '-x', '+x']);
+  box('sill', x0 - S, x1 + S, y0 - S, y0, G.proud, ['+y', '-y', '-x', '+x']);
+  box('jamb-w', x0 - S, x0, y0, y1, G.proud, ['+x', '-x']);
+  box('jamb-e', x1, x1 + S, y0, y1, G.proud, ['-x', '+x']);
+  box('mullion', xm - G.mullionHalf, xm + G.mullionHalf, y0, y1, G.proud, ['-x', '+x']);
+  box(
+    'transom-lo',
+    x0,
+    x1,
+    y0 + h / 3 - G.transomHalf,
+    y0 + h / 3 + G.transomHalf,
+    G.transomProud,
+    ['+y', '-y'],
+  );
+  box(
+    'transom-hi',
+    x0,
+    x1,
+    y0 + (2 * h) / 3 - G.transomHalf,
+    y0 + (2 * h) / 3 + G.transomHalf,
+    G.transomProud,
+    ['+y', '-y'],
+  );
+  return faces; // 25 quads
+}
+
+export { chandelier, glazingBars, pyramidFaces };
+
+// [D-wiring] makeFace above gained one trailing opts argument; the committed call sites
+// are unchanged. EYE_PLANE_Y == the shared stop eye height (FRAME: eye 11.65); the pin
+// asserts it equals the rail's H0 eye y.
+export const EYE_PLANE_Y = 11.65;
+
+function instancesOf(faces, opts) {
+  // u = v = 1 for the quads; the polygons ride makeFace's own first-vertex-fan branch
+  // (the law's one face constructor dispatches on the vertex count).
+  return faces.map((fc) => makeFace(fc.id, fc.vertices, fc.materialSlot, 1, 1, opts));
 }
 
 function boxFaces(id, min, max, slot) {
@@ -680,6 +1026,10 @@ function materialSlots() {
     ['throne-cloth', 'G', 4],
     ['throne-gilt', 'H', 4],
     ['relief', 'E', 4],
+    // [A-concrete] appended (slot = index; the builder's MATERIAL_ROWS mirror them):
+    ['eagle-plate', 'H', 4],
+    ['chandelier-gilt', 'F', 4],
+    ['chandelier-flame', 'F', 4],
   ];
   return rows.map(([id, source, authoredStep], slot) => ({
     slot,
@@ -877,6 +1227,46 @@ export function buildLaw() {
   classes.push(elementClass('column-shafts', 'DESIGN', shafts));
   classes.push(elementClass('column-capitals', 'DETAIL', capitals));
   classes.push(elementClass('windows', 'A', windows));
+  // [E] the stage-2 class pushes (the glazing derives from windows in law order): the
+  // census emitter copies licence / censusStatus / caps into the row's flags; 17 slots =
+  // 17 merged meshes <= the law cap of 24.
+  {
+    const cull = { backfaceCull: 'eye-plane' };
+    // The law's instance shape: one object per fixture / pane carrying its faces
+    // (instancesOf maps the raw faces through makeFace; the committed census, the lm
+    // chart plan and the builder read instance.faces).
+    const chandeliers = CHANDELIER.bays.map((b, k) => ({
+      id: `chandelier-${k}`,
+      faces: instancesOf(chandelier(k, chandelierX(b)), cull),
+    }));
+    classes.push(
+      elementClass('chandeliers', 'F', chandeliers, {
+        licence: CHANDELIER_LICENCE,
+        backfaceCull: 'eye-plane',
+        censusStatus: 'provisional',
+        // The borrowed-cells mode (rg-f5): every face adopts its host face's lightmap
+        // cell; the chart plan carries no patches for this class.
+        lightmap: 'adopted',
+        lightmapHost: 'ceiling',
+        islandClass: CHANDELIER_ISLAND_CLASS,
+        caps: { drawnTriangles: 9000, draws: 2 },
+      }),
+    );
+    const glazing = windows.map((w) => ({
+      id: w.id,
+      faces: instancesOf(glazingBars(w.id, w.vertices), cull),
+    }));
+    classes.push(
+      elementClass('glazing-bars', 'A', glazing, {
+        formSource: 'DETAIL',
+        backfaceCull: 'eye-plane',
+        lightmap: 'adopted',
+        lightmapHost: 'walls',
+        islandClass: 'adopted host cells (rg-f5 pattern); no atlas cells of their own',
+        caps: { drawnTriangles: 2500, draws: 0 },
+      }),
+    );
+  }
   classes.push(elementClass('balconies', 'I', balconies));
   classes.push(elementClass('balcony-rails', 'I', railings));
 
@@ -976,7 +1366,8 @@ export function buildLaw() {
         AXIS_Z,
         W / 12,
         height / 12,
-        12,
+        // [B-concrete] 12 -> 14: the eagle-plate class (leaves the throne-gilt mesh; +1 draw)
+        14,
       ),
     ]),
   );
@@ -985,7 +1376,8 @@ export function buildLaw() {
       'relief-plate',
       'E',
       [verticalPlate('relief', RELIEF_X, RELIEF_Y, AXIS_Z, W / 5, height / 6, 13)],
-      { figureRuling: 'pending; blank plate if charter classifies the rider as a figure' },
+      // [C-concrete] the relief class field, the settled string verbatim (law.json follows):
+      { figureRuling: RELIEF_FIGURE_RULING },
     ),
   );
 
@@ -1036,21 +1428,10 @@ export function buildLaw() {
     ),
   );
 
-  classes.push(
-    elementClass('chandeliers', 'F', [], {
-      count: null,
-      UNSOURCED: true,
-      missingConstant: 'CHANDELIER_COUNT',
-      placementRule: {
-        axis: 'x',
-        fixedZ: AXIS_Z,
-        xRange: [X0, x1],
-        positions: [],
-        source: 'F',
-        status: 'deferred; no count, spacing or hanging height invented',
-      },
-    }),
-  );
+  /*
+   * The chandeliers class is pushed in the stage-2 [E] block above (the deferred empty
+   * placeholder retired once CHANDELIER_COUNT settled under licence AL-SG-2).
+   */
 
   const law = {
     schema: 'st-george-law-1',
@@ -1146,6 +1527,10 @@ function lmChartPlan(classes) {
   const patches = [];
   let totalArea = 0;
   for (const group of classes) {
+    // The adopted classes (rg-f5) borrow their host faces' lightmap cells: no atlas
+    // patches of their own, no area in the chart's demand — the bisection never sees
+    // them (their per-face micro-patches at the pad floor would explode the demand).
+    if (group.lightmap === 'adopted') continue;
     for (const instance of group.instances) {
       for (const face of instance.faces) {
         const extents = patchExtents(face.vertices, face.normal);
@@ -1307,9 +1692,18 @@ export function buildCensus(law = buildLaw()) {
       exportedFaces,
       bakeOnlyFaces,
       lightmap: {
-        islandClass: 'one planar patch; packed by later bake stage',
-        texelsPerMetreFinal: exportedFaces === 0 ? 0 : chart.densityFinalPxPerM,
-        texelsPerMetreShell: exportedFaces === 0 ? 0 : chart.densityShellPxPerM,
+        // The adopted classes' rows carry the borrowed truth: no atlas cells of their
+        // own, the host class named, no own texel density (they sample the host cells
+        // at the host's density).
+        ...(group.lightmap === 'adopted' ? { adopted: true, host: group.lightmapHost } : {}),
+        islandClass:
+          group.islandClass === undefined
+            ? 'one planar patch; packed by later bake stage'
+            : group.islandClass,
+        texelsPerMetreFinal:
+          exportedFaces === 0 || group.lightmap === 'adopted' ? 0 : chart.densityFinalPxPerM,
+        texelsPerMetreShell:
+          exportedFaces === 0 || group.lightmap === 'adopted' ? 0 : chart.densityShellPxPerM,
       },
       flags: {
         bands: 'pending-three-state-bake',
@@ -1321,6 +1715,11 @@ export function buildCensus(law = buildLaw()) {
           group.id === 'windows' ? 'inward-plan-normals; pending-glb-check' : 'not-applicable',
         encoderParity: 'pending-encoder',
         UNSOURCED: group.count === null,
+        // The stage-2 classes' own extra rows copy into the flags verbatim (licence /
+        // censusStatus / caps); classes without them emit no key.
+        ...(group.licence === undefined ? {} : { licence: group.licence }),
+        ...(group.censusStatus === undefined ? {} : { census: group.censusStatus }),
+        ...(group.caps === undefined ? {} : { caps: group.caps }),
       },
     };
   });

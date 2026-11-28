@@ -77,6 +77,13 @@ CAPS = None
 LAW_SCHEMA = None
 SLOT_IDS = None
 SLOT_INDEXES = None
+# The borrowed-cells law (the rg-f5 pattern): the law's adopted classes name their host
+# class; the builder resolves each adopted face's host face structurally (the nearest
+# host plane) and every loop adopts that host face's chart mapping. The adopted faces
+# carry NO chart patches of their own in either mode.
+ADOPTED_HOSTS = None   # class id -> the host class id (law.lightmap / lightmapHost)
+HOST_FACES = None      # host class id -> [(face_id, vertices, normal), ...]
+ADOPT_HOST_MAX_M = 4.0  # the chandeliers hang <= 3.05 under the ceiling; the bars sit <= 0.08 off the wall
 
 
 def refuse(message):
@@ -92,6 +99,7 @@ def _key(container, key, where):
 def load_law():
     """Read + validate the committed plan; populate the module's law globals."""
     global LAW, FRAME, BOX, SLOTS_ROWS, CLASSES, LM, CAPS, LAW_SCHEMA, SLOT_IDS, SLOT_INDEXES
+    global ADOPTED_HOSTS, HOST_FACES, ADOPT_FRAMES
     if not os.path.exists(LAW_PATH):
         refuse('the geometry plan is missing at %s' % LAW_PATH)
     with open(LAW_PATH, encoding='utf-8') as handle:
@@ -120,6 +128,47 @@ def load_law():
                    % (row.get('slot'), index))
         SLOT_IDS.append(_key(row, 'id', 'law.materialSlots[%d]' % index))
     SLOT_INDEXES = frozenset(range(len(SLOT_IDS)))
+    # The borrowed-cells law: the adopted classes name their host class; the host faces
+    # are the host class's own faces (they carry chart patches of their own).
+    ADOPTED_HOSTS = {}
+    for group in CLASSES:
+        mode = group.get('lightmap')
+        if mode is None:
+            continue
+        if mode != 'adopted':
+            refuse('law class %s carries unknown lightmap mode %r'
+                   % (group.get('id', '?'), mode))
+        ADOPTED_HOSTS[_key(group, 'id', 'law class')] = \
+            _key(group, 'lightmapHost', 'law class %s lightmap' % group.get('id', '?'))
+    HOST_FACES = {host: [] for host in ADOPTED_HOSTS.values()}
+    for group in CLASSES:
+        if group.get('id') not in HOST_FACES:
+            continue
+        for instance in group['instances']:
+            for face in _key(instance, 'faces', 'instance of class %s' % group['id']):
+                HOST_FACES[group['id']].append((
+                    _key(face, 'id', 'face'),
+                    _key(face, 'vertices', 'face %s' % face.get('id', '?')),
+                    _key(face, 'normal', 'face %s' % face.get('id', '?')),
+                ))
+        if not HOST_FACES[group['id']]:
+            refuse('adopted host class %s carries no faces' % group['id'])
+    # The host faces' patch frames (the law's own patchExtents rule — bit-parity):
+    # the plane (normal, p0) for the feet and the (u, v) metre frame for the mapping.
+    ADOPT_FRAMES = {}
+    for faces in HOST_FACES.values():
+        for face_id, vertices, normal in faces:
+            u_vec, v_vec, dus, dvs = patch_frame(vertices, normal)
+            ADOPT_FRAMES[face_id] = {
+                'normal': normal,
+                'p0': vertices[0],
+                'u': u_vec,
+                'v': v_vec,
+                'du_min': min(dus),
+                'dv_min': min(dvs),
+                'w_m': max(dus) - min(dus),
+                'h_m': max(dvs) - min(dvs),
+            }
 
 
 # ---- the metre lightmap chart (the military-gallery ArchChart, res-independent)
@@ -175,6 +224,7 @@ class MetreChart:
         self.min_m = (self.min_px * self.canvas_m) / self.shell_res
         self.patches = []
         self._names = set()
+        self._by_name = {}
         self.packed = False
 
     def add(self, name, w_m, h_m):
@@ -185,7 +235,14 @@ class MetreChart:
         self._names.add(name)
         patch = Patch(name, w_m, h_m, self.min_m, self.canvas_m)
         self.patches.append(patch)
+        self._by_name[name] = patch
         return patch
+
+    def patch(self, name):
+        """The patch an adopted face borrows, by its host face's id."""
+        if name not in self._by_name:
+            refuse('lightmap chart carries no patch %s' % name)
+        return self._by_name[name]
 
     def pack(self):
         pad, canvas = self.pad_m, self.canvas_m
@@ -266,8 +323,9 @@ def _cross(a, b):
             a[0] * b[1] - a[1] * b[0])
 
 
-def patch_projections(vertices, normal):
-    """(dus, dvs): the per-vertex projections on the face's in-plane metre frame."""
+def patch_frame(vertices, normal):
+    """The law's patch frame (bit-parity with law.mjs patchExtents): u = the longest
+    loop edge (first-max on ties), v = normal x u. Returns (u, v, dus, dvs)."""
     u = _sub(vertices[1], vertices[0])
     longest = 0.0
     for i in range(len(vertices)):
@@ -279,6 +337,12 @@ def patch_projections(vertices, normal):
     v = _cross(normal, u)
     dus = [_dot(p, u) for p in vertices]
     dvs = [_dot(p, v) for p in vertices]
+    return u, v, dus, dvs
+
+
+def patch_projections(vertices, normal):
+    """(dus, dvs): the per-vertex projections on the face's in-plane metre frame."""
+    _u, _v, dus, dvs = patch_frame(vertices, normal)
     return dus, dvs
 
 
@@ -317,6 +381,11 @@ MATERIAL_ROWS = (
     ('throne-cloth', (0.480, 0.070, 0.090), 0.90, 0.0, None, 0.0),
     ('throne-gilt', (0.950, 0.740, 0.320), 0.30, 0.65, None, 0.0),
     ('relief', (0.800, 0.790, 0.760), 0.50, 0.0, None, 0.0),
+    # [S2+S3 commit] the three appended rows mirror law.materialSlots 14-16 (the flame row
+    # carries authored emission, strength 1.0 - bake.py's ABSOLUTE table replaces it per state).
+    ('eagle-plate', (0.600, 0.150, 0.120), 0.45, 0.30, None, 0.0),
+    ('chandelier-gilt', (0.900, 0.700, 0.320), 0.35, 0.70, None, 0.0),
+    ('chandelier-flame', (0.950, 0.900, 0.780), 0.50, 0.0, (1.000, 0.760, 0.420), 1.0),
 )
 
 
@@ -330,31 +399,50 @@ ORNAMENT_PLATES = {
     'ornament-parquet': 'parquet',
 }
 PLATE_SPAN = 2.0    # the albedo UV spans [0, 2] on both axes (the mirror law)
-PLATE_SLOTS = frozenset(ORNAMENT_PLATES)
+# [S1 commit] the picture plates — ONE full drawing per face, NOT the mirror law: the albedo UV maps the face's own
+# metres to [0, 1] once (s with +z = the viewer's right looking east, t with +y; the glTF v-flip as the ornament path),
+# the sampler exports CLAMP_TO_EDGE (33071) on both axes. PNGs from the rasterizer's picture mode:
+# node tools/bpy/plate-raster.mjs picture tools/bpy/st-george-eagle.svg tools/bpy/st-george-eagle.png 1024 1024
+# node tools/bpy/plate-raster.mjs picture tools/bpy/st-george-relief.svg tools/bpy/st-george-relief.png 2048 1024
+# Copied verbatim into <stage>/tex/<slot>.png like the ornament plates. Missing PNG = the ornament rule's loud refusal.
+PICTURE_PLATES = {
+    'eagle-plate': 'st-george-eagle.png',
+    'relief': 'st-george-relief.png',
+}
+PICTURE_SPAN = 1.0  # the face's metres -> [0, 1] once
+PICTURE_WRAP = 33071  # glTF CLAMP_TO_EDGE (the ornament plates keep MIRRORED_REPEAT)
+PLATE_SLOTS = frozenset(ORNAMENT_PLATES) | frozenset(PICTURE_PLATES)
 
 
 def _plate_image(slot):
     """The rastered plate, loaded sRGB and stored-sRGB byte-faithful (no Blender
-    reprocessing): the glTF exporter embeds the PNG bytes verbatim."""
-    src = os.path.join(SCRIPT_DIR, 'st-george-ornament-%s.png' % ORNAMENT_PLATES[slot])
+    reprocessing): the glTF exporter embeds the PNG bytes verbatim. Ornament slots
+    read the mirrored ornament drawing; picture slots read their own full drawing."""
+    if slot in ORNAMENT_PLATES:
+        src = os.path.join(SCRIPT_DIR, 'st-george-ornament-%s.png' % ORNAMENT_PLATES[slot])
+        hint = 'node tools/bpy/plate-raster.mjs %s' % ORNAMENT_PLATES[slot]
+    else:
+        src = os.path.join(SCRIPT_DIR, PICTURE_PLATES[slot])
+        hint = 'node tools/bpy/plate-raster.mjs picture %s %s <w> <h>' % (
+            os.path.join(SCRIPT_DIR, slot + '.svg'), src)
     if not os.path.exists(src):
-        refuse('the ornament plate is missing at %s — run '
-               'node tools/bpy/plate-raster.mjs %s' % (src, ORNAMENT_PLATES[slot]))
+        refuse('the ornament plate is missing at %s — run %s' % (src, hint))
     img = bpy.data.images.load(src, check_existing=False)
     img.name = slot
     img.colorspace_settings.name = 'sRGB'
     return img
 
 
-def _wire_plate(mat, image):
+def _wire_plate(mat, image, wrap='MIRROR'):
     """The jordan.py plafond pattern (ShaderNodeTexImage -> Base Color over the 'uv'
     layer) with the record's mirror law in the sampler: Blender 4.2's MIRROR extension
-    exports glTF MIRRORED_REPEAT (33648) on both axes."""
+    exports glTF MIRRORED_REPEAT (33648) on both axes; picture plates take EXTEND
+    (Blender's enum name; it exports glTF CLAMP_TO_EDGE, 33071)."""
     nt = mat.node_tree
     tex = nt.nodes.new('ShaderNodeTexImage')
     tex.image = image
     tex.interpolation = 'Linear'
-    tex.extension = 'MIRROR'
+    tex.extension = wrap
     uvn = nt.nodes.new('ShaderNodeUVMap')
     uvn.uv_map = 'uv'
     nt.links.new(uvn.outputs['UV'], tex.inputs['Vector'])
@@ -380,8 +468,9 @@ def make_materials():
             bsdf.inputs['Emission Color'].default_value = \
                 (emission[0], emission[1], emission[2], 1.0)
             bsdf.inputs['Emission Strength'].default_value = strength
-        if name in ORNAMENT_PLATES:
-            _wire_plate(mat, _plate_image(name))
+        if name in PLATE_SLOTS:
+            _wire_plate(mat, _plate_image(name),
+                        wrap='MIRROR' if name in ORNAMENT_PLATES else 'EXTEND')
         made[name] = mat
     return made
 
@@ -396,10 +485,11 @@ def make_materials():
 # AFTER the pack (both uv layers: 'uv' mirrors the chart mapping, 'lm' is the
 # bake's coordinate space), then flat shading + triangulation + commit.
 
-PENDING = {}        # id(bm) -> [(poly, patch, ((s, t), ...)), ...]
+PENDING = {}        # id(bm) -> [(poly, patch, sts, plate_sts, adopt), ...]
 FINISH_QUEUE = []   # (obj, bm)
 ACCOUNT = {}        # mesh name -> the per-slot build counts
 CHART = None        # the MetreChart, created in main()
+ADOPT_FRAMES = {}   # host face id -> the host plane + patch frame (built in load_law)
 
 
 def _new_part(collection, name):
@@ -413,23 +503,86 @@ def _layers(bm):
     return bm.loops.layers.uv.new('uv'), bm.loops.layers.uv.new(UV_LIGHTMAP)
 
 
-def _bind(bm, poly, patch, sts, plate_sts=None):
+def _bind(bm, poly, patch, sts, plate_sts=None, adopt=None):
     """Record a polygon's (s, t) metres per loop against its chart patch — plus the
     plate-face albedo UVs when the polygon rides an ornament plate slot (the mirror
-    law; None keeps 'uv' on the chart mapping)."""
+    law; None keeps 'uv' on the chart mapping). An ADOPTED polygon (the rg-f5
+    borrowed-cells law) carries no chart patch of its own: adopt = (host face id,
+    the per-loop feet on the host plane) and every loop resolves through the host's
+    own mapping."""
     PENDING.setdefault(id(bm), []).append(
-        (poly, patch, tuple(sts), None if plate_sts is None else tuple(plate_sts)))
+        (poly, patch, None if sts is None else tuple(sts),
+         None if plate_sts is None else tuple(plate_sts), adopt))
     return poly
 
 
-def _plate_uv(st, w_m, h_m):
+def _plate_uv(st, w_m, h_m, span=PLATE_SPAN):
     """One (s, t) metre pair -> the plate's albedo UV: the face's own metres scaled to
-    [0, PLATE_SPAN] on both axes. The mirrored tiling is invariant under the projection
-    frame's direction, so no axis orientation is special-cased."""
+    [0, span] on both axes. The mirrored tiling is invariant under the projection
+    frame's direction, so no axis orientation is special-cased; picture plates span
+    [0, 1] once (PICTURE_SPAN)."""
     s_m, t_m = st
-    u = 0.0 if w_m <= 0.0 else (s_m / w_m) * PLATE_SPAN
-    v = 0.0 if h_m <= 0.0 else (t_m / h_m) * PLATE_SPAN
+    u = 0.0 if w_m <= 0.0 else (s_m / w_m) * span
+    v = 0.0 if h_m <= 0.0 else (t_m / h_m) * span
     return (u, v)
+
+
+# ---- the borrowed-cells law (rg-f5: adopted TEXCOORD_1) ---------------------------
+# The adopted classes' faces draw in their own slots but carry NO chart patches: every
+# loop adopts its host face's chart mapping. The host face is picked structurally —
+# the host-class face whose plane is nearest the adopted face's centroid — and each
+# loop's foot (its projection on the host plane) maps through the host patch's own
+# metre frame, clamped 1 texel inside the host's mapped bbox (the gutter law).
+
+def _centroid(points):
+    """The arithmetic mean — the adopted face's centroid (the host pick's probe)."""
+    return tuple(sum(p[k] for p in points) / len(points) for k in range(3))
+
+
+def _pick_host(centroid, host_class):
+    """The adopted face's host face id: the nearest host-class plane (ties keep law
+    order). The chandeliers' faces land on the ceiling quad (<= 3.05 m under it), the
+    glazing bars on their pane-side wall (<= 0.08 m off it); anything farther refuses
+    loud — a drifted host law must never adopt silently."""
+    best = None
+    for face_id, _vertices, _normal in HOST_FACES[host_class]:
+        frame = ADOPT_FRAMES[face_id]
+        distance = abs(_dot(_sub(centroid, frame['p0']), frame['normal']))
+        if best is None or distance < best[0]:
+            best = (distance, face_id)
+    if best is None or best[0] > ADOPT_HOST_MAX_M:
+        refuse('the adopted face at (%.3f, %.3f, %.3f) has no %s host within %.2f m'
+               % (centroid[0], centroid[1], centroid[2], host_class, ADOPT_HOST_MAX_M))
+    return best[1]
+
+
+def _adopt_feet(points, host_face_id):
+    """The points' feet on the host face's plane, in the host patch's (u, v) frame."""
+    frame = ADOPT_FRAMES[host_face_id]
+    feet = []
+    for point in points:
+        offset = _sub(point, frame['p0'])
+        along = _dot(offset, frame['normal'])
+        hit = (point[0] - frame['normal'][0] * along,
+               point[1] - frame['normal'][1] * along,
+               point[2] - frame['normal'][2] * along)
+        feet.append((_dot(hit, frame['u']), _dot(hit, frame['v'])))
+    return feet
+
+
+def _adopt_uv(host_face_id, du, dv):
+    """One adopted loop's lm UV: the foot's frame metres -> the host patch's chart UV,
+    clamped 1 texel inside the host's mapped bbox (the gutter law). The texel is the
+    chart's shell pixel (LM_RES sits after main() by the builder's own law)."""
+    frame = ADOPT_FRAMES[host_face_id]
+    patch = CHART.patch(host_face_id)
+    value = patch.uv(du - frame['du_min'], dv - frame['dv_min'])
+    texel = 1.0 / CHART.shell_res
+    u0, u1 = patch.x / CHART.canvas_m, (patch.x + frame['w_m']) / CHART.canvas_m
+    v0 = 1.0 - (patch.y + frame['h_m']) / CHART.canvas_m
+    v1 = 1.0 - patch.y / CHART.canvas_m
+    return (min(max(value[0], u0 + texel), u1 - texel),
+            min(max(value[1], v0 + texel), v1 - texel))
 
 
 def _finish(obj, bm):
@@ -438,7 +591,8 @@ def _finish(obj, bm):
 
 
 def _finish_all():
-    """Resolve every pending 'lm' loop from the packed chart, then triangulate + commit."""
+    """Resolve every pending 'lm' loop from the packed chart (or through its host's
+    mapping for the adopted polygons), then triangulate + commit."""
     for obj, bm in FINISH_QUEUE:
         uv = bm.loops.layers.uv.get('uv')
         lm = bm.loops.layers.uv.get(UV_LIGHTMAP)
@@ -446,7 +600,27 @@ def _finish_all():
         if len(bound) != len(bm.faces):
             refuse('%s: %d of %d polygons carry no lightmap patch'
                    % (obj.name, len(bm.faces) - len(bound), len(bm.faces)))
-        for poly, patch, sts, plate_sts in bound:
+        for poly, patch, sts, plate_sts, adopt in bound:
+            if adopt is not None:
+                host_face_id, feet = adopt
+                if len(feet) != len(poly.loops):
+                    refuse('%s: %d host feet for a %d-loop polygon adopting %s'
+                           % (obj.name, len(feet), len(poly.loops), host_face_id))
+                for loop, (du, dv) in zip(poly.loops, feet):
+                    value = _adopt_uv(host_face_id, du, dv)
+                    if BAKE:
+                        # The bake never inks the borrowed loops: the collapse (the
+                        # 1812 frame-backface precedent) parks the UV outside the
+                        # image, so the host cell keeps its receiver's own bake result
+                        # while the borrowed geometry stays in the scene as an
+                        # occluder/emitter (the ray tree sees it either way).
+                        loop[lm].uv = (-1.0, -1.0)
+                    else:
+                        loop[lm].uv = value
+                    # Both layers ride the host mapping: the albedo is inert (flat
+                    # colours; no plate is wired on the borrowed slots).
+                    loop[uv].uv = value
+                continue
             if len(sts) != len(poly.loops):
                 refuse('%s: %d (s, t) pairs for a %d-loop polygon on %s'
                        % (obj.name, len(sts), len(poly.loops), patch.name))
@@ -491,12 +665,13 @@ def _bilinear2(corners, a, b):
             + a * b * corners[2][1] + ab * b * corners[3][1])
 
 
-def build_face(bm, face, account, build_geometry):
-    """One law face -> its chart patch (always) and, when the face is built,
-    its polygons bound to that patch (the D-10 per-face law). The allocation
-    runs for EVERY face in BOTH modes so the exported glb's lm UVs address the
-    same chart the bake lays out; DEC-005 keeps bake-only faces out of the glb
-    (they exist only in the bake scene)."""
+def build_face(bm, face, account, build_geometry, adopt_host=None):
+    """One law face -> its chart patch (unless the face's class adopts a host face's
+    cells — the rg-f5 borrowed-cells law, no patch of its own) and, when the face is
+    built, its polygons bound to that patch (the D-10 per-face law). The allocation
+    runs for EVERY face in BOTH modes so the exported glb's lm UVs address the same
+    chart the bake lays out; DEC-005 keeps bake-only faces out of the glb (they exist
+    only in the bake scene)."""
     face_id = _key(face, 'id', 'face')
     vertices = _key(face, 'vertices', 'face %s' % face_id)
     if len(vertices) < 3:
@@ -514,18 +689,22 @@ def build_face(bm, face, account, build_geometry):
         refuse('law face %s carries unknown visibility %r' % (face_id, visibility))
     tess = _key(face, 'tessellation', 'face %s' % face_id)
     kind = _key(tess, 'kind', 'face %s tessellation' % face_id)
-    dus, dvs = patch_projections(vertices, normal)
-    du_min, dv_min = min(dus), min(dvs)
-    w_m = max(dus) - du_min
-    h_m = max(dvs) - dv_min
-    patch = CHART.add(face_id, w_m, h_m)
+    adopted = adopt_host is not None
+    host_face_id = None
+    patch = None
+    sts = None
+    if adopted:
+        host_face_id = _pick_host(_centroid(vertices), adopt_host)
+    else:
+        dus, dvs = patch_projections(vertices, normal)
+        du_min, dv_min = min(dus), min(dvs)
+        w_m = max(dus) - du_min
+        h_m = max(dvs) - dv_min
+        patch = CHART.add(face_id, w_m, h_m)
     if not build_geometry:
         return
-    sts = [(du - du_min, dv - dv_min) for du, dv in zip(dus, dvs)]
-    # The mirror law: the two ornament slots' faces are the plate faces — their albedo
-    # UVs map the face's own metres to [0, PLATE_SPAN] on both axes (one face per slot,
-    # the full 45.04 x 10.20 m field, so the face mapping IS the field mapping).
     plate = SLOT_IDS[slot] in PLATE_SLOTS
+    span = PICTURE_SPAN if SLOT_IDS[slot] in PICTURE_PLATES else PLATE_SPAN
     if kind == 'bilinear-grid':
         if len(vertices) != 4:
             refuse('law face %s is a %d-vertex bilinear-grid (a grid needs four corners)'
@@ -538,34 +717,53 @@ def build_face(bm, face, account, build_geometry):
         built = 2 * u_count * v_count
         grid3 = [[_bilinear3(vertices, i / u_count, j / v_count)
                   for j in range(v_count + 1)] for i in range(u_count + 1)]
-        gridst = [[_bilinear2(sts, i / u_count, j / v_count)
-                   for j in range(v_count + 1)] for i in range(u_count + 1)]
-        gridplate = [[_plate_uv(st, w_m, h_m) for st in row] for row in gridst] \
-            if plate else None
+        gridst = None
+        gridplate = None
+        if not adopted:
+            sts = [(du - du_min, dv - dv_min) for du, dv in zip(dus, dvs)]
+            gridst = [[_bilinear2(sts, i / u_count, j / v_count)
+                       for j in range(v_count + 1)] for i in range(u_count + 1)]
+            gridplate = [[_plate_uv(st, w_m, h_m, span) for st in row]
+                         for row in gridst] if plate else None
         bverts = [[bm.verts.new(to_b(p)) for p in row] for row in grid3]
         first = None
         for i in range(u_count):
             for j in range(v_count):
                 poly = bm.faces.new((bverts[i][j], bverts[i + 1][j],
                                      bverts[i + 1][j + 1], bverts[i][j + 1]))
-                _bind(bm, poly, patch, (gridst[i][j], gridst[i + 1][j],
-                                        gridst[i + 1][j + 1], gridst[i][j + 1]),
-                      None if gridplate is None else
-                      (gridplate[i][j], gridplate[i + 1][j],
-                       gridplate[i + 1][j + 1], gridplate[i][j + 1]))
+                if adopted:
+                    _bind(bm, poly, None, None,
+                          adopt=(host_face_id, _adopt_feet((grid3[i][j], grid3[i + 1][j],
+                                                            grid3[i + 1][j + 1],
+                                                            grid3[i][j + 1]),
+                                                           host_face_id)))
+                else:
+                    _bind(bm, poly, patch, (gridst[i][j], gridst[i + 1][j],
+                                            gridst[i + 1][j + 1], gridst[i][j + 1]),
+                          None if gridplate is None else
+                          (gridplate[i][j], gridplate[i + 1][j],
+                           gridplate[i + 1][j + 1], gridplate[i][j + 1]))
                 if first is None:
                     first = poly
         account['quads'] += u_count * v_count
     elif kind == 'first-vertex-fan':
         built = len(vertices) - 2
         bverts = [bm.verts.new(to_b(p)) for p in vertices]
+        if not adopted:
+            sts = [(du - du_min, dv - dv_min) for du, dv in zip(dus, dvs)]
         first = None
         for k in range(1, len(vertices) - 1):
             poly = bm.faces.new((bverts[0], bverts[k], bverts[k + 1]))
-            _bind(bm, poly, patch, (sts[0], sts[k], sts[k + 1]),
-                  None if not plate else (_plate_uv(sts[0], w_m, h_m),
-                                          _plate_uv(sts[k], w_m, h_m),
-                                          _plate_uv(sts[k + 1], w_m, h_m)))
+            if adopted:
+                _bind(bm, poly, None, None,
+                      adopt=(host_face_id, _adopt_feet((vertices[0], vertices[k],
+                                                        vertices[k + 1]),
+                                                       host_face_id)))
+            else:
+                _bind(bm, poly, patch, (sts[0], sts[k], sts[k + 1]),
+                      None if not plate else (_plate_uv(sts[0], w_m, h_m, span),
+                                              _plate_uv(sts[k], w_m, h_m, span),
+                                              _plate_uv(sts[k + 1], w_m, h_m, span)))
             if first is None:
                 first = poly
         account['fan'] += built
@@ -584,7 +782,8 @@ def build_face(bm, face, account, build_geometry):
     if n.x * expected_normal[0] + n.y * expected_normal[1] + n.z * expected_normal[2] < 0.5:
         refuse('law face %s winds against its normal' % face_id)
     account['faces'] += 1
-    account['patches'] += 1
+    if patch is not None:
+        account['patches'] += 1
     account['expected'] += declared
 
 
@@ -592,7 +791,9 @@ def build_slot_meshes(collection, materials, build_all):
     """One merged mesh per slot, created in slot order; faces in law order.
     In export mode only the exported faces build geometry (DEC-005: the
     rail-frusta union is the modelled area; bake-only faces live in the bake
-    scene alone), while every face still claims its chart patch."""
+    scene alone), while every non-adopted face still claims its chart patch —
+    the adopted classes (the rg-f5 borrowed-cells law) borrow their host faces'
+    cells instead."""
     parts = []
     for slot in range(len(SLOT_IDS)):
         name = SLOT_IDS[slot]
@@ -601,13 +802,14 @@ def build_slot_meshes(collection, materials, build_all):
         account = {'faces': 0, 'patches': 0, 'quads': 0, 'fan': 0, 'expected': 0, 'built': 0}
         ACCOUNT[name] = account
         for group in CLASSES:                       # law order
+            adopt_host = ADOPTED_HOSTS.get(group.get('id'))
             for instance in group['instances']:     # law order
                 for face in _key(instance, 'faces', 'instance %s'
                                  % instance.get('id', '?')):
                     if face.get('materialSlot') != slot:
                         continue
                     build_this = build_all or face['visibility'] == 'exported'
-                    build_face(bm, face, account, build_this)
+                    build_face(bm, face, account, build_this, adopt_host)
         if account['faces'] == 0:
             refuse('slot %s (index %d) built no faces' % (name, slot))
         obj.data.materials.append(materials[name])
@@ -774,12 +976,16 @@ def reset_scene():
 
 def stage_plates(stage):
     """Copy the rastered plates into the stage's tex/ dir verbatim — the exact names
-    tools/gltf/st-george.mjs's stageTextures/encodeTextures consume (tex/<slot>.png)."""
+    tools/gltf/st-george.mjs's stageTextures/encodeTextures consume (tex/<slot>.png).
+    The ornament plates come from the two palettes; the picture plates from their own
+    full drawings (S1: eagle, relief)."""
     tex_dir = os.path.join(stage, 'tex')
     os.makedirs(tex_dir, exist_ok=True)
     for slot, palette in ORNAMENT_PLATES.items():
         src = os.path.join(SCRIPT_DIR, 'st-george-ornament-%s.png' % palette)
         shutil.copyfile(src, os.path.join(tex_dir, slot + '.png'))
+    for slot, name in PICTURE_PLATES.items():
+        shutil.copyfile(os.path.join(SCRIPT_DIR, name), os.path.join(tex_dir, slot + '.png'))
 
 
 def main():

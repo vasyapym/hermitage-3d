@@ -178,16 +178,18 @@ describe('st-george P7 plan gates', () => {
     }
   });
 
-  it('keeps the unsourced chandelier count null and places no substitutes', () => {
+  it('places FIVE licensed chandeliers (AL-SG-2) on the bay module, provisional until the bake', () => {
     const law = buildLaw();
     const chandeliers = law.classes.find((group) => group.id === 'chandeliers');
-    expect(chandeliers?.count).toBeNull();
-    expect(chandeliers?.instances).toEqual([]);
-    expect(chandeliers?.UNSOURCED).toBe(true);
+    expect(chandeliers?.count).toBe(5);
+    expect(chandeliers?.licence).toBe('AL-SG-2');
+    expect(chandeliers?.censusStatus).toBe('provisional');
+    expect(chandeliers?.instances).toHaveLength(5);
     const row = buildCensus(law).rows.find((entry) => entry.id === 'chandeliers');
-    expect(row?.count).toBeNull();
-    expect(row?.flags.UNSOURCED).toBe(true);
-    expect(row?.triangles.drawn).toBe(0);
+    expect(row?.count).toBe(5);
+    expect(row?.flags.census).toBe('provisional');
+    expect(row?.flags.licence).toBe('AL-SG-2');
+    expect(row?.triangles.drawn).toBeLessThanOrEqual(9000);
   });
 
   it('has paired design columns, two window tiers and a source for every constant', () => {

@@ -7,13 +7,13 @@
         {
           "clippedFraction": 0,
           "emitters": 1,
-          "exrSha256": "e3803ce623366525f1eacd227a3db8d129909b41b4706b1b818ff9382e45e9fa",
+          "exrSha256": "7ac84e2442a742063c6fc755a88fda797de984b88b6c4759f726f8b38c067884",
           "name": "arch",
-          "objects": 13,
+          "objects": 16,
           "pad": 2,
-          "peak": 2.1679,
+          "peak": 2.0074,
           "res": 1024,
-          "targets": 13
+          "targets": 16
         }
       ],
       "clippedFraction": 0,
@@ -21,18 +21,18 @@
       "denoiser": "OPENIMAGEDENOISE",
       "duskFixtures": null,
       "margin": 2,
-      "peak": 2.1679,
+      "peak": 2.0074,
       "probe": null,
       "res": 1024,
       "samples": 128,
-      "seconds": 22,
+      "seconds": 18.4,
       "state": "day",
-      "whitePoint": 2.3,
+      "whitePoint": 2.09,
       "artifacts": [
         {
           "rel": "lm/day.ktx2",
-          "bytes": 6174,
-          "sha256": "319bcafef8dfc774e0e533c4d2a810336375709803dcd43d484bc95eaaab9c07"
+          "bytes": 6600,
+          "sha256": "a9e60c06d9754bb75069eea429f0063f1c84dac99a51fbbcba1c6667f35d6991"
         }
       ]
     },
@@ -41,14 +41,14 @@
       "charts": [
         {
           "clippedFraction": 0,
-          "emitters": 1,
-          "exrSha256": "c6e941aed416f475d72c6fd2cf25adfd1f20c67e79ef9a23d1740fa83b35c1e6",
+          "emitters": 2,
+          "exrSha256": "ac33daf42679a38937401e690e67ad8a3173d481f8848a87b87035405b58a3b0",
           "name": "arch",
-          "objects": 13,
+          "objects": 15,
           "pad": 2,
-          "peak": 0.4887,
+          "peak": 0.4393,
           "res": 1024,
-          "targets": 13
+          "targets": 15
         }
       ],
       "clippedFraction": 0,
@@ -56,10 +56,10 @@
       "denoiser": "OPENIMAGEDENOISE",
       "duskFixtures": false,
       "margin": 2,
-      "peak": 0.4887,
+      "peak": 0.4393,
       "probe": {
-        "clippedFraction": 0.0064,
-        "peak": 1.294,
+        "clippedFraction": 0.0039,
+        "peak": 1.2992,
         "point": [
           114.5,
           11.65,
@@ -74,19 +74,19 @@
       },
       "res": 1024,
       "samples": 128,
-      "seconds": 144.4,
+      "seconds": 85.7,
       "state": "dusk",
-      "whitePoint": 0.51,
+      "whitePoint": 0.46,
       "artifacts": [
         {
           "rel": "lm/dusk.ktx2",
-          "bytes": 5325,
-          "sha256": "4b8e0af68c88c9c302c57258c24fb8c097bbbd6d39758c5519e61116d4250459"
+          "bytes": 6103,
+          "sha256": "af969f118d71743c02f26c28ceab312db37e507276b9b655b1934589f69b1d7c"
         },
         {
           "rel": "probe/dusk.ktx2",
-          "bytes": 9088,
-          "sha256": "f2f2fc56eac5956a4a2b53ca9621f458965f2378554ba871db771ed82eb186b5"
+          "bytes": 9376,
+          "sha256": "0e56f335ee2e6ec8f1ea2a4cb178079df1e7227d14b02479c9823f051966d94c"
         }
       ]
     },
@@ -95,14 +95,14 @@
       "charts": [
         {
           "clippedFraction": 0,
-          "emitters": 1,
-          "exrSha256": "56a53621f029833d5eebecb0645ce3980c13d5da88f0a886456111e9f2e5e8a4",
+          "emitters": 2,
+          "exrSha256": "d36e46485565813b0080e8ecc4338eb1d68e0d8897c301fe9d793664544ad929",
           "name": "arch",
-          "objects": 13,
+          "objects": 15,
           "pad": 2,
-          "peak": 0.1374,
+          "peak": 0.8906,
           "res": 1024,
-          "targets": 13
+          "targets": 15
         }
       ],
       "clippedFraction": 0,
@@ -110,18 +110,18 @@
       "denoiser": "OPENIMAGEDENOISE",
       "duskFixtures": null,
       "margin": 2,
-      "peak": 0.1374,
+      "peak": 0.8906,
       "probe": null,
       "res": 1024,
       "samples": 128,
-      "seconds": 24.3,
+      "seconds": 24.1,
       "state": "nightChandeliers",
-      "whitePoint": 0.15,
+      "whitePoint": 0.93,
       "artifacts": [
         {
           "rel": "lm/night.ktx2",
-          "bytes": 6035,
-          "sha256": "bded60c1cb3460590fb80c76792bdb16cd396f60c7750df9c30c4aa1dc0ead7f"
+          "bytes": 5879,
+          "sha256": "2f24fdf308332fa0d00241afd8c77543291222954cc28d946a291fea7ab8a13b"
         }
       ]
     }

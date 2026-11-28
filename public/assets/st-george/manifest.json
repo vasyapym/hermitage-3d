@@ -3,33 +3,39 @@
   "files": [
     {
       "path": "lm/day.ktx2",
-      "bytes": 6174,
-      "sha256": "319bcafef8dfc774e0e533c4d2a810336375709803dcd43d484bc95eaaab9c07",
+      "bytes": 6600,
+      "sha256": "a9e60c06d9754bb75069eea429f0063f1c84dac99a51fbbcba1c6667f35d6991",
       "kind": "ktx2"
     },
     {
       "path": "lm/dusk.ktx2",
-      "bytes": 5325,
-      "sha256": "4b8e0af68c88c9c302c57258c24fb8c097bbbd6d39758c5519e61116d4250459",
+      "bytes": 6103,
+      "sha256": "af969f118d71743c02f26c28ceab312db37e507276b9b655b1934589f69b1d7c",
       "kind": "ktx2"
     },
     {
       "path": "lm/night.ktx2",
-      "bytes": 6035,
-      "sha256": "bded60c1cb3460590fb80c76792bdb16cd396f60c7750df9c30c4aa1dc0ead7f",
+      "bytes": 5879,
+      "sha256": "2f24fdf308332fa0d00241afd8c77543291222954cc28d946a291fea7ab8a13b",
       "kind": "ktx2"
     },
     {
       "path": "probe/dusk.ktx2",
-      "bytes": 9088,
-      "sha256": "f2f2fc56eac5956a4a2b53ca9621f458965f2378554ba871db771ed82eb186b5",
+      "bytes": 9376,
+      "sha256": "0e56f335ee2e6ec8f1ea2a4cb178079df1e7227d14b02479c9823f051966d94c",
       "kind": "ktx2"
     },
     {
       "path": "st-george.glb",
-      "bytes": 151324,
-      "sha256": "e9f29538f08cc85d5ac3c4e7f64002994a62284df32855889bd639294770f614",
+      "bytes": 198460,
+      "sha256": "30d0631d8ceb967d64d985828c53c16dc2903fef75eb61ebba48ddbd930e1d40",
       "kind": "glb"
+    },
+    {
+      "path": "tex/eagle-plate.ktx2",
+      "bytes": 31459,
+      "sha256": "e926d75391b8cf3c67e5ee4e711e5fbdbc3cff7ffd21e217afdb991ac80d53a8",
+      "kind": "ktx2"
     },
     {
       "path": "tex/ornament-gilt.ktx2",
@@ -42,6 +48,12 @@
       "bytes": 61119,
       "sha256": "3087b2608f2b74831ba6d0041fbda6e8c5f81d2aec543888be67353cf06d1160",
       "kind": "ktx2"
+    },
+    {
+      "path": "tex/relief.ktx2",
+      "bytes": 29654,
+      "sha256": "e62d0430be671cc78f9fe37f9374be6fc835c5451f9bebdadede499552b9c6bd",
+      "kind": "ktx2"
     }
   ],
   "geometry": {
@@ -50,7 +62,7 @@
         "name": "wall-marble",
         "instances": 1,
         "primitives": 1,
-        "triangles": 6
+        "triangles": 1110
       },
       {
         "name": "column-marble",
@@ -122,17 +134,35 @@
         "name": "throne-gilt",
         "instances": 1,
         "primitives": 1,
-        "triangles": 12
+        "triangles": 10
       },
       {
         "name": "relief",
         "instances": 1,
         "primitives": 1,
         "triangles": 2
+      },
+      {
+        "name": "eagle-plate",
+        "instances": 1,
+        "primitives": 1,
+        "triangles": 2
+      },
+      {
+        "name": "chandelier-gilt",
+        "instances": 1,
+        "primitives": 1,
+        "triangles": 820
+      },
+      {
+        "name": "chandelier-flame",
+        "instances": 1,
+        "primitives": 1,
+        "triangles": 856
       }
     ],
-    "trianglesUnique": 27334,
-    "trianglesDrawn": 27334,
+    "trianglesUnique": 30114,
+    "trianglesDrawn": 30114,
     "extensionsRequired": [
       "EXT_meshopt_compression",
       "KHR_mesh_quantization",
@@ -147,9 +177,9 @@
     ],
     "res": 1024,
     "intensity": {
-      "day": 2.3,
-      "dusk": 0.51,
-      "nightChandeliers": 0.15
+      "day": 2.09,
+      "dusk": 0.46,
+      "nightChandeliers": 0.93
     }
   },
   "budget": {

@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1700 1000">
+<title>St George's Hall eagle plate: double-headed eagle, gilt on crimson (face 1.4167 x 0.8333 m; x = +z viewer-right, y down)</title>
+<defs>
+<g id="half" fill="#D8AE52" stroke="none">
+<path d="M895 430 Q1040 290 1395 235 L1420 290 L1340 318 L1382 380 L1298 392 L1328 462 L1238 465 L1258 538 L1168 530 L1180 604 L1090 580 L1082 652 L1000 624 L972 686 L930 648 Z"/>
+<path d="M940 445 Q1120 330 1360 262" fill="none" stroke="#8C6A24" stroke-width="7"/>
+<path d="M945 520 Q1110 430 1300 380" fill="none" stroke="#8C6A24" stroke-width="7"/>
+<path d="M955 600 Q1080 540 1210 470" fill="none" stroke="#8C6A24" stroke-width="7"/>
+<path d="M862 452 C870 356 928 300 976 276 L1014 292 C972 322 934 392 924 476 Z"/>
+<circle cx="1002" cy="246" r="50"/>
+<path d="M1042 228 Q1108 246 1086 282 Q1070 266 1040 266 Z"/>
+<circle cx="1014" cy="236" r="8" fill="#7A1522"/>
+<path d="M964 206 L976 160 L990 190 L1002 148 L1014 190 L1028 160 L1040 206 Z"/>
+<rect x="962" y="198" width="80" height="16"/>
+<path d="M908 190 Q940 210 962 206" fill="none" stroke="#D8AE52" stroke-width="8"/>
+<path d="M886 686 L942 684 L980 788 L944 802 Z"/>
+<path d="M950 790 L1006 784 L994 820 Z"/>
+<path d="M920 800 L958 836 L944 842 Z"/>
+</g>
+</defs>
+<rect width="1700" height="1000" fill="#7A1522"/>
+<rect x="24" y="24" width="1652" height="952" fill="none" stroke="#D8AE52" stroke-width="16"/>
+<rect x="56" y="56" width="1588" height="888" fill="none" stroke="#D8AE52" stroke-width="5"/>
+<g fill="#D8AE52">
+<path d="M850 400 C922 400 962 480 956 582 C950 664 902 712 850 720 C798 712 750 664 744 582 C738 480 778 400 850 400 Z"/>
+<path d="M850 700 L946 826 L908 834 L884 876 L850 890 L816 876 L792 834 L754 826 Z"/>
+<path d="M850 720 L850 880 M820 716 L796 828 M880 716 L904 828" fill="none" stroke="#8C6A24" stroke-width="7"/>
+<path d="M786 194 L798 112 L826 160 L850 92 L874 160 L902 112 L914 194 Z"/>
+<rect x="782" y="188" width="136" height="18"/>
+<circle cx="850" cy="86" r="12"/>
+<path d="M812 492 L888 492 L888 566 Q850 612 812 566 Z" fill="#7A1522" stroke="#D8AE52" stroke-width="7"/>
+</g>
+<use href="#half"/>
+<use href="#half" transform="matrix(-1 0 0 1 1700 0)"/>
+</svg>

@@ -6,6 +6,8 @@
 // ban, the ×2 sha256 determinism gate) and adding the palette substitution.
 //
 //   node tools/bpy/plate-raster.mjs <palette>    # palette ∈ {gilt, parquet}
+//   node tools/bpy/plate-raster.mjs picture <svg> <out> <w> <h>
+//     # the S1 picture plates (eagle 1024x1024, relief 2048x1024), no palette
 //
 // Draws tools/bpy/st-george-ornament.svg — ONE quadrant of the hall's 45.04 × 10.20 m
 // ornament field — into tools/bpy/st-george-ornament-<palette>.png at the plate size
@@ -104,7 +106,65 @@ export async function rasterPlate({ svg, palette, size }) {
   }
 }
 
+// The picture plates (S1): ONE full drawing stretched to the canvas — the root tag is pinned by shape (a bare
+// viewBox="0 0 W H" root, no preserveAspectRatio of its own), the same script/image ban, the same page/screenshot
+// mechanism; no palette (the drawings carry their own colour). The face's UV mapping restores the proportions.
+const PICTURE_ROOT = /<svg xmlns="http:\/\/www\.w3\.org\/2000\/svg" viewBox="0 0 \d+ \d+">/g;
+
+export async function rasterPicture({ svg, width, height }) {
+  if (/<(?:script|image)\b/i.test(svg)) {
+    throw new Error('plate-raster: the SVG carries script/image elements — forbidden');
+  }
+  const roots = svg.match(PICTURE_ROOT);
+  if (roots?.length !== 1 || /preserveAspectRatio/.test(svg)) {
+    throw new Error(
+      'plate-raster: the picture root svg tag drifted — one bare viewBox root is required',
+    );
+  }
+  const staged = svg.replace(PICTURE_ROOT, (tag) =>
+    tag.replace('>', ' preserveAspectRatio="none">'),
+  );
+  const browser = await chromium.launch();
+  try {
+    const page = await browser.newPage({ viewport: { width, height }, deviceScaleFactor: 1 });
+    await page.setContent(
+      `<!doctype html><style>html,body{margin:0;padding:0}svg{display:block;width:${width}px;` +
+        `height:${height}px}</style>${staged}`,
+      { waitUntil: 'load' },
+    );
+    return await page.screenshot({ type: 'png' });
+  } finally {
+    await browser.close();
+  }
+}
+
 async function main() {
+  // The picture mode first (the palette path below it is unchanged):
+  // node tools/bpy/plate-raster.mjs picture <svg> <out.png> <w> <h>
+  if (process.argv[2] === 'picture') {
+    const [svgPath, outPath, w, h] = process.argv.slice(3);
+    const width = Number(w);
+    const height = Number(h);
+    if (
+      !svgPath ||
+      !outPath ||
+      !Number.isInteger(width) ||
+      !Number.isInteger(height) ||
+      width <= 0 ||
+      height <= 0
+    ) {
+      console.error(
+        'plate-raster: usage — node tools/bpy/plate-raster.mjs picture <svg> <out.png> <w> <h>',
+      );
+      process.exit(2);
+    }
+    const buf = await rasterPicture({ svg: readFileSync(svgPath, 'utf8'), width, height });
+    writeFileSync(outPath, buf);
+    console.log(
+      `plate-raster: ${resolve(outPath)} ${buf.length} B sha256 ${createHash('sha256').update(buf).digest('hex')}`,
+    );
+    return;
+  }
   const paletteName = process.argv[2];
   const palette = PALETTES[paletteName];
   if (!palette) {

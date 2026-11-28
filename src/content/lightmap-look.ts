@@ -59,7 +59,14 @@ export const INTERIOR_LOOK_GAIN: Readonly<Record<RoomId, Readonly<Record<LightSt
   'st-george': { day: 2, dusk: 2, nightChandeliers: 2 },
 };
 
-export type InteriorEmissiveMaterial = 'pane' | 'sconce_glow' | 'chandelier_glow' | 'stairlight';
+// The dial's material keys are the exported material names (the slot id verbatim —
+// 'chandelier-flame' is St George's shared candle+flame emission material).
+export type InteriorEmissiveMaterial =
+  | 'pane'
+  | 'sconce_glow'
+  | 'chandelier_glow'
+  | 'stairlight'
+  | 'chandelier-flame';
 
 export type InteriorEmissiveStateScale = Readonly<Record<LightState, number>>;
 
@@ -104,5 +111,14 @@ export const INTERIOR_EMISSIVE_SCALE: Readonly<Partial<Record<RoomId, InteriorEm
       pane: { day: 1.4, dusk: 0.3, nightChandeliers: 0 },
       sconce_glow: { day: 0.6, dusk: 0.85, nightChandeliers: 1 },
       stairlight: { day: 0, dusk: 0.3, nightChandeliers: 0.4 },
+    },
+
+    'st-george': {
+      // S2 (pp4c/pp4d): the chandelier candles + flames share one emissive material, 'chandelier-flame' (the slot id
+      // verbatim = the exported material name). Day 0 reads as daylit wax (the day bake also carries strength 0),
+      // dusk 0.5 lets the hour show the first glow, night 1 is the authored flame (the baked light is the bake's
+      // ABSOLUTE 12.0 — this dial only scales the visible chip, blend-gl's emissiveIntensity). Materials absent from
+      // this row (window-light) keep their authored emission unscaled.
+      'chandelier-flame': { day: 0, dusk: 0.5, nightChandeliers: 1 },
     },
   };

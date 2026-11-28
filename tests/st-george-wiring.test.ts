@@ -235,6 +235,7 @@ describe('P10 — the lane’s diff-scope fence (retires at the merge)', () => {
     /^tests\/rooms-registry\.test\.ts$/,
     /^tests\/room-index\.test\.ts$/,
     /^tests\/lightmap-look\.test\.ts$/,
+    /^tests\/st-george\/stage2-pins\.test\.mjs$/,
     // the asset chain's own lane files (the record's FILES block + amendment 7's rows)
     /^tools\/st-george\//,
     /^tools\/bake-logs\/st-george/,
@@ -294,6 +295,7 @@ describe('P10 — the lane’s diff-scope fence (retires at the merge)', () => {
     /^tools\/bake-logs\/st-george/,
     /^public\/assets\/st-george\//,
     /^tests\/st-george-law\.test\.ts$/,
+    /^tests\/st-george\/stage2-pins\.test\.mjs$/,
   ];
   it('every changed or added path is inside the lane’s allowlist', () => {
     const head = headRef();

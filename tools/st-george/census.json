@@ -15,7 +15,7 @@
   "drawRule": "merge exported patches by material slot; no per-instance draws",
   "lightmap": {
     "canvasM": 122.9342390332921,
-    "exportedArea": 4501.3476481058,
+    "exportedArea": 4612.720247849282,
     "finalAtlasSize": 2048,
     "patchCount": 1043,
     "shellAtlasSize": 1024,
@@ -251,6 +251,85 @@
       "visibility": "mixed"
     },
     {
+      "bakeOnlyFaces": 2329,
+      "count": 5,
+      "exportedFaces": 941,
+      "flags": {
+        "UNSOURCED": false,
+        "bands": "pending-three-state-bake",
+        "caps": {
+          "drawnTriangles": 9000,
+          "draws": 2
+        },
+        "census": "provisional",
+        "deadCells": "pending-atlas-pack",
+        "encoderParity": "pending-encoder",
+        "ghostSplit": "pending-three-state-bake",
+        "junctionRelief": "pending-three-state-bake",
+        "licence": "AL-SG-2",
+        "paneOrientation": "not-applicable",
+        "winding": "checked-from-ordered-vertices"
+      },
+      "id": "chandeliers",
+      "lightmap": {
+        "adopted": true,
+        "host": "ceiling",
+        "islandClass": "adopted host cells (rg-f5 pattern); no atlas cells of their own",
+        "texelsPerMetreFinal": 0,
+        "texelsPerMetreShell": 0
+      },
+      "materialSlots": [
+        15,
+        16
+      ],
+      "placedCount": 5,
+      "triangles": {
+        "bakeOnly": 3744,
+        "basis": "no instancing credit; explicit patch tessellation",
+        "drawn": 1676,
+        "unique": 1676
+      },
+      "visibility": "mixed"
+    },
+    {
+      "bakeOnlyFaces": 648,
+      "count": 48,
+      "exportedFaces": 552,
+      "flags": {
+        "UNSOURCED": false,
+        "bands": "pending-three-state-bake",
+        "caps": {
+          "drawnTriangles": 2500,
+          "draws": 0
+        },
+        "deadCells": "pending-atlas-pack",
+        "encoderParity": "pending-encoder",
+        "ghostSplit": "pending-three-state-bake",
+        "junctionRelief": "pending-three-state-bake",
+        "paneOrientation": "not-applicable",
+        "winding": "checked-from-ordered-vertices"
+      },
+      "id": "glazing-bars",
+      "lightmap": {
+        "adopted": true,
+        "host": "walls",
+        "islandClass": "adopted host cells (rg-f5 pattern); no atlas cells of their own",
+        "texelsPerMetreFinal": 0,
+        "texelsPerMetreShell": 0
+      },
+      "materialSlots": [
+        0
+      ],
+      "placedCount": 48,
+      "triangles": {
+        "bakeOnly": 1296,
+        "basis": "no instancing credit; explicit patch tessellation",
+        "drawn": 1104,
+        "unique": 1104
+      },
+      "visibility": "mixed"
+    },
+    {
       "bakeOnlyFaces": 8,
       "count": 2,
       "exportedFaces": 4,
@@ -432,7 +511,7 @@
         "texelsPerMetreShell": 8.329656636363838
       },
       "materialSlots": [
-        12
+        14
       ],
       "placedCount": 1,
       "triangles": {
@@ -538,36 +617,6 @@
         "unique": 2
       },
       "visibility": "exported"
-    },
-    {
-      "bakeOnlyFaces": 0,
-      "count": null,
-      "exportedFaces": 0,
-      "flags": {
-        "UNSOURCED": true,
-        "bands": "pending-three-state-bake",
-        "deadCells": "pending-atlas-pack",
-        "encoderParity": "pending-encoder",
-        "ghostSplit": "pending-three-state-bake",
-        "junctionRelief": "pending-three-state-bake",
-        "paneOrientation": "not-applicable",
-        "winding": "checked-from-ordered-vertices"
-      },
-      "id": "chandeliers",
-      "lightmap": {
-        "islandClass": "one planar patch; packed by later bake stage",
-        "texelsPerMetreFinal": 0,
-        "texelsPerMetreShell": 0
-      },
-      "materialSlots": [],
-      "placedCount": 0,
-      "triangles": {
-        "bakeOnly": 0,
-        "basis": "no instancing credit; explicit patch tessellation",
-        "drawn": 0,
-        "unique": 0
-      },
-      "visibility": "bake-only"
     }
   ],
   "schema": "st-george-census-1",
@@ -585,11 +634,11 @@
     "probe": 6800
   },
   "totals": {
-    "bakeOnlyTriangles": 48096,
-    "draws": 14,
-    "payloadBytes": 2438352,
+    "bakeOnlyTriangles": 53136,
+    "draws": 17,
+    "payloadBytes": 2505072,
     "textureBytes": 1716800,
-    "triangles": 27334,
-    "uniqueTriangles": 27334
+    "triangles": 30114,
+    "uniqueTriangles": 30114
   }
 }

@@ -89,8 +89,8 @@ WORLD_STRENGTH = {
     'jordan': {'day': 4.0, 'dusk': 0.30, 'nightChandeliers': 0.0},  # 2c: sky-led dusk; the TRUE sky coefficient measured 0.10/unit at the plate's p50 (the brief's 0.254 was poisoned by the RIG_STATE_SCALE gate-only bug — dusk#1 carried the full rig); 0.30 targets stored p50 ≈ 82 inside the reply's 70-90 gate after the ETC1S q128 dark-median loss (~-16 at stored ~70, measured dusk#2-encode vs its EXR dry row)
     'military-gallery': {'day': 1.0, 'dusk': 0.08, 'nightChandeliers': 0.0},
     # st-george registration: the siblings' neutral row (day sky + sun through the
-    # swapped glass; dim dusk horizon; night is a black world — the window-light
-    # emission bounce is the state's only light, the chandeliers are absent).
+    # swapped glass; dim dusk horizon; night is a black world — the window-light emission
+    # bounce and the chandelier-flame slot (S2, ABSOLUTE 12.0) are the state's lights).
     'st-george': {'day': 1.0, 'dusk': 0.08, 'nightChandeliers': 0.0},
 }
 DUSK_GLOW_GAIN = 0.25     # FILL — new default; MASKED-IN-BRIEF: keep the DUSK_GLOW_GAIN value
@@ -106,14 +106,15 @@ WHITE_POINT = {
     'jordan': 'percentile',
     'military-gallery': {'day': 1.5, 'dusk': 0.15, 'nightChandeliers': 0.3},
     # st-george registration: the military-gallery shape (numeric per-state values, never
-    # the 'percentile' sentinel) — the calm seeds day 2.3 / dusk 0.51 / night 0.15 mirror
-    # ROOM.lightmaps.intensity in tools/gltf/st-george.mjs (the lightmapsRow agreement
-    # gate compares them state by state); owner re-tune data at the golden sitting.
-    # The round-42 lift: the gilt cells hold light now and the peaks rose (day 2.1529 /
-    # dusk 0.4881 / night 0.1372) — the wp sits above the peak, the encoded headroom
-    # restored; the gains stay the committed 2/2/2 (the rendered light is bake × gain —
-    # the room's daylight genuinely rose with the gilt lit; the sitting grades the look).
-    'st-george': {'day': 2.3, 'dusk': 0.51, 'nightChandeliers': 0.15},
+    # the 'percentile' sentinel). The row mirrors ROOM.lightmaps.intensity in
+    # tools/gltf/st-george.mjs (the lightmapsRow agreement gate compares them state by
+    # state); owner re-tune data at the golden sitting.
+    # WHITE_POINT — the st-george row: PROVISIONAL seeds after the S2+S3 shell bake; rule:
+    # each state's wp = the first 0.01 step >= 1.04 x its measured peak, written to BOTH
+    # tables (tools/gltf/st-george.mjs ROOM.lightmaps.intensity mirrors it; the
+    # lightmapsRow agreement gate compares state by state); gains stay 2/2/2; the golden
+    # sitting re-tunes.
+    'st-george': {'day': 2.09, 'dusk': 0.46, 'nightChandeliers': 0.93},
 }
 PROBE_WHITE_POINT = 1.0   # pinned by ADR-0013: "neutral" = absolute LDR clamp
 PROBE_RES = (512, 256)    # pinned by the ADR-0013 amendment (equirect)
@@ -344,6 +345,12 @@ FIXTURE_BAKE_STRENGTH = {
     'jordan': {
         'sconce_glow': {'day': 0.0, 'dusk': 0.1, 'nightChandeliers': 1.0},
         'chandelier_glow': {'day': 0.0, 'dusk': 0.1, 'nightChandeliers': 1.0},
+    },
+    # st-george S2 (pp4c/pp4d) — ABSOLUTE, apply_fixture_bake_strength REPLACES the authored 1.0: day 0.0 (daylit wax,
+    # the sun is the day), dusk 1.0 (the first glow under the amber panes' 3.0), night 12.0 (~16 m2 of candle+flame
+    # faces x 12 ~ the night panes' 1.0 x 200 m2 — the night field roughly doubles; the wp seed below follows).
+    'st-george': {
+        'chandelier-flame': {'day': 0.0, 'dusk': 1.0, 'nightChandeliers': 12.0},
     },
 }
 # C (D1): the lamp rig lights a state only where its scale is > 0 (jordan day bakes with

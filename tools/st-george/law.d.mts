@@ -48,6 +48,8 @@ export interface Face extends FaceGeometry {
   area: number;
   visibility: Visibility;
   witness: Witness | null;
+  /** Set only on eye-plane-culled faces (the S2/S3 classes' opt-in rule). */
+  reason?: string;
 }
 
 export interface Instance {
@@ -61,24 +63,30 @@ export interface Instance {
   ring?: Vec3[][] | null;
 }
 
+export interface ClassCaps {
+  drawnTriangles: number;
+  draws: number;
+}
+
 export interface ElementClass {
   id: string;
   source: string;
   count: number | null;
   instances: Instance[];
-  UNSOURCED?: boolean | null;
-  missingConstant?: string | null;
   drawing?: string | null;
   palette?: string | null;
   figureRuling?: string | null;
-  placementRule?: {
-    axis: string;
-    fixedZ: number;
-    xRange: number[];
-    positions: Vec3[];
-    source: string;
-    status: string;
-  } | null;
+  /** The stage-2 classes' own rows (the census copies them into the row's flags). */
+  licence?: string;
+  censusStatus?: string;
+  caps?: ClassCaps;
+  /** The eye-plane backface rule's opt-in (makeFace's trailing opts). */
+  backfaceCull?: string;
+  formSource?: string;
+  /** The rg-f5 borrowed-cells mode: 'adopted' + the host class id. */
+  lightmap?: string;
+  lightmapHost?: string;
+  islandClass?: string;
 }
 
 export interface Frame {
@@ -209,6 +217,9 @@ export interface CensusRow {
   exportedFaces: number;
   bakeOnlyFaces: number;
   lightmap: {
+    /** The rg-f5 borrowed-cells rows: no atlas cells of their own. */
+    adopted?: boolean;
+    host?: string;
     islandClass: string;
     texelsPerMetreFinal: number;
     texelsPerMetreShell: number;
@@ -222,6 +233,10 @@ export interface CensusRow {
     paneOrientation: string;
     encoderParity: string;
     UNSOURCED: boolean;
+    /** The stage-2 classes' copied rows (absent on classes without them). */
+    licence?: string;
+    census?: string;
+    caps?: ClassCaps;
   };
 }
 

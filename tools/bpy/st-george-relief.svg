@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2040 1000">
+<title>St George's Hall relief plate: Saint George and the dragon, white marble low relief in three tones, no face (face 3.4 x 1.6667 m; x = +z viewer-right, y down)</title>
+<defs>
+<g id="fig" fill="currentColor" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+<path d="M330 842 C520 700 740 912 930 800 C1060 724 1190 862 1310 806" fill="none" stroke-width="72"/>
+<path d="M300 846 L330 806 L336 880 Z" stroke="none"/>
+<path d="M1290 770 L1440 772 L1392 812 L1446 856 L1320 850 Z" stroke="none"/>
+<path d="M660 790 L622 616 L706 722 L748 556 L784 732 L832 640 L812 780 Z" stroke="none"/>
+<path d="M950 806 L930 700 L986 760 L1010 672 L1030 790 Z" stroke="none"/>
+<ellipse cx="980" cy="520" rx="300" ry="150" transform="rotate(-18 980 520)" stroke="none"/>
+<path d="M1170 420 C1250 320 1300 262 1346 238 L1430 266 C1386 300 1336 384 1300 470 Z" stroke="none"/>
+<path d="M1330 232 L1448 254 L1512 334 L1480 356 L1404 322 L1340 300 Z" stroke="none"/>
+<path d="M1352 232 L1366 196 L1392 240 Z" stroke="none"/>
+<path d="M1176 418 Q1262 300 1346 238" fill="none" stroke-width="30"/>
+<polyline points="1150,566 1262,520 1334,606" fill="none" stroke-width="54"/>
+<polyline points="1202,606 1290,616 1346,694" fill="none" stroke-width="54"/>
+<polyline points="822,620 790,722 832,826" fill="none" stroke-width="56"/>
+<polyline points="902,640 884,760 942,834" fill="none" stroke-width="56"/>
+<path d="M716 596 C610 590 546 660 548 760" fill="none" stroke-width="42"/>
+<path d="M944 420 L1044 400 L1064 290 L950 282 Z" stroke="none"/>
+<circle cx="1022" cy="238" r="44" stroke="none"/>
+<path d="M996 206 Q1032 164 1074 198" fill="none" stroke-width="16"/>
+<path d="M950 292 C850 302 790 362 760 446 C822 424 882 424 944 436 Z" stroke="none"/>
+<polyline points="1050,336 1124,312" fill="none" stroke-width="38"/>
+<line x1="1130" y1="300" x2="1392" y2="796" stroke-width="14"/>
+<path d="M1384 780 L1412 812 L1372 806 Z" stroke="none"/>
+<polyline points="1000,420 1030,520 1084,560" fill="none" stroke-width="40"/>
+</g>
+</defs>
+<rect width="2040" height="1000" fill="#D9D4C9"/>
+<rect x="36" y="36" width="1968" height="928" fill="none" stroke="#C3BDB0" stroke-width="18"/>
+<rect x="72" y="72" width="1896" height="856" fill="none" stroke="#E8E4DC" stroke-width="6"/>
+<use href="#fig" color="#B7B1A4" transform="translate(12 16)"/>
+<use href="#fig" color="#EFECE5"/>
+</svg>

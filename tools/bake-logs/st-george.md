@@ -6,18 +6,18 @@ The committed ktx2 bytes + sha256 below are the byte-identity gate (`--verify`).
 
 | state | command | Blender | res | samples | denoiser | white point | peak | clipped | wall s |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| day | `node tools/bake.mjs st-george day` | Blender 4.2.23 LTS | 1024 | 128 | OPENIMAGEDENOISE | 2.3 | 2.1679 | 0 | 22.0 |
-| dusk | `node tools/bake.mjs st-george dusk` | Blender 4.2.23 LTS | 1024 | 128 | OPENIMAGEDENOISE | 0.51 | 0.4887 | 0 | 144.4 |
-| nightChandeliers | `node tools/bake.mjs st-george nightChandeliers` | Blender 4.2.23 LTS | 1024 | 128 | OPENIMAGEDENOISE | 0.15 | 0.1374 | 0 | 24.3 |
+| day | `node tools/bake.mjs st-george day` | Blender 4.2.23 LTS | 1024 | 128 | OPENIMAGEDENOISE | 2.09 | 2.0074 | 0 | 18.4 |
+| dusk | `node tools/bake.mjs st-george dusk` | Blender 4.2.23 LTS | 1024 | 128 | OPENIMAGEDENOISE | 0.46 | 0.4393 | 0 | 85.7 |
+| nightChandeliers | `node tools/bake.mjs st-george nightChandeliers` | Blender 4.2.23 LTS | 1024 | 128 | OPENIMAGEDENOISE | 0.93 | 0.8906 | 0 | 24.1 |
 
 ## Artifacts
 
 | state | file | bytes | sha256 |
 | --- | --- | --- | --- |
-| day | lm/day.ktx2 | 6174 | 319bcafef8dfc774e0e533c4d2a810336375709803dcd43d484bc95eaaab9c07 |
-| dusk | lm/dusk.ktx2 | 5325 | 4b8e0af68c88c9c302c57258c24fb8c097bbbd6d39758c5519e61116d4250459 |
-| dusk | probe/dusk.ktx2 | 9088 | f2f2fc56eac5956a4a2b53ca9621f458965f2378554ba871db771ed82eb186b5 |
-| nightChandeliers | lm/night.ktx2 | 6035 | bded60c1cb3460590fb80c76792bdb16cd396f60c7750df9c30c4aa1dc0ead7f |
+| day | lm/day.ktx2 | 6600 | a9e60c06d9754bb75069eea429f0063f1c84dac99a51fbbcba1c6667f35d6991 |
+| dusk | lm/dusk.ktx2 | 6103 | af969f118d71743c02f26c28ceab312db37e507276b9b655b1934589f69b1d7c |
+| dusk | probe/dusk.ktx2 | 9376 | 0e56f335ee2e6ec8f1ea2a4cb178079df1e7227d14b02479c9823f051966d94c |
+| nightChandeliers | lm/night.ktx2 | 5879 | 2f24fdf308332fa0d00241afd8c77543291222954cc28d946a291fea7ab8a13b |
 
 ## Borrowed-hardware menu
 
